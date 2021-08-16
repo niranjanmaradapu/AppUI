@@ -7,7 +7,7 @@ import Select from 'react-select';
 const data = [
     {
       value: 1,
-      label: "KALAMANDIR RAJAMUNDRY"
+      label: "KALAMANDIR RAJAMUNDRY111"
     },
     {
       value: 2,

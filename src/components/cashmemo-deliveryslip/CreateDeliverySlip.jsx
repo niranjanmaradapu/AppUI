@@ -15,8 +15,7 @@ export default class CeateDeliverySlip extends Component {
     render() {
         return (
             <div className="maincontent">
-                {/* <h5>Create Delivery Slip</h5> */}
-                <h5>Create Delivery</h5>
+                <h5>Create Delivery Slip</h5>
                 <div className="rect">
                     <div className="row">
                         <div className="col-3">

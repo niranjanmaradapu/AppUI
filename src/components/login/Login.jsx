@@ -72,21 +72,20 @@ used in laying out print, graphic or web designs.</p>
                <div className="login-right-form">
                    <h5>MEMBER LOGIN</h5>
                    <div className="form-group m-t-3">
-                       <input type="text" className="mt-4 mb-4 form-control" placeholder="admin@pos.com"/>
+                       <input type="text" className="mt-3 mb-3 form-control" placeholder="admin@pos.com"/>
                        <input type="password" className="form-control" placeholder="* * * * * * "/>
                    </div>
                   
-                    <div className="custom-control custom-checkbox V1_checkbox-label mt-3">
+                    {/* <div className="custom-control custom-checkbox V1_checkbox-label mt-3"> */}
                         {/* <input className="custom-control-input" type="checkbox" id="remember"/>
                         <label className="custom-control-label V1_custom-control-label p-t-0 fs-14 p-l-3"
                             htmlFor="remember">Remember Me</label> */}
-                             <Select 
-                             placeholder="Select Store"
-        value={this.state.selectedOption} // set selected value
-        options={data} // set list of the data
-        onChange={this.handleChange} // assign onChange function
-      />
-                    </div>
+                             <Select className="m-t-3" placeholder="Select Store"
+                            value={this.state.selectedOption} // set selected value
+                            options={data} // set list of the data
+                            onChange={this.handleChange} // assign onChange function
+                        />
+                 
                     <div className="custom-control custom-checkbox V1_checkbox-label mt-3">
                         <input className="custom-control-input" type="checkbox" id="remember"/>
                         <label className="custom-control-label V1_custom-control-label p-t-0 fs-14 p-l-3"
@@ -95,6 +94,7 @@ used in laying out print, graphic or web designs.</p>
                    <button  className="btn-login mt-3" onClick={this.login}>LOGIN</button>
                    <p className="text-center cursor pt-3 mt-2 fs-14"
                             htmlFor="remember">Forgot Passowrd</p>
+                            <i className="icon-add_course fs-20 text-green"></i>
                </div>
               
             </div>

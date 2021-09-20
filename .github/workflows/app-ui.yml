@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env: 
-      MODULE_NAME: api-ui
+      MODULE_NAME: app-ui
     permissions:
       contents: read
       packages: write

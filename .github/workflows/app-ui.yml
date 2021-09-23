@@ -1,4 +1,4 @@
-name: CI - CD @API-UI
+name: CI - CD @App-UI
 on:
   push:
     branches:

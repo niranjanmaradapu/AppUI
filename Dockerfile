@@ -1,9 +1,9 @@
 FROM node
 WORKDIR /app
-COPY ["package.json", "package-lock.json", "./"]
+COPY package.json  ./
+COPY package-lock.json  ./
 RUN npm install --production
 RUN npm install node-sass
-COPY src /app/src
-COPY public  /app/public
+COPY . .
 EXPOSE 3000
 CMD ["npm", "start"]

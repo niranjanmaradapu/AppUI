@@ -41,12 +41,12 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_R }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_R }}
           aws-region: ap-south-1
-          
+
       - name: Install Terraform 
         uses: hashicorp/setup-terraform@v1
         
       - name: Launch EC2 Instance 
-        run: cd terraform && terraform init && terraform apply 
+        run: cd terraform && terraform init && terraform apply -auto-approve
 
 #      - name: Configure Docker
 #        run: ansibke playbook ansible/configure-docker.yml

@@ -45,7 +45,7 @@ resource "aws_instance" "appui" {
     type     = "ssh"
     user     = "ubuntu"
     private_key = file("./myKey.pem")
-    host     = aws_instance.AppInstance.public_ip
+    host     = aws_instance.appui.public_ip
    }
     inline = [
       "sudo apt-get remove docker docker-engine docker.io containerd runc", 

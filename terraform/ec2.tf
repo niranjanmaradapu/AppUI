@@ -44,7 +44,7 @@ resource "aws_instance" "appui" {
     connection {
     type     = "ssh"
     user     = "ubuntu"
-    private_key = file("./myKey.pem")
+    private_key = tls_private_key.pem.private_key_pem
     host     = aws_instance.appui.public_ip
    }
     inline = [

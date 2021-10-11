@@ -3,7 +3,7 @@ resource "tls_private_key" "pem" {
   rsa_bits  = 4096
 }
 
-resource "aws_key_pair" "kp" {
+resource "aws_key_pair" "pem" {
   key_name   = "myKey"       # Create a "myKey" to AWS!!
   public_key = tls_private_key.pem.public_key_openssh
 

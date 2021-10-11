@@ -1,3 +1,21 @@
+resource "tls_private_key" "pem" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "kp" {
+  key_name   = "myKey"       # Create a "myKey" to AWS!!
+  public_key = tls_private_key.pem.public_key_openssh
+
+  provisioner "local-exec" { # Create a "myKey.pem" to your computer!!
+    command = "echo '${tls_private_key.pem.private_key_pem}' > ./myKey.pem"
+  }
+
+  provisioner "local-exec" {
+    command = "chmod 400 myKey.pem"
+  }
+}
+
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -17,11 +35,18 @@ data "aws_ami" "ubuntu" {
 resource "aws_instance" "appui" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
+  key_name = "myKey"
 
   tags = {
     Name = "APP-UI"
   }
    provisioner "remote-exec" {
+    connection {
+    type     = "ssh"
+    user     = "ubuntu"
+    private_key = file("./myKey.pem")
+    host     = aws_instance.AppInstance.public_ip
+   }
     inline = [
       "sudo apt-get remove docker docker-engine docker.io containerd runc", 
       "sudo apt-get update",

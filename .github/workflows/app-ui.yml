@@ -92,8 +92,9 @@ jobs:
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit
-      - name: Debug Session 
-        run: mxschmitt/action-tmate@v1
+     
+      - name: Setup tmate session - Debug
+        uses: mxschmitt/action-tmate@v3 
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'

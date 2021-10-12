@@ -98,7 +98,7 @@ jobs:
 
       - name: Terraform Apply
 #        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform state pull && terterraform apply -auto-approve 
+        run: terraform state pull && terraform apply -auto-approve 
 
 #      - name: Configure Docker
 #        run: ansibke playbook ansible/configure-docker.yml

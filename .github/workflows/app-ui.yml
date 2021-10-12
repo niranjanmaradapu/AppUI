@@ -93,11 +93,11 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit
      
-      - name: Setup tmate session - Debug
-        uses: mxschmitt/action-tmate@v3 
+#      - name: Setup tmate session - Debug
+#        uses: mxschmitt/action-tmate@v3 
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+#        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform state pull && terterraform apply -auto-approve 
 
 #      - name: Configure Docker

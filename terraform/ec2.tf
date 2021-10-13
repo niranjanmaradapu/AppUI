@@ -77,6 +77,12 @@ resource "aws_instance" "appui" {
   }
 
   provisioner "file" {
+    connection {
+    type     = "ssh"
+    user     = "ubuntu"
+    private_key = tls_private_key.pem.private_key_pem
+    host     = aws_instance.appui.public_ip
+   }
     source      = "install-docker.sh"
     destination = "install-docker.sh"
   }

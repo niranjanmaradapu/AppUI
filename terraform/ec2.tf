@@ -88,8 +88,8 @@ resource "aws_instance" "appui" {
     host     = aws_instance.appui.public_ip
    }
     inline = [
-      "chmod +x install-docker.sh",
-      "install-docker.sh",
+      "sudo chmod +x install-docker.sh",
+      "sudo ./install-docker.sh",
     ]
   }
 }

@@ -87,6 +87,9 @@ jobs:
         run: exit
 
       - name: Terraform Apply
+        env:
+          access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_R }}
+          secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_R }}
 #        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: cd terraform && terraform state pull && terraform apply -auto-approve
 

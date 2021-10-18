@@ -12,7 +12,7 @@ resource "aws_key_pair" "pem" {
   }
 
   provisioner "local-exec" {
-    command = "chmod 400 myKey.pem"
+    command = "chmod 400 terraform/myKey.pem"
   }
 }
 

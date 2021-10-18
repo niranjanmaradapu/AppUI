@@ -95,7 +95,7 @@ resource "aws_instance" "appui" {
    }
     inline = [
       "sudo chmod +x install-docker.sh",
-      "sudo ./install-docker.sh",
+      "sudo ./install-docker.sh ${ env.access-key-id }  ${ env.secret-access-key }",
     ]
   }
 }

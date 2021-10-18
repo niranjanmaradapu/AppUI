@@ -34,3 +34,6 @@ aws configure set default.region ap-south-1
 aws configure set aws_access_key_id   $access-key-id
 aws configure set aws_secret_access_key $secret-access-key
 
+aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 881289302514.dkr.ecr.ap-south-1.amazonaws.com
+docker pull 881289302514.dkr.ecr.ap-south-1.amazonaws.com/app-ui:latest
+docker run -dit -p 3000:3000 881289302514.dkr.ecr.ap-south-1.amazonaws.com/app-ui:latest

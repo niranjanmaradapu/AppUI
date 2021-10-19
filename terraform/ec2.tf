@@ -110,10 +110,13 @@ resource "aws_instance" "appui" {
     host     = aws_instance.appui.public_ip
    }
     inline = [
-      "sudo apt install awscli  -y",
-      "sudo chmod +x install-docker.sh",
-      "sudo chmod +x aws-configure.sh",
+     "sudo apt install unzip -y",
+     "curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'",
+     "unzip awscliv2.zip",
+     "sudo ./aws/install",
+     "sudo chmod +x aws-configure.sh",
       "sudo ./aws-configure.sh",
+      "sudo chmod +x install-docker.sh",
       "sudo ./install-docker.sh",
     ]
   }

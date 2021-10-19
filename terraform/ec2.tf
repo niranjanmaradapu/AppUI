@@ -95,6 +95,7 @@ resource "aws_instance" "appui" {
     destination = "install-docker.sh"
   }
    provisioner "remote-exec" {
+    
     connection {
     type     = "ssh"
     user     = "ubuntu"
@@ -103,7 +104,7 @@ resource "aws_instance" "appui" {
    }
     inline = [
       "sudo chmod +x install-docker.sh",
-      "sudo ./install-docker.sh ${ aws_access_key }  ${ aws_access_key }",
+      "sudo ./install-docker.sh ${var.aws_access_key}  ${var.aws_secret_key}",
     ]
   }
 }

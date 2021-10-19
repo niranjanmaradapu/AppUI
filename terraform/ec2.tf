@@ -77,7 +77,7 @@ resource "aws_instance" "appui" {
   }
 
   provisioner "local-exec" {
-    command = "aws s3 cp s3://terraform-state-ramakri4u/credentials . "
+    command = "aws s3 cp s3://terraform-state-ramakri4u/aws-configure.sh . "
   }
 
   provisioner "file" {
@@ -87,8 +87,8 @@ resource "aws_instance" "appui" {
     private_key = tls_private_key.pem.private_key_pem
     host     = aws_instance.appui.public_ip
    }
-    source      = "credentials"
-    destination = "credentials"
+    source      = "aws-configure.sh"
+    destination = "aws-configure.sh"
   }
 
   provisioner "file" {
@@ -111,8 +111,10 @@ resource "aws_instance" "appui" {
    }
     inline = [
       "sudo chmod +x install-docker.sh",
-      "cat credentials >> ~/.aws/credentials",
+      "sudo chmod +x aws-configure.sh",
+      "sudo ./aws-configure.sh",
       "sudo ./install-docker.sh",
+      
     ]
   }
 }

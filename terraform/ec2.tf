@@ -1,11 +1,3 @@
-variable "aws_access_key" {
-  type = string
-}
-
-variable "aws_secret_key" {
-  type = string 
-}
-
 resource "tls_private_key" "pem" {
   algorithm = "RSA"
   rsa_bits  = 4096
@@ -84,6 +76,21 @@ resource "aws_instance" "appui" {
     Name = "APP-UI"
   }
 
+  provisioner "local-exec" {
+    command = "aws s3 cp s3://terraform-state-ramakri4u/credentials . "
+  }
+
+  provisioner "file" {
+    connection {
+    type     = "ssh"
+    user     = "ubuntu"
+    private_key = tls_private_key.pem.private_key_pem
+    host     = aws_instance.appui.public_ip
+   }
+    source      = "credentials"
+    destination = "credentials"
+  }
+
   provisioner "file" {
     connection {
     type     = "ssh"
@@ -104,7 +111,8 @@ resource "aws_instance" "appui" {
    }
     inline = [
       "sudo chmod +x install-docker.sh",
-      "sudo ./install-docker.sh ${var.aws_access_key}  ${var.aws_secret_key}",
+      "cat credentials >> ~/.aws/credentials",
+      "sudo ./install-docker.sh",
     ]
   }
 }

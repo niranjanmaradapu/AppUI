@@ -91,13 +91,10 @@ jobs:
           access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_R }}
           secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_R }}
 #        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: cd terraform && terraform state pull && terraform apply -var aws_access_key=$access-key-id -var aws_secret_key=$secret-access-key  -auto-approve
+        run: cd terraform && terraform state pull && terraform apply -auto-approve
 
 #      - name: Configure Docker
 #        run: ansibke playbook ansible/configure-docker.yml
-
-      - name: Setup tmate session - Debug
-        uses: mxschmitt/action-tmate@v3 
 
       - name: Deploy
         uses: cancue/eks-action@v0.0.2

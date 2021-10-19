@@ -35,9 +35,9 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 sudo apt install awscli -y 
 
-aws configure set default.region ap-south-1
-aws configure set aws_access_key_id   "$AWS_ACCESS_KEY_ID"
-aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+#aws configure set default.region ap-south-1
+#aws configure set aws_access_key_id   "$AWS_ACCESS_KEY_ID"
+#aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
 
 aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 881289302514.dkr.ecr.ap-south-1.amazonaws.com
 docker pull 881289302514.dkr.ecr.ap-south-1.amazonaws.com/app-ui:latest

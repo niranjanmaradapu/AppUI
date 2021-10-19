@@ -35,7 +35,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 sudo apt install awscli -y 
 
-aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 881289302514.dkr.ecr.ap-south-1.amazonaws.com
-docker pull 881289302514.dkr.ecr.ap-south-1.amazonaws.com/app-ui:latest
-docker run -dit -p 3000:3000 881289302514.dkr.ecr.ap-south-1.amazonaws.com/app-ui:latest
+aws ecr get-login-password --region ap-south-1 | sudo docker login --username AWS --password-stdin 881289302514.dkr.ecr.ap-south-1.amazonaws.com
+sudo docker pull 881289302514.dkr.ecr.ap-south-1.amazonaws.com/app-ui:latest
+sudo docker run -dit -p 3000:3000 881289302514.dkr.ecr.ap-south-1.amazonaws.com/app-ui:latest
 

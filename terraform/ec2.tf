@@ -114,7 +114,6 @@ resource "aws_instance" "appui" {
       "sudo chmod +x aws-configure.sh",
       "sudo ./aws-configure.sh",
       "sudo ./install-docker.sh",
-      
     ]
   }
 }

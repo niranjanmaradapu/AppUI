@@ -1,3 +1,11 @@
+variable "aws_access_key" {
+  type = string
+}
+
+variable "aws_secret_key" {
+  type = string 
+}
+
 resource "tls_private_key" "pem" {
   algorithm = "RSA"
   rsa_bits  = 4096
@@ -95,7 +103,7 @@ resource "aws_instance" "appui" {
    }
     inline = [
       "sudo chmod +x install-docker.sh",
-      "sudo ./install-docker.sh ${ env.access-key-id }  ${ env.secret-access-key }",
+      "sudo ./install-docker.sh ${ aws_access_key }  ${ aws_access_key }",
     ]
   }
 }

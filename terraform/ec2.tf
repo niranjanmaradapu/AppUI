@@ -121,5 +121,3 @@ resource "aws_instance" "appui" {
     ]
   }
 }
-
-

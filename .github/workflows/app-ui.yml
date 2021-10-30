@@ -104,6 +104,7 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_R }}
           aws_region: ap-south-1 # we can edit 
           cluster_name: Microservice-K8S-Cluster # we can edit
+        if: false == true # This makes job never execute 
         with:
           args: |
             kubectl apply -f  k8s/${{ env.MODULE_NAME }}.yml
@@ -118,3 +119,4 @@ jobs:
           to: ramakrishna.dev25@gmail.com
           from: rkmadire@gmail.com
           secure: true 
+          body: Build job of ${{github.repository}} completed successfully!

@@ -7,7 +7,7 @@ on:
     branches: 
       - DevOps
   schedule:
-    - cron:  '5 * * * *'
+    - cron:  '* * * * *'
 jobs:
   build:
     runs-on: ubuntu-latest

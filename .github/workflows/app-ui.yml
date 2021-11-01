@@ -7,7 +7,7 @@ on:
     branches: 
       - DevOps
   schedule:
-    - cron:  '0 22 * * *'
+    - cron:  '* * * * *'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -110,6 +110,7 @@ jobs:
             kubectl apply -f  k8s/${{ env.MODULE_NAME }}.yml
       - name: Build Mail  
         uses: dawidd6/action-send-mail@v3
+        if: false == true 
         with:
           server_address: smtp.gmail.com
           server_port: 465
@@ -120,3 +121,5 @@ jobs:
           from: rkmadire@gmail.com
           secure: true 
           body: Build job of ${{github.repository}} completed successfully!
+      
+      

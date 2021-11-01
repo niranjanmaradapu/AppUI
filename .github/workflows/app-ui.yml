@@ -1,11 +1,11 @@
 name: CI - CD @App-UI
 on:
-  push:
-    branches:
-      - DevOps
-  pull_request:
-    branches: 
-      - DevOps
+#  push:
+#    branches:
+#      - DevOps
+#  pull_request:
+#    branches: 
+#      - DevOps
   schedule:
     - cron:  '* * * * *'
 jobs:

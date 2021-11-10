@@ -1,0 +1,19 @@
+name: app-ui
+
+namespace: 
+  name: default
+
+replicaCount: 1
+
+image:
+  repository: 881289302514.dkr.ecr.ap-south-1.amazonaws.com/app-ui
+  tag: ""
+
+service: 
+  type: NodePort
+  port: 3000
+  
+
+
+labels: 
+  app: app-ui

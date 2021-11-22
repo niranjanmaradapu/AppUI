@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: app-ui
-        image: 881289302514.dkr.ecr.ap-south-1.amazonaws.com/app-ui # repository 
+        image: 604430719928.dkr.ecr.ap-south-1.amazonaws.com/app-ui # repository 
         resources:
           limits:
             memory: 512Mi

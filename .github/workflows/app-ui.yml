@@ -33,8 +33,8 @@ jobs:
       - name: Build and Push to ECR
         run: |
          docker build -t ${{ env.MODULE_NAME }} . 
-         docker tag ${{ env.MODULE_NAME }}  ${{ steps.ecr.outputs.account }}.dkr.ecr.ap-south-1.amazonaws.com/${{ env.MODULE_NAME }}:latest  
-         docker push ${{ steps.ecr.outputs.account }}.dkr.ecr.ap-south-1.amazonaws.com/${{ env.MODULE_NAME }}:latest
+         docker tag ${{ env.MODULE_NAME }}  ${{ steps.ecr.outputs.account }}.dkr.ecr.ap-south-1.amazonaws.com/${{ env.MODULE_NAME }}:${{ github.sha }}  
+         docker push ${{ steps.ecr.outputs.account }}.dkr.ecr.ap-south-1.amazonaws.com/${{ env.MODULE_NAME }}:${{ github.sha }}
   deploy:
     needs: build
     runs-on: ubuntu-latest   
@@ -45,6 +45,7 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v2
+
       - name: Deploy
         uses: cancue/eks-action@v0.0.2
         env:
@@ -54,4 +55,4 @@ jobs:
           cluster_name: Microservice-K8S-Cluster # we can edit
         with:
           args: |
-            kubectl apply -f  k8s/${{ env.MODULE_NAME }}.yml
+            helm upgrade --set image.tag="$GITHUB_SHA" --install app-ui ./app-ui 

@@ -54,4 +54,5 @@ jobs:
           cluster_name: Microservice-K8S-Cluster # we can edit
         with:
           args: |
+            helm init 
             helm upgrade --set image.tag="$GITHUB_SHA" --install app-ui ./app-ui 

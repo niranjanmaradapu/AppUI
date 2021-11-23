@@ -6,7 +6,7 @@ namespace:
 replicaCount: 1
 
 image:
-  repository: 881289302514.dkr.ecr.ap-south-1.amazonaws.com/app-ui
+  repository: 604430719928.dkr.ecr.ap-south-1.amazonaws.com/app-ui
   tag: ""
 
 service: 

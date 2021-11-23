@@ -45,7 +45,6 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v2
-
       - name: Deploy
         uses: cancue/eks-action@v0.0.2
         env:

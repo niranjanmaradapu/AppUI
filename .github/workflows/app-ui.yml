@@ -45,14 +45,15 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v2
-      - name: Deploy
-        uses: cancue/eks-action@v0.0.2
-        env:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ap-south-1 # we can edit 
-          cluster_name: Microservice-K8S-Cluster # we can edit
+      - name: AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          args: |
-            helm init 
-            helm upgrade --set image.tag="$GITHUB_SHA" --install app-ui ./app-ui 
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: helm deploy
+        uses: netf/helm-eks-action@v1
+        with:
+          cluster-name: Microservice-K8S-Cluster
+          command: helm upgrade --set image.tag="$GITHUB_SHA" --install app-ui ./app-ui 

@@ -3,11 +3,22 @@ import { LOGIN_URL } from '../commonUtils/ApiConstants';
 import { BASE_URL } from '../commonUtils/Base';
 
 class LoginService {
-    getAuth(){
-        return axios.get(BASE_URL+LOGIN_URL.getToken,null);
+    getStores(){
+        return axios.get(BASE_URL+LOGIN_URL.getStores);
+    }
+    getAuth(obj){
+        return axios.post(BASE_URL+LOGIN_URL.getToken,obj);
     }
     saveData(){
         return axios.post(BASE_URL+LOGIN_URL.saveData,null);
+    }
+
+    registerUser(obj) {
+        return axios.post(BASE_URL+LOGIN_URL.registerUser,obj);
+    }
+
+    changePassword(obj) {
+        return axios.post(BASE_URL+LOGIN_URL.changePassword,obj);
     }
 }
 export default new LoginService()

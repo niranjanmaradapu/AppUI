@@ -1,5 +1,4 @@
 .V1_forms{
-
 & textarea{
               border-radius: 0.25rem !important;
               border: 1px solid #ddd;
@@ -17,6 +16,7 @@
        border: 1px solid #ced4da !important;
        height: calc(1.7rem + 2px) !important;
        min-height: auto;
+       appearance: auto !important;
 
 }
 & .custom-file-label::after, .custom-file-label{
@@ -30,6 +30,22 @@
 
 }
 
+.form-control {
+  display: block;
+  width: 100%;
+  padding: .375rem .75rem;
+  font-size: 14px !important;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  -webkit-appearance: auto;
+  appearance: auto !important;
+  border-radius: .25rem;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
 
 .rounded-style{
        &  .form-control{
@@ -49,6 +65,7 @@
                   border: 1px solid #ced4da !important;
                   height: calc(1.7rem + 2px) !important;
                   min-height: auto;
+                  appearance: auto !important;
           
           }
 

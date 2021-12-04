@@ -42,9 +42,6 @@ spec:
           #  httpGet:
           #    path: /
           #    port: http
-          #volumeMounts:
-          #  - name: app-ui-data
-          #    mountPath: /app/database
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -59,11 +56,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      #volumes:
-      #  - name: app-ui-data
-      #  {{- if .Values.persistence.enabled }}
-      #    persistentVolumeClaim:
-      #      claimName: {{ include "app-ui.fullname" . }}
-      #  {{- else }}
-      #    emptyDir: {}
-      #  {{- end -}}

@@ -1,26 +1,76 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.name }}
+  name: {{ include "app-ui.fullname" . }}
   namespace: {{ .Values.namespace.name }}
+  labels:
+    {{- include "app-ui.labels" . | nindent 4 }}
 spec:
-  selector:
-    matchLabels: 
-      app: {{ .Values.name }}
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "app-ui.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      name: {{ .Values.name }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
-        app: {{ .Values.name }}
+        {{- include "app-ui.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ include "app-ui.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-      - name: {{ .Values.name }}
-        image: {{ .Values.image.repository }}:{{ .Values.image.tag }} # repository 
-        resources:
-          limits:
-            memory: 512Mi
-            cpu: "1"
-          requests:
-            memory: 256Mi
-            cpu: "0.2"            
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: SPRING_DATASOURCE_USERNAME
+            value: {{ .Values.env.postgres_user }}
+          - name: SPRING_DATASOURCE_PASSWORD
+            value: {{ .Values.env.postgres_password }}
+          - name: SPRING_DATASOURCE_URL
+            value: jdbc:postgresql://{{ include "app-ui.fullname" . }}-pos:5432/{{ .Values.env.postgres_db }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          #livenessProbe:
+          # httpGet:
+          #    path: /
+          #    port: {{ .Values.service.nodePort }}
+          #readinessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: http
+          #volumeMounts:
+          #  - name: app-ui-data
+          #    mountPath: /app/database
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      #volumes:
+      #  - name: app-ui-data
+      #  {{- if .Values.persistence.enabled }}
+      #    persistentVolumeClaim:
+      #      claimName: {{ include "app-ui.fullname" . }}
+      #  {{- else }}
+      #    emptyDir: {}
+      #  {{- end -}}

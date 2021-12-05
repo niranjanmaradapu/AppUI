@@ -38,11 +38,11 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: NodePort
+  type: NodePort   # Change NoadPort to LoadBalancer 
   port: 3000
 
 ingress:
-  enabled: true
+  enabled: true  # Disable ingress 
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod

@@ -58,6 +58,11 @@ export default class Roles extends Component {
     }
 
     getAllRoles() {
+        if(this.state.isSearch) {
+            this.setState({searchCreatedby:"",
+        searchCreatedDate:"",
+    searchRole:""});
+        }
         URMService.getAllRoles(this.state.clientId).then((res) => {
             if (res) {
                 this.setState({ rolesList: res.data.result, isRole: true });
@@ -67,6 +72,7 @@ export default class Roles extends Component {
     }
 
     searchRoles() {
+        this.setState({isSearch: true});
         const searchRole = {
             "roleName": this.state.searchRole,
             "createdBy": this.state.searchCreatedby,
@@ -111,10 +117,10 @@ export default class Roles extends Component {
       
          
           //Domain 
-          if (!this.state.domain) {
-            formIsValid = false;
-            errors["domain"] = "Enter Domain";
-          }
+        //   if (!this.state.domain) {
+        //     formIsValid = false;
+        //     errors["domain"] = "Enter Domain";
+        //   }
       
     
         this.setState({ errors: errors });
@@ -125,7 +131,7 @@ export default class Roles extends Component {
 
     showRoles() {
         //    this.setState(this.baseState);
-        this.setState({ showModal: true,isAdmin: false, isSuperAdmin:false,  isEdit: false, errors: {}, selectedPrivilegesList: [] });
+        this.setState({ showModal: true,isAdmin: false, isSuperAdmin:false,isSearch: false,  isEdit: false, errors: {}, selectedPrivilegesList: [] });
         if (this.state.domainList && this.state.domainList.length > 0) {
             this.setState({ domain: this.state.domainList[0].clientDomainaId }, ()=>{
                 this.getPrivilegesByDomainId();
@@ -359,6 +365,7 @@ export default class Roles extends Component {
                             return (
                                 <div>
                                     <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-15">
+                                        
                                         <input type="checkbox" className="form-check-input filled-in mt-1" id="remember{{index}}"
                                             name="child{{i}}"  checked={child.checked}
                                             onChange={(e) => this.setPrivileges(e, i, node, child)} />
@@ -432,6 +439,7 @@ export default class Roles extends Component {
             childList: items.subPrivilages,
             parentsList: items.parentPrivilages,
             roleId: items.roleId,
+            isSearch: false,
             domain: items.clientDomian.clientDomainaId
         }, ()=>{
             this.getPrivilegesByDomainId();
@@ -544,11 +552,26 @@ export default class Roles extends Component {
                 </Modal>
 
                 <Modal isOpen={this.state.showModal} size="lg">
-                    <ModalHeader>Create Role</ModalHeader>
+                    <ModalHeader>  {
+                            !this.state.isEdit && (
+                                <div>
+                                    Create Role
+                                    </div>
+                               
+                            )
+                        }
+                        {
+                            this.state.isEdit && (
+                                <div>
+                                Edit Role
+                                    </div>
+                               
+                            )
+                        }</ModalHeader>
                     <ModalBody>
                         <div className="">
                             <div className="row m-0 p-0">
-                                <div className="col-4 p-l-0">
+                                <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>Role<span className="text-red font-bold">*</span></label>
                                         <input type="text" className="form-control" placeholder="" value={this.state.roleName}
@@ -559,7 +582,7 @@ export default class Roles extends Component {
                                                         </div> */}
                                     </div>
                                 </div>
-                                <div className="col-3">
+                                <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>Description<span className="text-red font-bold">*</span></label>
 
@@ -572,7 +595,7 @@ export default class Roles extends Component {
                                     </div>
                                 </div>
 
-                                <div className="col-3">
+                                <div className="col-12 col-sm-4 mt-4">
                                     <div className="form-group">
                                     <input type="checkbox" className="form-check-input filled-in mt-1" id="admin" name="superadmin" value={this.state.isAdmin} 
                                        onChange={(e) => this.setState({ isAdmin: e.target.checked, isSuperAdmin: e.target.checked },()=>{
@@ -587,11 +610,11 @@ export default class Roles extends Component {
                                            }
                                           
                                        })}/>
-                                        <label className="form-check-label" htmlFor="remember">Is Super Admin</label>
+                                        <label className="form-check-label p-l-2" htmlFor="remember">Is Super Admin</label>
                                     </div>
                                 </div>
 
-                                <div className="col-3">
+                                <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>Domain<span className="text-red font-bold">*</span></label>
 
@@ -605,10 +628,10 @@ export default class Roles extends Component {
                                                         </div> */}
                                     </div>
                                 </div>
-                                <div className="col-2 mt-4">
+                                <div className="col-4 mt-4">
                                     <button type="button" className="btn-unic-redbdr" 
                                     
-                                    onClick={this.createRole}>Add </button>
+                                    onClick={this.createRole}>Add Privileges </button>
                                 </div>
 
                             </div>
@@ -649,9 +672,9 @@ export default class Roles extends Component {
                                 onChange={(e) => this.setState({ searchCreatedDate: e.target.value })} />
                         </div>
                     </div>
-                    <div className="col-sm-3 col-12 scaling-center scaling-mb mt-2">
-                        <button className="btn-unic-search active m-r-2" onClick={this.searchRoles}>Search </button>
-                        <button className="btn-unic-search active m-r-2" onClick={this.getAllRoles}>Clear </button>
+                    <div className="col-sm-3 col-12 scaling-center scaling-mb mt-2 p-l-0 p-r-0">
+                        <button className="btn-unic-search active m-r-1" onClick={this.searchRoles}>Search </button>
+                        <button className="btn-unic-search active m-r-1" onClick={this.getAllRoles}>Clear </button>
                         <button className="btn-unic-search active" onClick={this.showRoles}><i className="icon-create_customer"></i> Create Role </button>
                     </div>
 

@@ -6,8 +6,21 @@ import Layout from './shared/layout/Layout';
 import RetailLayout from "./shared/retail-layout/RetailLayout";
 import ElectronicsLayout from "./shared/electronics-layout/ElectronicsLayout";
 // import { withTranslation } from 'react-i18next';
-
+import { saveDataInIndexDB } from './utility.js';
 const App = () => {
+  const sampleJSONdata = [{
+    type: 'codes',
+    id: '1'
+  },{
+    type: 'cdsfsdss',
+    id: '2',
+  
+  }];
+
+  saveDataInIndexDB(sampleJSONdata);
+
+
+ 
   const loadScript = (src) => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -131,6 +144,14 @@ const App = () => {
        </Route>
 
        <Route path="/urmDashboard">
+         <Layout />
+       </Route>
+
+       <Route path="/listOfEstimationSlips">
+         <Layout />
+       </Route>
+
+       <Route path="/rebarcoding">
          <Layout />
        </Route>
 

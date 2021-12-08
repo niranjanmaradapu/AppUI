@@ -465,10 +465,14 @@ class Header extends Component {
   // }
 
   componentWillMount() {
+
+    const selectedDomain = sessionStorage.getItem("selectedDomain");
+    console.log(selectedDomain);
+
+
     const domainName = sessionStorage.getItem("domainName");
     const user = JSON.parse(sessionStorage.getItem("user"));
-    this.state.user = domainName;
-    console.log(domainName);
+    this.state.user = user["cognito:username"];
     if(domainName === "config_user") {
       let header;
       this.state.headertype = "URM Portal";
@@ -521,7 +525,7 @@ class Header extends Component {
     }
      else {
        if(user["cognito:groups"][0] !== "config_user") {
-        URMService.getSelectedPrivileges(domainName).then(res => {
+        URMService.getSelectedPrivileges(user["custom:roleName"]).then(res => {
           this.setState({moduleNames: res.data.result.parentPrivilages});
           eventBus.dispatch("subHeader", { message: (res.data.result && res.data.result.parentPrivilages.length>0)?res.data.result.parentPrivilages[0].id:"" });
         });
@@ -536,7 +540,7 @@ class Header extends Component {
     let dataDrop = [];
     const user = JSON.parse(sessionStorage.getItem("user"));
     const clientId =  user["custom:clientId1"];
-    console.log(user["cognito:groups"][0]);
+    const domainId = JSON.parse(sessionStorage.getItem("selectedDomain"));
     //const domainName = sessionStorage.getItem("domainName");
 
     // if(this.state.user !== "config_user" && user["custom:isSuperAdmin"] === "false") {
@@ -567,20 +571,27 @@ class Header extends Component {
         }
         dataDrop.push(obj);
       });
-      this.state.domainId = 1;
-      this.setAdminHeader();
+     
+      if(domainId && domainId.label === "Retail") {
+        this.state.domainId = 2;
+      } else if(domainId && domainId.label === "Textile") {
+        this.state.domainId = 1;
+      }
+      this.setState({ selectedOption: domainId }, ()=>{
+        this.setAdminHeader();
+      });
     } 
     else if(user["cognito:groups"][0] !== "config_user" && user["custom:clientDomians"]) {
      
       const clientDomainId = user["custom:clientDomians"].split(",")[0];
       URMService.getDomainName(clientDomainId).then(res => {
-        console.log(res);
         if(res) {
           const obj  = {
             value: res.data.result.domain[0]?.id,
             label: res.data.result.domaiName
           }
           dataDrop.push(obj);
+          sessionStorage.setItem("selectedDomain", JSON.stringify(dataDrop[1]));
         }
       });
     }
@@ -591,9 +602,11 @@ class Header extends Component {
       label: "Logout"
     };
   dataDrop.push(dropLogout);
+  
   this.setState({dropData:dataDrop});
-  this.setState({ selectedOption: this.state.dropData[0] });
-  console.log(this.state.dropData);
+  const domainName = JSON.parse(sessionStorage.getItem("selectedDomain"));
+  this.setState({ selectedOption: domainName });
+ 
   } 
  
   removeDuplicates(array, key) {
@@ -670,6 +683,7 @@ class Header extends Component {
     URMService.getAllPrivilegesbyDomain(this.state.domainId).then(res => {
       console.log(res);
       if(res) {
+       
         this.setState({moduleNames: res.data.result});
         this.props.history.push("/dashboard");
         eventBus.dispatch("subHeader", { message: (res.data.result && res.data.result.length>0)?res.data.result[0].id:"" });
@@ -677,7 +691,7 @@ class Header extends Component {
     });
 
   } else {
-    URMService.getSelectedPrivileges(this.state.user).then(res => {
+    URMService.getSelectedPrivileges(user["custom:roleName"]).then(res => {
       this.setState({moduleNames: res.data.result.parentPrivilages});
       eventBus.dispatch("subHeader", { message: (res.data.result && res.data.result.parentPrivilages.length>0)?res.data.result.parentPrivilages[0].id:"" }
       );
@@ -731,20 +745,19 @@ class Header extends Component {
 
 
   handleSelectChange = (e) => {
-    console.log(e.target.value)
     let parentPath;
     this.setState({headertype: e.target.value});
     eventBus.dispatch("subHeader", { message: e.target.value });
-    // this.state.moduleNames.forEach(ele => {
-    //   if (ele.id == e.target.value) {
-    //     parentPath = ele.path
-    //   }
-    //   console.log(parentPath);
-    //   this.props.history.push(parentPath);
+    this.state.moduleNames.forEach(ele => {
+      if (ele.id == e.target.value) {
+        parentPath = ele.path
+      }
+      console.log(parentPath);
+      this.props.history.push(parentPath);
 
-    // });
+    });
 
-    this.props.history.push("/dashboard");
+   // this.props.history.push("/dashboard");
 
   }
 

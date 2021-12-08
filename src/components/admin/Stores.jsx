@@ -32,10 +32,11 @@ export default class Stores extends Component {
             isEdit: false,
             selectedStore: {},
             errors: {
-                "city":""
+                "city": ""
             },
             fields: {},
             focus: false,
+            isSearch: false,
         }
 
         this.showStores = this.showStores.bind(this);
@@ -62,7 +63,8 @@ export default class Stores extends Component {
             storeName: "",
             domain: this.state.domainList[0]?.clientDomainaId,
             errors: {},
-            isEdit: false
+            isEdit: false,
+            isSearch: false,
 
         });
         this.getDomainsList();
@@ -117,26 +119,32 @@ export default class Stores extends Component {
         });
     }
 
-    getDistricts = (e) => {
+    getDistricts() {
 
-        this.setState({ stateName: e.target.value }, () => {
-            URMService.getDistricts(this.state.stateName).then(res => {
-                if (res) {
-                    this.setState({ districtList: res.data.result, district: res.data.result[0].districtId });
-                }
-
-            });
+        const stateCode = this.state.isSearch ? this.state.searchState : this.state.stateName;
+        console.log(stateCode);
+        URMService.getDistricts(stateCode).then(res => {
+            if (res) {
+                this.setState({ districtList: res.data.result, district: this.state.isEdit ? this.state.district : res.data.result[0].districtId });
+            }
 
         });
 
+
         this.state.stateList.forEach(ele => {
-            if (ele.stateCode === e.target.value) {
+            if (ele.stateCode === this.state.stateName) {
                 this.setState({ stateId: ele.stateId });
             }
         });
     }
 
     getAllStores() {
+        if(this.state.isSearch){
+            this.state.searchState = "";
+            this.state.searchCity = "";
+            this.state.searchDistrict = "";
+            this.state.districtList = [];
+        }
         URMService.getAllStores(this.state.clientId).then(res => {
             if (res) {
                 this.setState({ storesList: res.data.result, isStore: true });
@@ -150,6 +158,8 @@ export default class Stores extends Component {
 
 
     searchStore() {
+
+        this.setState({isSearch: true});
         const searchStore = {
             "stateId": this.state.searchState,
             "cityId": this.state.searchCity,
@@ -158,7 +168,11 @@ export default class Stores extends Component {
         }
 
         URMService.getStoresBySearch(searchStore).then(res => {
-            this.setState({ storesList: res.data.result, isStore: true });
+            if (res) {
+                this.setState({ storesList: res.data.result, isStore: true });
+            } else {
+            }
+
         });
     }
 
@@ -182,7 +196,7 @@ export default class Stores extends Component {
                     "domainId": this.state.domain,
                     "createdBy": this.state.userName,
                     "createdDate": "",
-                    "stateCode" : this.state.stateName
+                    "stateCode": this.state.stateName
 
                 }
 
@@ -204,7 +218,7 @@ export default class Stores extends Component {
                     "phoneNumber": this.state.phoneNumber,
                     "domainId": this.state.domain,
                     "createdBy": this.state.userName,
-                    "stateCode" : this.state.stateName
+                    "stateCode": this.state.stateName
                 }
                 URMService.saveStore(saveObj).then(res => {
                     if (res) {
@@ -215,10 +229,10 @@ export default class Stores extends Component {
                 });
             }
             this.hideStores();
-        }  else {
+        } else {
             toast.info("Please Enter all mandatory fields");
         }
-        
+
 
 
 
@@ -234,12 +248,15 @@ export default class Stores extends Component {
         console.log(items);
 
         this.setState({
-            showModal: true, stateName: items.stateId.toString(), district: items.districtId.toString(), city: items.cityId,
+            showModal: true, stateName: items.stateCode, district: items.districtId.toString(), city: items.cityId,
             area: items.area, phoneNumber: items.phoneNumber,
             address: items.address,
             domain: items.clientDomianlId.clientDomainaId, storeName: items.name,
             isEdit: true,
-            selectedStore: items
+            selectedStore: items,
+            isSearch: false
+        }, () => {
+            this.getDistricts();
         });
     }
 
@@ -303,7 +320,7 @@ export default class Stores extends Component {
             errors["city"] = "Enter City";
         }
 
-       
+
 
         // Area 
         if (!this.state.area) {
@@ -311,7 +328,7 @@ export default class Stores extends Component {
             errors["area"] = "Enter area";
         }
 
-       
+
 
         // Mobile
         if (!this.state.phoneNumber) {
@@ -332,7 +349,7 @@ export default class Stores extends Component {
             errors["domain"] = "Enter Domain";
         }
 
-       
+
 
         // Store Name
 
@@ -341,7 +358,7 @@ export default class Stores extends Component {
             errors["storeName"] = "Enter Store Name";
         }
 
-     
+
 
         // State Name
 
@@ -350,7 +367,7 @@ export default class Stores extends Component {
             errors["stateName"] = "Enter state Name";
         }
 
-      
+
 
         // District Name
 
@@ -359,7 +376,7 @@ export default class Stores extends Component {
             errors["districtName"] = "Enter District Name";
         }
 
-        
+
 
 
 
@@ -411,14 +428,31 @@ export default class Stores extends Component {
 
 
                 <Modal isOpen={this.state.showModal} size="lg">
-                    <ModalHeader>Create Store</ModalHeader>
+                    <ModalHeader>
+                        {
+                            !this.state.isEdit && (
+                                <div>
+                                    Add Store
+                                </div>
+
+                            )
+                        }
+                        {
+                            this.state.isEdit && (
+                                <div>
+                                    Edit Store
+                                </div>
+
+                            )
+                        }
+                    </ModalHeader>
                     <ModalBody>
-                        <div className="">
+                        <div className="p-3">
                             <div className="row">
                                 <div className="col-12">
-                                    <h6 className="text-red mb-2 fs-14">Store Details</h6>
+                                    <h6 className="text-red mb-2 fs-14 scaling-center scaling-mb">Store Details</h6>
                                 </div>
-                                <div className="col-4">
+                                <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>State</label>
                                         {/* <select className="form-control" value={this.state.stateName}
@@ -431,7 +465,9 @@ export default class Stores extends Component {
                                         </select> */}
 
                                         <select className="form-control" value={this.state.stateName}
-                                            onChange={this.getDistricts}>
+                                            onChange={(e) => this.setState({ stateName: e.target.value }, () => {
+                                                this.getDistricts()
+                                            })}>
 
                                             {statesList}
                                         </select >
@@ -443,7 +479,7 @@ export default class Stores extends Component {
 
                                     </div>
                                 </div>
-                                <div className="col-4">
+                                <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>District</label>
                                         {/* <select className="form-control" value={this.state.district}
@@ -465,7 +501,7 @@ export default class Stores extends Component {
                                         </div> */}
                                     </div>
                                 </div>
-                                <div className="col-4">
+                                <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>City</label>
                                         {/* <select className="form-control" value={this.state.city}
@@ -477,18 +513,18 @@ export default class Stores extends Component {
                                         </select> */}
                                         <input type="text" className="form-control"
                                             placeholder="City" value={this.state.city}
-                                            onChange={(e) => this.setState({ city: e.target.value })} 
-                                            // onFocus={(e)=> {
-                                            //     if (!this.state.focus) {
-                                            //         this.setState({
-                                            //             focus: true,
-                                            //             city: "Enter City"
-                                            //         });
-                                            //     }
-                                                
-                                            // }}
-                                            />
-{/* 
+                                            onChange={(e) => this.setState({ city: e.target.value })}
+                                        // onFocus={(e)=> {
+                                        //     if (!this.state.focus) {
+                                        //         this.setState({
+                                        //             focus: true,
+                                        //             city: "Enter City"
+                                        //         });
+                                        //     }
+
+                                        // }}
+                                        />
+                                        {/* 
                                         <div>
                                             <span style={{ color: "red" }}>{city}</span>
                                         </div> */}
@@ -510,7 +546,7 @@ export default class Stores extends Component {
 
                                     </div>
                                 </div>
-                                <div className="col-4 mt-3">
+                                <div className="col-sm-4 col-12 mt-3">
                                     <div className="form-group">
                                         <label>Area</label>
 
@@ -522,7 +558,7 @@ export default class Stores extends Component {
                                         </div> */}
                                     </div>
                                 </div>
-                                <div className="col-4 mt-3">
+                                <div className="col-sm-4 col-12 mt-3">
                                     <div className="form-group">
                                         <label>Store Phone Number</label>
                                         <input type="text" className="form-control" minLength="10"
@@ -533,7 +569,7 @@ export default class Stores extends Component {
                                         </div> */}
                                     </div>
                                 </div>
-                                <div className="col-4 mt-3">
+                                <div className="col-sm-4 col-12 mt-3">
                                     <div className="form-group">
                                         <label>Address</label>
                                         <input type="text" className="form-control" placeholder="" value={this.state.address}
@@ -541,7 +577,7 @@ export default class Stores extends Component {
                                     </div>
                                 </div>
                                 <div className="col-12 mt-4">
-                                    <h6 className="text-red mb-1 fs-14">Store Info</h6>
+                                    <h6 className="text-red mb-1 fs-14 scaling-center scaling-mb">Store Info</h6>
                                 </div>
                                 <div className="col-4">
                                     <div className="form-group">
@@ -557,7 +593,7 @@ export default class Stores extends Component {
                                         </div> */}
                                     </div>
                                 </div>
-                                <div className="col-4">
+                                <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>Store Name<span className="text-red font-bold">*</span></label>
                                         <input type="text" className="form-control"
@@ -568,7 +604,7 @@ export default class Stores extends Component {
                                         </div> */}
                                     </div>
                                 </div>
-                                <div className="col-4">
+                                <div className="col-sm-4 col-12">
                                     {/* <div className="form-group">
                                         <label>Mobile Number</label>
                                         <input type="text" className="form-control" placeholder="+91" maxLength="10" minLength="10"
@@ -591,7 +627,9 @@ export default class Stores extends Component {
                     <div className="col-sm-3 col-12 mt-2">
                         <div className="form-group">
                             <select className="form-control" value={this.state.searchState}
-                                onChange={(e) => this.setState({ searchState: e.target.value }), this.getDistricts}>
+                                onChange={(e) => this.setState({ searchState: e.target.value, isSearch: true }, ()=>{
+                                    this.getDistricts()
+                                })}>
 
                                 {statesList}
                             </select >
@@ -613,9 +651,9 @@ export default class Stores extends Component {
                                 onChange={(e) => this.setState({ searchCity: e.target.value })} />
                         </div>
                     </div>
-                    <div className="col-sm-3 col-12 scaling-center scaling-mb mt-2">
-                        <button className="btn-unic-search active m-r-2" onClick={this.searchStore}>Search </button>
-                        <button className="btn-unic-search active m-r-2" onClick={this.getAllStores}>Clear </button>
+                    <div className="col-sm-3 col-12 scaling-center scaling-mb mt-2 p-l-0">
+                        <button className="btn-unic-search active m-r-1" onClick={this.searchStore}>Search </button>
+                        <button className="btn-unic-search active m-r-1" onClick={this.getAllStores}>Clear </button>
                         <button className="btn-unic-search active" onClick={this.showStores}><i className="icon-retail mr-1"></i>  Add Store </button>
                     </div>
                     <div>

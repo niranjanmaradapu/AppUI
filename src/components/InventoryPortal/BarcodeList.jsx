@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import scan from '../../assets/images/scan.svg';
 import edit from '../../assets/images/edit.svg';
-import {Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import InventoryService from '../../services/InventoryService';
 import URMService from '../../services/URM/URMService';
 import { toast } from 'react-toastify';
@@ -16,8 +16,8 @@ export default class BarcodeList extends Component {
       isAddBarcode: false,
       uomsList: [],
       hsnList: [],
-      storeIds:[],
-      sortedStoreIds:[],
+      storeIds: [],
+      sortedStoreIds: [],
       uom: "",
       barcodeId: "",
       stock: "",
@@ -47,23 +47,23 @@ export default class BarcodeList extends Component {
       barcodeTextileId: "",
       divisionsList: [],
       sectionsList: [],
-      subSectionsList:[],
-      categoriesList:[],
-      subSection:"",
+      subSectionsList: [],
+      categoriesList: [],
+      subSection: "",
       section: "",
       division: "",
       category: "",
       batchNo: "",
-      colour:"",
+      colour: "",
       hsnCode: "",
       commonFieldsErr: false,
       retailFieldsErr: false,
       textileFieldsErr: false,
-      errors:{},
+      errors: {},
       statusTypeList: [
         { "id": 1, "label": "YES", "value": "YES" },
         { "id": 0, "label": "NO", "value": "NO" }],
-  }
+    }
     this.addBarcode = this.addBarcode.bind(this);
     this.openBarcode = this.openBarcode.bind(this);
     this.getAllBarcodes = this.getAllBarcodes.bind(this);
@@ -108,18 +108,18 @@ export default class BarcodeList extends Component {
     if (user["custom:isSuperAdmin"] === "true") {
       this.setState({
         clientId: user["custom:clientId1"],
-      }, () => { this.getAllBarcodes(); this.getDomainsList(); this.getAllUoms();this.getAllDivisions();this.getHsnDetails();this.getAllCategories();this.loadErrorMsgs(); });
+      }, () => { this.getAllBarcodes(); this.getDomainsList(); this.getAllUoms();
+         this.getAllDivisions(); this.getHsnDetails(); this.getAllCategories(); this.loadErrorMsgs(); });
     } else {
       this.setState({
         clientId: user["custom:clientId1"],
         domainId: user["custom:domianId1"]
-      }, () => { this.getAllStoresList(); this.getAllBarcodes(); this.getAllUoms();;this.getAllDivisions();this.getHsnDetails();this.getAllCategories();;this.loadErrorMsgs(); });
+      }, () => { this.getAllStoresList(); this.getAllBarcodes(); this.getAllUoms();; this.getAllDivisions(); this.getHsnDetails(); this.getAllCategories();; this.loadErrorMsgs(); });
     }
   }
 
   handleChange = (e) => {
     this.setState({ uom: e.target.value });
-    console.log(this.state.uom)
   }
   handleStoreChange = (e) => {
     this.setState({ storeId: e.target.value });
@@ -129,42 +129,40 @@ export default class BarcodeList extends Component {
     this.setState({ status: e.target.value });
   }
 
-
-
-  handleDivisionChange= (e) => {
+  handleDivisionChange = (e) => {
     this.setState({ division: e.target.value });
     this.getAllSections(e.target.value);
   }
-  handleSectionChange= (e) => {
+  handleSectionChange = (e) => {
     this.setState({ section: e.target.value });
     this.getAllSubsections(e.target.value);
   }
-  handleSubsectionChange= (e) => {
+  handleSubsectionChange = (e) => {
     this.setState({ subSection: e.target.value });
   }
-  handleCategoryChange= (e) => {
+  handleCategoryChange = (e) => {
     this.setState({ category: e.target.value });
   }
 
-  handleHsnChange= (e) => {
+  handleHsnChange = (e) => {
     this.setState({ hsnCode: e.target.value });
   }
 
   getAllBarcodes() {
-   let saveJson = {}
-   if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
-     saveJson = {
-      fromDate: this.state.fromDate,
-      toDate: this.state.toDate,
-      barcodeId: this.state.barcodeSearchId
+    let saveJson = {}
+    if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
+      saveJson = {
+        fromDate: this.state.fromDate,
+        toDate: this.state.toDate,
+        barcodeId: this.state.barcodeSearchId
+      }
+    } else {
+      saveJson = {
+        fromDate: this.state.fromDate,
+        toDate: this.state.toDate,
+        barcode: this.state.barcodeSearchId
+      }
     }
-  }else{
-    saveJson = {
-      fromDate: this.state.fromDate,
-      toDate: this.state.toDate,
-      barcode: this.state.barcodeSearchId
-    }
-  }
 
     InventoryService.getAllBarcodes(saveJson, this.state.domainDetails).then((res) => {
       if (res.data && res.data.isSuccess === "true") {
@@ -184,56 +182,61 @@ export default class BarcodeList extends Component {
   setStoreNames() {
     this.state.barcodesList.forEach((ele, index) => {
       if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
-        this.state.sortedStoreIds.push(JSON.stringify(ele.storeId));
-      }else{
-        this.state.sortedStoreIds.push(JSON.stringify(ele.productTextile.storeId));
+        if (ele.storeId) {
+          this.state.sortedStoreIds.push(JSON.stringify(ele.storeId));
+        }
+      } else {
+        if (ele.productTextile && ele.productTextile.storeId) {
+          this.state.sortedStoreIds.push(JSON.stringify(ele.productTextile.storeId));
+        }
       }
     });
-    this.setState({barcodesList:this.state.barcodesList});
-    this.setState({sortedStoreIds: this.state.sortedStoreIds});
-    this.setState({ storeIds:  this.uniq()});
-    this.getStoreNamesById()
+    this.setState({ sortedStoreIds: this.state.sortedStoreIds });
+    this.setState({ storeIds: this.uniq() });
+    this.getStoreNamesById();
   }
 
   uniq() {
     return Array.from(new Set(this.state.sortedStoreIds));
-  } 
+  }
 
-  getStoreNamesById(){
-    let obj ={};
-    this.setState({sortedStoreIds:[]})
-    InventoryService.getStoreNamesByIds(this.state.storeIds).then((res) => {
-        res.data.result.forEach((ele, index) => {
-          obj = {
-            id: ele.id,
-            value: ele.name
-          }
-          this.state.sortedStoreIds.push(obj);
-        });
-        this.setState({sortedStoreIds: this.state.sortedStoreIds})
-        this.storeNameMap();
-      
-      console.log(this.state.sortedStoreIds);
+  getStoreNamesById() {
+    let obj = {};
+    this.setState({ sortedStoreIds: [] })
+    if (this.state.storeIds && this.state.storeIds.length > 0) {
+      InventoryService.getStoreNamesByIds(this.state.storeIds).then((res) => {
+        if (res && res.data && res.data.result && res.data.result.length > 0) {
+          res.data.result.forEach((ele, index) => {
+            obj = {
+              id: ele.id,
+              value: ele.name
+            }
+            this.state.sortedStoreIds.push(obj);
+          });
+          this.setState({ sortedStoreIds: this.state.sortedStoreIds })
+          this.storeNameMap();
+        }
       });
-
+    }
   }
 
   storeNameMap() {
-    this.state.barcodesList.forEach((ele, index) => {
-      this.state.sortedStoreIds.forEach((ele1, index1) => {
-        if (ele.storeId === ele1.id) {
+    if (this.state.barcodesList && this.state.barcodesList.length > 0) {
+      this.state.barcodesList.forEach((ele, index) => {
+        this.state.sortedStoreIds.forEach((ele1, index1) => {
           if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
-          this.state.barcodesList[index].storeId = ele.storeId;
-          this.state.barcodesList[index].storeName = ele1.value;
-          }else{
-            this.state.barcodesList[index].productTextile.storeId = ele.storeId;
+            if (ele.storeId === ele1.id) {
+              this.state.barcodesList[index].storeName = ele1.value;
+              // this.setState({ barcodesList: this.state.barcodesList });
+            }
+          } else if (ele.productTextile.storeId === ele1.id) {
             this.state.barcodesList[index].productTextile.storeName = ele1.value;
+            // this.setState({ barcodesList: this.state.barcodesList });
           }
-        }
+        });
+        this.setState({ barcodesList: this.state.barcodesList });
       });
-      this.setState({barcodesList:this.state.barcodesList});
-      console.log(this.state.barcodesList);
-    });
+    }
   }
 
 
@@ -251,17 +254,17 @@ export default class BarcodeList extends Component {
   }
 
 
-  getHsnDetails(){
+  getHsnDetails() {
     InventoryService.getAllHsnList().then((res) => {
-    res.data.result.forEach((ele, index) => {
-      const obj = {
-        id: ele.id,
-        value: ele.hsnCode,
-        label: ele.hsnCode
-      }
-      this.state.hsnList.push(obj)
+      res.data.result.forEach((ele, index) => {
+        const obj = {
+          id: ele.id,
+          value: ele.hsnCode,
+          label: ele.hsnCode
+        }
+        this.state.hsnList.push(obj)
+      });
     });
-  });
   }
 
   getAllDivisions() {
@@ -274,14 +277,14 @@ export default class BarcodeList extends Component {
         }
         this.state.divisionsList.push(obj)
       });
-      this.setState({divisionsList: this.state.divisionsList});
+      this.setState({ divisionsList: this.state.divisionsList });
     });
   }
 
   getAllSections(id) {
-    this.setState({sectionsList: []});
+    this.setState({ sectionsList: [] });
     InventoryService.getAllSections(id).then((res) => {
-      if(res.data && res.data.isSuccess ==="true"){
+      if (res.data && res.data.isSuccess === "true") {
         res.data.result.forEach((ele, index) => {
           const obj = {
             id: ele.id,
@@ -289,54 +292,54 @@ export default class BarcodeList extends Component {
             label: ele.name
           }
           this.state.sectionsList.push(obj)
-  
+
         });
-        this.setState({sectionsList: this.state.sectionsList});
-      }else{
-        this.setState({sectionsList: []});
+        this.setState({ sectionsList: this.state.sectionsList });
+      } else {
+        this.setState({ sectionsList: [] });
       }
-      });
-    
+    });
+
   }
 
   getAllSubsections(id) {
-    this.setState({subSectionsList: []});
+    this.setState({ subSectionsList: [] });
     InventoryService.getAllSections(id).then((res) => {
-      if(res.data && res.data.isSuccess ==="true"){
-      res.data.result.forEach((ele, index) => {
-        const obj = {
-          id: ele.id,
-          value: ele.name,
-          label: ele.name
-        }
-        this.state.subSectionsList.push(obj);
-  
-      });
-      this.setState({subSectionsList: this.state.subSectionsList});
-      }else{
-        this.setState({subSectionsList: []});
+      if (res.data && res.data.isSuccess === "true") {
+        res.data.result.forEach((ele, index) => {
+          const obj = {
+            id: ele.id,
+            value: ele.name,
+            label: ele.name
+          }
+          this.state.subSectionsList.push(obj);
+
+        });
+        this.setState({ subSectionsList: this.state.subSectionsList });
+      } else {
+        this.setState({ subSectionsList: [] });
       }
     });
   }
 
   getAllCategories() {
-    this.setState({categoriesList: []});
+    this.setState({ categoriesList: [] });
     InventoryService.getAllCategories().then((res) => {
-      if(res.data && res.data.isSuccess ==="true"){
-      res.data.result.forEach((ele, index) => {
-        const obj = {
-          id: ele.id,
-          value: ele.name,
-          label: ele.name
-        }
-        this.state.categoriesList.push(obj);
+      if (res.data && res.data.isSuccess === "true") {
+        res.data.result.forEach((ele, index) => {
+          const obj = {
+            id: ele.id,
+            value: ele.name,
+            label: ele.name
+          }
+          this.state.categoriesList.push(obj);
 
-      });
-      this.setState({categoriesList: this.state.categoriesList});
-    }else{
-      this.setState({categoriesList: []});
-    }
-  });
+        });
+        this.setState({ categoriesList: this.state.categoriesList });
+      } else {
+        this.setState({ categoriesList: [] });
+      }
+    });
   }
 
   getAllStoresList() {
@@ -374,12 +377,12 @@ export default class BarcodeList extends Component {
             qty: barcode.qty ? barcode.qty : "",
             barcodeId: barcode.barcodeId,
             name: barcode.name,
-            colour:barcode.colour,
-            costPrice: barcode.costPrice,listPrice: barcode.listPrice, productValidity: barcode.productValidity,
+            colour: barcode.colour,
+            costPrice: barcode.costPrice, listPrice: barcode.listPrice, productValidity: barcode.productValidity,
             storeId: barcode.storeId, empId: barcode.empId, uom: barcode.uom,
             productItemId: barcode.productItemId,
             hsnCode: barcode.hsnCode,
-            batchNo:barcode.batchNo
+            batchNo: barcode.batchNo
 
           })
         } else {
@@ -420,7 +423,7 @@ export default class BarcodeList extends Component {
     // }
   }
 
-  
+
 
   addBarcode() {
     let domainInfo = this.state.domainDetails;
@@ -464,7 +467,6 @@ export default class BarcodeList extends Component {
     }
 
     InventoryService.addBarcode(saveJson, this.state.domainDetails, this.state.isEdit).then((res) => {
-      console.log(res);
       if (res.data && res.data.isSuccess === "true") {
         toast.success(res.data.result);
         this.setState({ isAddBarcode: false });
@@ -480,8 +482,9 @@ export default class BarcodeList extends Component {
   stateReset() {
     this.setState({
       status: "", stockValue: "", costPrice: "", productValidity: "",
-      storeId: "", empId: "", uom: "", domainId: "", name: "",listPrice:"",
-      division:"",section:"",subSection:"",category:"",batchNo:"",hsnCode:"",colour:"",qty:"",retailFieldsErr:false,textileFieldsErr:false,commonFieldsErr:false
+      storeId: "", empId: "", uom: "", domainId: "", name: "", listPrice: "",
+      division: "", section: "", subSection: "", category: "", batchNo: "", hsnCode: "",
+      colour: "", qty: "", retailFieldsErr: false, textileFieldsErr: false, commonFieldsErr: false, sortedStoreIds: []
     });
   }
 
@@ -526,14 +529,12 @@ export default class BarcodeList extends Component {
           empId: this.state.empId,
           uom: this.state.uom,
           productTextileId: this.state.productTextileId,
-        
+
           hsnMasterId: parseInt(this.state.hsnCode)
         }
       }
     }
-
     InventoryService.addBarcode(saveJson, this.state.domainDetails, this.state.isEdit).then((res) => {
-      console.log(res);
       if (res.data && res.data.isSuccess === "true") {
         toast.success(res.data.result);
         this.setState({ isAddBarcode: false });
@@ -548,15 +549,15 @@ export default class BarcodeList extends Component {
 
   deleteBarcode(barcodeId) {
     InventoryService.deleteBarcode(barcodeId, this.state.domainDetails).then((res) => {
-      console.log(res);
       if (res.data && res.data.isSuccess === "true") {
         toast.success(res.data.result);
         this.setState({ isAddBarcode: false });
         this.props.history.push('/barcodeList');
-        this.getAllBarcodes();  
+        this.stateReset();
+        this.getAllBarcodes();
       } else {
         toast.error(res.data.message);
-      } 
+      }
     });
   }
 
@@ -593,7 +594,7 @@ export default class BarcodeList extends Component {
 
   barcodesListTable() {
     return this.state.barcodesList.map((items, index) => {
-      const { barcodeId, listPrice, storeId,storeName, stockValue,value } = items
+      const { barcodeId, listPrice, storeId, storeName, stockValue, value } = items
       return (
         <tr key={index}>
           <td className="col-1 geeks">{index + 1}</td>
@@ -636,20 +637,20 @@ export default class BarcodeList extends Component {
   statusDiv() {
     const { options, id } = this.state;
     return (
-      <div className="col-4 mt-3">
+      <div className="col-sm-4 col-12 mt-3">
         <div className="form-group">
           <label>Status Type
           <span className="text-red font-bold">*</span>
           </label>
           <select className="form-control" placeholder="Select Store" onChange={this.handleStatusChange} value={this.state.status}>
-          <option value='' disabled>Select</option> 
+            <option value='' disabled>Select</option>
             {this.state.statusTypeList.map(item => (
               <option key={item.id} value={item.id}>
                 {item.value}
               </option>
             ))}
           </select>
-          {(this.retailFieldsErr && !this.state.qty)?this.errorDiv('statusErr'):null}
+          {(this.retailFieldsErr && !this.state.status) ? this.errorDiv('statusErr') : null}
         </div>
       </div>
     )
@@ -659,14 +660,14 @@ export default class BarcodeList extends Component {
 
   stockDate() {
     return (
-      <div className="col-4 mt-3">
+      <div className="col-sm-4 col-12 mt-3">
         <div className="form-group">
           <label>Stock date
           <span className="text-red font-bold">*</span>
           </label>
           <input type="date" className="form-control" placeholder="" value={this.state.productValidity}
             onChange={(e) => this.setState({ productValidity: e.target.value })} />
-            {(this.retailFieldsErr && !this.state.qty)?this.errorDiv('dateErr'):null}
+          {(this.retailFieldsErr && !this.state.productValidity) ? this.errorDiv('dateErr') : null}
         </div>
       </div>
     )
@@ -675,7 +676,7 @@ export default class BarcodeList extends Component {
 
   stockDiv() {
     return (
-      <div className="col-4 mt-3">
+      <div className="col-sm-4 col-12 mt-3">
         <div className="form-group">
           <label>QTY
           <span className="text-red font-bold">*</span>
@@ -684,7 +685,7 @@ export default class BarcodeList extends Component {
             onChange={(e) =>
               this.setState({ stockValue: e.target.value })
             } />
-            {(this.retailFieldsErr && !this.state.stockValue)?this.errorDiv('qtyErr'):null}
+          {(this.retailFieldsErr && !this.state.stockValue) ? this.errorDiv('qtyErr') : null}
         </div>
       </div>
     )
@@ -692,7 +693,7 @@ export default class BarcodeList extends Component {
 
   qtyDiv() {
     return (
-      <div className="col-4 mt-3">
+      <div className="col-sm-4 col-12 mt-3">
         <div className="form-group">
           <label>QTY
           <span className="text-red font-bold">*</span>
@@ -701,23 +702,23 @@ export default class BarcodeList extends Component {
             onChange={(e) =>
               this.setState({ qty: e.target.value })
             } />
-            {(this.textileFieldsErr && !this.state.qty)?this.errorDiv('qtyErr'):null}
+          {(this.textileFieldsErr && !this.state.qty) ? this.errorDiv('qtyErr') : null}
         </div>
       </div>
     )
   }
 
-  errorDiv(err){
+  errorDiv(err) {
     return (
       <div>
-      <span style={{ color: "red" }}>{this.state.errors[err]}</span>
-    </div>
+        <span style={{ color: "red" }}>{this.state.errors[err]}</span>
+      </div>
     )
   }
 
   nameDiv() {
     return (
-      <div className="col-4 mt-3">
+      <div className="col-sm-4 col-12 mt-3">
         <div className="form-group">
           <label>Name
           <span className="text-red font-bold">*</span>
@@ -725,9 +726,9 @@ export default class BarcodeList extends Component {
           <input type="text" className="form-control" placeholder="" value={this.state.name}
             onChange={(e) =>
               this.setState({ name: e.target.value })} />
-       {(this.retailFieldsErr && !this.state.name)?this.errorDiv('nameErr'):null}
+          {(this.retailFieldsErr && !this.state.name) ? this.errorDiv('nameErr') : null}
         </div>
-        
+
       </div>
     )
   }
@@ -739,95 +740,95 @@ export default class BarcodeList extends Component {
     const { options, id, value } = this.state;
     return (
       <div className="row">
-      <div className="col-4">
-      <div className="form-group">
-        <label>Division
+        <div className="col-sm-4 col-12">
+          <div className="form-group">
+            <label>Division
         <span className="text-red font-bold">*</span>
-        </label>
-        {/* <select className="form-control">
+            </label>
+            {/* <select className="form-control">
           <option>Select Division</option>
         </select> */}
 
-        <select className="form-control" placeholder="Select Division" onChange={this.handleDivisionChange} value={this.state.division}>
-        <option value='' disabled>Select</option> 
-            {this.state.divisionsList.map(item => (
-              <option key={item.id} value={item.id}>
-                {item.value}
-              </option>
-            ))}
-          </select>
-{(this.textileFieldsErr && !this.state.division)?this.errorDiv('divisionErr'):null}
-      </div>
-    </div>
-    <div className="col-4">
-      <div className="form-group">
-        <label>Section
+            <select className="form-control" placeholder="Select Division" onChange={this.handleDivisionChange} value={this.state.division}>
+              <option value='' disabled>Select</option>
+              {this.state.divisionsList.map(item => (
+                <option key={item.id} value={item.id}>
+                  {item.value}
+                </option>
+              ))}
+            </select>
+            {(this.textileFieldsErr && !this.state.division) ? this.errorDiv('divisionErr') : null}
+          </div>
+        </div>
+        <div className="col-sm-4 col-12">
+          <div className="form-group">
+            <label>Section
         <span className="text-red font-bold">*</span>
-        </label>
+            </label>
 
-        <select className="form-control" placeholder="Select Section" onChange={this.handleSectionChange} value={this.state.section}>
-        <option value='' disabled>Select</option> 
-            {this.state.sectionsList.map(item => (
-               
-              <option key={item.id} value={item.id}>
-                
-                {item.value}
-              </option>
-            ))}
-          </select>
-{(this.textileFieldsErr && !this.state.section)?this.errorDiv('sectionErr'):null}
-      </div>
-    </div>
-    <div className="col-4">
-      <div className="form-group">
-        <label>Sub Section
+            <select className="form-control" placeholder="Select Section" onChange={this.handleSectionChange} value={this.state.section}>
+              <option value='' disabled>Select</option>
+              {this.state.sectionsList.map(item => (
+
+                <option key={item.id} value={item.id}>
+
+                  {item.value}
+                </option>
+              ))}
+            </select>
+            {(this.textileFieldsErr && !this.state.section) ? this.errorDiv('sectionErr') : null}
+          </div>
+        </div>
+        <div className="col-sm-4 col-12">
+          <div className="form-group">
+            <label>Sub Section
         <span className="text-red font-bold">*</span>
-        </label>
-        {/* <select className="form-control"> 
+            </label>
+            {/* <select className="form-control"> 
           <option>Select Sub Section</option>
         </select> */}
 
 
-        <select className="form-control" placeholder="Select Sub Section" onChange={this.handleSubsectionChange} value={this.state.subSection}>
-        <option value='' disabled>Select</option> 
-            {this.state.subSectionsList.map(item => (
-              <option key={item.id} value={item.id}>
-                {item.value}
-              </option>
-            ))}
-          </select>
+            <select className="form-control" placeholder="Select Sub Section" onChange={this.handleSubsectionChange} value={this.state.subSection}>
+              <option value='' disabled>Select</option>
+              {this.state.subSectionsList.map(item => (
+                <option key={item.id} value={item.id}>
+                  {item.value}
+                </option>
+              ))}
+            </select>
 
-{(this.textileFieldsErr && !this.state.subSection)?this.errorDiv('subSectionErr'):null}
-      </div>
-    </div>
+            {(this.textileFieldsErr && !this.state.subSection) ? this.errorDiv('subSectionErr') : null}
+          </div>
+        </div>
 
-    <div className="col-4 mt-3">
-      <div className="form-group">
-        <label>Category
+        <div className="col-sm-4 col-12 mt-3">
+          <div className="form-group">
+            <label>Category
         <span className="text-red font-bold">*</span>
-        </label>
-        {/* <select className="form-control">
+            </label>
+            {/* <select className="form-control">
           <option>Select Category</option>
         </select> */}
 
-        <select className="form-control" placeholder="Select Category" onChange={this.handleCategoryChange} value={this.state.category}>
-        <option value='' disabled>Select</option> 
-            {this.state.categoriesList.map(item => (
-              <option key={item.id} value={item.id}>
-                {item.value}
-              </option>
-            ))}
-          </select>
-{(this.textileFieldsErr && !this.state.category)?this.errorDiv('categoryErr'):null}
-      </div>
-    </div>
+            <select className="form-control" placeholder="Select Category" onChange={this.handleCategoryChange} value={this.state.category}>
+              <option value='' disabled>Select</option>
+              {this.state.categoriesList.map(item => (
+                <option key={item.id} value={item.id}>
+                  {item.value}
+                </option>
+              ))}
+            </select>
+            {(this.textileFieldsErr && !this.state.category) ? this.errorDiv('categoryErr') : null}
+          </div>
+        </div>
 
- 
-    </div>
+
+      </div>
     )
   }
 
-  loadErrorMsgs(){
+  loadErrorMsgs() {
     this.state.errors['nameErr'] = "Please enter the Name";
     this.state.errors['colourErr'] = "Please enter the Colour";
     this.state.errors['batchErr'] = "please enter the Batch";
@@ -844,17 +845,17 @@ export default class BarcodeList extends Component {
     this.state.errors['subSectionnErr'] = "please select the Sub Section";
     this.state.errors['categoryErr'] = "please select the Category";
     this.state.errors['hsnErr'] = "please enter the Hsn Code";
-    this.setState({errors:this.state.errors});
+    this.setState({ errors: this.state.errors });
   }
 
 
   checkForMandatory() {
     if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
-      if (this.state.name && this.state.colour &&  this.state.batchNo &&  this.state.listPrice  &&  this.state.uom && this.state.empId && 
+      if (this.state.name && this.state.colour && this.state.batchNo && this.state.listPrice && this.state.uom && this.state.empId &&
         this.state.storeId && this.state.stockValue && this.state.hsnCode && this.state.productValidity && this.state.status && this.state.costPrice) {
-          this.commonFieldsErr = false;
-          this.retailFieldsErr = false;
-          this.setState({commonFieldsErr:false,retailFieldsErr:false});
+        this.commonFieldsErr = false;
+        this.retailFieldsErr = false;
+        this.setState({ commonFieldsErr: false, retailFieldsErr: false });
         if (this.state.isEdit) {
           this.editBarcode();
         } else {
@@ -863,15 +864,15 @@ export default class BarcodeList extends Component {
       } else {
         this.commonFieldsErr = true;
         this.retailFieldsErr = true;
-        this.setState({commonFieldsErr:true,retailFieldsErr:true});
+        this.setState({ commonFieldsErr: true, retailFieldsErr: true });
         toast.info("please enter all the Mandatory fields");
       }
     } else {
-      if (this.state.division  && this.state.section  && this.state.subSection  && this.state.category  && this.state.colour  && this.state.batchNo  
-        && this.state.listPrice && this.state.hsnCode && this.state.uom && this.state.empId && this.state.storeId  && this.state.costPrice && this.state.qty) {
-          this.commonFieldsErr = false;
-          this.textileFieldsErr = false;
-          this.setState({commonFieldsErr:false,textileFieldsErr:false});
+      if (this.state.division && this.state.section && this.state.subSection && this.state.category && this.state.colour && this.state.batchNo
+        && this.state.listPrice && this.state.hsnCode && this.state.uom && this.state.empId && this.state.storeId && this.state.costPrice && this.state.qty) {
+        this.commonFieldsErr = false;
+        this.textileFieldsErr = false;
+        this.setState({ commonFieldsErr: false, textileFieldsErr: false });
         if (this.state.isEdit) {
           this.editBarcode();
         } else {
@@ -879,8 +880,8 @@ export default class BarcodeList extends Component {
         }
       } else {
         this.commonFieldsErr = true;
-          this.textileFieldsErr = true;
-          this.setState({commonFieldsErr:true,textileFieldsErr:true});
+        this.textileFieldsErr = true;
+        this.setState({ commonFieldsErr: true, textileFieldsErr: true });
         toast.info("please enter all the Mandatory fields");
       }
     }
@@ -889,12 +890,12 @@ export default class BarcodeList extends Component {
   render() {
     const { options, id, value } = this.state;
     return (
-      <div className="maincontent">
+      <div className="p-3">
         <Modal isOpen={this.state.isAddBarcode} size="lg">
           <ModalHeader><h5>Add Barcode</h5></ModalHeader>
           <ModalBody>
-            <div className="row">
-              <div className="col-12">
+            <div className="p-3">
+              <div className="col-12 scaling-center scaling-mb">
                 <h6 className="text-red mb-3">Barcode Details</h6>
               </div>
               {/* <div className="col-4">
@@ -912,19 +913,19 @@ export default class BarcodeList extends Component {
 
               {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? null : this.categoriesDiv()}
               {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.nameDiv() : null}
-
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>Colour
+              <div className="row">
+                <div className="col-sm-4 col-12 mt-3">
+                  <div className="form-group">
+                    <label>Colour
                   <span className="text-red font-bold">*</span>
-                  </label>
-                  <input type="text" className="form-control" placeholder="" value={this.state.colour}
-                    onChange={(e) =>
-                      this.setState({ colour: e.target.value })}  />
-                      {(this.commonFieldsErr && !this.state.colour)?this.errorDiv('colourErr'):null}
+                    </label>
+                    <input type="text" className="form-control" placeholder="" value={this.state.colour}
+                      onChange={(e) =>
+                        this.setState({ colour: e.target.value })} />
+                    {(this.commonFieldsErr && !this.state.colour) ? this.errorDiv('colourErr') : null}
+                  </div>
                 </div>
-              </div>
-              {/* <div className="col-4 mt-3">
+                {/* <div className="col-4 mt-3">
                 <div className="form-group">
                   <label>Name</label>
                   <input type="text" className="form-control" placeholder="" value={this.state.name}
@@ -933,58 +934,58 @@ export default class BarcodeList extends Component {
                 </div>
               </div> */}
 
-              <div className="col-4 mt-3">
-                <div className="form-group"> 
-                  <label>Batch No
+                <div className="col-sm-4 col-12 mt-3">
+                  <div className="form-group">
+                    <label>Batch No
                   <span className="text-red font-bold">*</span>
-                  </label>
-                  <input type="text" className="form-control" placeholder=""  value={this.state.batchNo}
-                    onChange={(e) =>
-                      this.setState({ batchNo: e.target.value })}  />
-                      {(this.commonFieldsErr && !this.state.batchNo)?this.errorDiv('batchErr'):null}
+                    </label>
+                    <input type="text" className="form-control" placeholder="" value={this.state.batchNo}
+                      onChange={(e) =>
+                        this.setState({ batchNo: e.target.value })} />
+                    {(this.commonFieldsErr && !this.state.batchNo) ? this.errorDiv('batchErr') : null}
+                  </div>
                 </div>
-              </div>
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>Cost Price
+                <div className="col-sm-4 col-12 mt-3">
+                  <div className="form-group">
+                    <label>Cost Price
                   <span className="text-red font-bold">*</span>
-                  </label>
-                  <input type="number" className="form-control" placeholder="₹ 00" value={this.state.costPrice}
-                    onChange={(e) =>
-                      this.setState({ costPrice: e.target.value })}  />
-                      {(this.commonFieldsErr && !this.state.costPrice)?this.errorDiv('costErr'):null}
+                    </label>
+                    <input type="number" className="form-control" placeholder="₹ 00" value={this.state.costPrice}
+                      onChange={(e) =>
+                        this.setState({ costPrice: e.target.value })} />
+                    {(this.commonFieldsErr && !this.state.costPrice) ? this.errorDiv('costErr') : null}
+                  </div>
                 </div>
-              </div>
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>List Price
+                <div className="col-sm-4 col-12 mt-3">
+                  <div className="form-group">
+                    <label>List Price
                   <span className="text-red font-bold">*</span>
-                  </label>
-                  <input type="number" className="form-control" placeholder="₹ 00" value={this.state.listPrice}
-                    onChange={(e) =>
-                      this.setState({ listPrice: e.target.value })}  />
-                       {(this.commonFieldsErr && !this.state.listPrice)?this.errorDiv('listErr'):null}
+                    </label>
+                    <input type="number" className="form-control" placeholder="₹ 00" value={this.state.listPrice}
+                      onChange={(e) =>
+                        this.setState({ listPrice: e.target.value })} />
+                    {(this.commonFieldsErr && !this.state.listPrice) ? this.errorDiv('listErr') : null}
+                  </div>
                 </div>
-              </div>
 
 
-    
 
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>UOM
+
+                <div className="col-sm-4 col-12 mt-3">
+                  <div className="form-group">
+                    <label>UOM
                   <span className="text-red font-bold">*</span>
-                  </label>
-                  <select className="form-control" placeholder="Select Store" onChange={this.handleChange} value={this.state.uom} >
-                  <option value='' disabled>Select</option> 
-                    {this.state.uomsList.map(item => (
-                      <option key={item.value} value={item.value}>
-                        {item.value}
-                      </option>
-                    ))}
-                  </select>
-                  {(this.commonFieldsErr && !this.state.uom)?this.errorDiv('uomErr'):null}
-                  {/* 
+                    </label>
+                    <select className="form-control" placeholder="Select Store" onChange={this.handleChange} value={this.state.uom} >
+                      <option value='' disabled>Select</option>
+                      {this.state.uomsList.map(item => (
+                        <option key={item.value} value={item.value}>
+                          {item.value}
+                        </option>
+                      ))}
+                    </select>
+                    {(this.commonFieldsErr && !this.state.uom) ? this.errorDiv('uomErr') : null}
+                    {/* 
                   <div className="form-group sele">
                     <Select className="upper-case" placeholder="Select Store"
                       value={this.state.selectedOption} // set selected value
@@ -992,54 +993,55 @@ export default class BarcodeList extends Component {
                       onChange={this.handleChange} // assign onChange function
                     />
                   </div> */}
+                  </div>
                 </div>
-              </div>
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>HSN Code
+                <div className="col-sm-4 col-12 mt-3">
+                  <div className="form-group">
+                    <label>HSN Code
                   <span className="text-red font-bold">*</span>
-                  </label>
-                  <select className="form-control" placeholder="Select Store" onChange={this.handleHsnChange} value={this.state.hsnCode} >
-                  <option value='' disabled>Select</option>     
-                    {this.state.hsnList.map(item => (
-                      <option key={item.id} value={item.id}>
-                        {item.value}
-                      </option>
-                    ))}
-                  </select>
-                  {(this.commonFieldsErr && !this.state.hsnCode)?this.errorDiv('hsnErr'):null}
+                    </label>
+                    <select className="form-control" placeholder="Select Store" onChange={this.handleHsnChange} value={this.state.hsnCode} >
+                      <option value='' disabled>Select</option>
+                      {this.state.hsnList.map(item => (
+                        <option key={item.id} value={item.id}>
+                          {item.value}
+                        </option>
+                      ))}
+                    </select>
+                    {(this.commonFieldsErr && !this.state.hsnCode) ? this.errorDiv('hsnErr') : null}
+                  </div>
                 </div>
-              </div>
-  
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>EMP ID
+
+                <div className="col-sm-4 col-12 mt-3">
+                  <div className="form-group">
+                    <label>EMP ID
                   <span className="text-red font-bold">*</span>
-                  </label>
-                  <input type="text" className="form-control" placeholder="" value={this.state.empId}
-                    onChange={(e) => this.setState({ empId: e.target.value }) } />
-                    {(this.commonFieldsErr && !this.state.empId)?this.errorDiv('empErr'):null}
+                    </label>
+                    <input type="text" className="form-control" placeholder="" value={this.state.empId}
+                      onChange={(e) => this.setState({ empId: e.target.value })} />
+                    {(this.commonFieldsErr && !this.state.empId) ? this.errorDiv('empErr') : null}
+                  </div>
                 </div>
-              </div>
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>Store
+                <div className="col-sm-4 col-12 mt-3">
+                  <div className="form-group">
+                    <label>Store
                   <span className="text-red font-bold">*</span>
-                  </label>
-                  <select className="form-control" placeholder="Select Store" onChange={this.handleStoreChange} value={this.state.storeId} >
-                  <option value='' disabled>Select</option> 
-                    {this.state.storesList.map(item => (
-                      <option key={item.id} value={item.id}>
-                        {item.value}
-                      </option>
-                    ))}
-                  </select>
-                  {(this.commonFieldsErr && !this.state.storeId)?this.errorDiv('storeErr'):null}
+                    </label>
+                    <select className="form-control" placeholder="Select Store" onChange={this.handleStoreChange} value={this.state.storeId} >
+                      <option value='' disabled>Select</option>
+                      {this.state.storesList.map(item => (
+                        <option key={item.id} value={item.id}>
+                          {item.value}
+                        </option>
+                      ))}
+                    </select>
+                    {(this.commonFieldsErr && !this.state.storeId) ? this.errorDiv('storeErr') : null}
+                  </div>
                 </div>
+                {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.stockDiv() : this.qtyDiv()}
+                {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.statusDiv() : null}
+                {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.stockDate() : null}
               </div>
-              {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.stockDiv() : this.qtyDiv()}
-              {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.statusDiv() : null}
-              {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.stockDate() : null}
             </div>
           </ModalBody>
           <ModalFooter>
@@ -1050,7 +1052,7 @@ export default class BarcodeList extends Component {
               className="btn-unic active fs-12"
               // onClick={this.state.isEdit ? this.editBarcode : this.addBarcode}
               onClick={this.checkForMandatory}
-              
+
             >
               Save
             </button>
@@ -1098,7 +1100,7 @@ export default class BarcodeList extends Component {
               <thead>
 
 
-              {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.barcodesRetailHeader() : this.barcodesTextileHeader()}
+                {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.barcodesRetailHeader() : this.barcodesTextileHeader()}
 
               </thead>
               <tbody>

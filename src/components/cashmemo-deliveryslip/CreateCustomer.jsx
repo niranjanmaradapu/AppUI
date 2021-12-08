@@ -1,6 +1,47 @@
 import React, { Component } from 'react'
+import CreateDeliveryService from '../../services/CreateDeliveryService';
 
 export default class CreateCustomer extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      email:"",	
+phoneNumber:"",
+birthDate:"",
+gender:"",
+name:"",
+username:"",
+tempPassword:"Otsi@123",
+parentId:"1",
+domianId:"802",
+address:"",
+role:{
+    roleName:""
+},
+stores:[],
+clientId:"",
+isConfigUser:"",
+clientDomain:[],
+gstNumber: "",
+gstmobile:"",
+gstemail:"",
+gstaddress:""
+    };
+
+    this.addCustomer = this.addCustomer.bind(this);
+  }
+
+
+  addCustomer() {
+    this.state.phoneNumber = "+91"+ this.state.phoneNumber;
+    CreateDeliveryService.addCustomer(this.state).then(res =>{
+      if(res) {
+
+      }
+    });
+
+  }
   render() {
     return (
       <div className="maincontent">
@@ -12,33 +53,43 @@ export default class CreateCustomer extends Component {
               <div className="col-sm-4 col-12 scaling-mb">
               <div className="form-group">
                       <input type="text" className="form-control"
-                        placeholder="CUSTOMER NAME *" />
+                        placeholder="CUSTOMER NAME *" autoFocus
+                        value={this.state.name}
+                        onChange={(e) => this.setState({ name: e.target.value, username: e.target.value })}
+                        autoComplete="off"/>
                 </div>
               </div>
               <div className="col-sm-4 col-12 scaling-mb">
               <div className="form-group">
                       <input type="text" className="form-control"
-                        placeholder="MOBILE NUMBER *" />
+                        placeholder="MOBILE NUMBER *" autoFocus
+                        value={this.state.phoneNumber} maxLength="10" minLength="10"
+                        onChange={(e) => this.setState({ phoneNumber: e.target.value })}
+                        autoComplete="off"/>
                 </div>
               </div>
               <div className="col-sm-4 col-12 scaling-mb">
               <div className="form-group">
                       <input type="email" className="form-control"
-                        placeholder="EMAIL" />
+                        placeholder="EMAIL" autoFocus
+                        value={this.state.email}
+                        onChange={(e) => this.setState({ email: e.target.value })}
+                        autoComplete="off" />
                 </div>
               </div>
               <div className="col-sm-4 col-12 mt-4">
-              <select className="form-control">
+              <select className="form-control"  value={this.state.gender}
+                        onChange={(e) => this.setState({ gender: e.target.value })} >
                     <option>GENDER</option>
                     <option>MALE</option>
                     <option>FEMALE</option>
-                    <option>Other</option>
                   </select>
               </div>
               <div className="col-sm-4 col-12 mt-4">
               <div className="form-group">
                       <input type="text" className="form-control"
-                        placeholder="ADDRESS *" />
+                        placeholder="ADDRESS *"  value={this.state.address}
+                        onChange={(e) => this.setState({ address: e.target.value })}  autoComplete="off" />
                 </div>
               </div>
             </div>
@@ -47,35 +98,48 @@ export default class CreateCustomer extends Component {
               <div className="col-sm-4 col-12 scaling-mb">
               <div className="form-group">
                       <input type="text" className="form-control"
-                        placeholder="GST NUMBER" />
+                        placeholder="GST NUMBER"  value={this.state.gstNumber}
+                        onChange={(e) => this.setState({ gstNumber: e.target.value })}  autoComplete="off" 
+                         />
                 </div>
               </div>
               <div className="col-sm-4 col-12 scaling-mb">
               <div className="form-group">
                       <input type="text" className="form-control"
-                        placeholder="COMPANY NAME" />
+                        placeholder="COMPANY NAME"  value={this.state.companyName}
+                        onChange={(e) => this.setState({ companyName: e.target.value })}  autoComplete="off" 
+                         />
                 </div>
               </div>
               <div className="col-sm-4 col-12 scaling-mb">
               <div className="form-group">
                       <input type="email" className="form-control"
-                        placeholder="EMAIL" />
+                        placeholder="EMAIL" 
+                        value={this.state.gstemail}
+                        onChange={(e) => this.setState({ gstemail: e.target.value })}  autoComplete="off" 
+                        />
                 </div>
               </div>
               <div className="col-sm-4 col-12 mt-4">
               <div className="form-group">
                       <input type="text" className="form-control"
-                        placeholder="PHONE NUMBER" />
+                        placeholder="PHONE NUMBER" 
+                        value={this.state.gstmobile}
+                        onChange={(e) => this.setState({ gstmobile: e.target.value })}  autoComplete="off" 
+                        />
                 </div>
               </div>
               <div className="col-sm-4 col-12 mt-4">
               <div className="form-group">
                       <input type="text" className="form-control"
-                        placeholder="ADDRESS *" />
+                        placeholder="ADDRESS *" 
+                        value={this.state.gstaddress}
+                        onChange={(e) => this.setState({ gstaddress: e.target.value })}  autoComplete="off" 
+                        />
                 </div>
               </div>
               <div className="col-12 mt-4">
-              <button className="btn-unic-search active m-r-2">ADD CUSTOMER</button>
+              <button className="btn-unic-search active m-r-2" onClick={this.addCustomer}>ADD CUSTOMER</button>
               </div>
             </div>
            </div>

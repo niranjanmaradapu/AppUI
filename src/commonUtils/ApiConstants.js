@@ -3,13 +3,24 @@ export const LOGIN_URL = {
     getToken: "/user-management/auth/loginWithTempPass",
     saveData: "/createData",
     registerUser: "/user-management/client/createClient",
-    changePassword:"/user-management/auth/authResponce"
+    changePassword:"/user-management/auth/authResponce",
+    sendVerificationCode: "/user-management/auth/resetUserPassword",
+    forgotPassword: "/user-management/auth/confirmforgetPassword"
 }
 export const CREATE_DELIVERY_SLIP_URL = {
     getDeliverySlip: "/inventory/inventoryTextile/getBarcodeTextile",
     createDeliverySlip: "/new-sale/newsale/createdeliveryslip",
     getLineItems: "/new-sale/newsale/savelineitems",
-    saveDelivery: "/new-sale/newsale/createdeliveryslip"
+    saveDelivery: "/new-sale/newsale/createdeliveryslip",
+    getRetailBarcode: "/inventory/inventoryRetail/getBarcodeId",
+    addCustomer: "/user-management/auth/createUser",
+    getMobileData: "/new-sale/newsale/getcustomerdetailsbymobilenuber",
+
+    getGvNumberData: "/new-sale/newsale/getGv",
+
+    createTagCustomerToGv: "/new-sale/newsale/tagCustomerToGv",
+    getReturnSlips: "/new-sale/newsale/getInvoiceDetails",
+    saveReturnSlip: "/customer/customer/createReturnSlip"
 }
 
 export const NEW_SALE_URL = {
@@ -138,6 +149,7 @@ export const USER_MANAGEMENT_URL = {
     getAllUsers: "/user-management/user/getallUsers",
     getPrivilegesByName: "/user-management/roles/privilagesByName",
     getSubPrivilege: "/user-management/roles/subPrivilages",
+    getSubPrivilegebyRoleId: "/user-management/roles/getPrivilages",
     getDomainName: "/user-management/client/domian",
     getPrivilegesByDomain: "/user-management/roles/privillagesForDomian",
     getStoresBySearch: "/user-management/store/getStoresWithFilter",

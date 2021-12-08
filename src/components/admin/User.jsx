@@ -85,16 +85,20 @@ export default class User extends Component {
     }
 
     validation(e){
+
+        this.setState({
+                        [e.target.id]: e.target.value, mobileNumber:  e.target.value
+                        });
       
-        const regex = /^[0-9\b]+$/;
-        const value = e.target.value;
-        if (value === '' || regex.test(value)) {
-            this.setState({
-                [e.target.id]: e.target.value, mobileNumber:  e.target.value
-                });
-        } else {
-            // toast.error("pls enter numbers")
-        }
+    //   //  const regex = /^[0-9\b]+$/;
+    //     const value = e.target.value;
+    //     if (value === '' || regex.test(value)) {
+    //         this.setState({
+    //             [e.target.id]: e.target.value, mobileNumber:  e.target.value
+    //             });
+    //     } else {
+    //         // toast.error("pls enter numbers")
+    //     }
        
           
        }
@@ -125,7 +129,7 @@ export default class User extends Component {
     // }
 
     showCreateUser() {
-        this.setState({ showModal: true, });
+        this.setState({ showModal: true,isSearch: false, isSuperAdmin: false });
        
         this.setState({
             name: "",
@@ -138,9 +142,11 @@ export default class User extends Component {
             errors: {}, 
 
         });
+        this.getDomainsList();
     }
 
     searchUser() {
+        this.setState({isSearch: true});
         const obj = {
             "id":"",
             "phoneNo":"",
@@ -162,7 +168,7 @@ export default class User extends Component {
     getAllStoresList() {
         URMService.getStoresByDomainId(this.state.domain).then((res) =>{
             if(res) {
-               this.setState({storesList: res.data.result});
+               this.setState({storesList: res.data.result, storeName: []});
              // this.state.storesList = res.data.result;
             }
         }); 
@@ -172,7 +178,7 @@ export default class User extends Component {
         URMService.getRolesByDomainId(this.state.domain).then((res) =>{
             if(res) {
                  this.setState({rolesList: res.data.result,
-                     role: this.state.isEdit ? this.state.role :  res.data.result[0].roleName});
+                     role: res.data.result[0].roleName});
 
                 // this.state.rolesList =  res.data.result;
                 // this.state.role = res.data.result[0].roleName;
@@ -183,27 +189,27 @@ export default class User extends Component {
 
 
 
-    checkRole() {
-        if (this.state.rolesList && this.state.rolesList.length > 0) {
-            this.state.rolesList.forEach((ele, index) => {
-                if (this.state.role === ele.role) {
-                    this.state.selectedPrivilages = ele;
-                    // sessionStorage.setItem("selectedPrivilages", ele);
-                }
-            });
-        }
-        if (this.state.role === 'super_admin') {
-            // this.state.isSuperAdmin = true;
+    // checkRole() {
+    //     if (this.state.rolesList && this.state.rolesList.length > 0) {
+    //         this.state.rolesList.forEach((ele, index) => {
+    //             if (this.state.role === ele.role) {
+    //                 this.state.selectedPrivilages = ele;
+    //                 // sessionStorage.setItem("selectedPrivilages", ele);
+    //             }
+    //         });
+    //     }
+    //     if (this.state.role === 'super_admin') {
+    //         // this.state.isSuperAdmin = true;
 
-            this.setState({ isSuperAdmin: true, storeName: "", domain: "" });
-        } else {
-            this.setState({
-                isSuperAdmin: false,
-                storeName: this.state.storesList[0].storeName,
-                domain: this.state.domainsList[0].domain
-            });
-        }
-    }
+    //         this.setState({ isSuperAdmin: true, storeName: "", domain: "" });
+    //     } else {
+    //         this.setState({
+    //             isSuperAdmin: false,
+    //             storeName: this.state.storesList[0].storeName,
+    //             domain: this.state.domainsList[0].domain
+    //         });
+    //     }
+    // }
 
     hideCreateUser() {
         this.setState({ showModal: false });
@@ -230,6 +236,11 @@ export default class User extends Component {
     }
 
     getUsers() {
+        if(this.state.isSearch) {
+            this.state.searchStore = "";
+            this.state.userType = "";
+            this.state.searchRole = "";
+        }
         URMService.getUsers(this.state.clientId).then(res => {
             console.log(res);
             if(res) {
@@ -269,12 +280,13 @@ export default class User extends Component {
                     address: items.address,
                     isAdmin: items.superAdmin,
                     domain: userDetails.clientDomians[0]?.clientDomainaId, 
-                    role: userDetails.role?.roleId,
+                    role: userDetails.role?.roleName,
                     storeName: userDetails.stores,
                     isEdit: true,
+                    isSearch: false,
                     userId: items.userId,
                 }, () => {
-                    this.getAllRolesList();
+                   // this.getAllRolesList();
                     this.setState({isSuperAdmin: this.state.isAdmin })
                 });
         
@@ -306,12 +318,12 @@ export default class User extends Component {
             errors["mobileNumber"] = "Enter phone Number";
         }
 
-        if (typeof this.state.mobileNumber !== "undefined") {
-            if (!this.state.mobileNumber.match(/^[0-9\b]+$/)) {
-                formIsValid = false;
-                errors["mobileNumber"] = "Please Enter Valid Mobile Number";
-            }
-        }
+        // if (typeof this.state.mobileNumber !== "undefined") {
+        //     if (!this.state.mobileNumber.match(/^[0-9\b]+$/)) {
+        //         formIsValid = false;
+        //         errors["mobileNumber"] = "Please Enter Valid Mobile Number";
+        //     }
+        // }
 
         //email 
         if (!this.state.email) {
@@ -497,7 +509,6 @@ export default class User extends Component {
     }
 
     setRoles = (e) => {
-
         this.setState({ role: e.target.value });
     }
 
@@ -542,9 +553,13 @@ export default class User extends Component {
           //  this.setState({domain: "", storeName: [], role: ""})
           this.state.domain = "";
           this.state.storeName = [];
+          this.state.domainsList = [];
+          this.state.rolesList = [];
           this.state.role = "";
           this.getPrivilegesByDomainId()
-        } 
+        } else {
+            this.getDomainsList();
+        }
 
         console.log(this.state.domain);
         this.setState({isAdmin: e.target.checked, isSuperAdmin: e.target.checked });
@@ -676,10 +691,27 @@ export default class User extends Component {
              
 
                 <Modal isOpen={this.state.showModal} size="lg">
-                    <ModalHeader>Add User</ModalHeader>
+                    <ModalHeader>
+                        {
+                            !this.state.isEdit && (
+                                <div>
+                                     Add User
+                                    </div>
+                               
+                            )
+                        }
+                        {
+                            this.state.isEdit && (
+                                <div>
+                                Edit User
+                                    </div>
+                               
+                            )
+                        }
+                        </ModalHeader>
                     <ModalBody>
-                        <div className="maincontent">
-                            <h5 className="fs-14 text-red">User Details</h5>
+                        <div className="p-3">
+                            <h5 className="fs-14 text-red scaling-center scaling-mb">User Details</h5>
                             <div className="row">
                                 <div className="col-12 col-sm-4 scaling-mb">
                                     <div className="form-group">
@@ -775,9 +807,8 @@ export default class User extends Component {
                                     </select>
                         </div>
                         </div> */}
-                             <div className="col-12 col-sm-4">
-                                    
-                             <div className="form-check checkbox-rounded checkbox-living-coral-filled pt-1 mt-3">
+                             <div className="col-12 col-sm-12">
+                             <div className="form-check checkbox-rounded checkbox-living-coral-filled pt-1">
                                         <input type="checkbox" className="form-check-input filled-in mt-1" id="admin" name="superadmin" value={this.state.isAdmin} 
                                       onChange={(e) => this.setSuperAdmin(e)}/>
                                         <label className="form-check-label" htmlFor="remember">Is Super Admin</label>
@@ -802,7 +833,7 @@ export default class User extends Component {
                                 </div>
                                 <div className="col-12 col-sm-4 scaling-mb">
                                     <div className="form-group">
-
+                                    <label>Store</label>
                                         {/* <button className="btn-unic-search active m-r-2 mt-4" onClick={this.addStores}>Add Store </button> */}
 
 
@@ -825,7 +856,7 @@ export default class User extends Component {
 
 
                                         <Multiselect
-                                        className="form-control m-t-5"
+                                        className="form-control m-t-5 p-3 fs-14"
                                             options={this.state.storesList} // Options to display in the dropdown
                                             selectedValues={this.state.storeName} // Preselected value to persist in dropdown
                                             onSelect={this.onSelect} // Function will trigger on select event
@@ -892,9 +923,9 @@ export default class User extends Component {
                                 onChange={(e) => this.setState({ searchStore: e.target.value })} />
                         </div>
                     </div>
-                    <div className="col-12 scaling-center scaling-mb col-sm-3 mt-2">
-                        <button className="btn-unic-search active m-r-2" onClick={this.searchUser}>Search </button>
-                        <button className="btn-unic-search active m-r-2" onClick={this.getUsers}>Clear </button>
+                    <div className="col-12 scaling-center scaling-mb col-sm-3 mt-2 p-l-0">
+                        <button className="btn-unic-search active m-r-1" onClick={this.searchUser}>Search </button>
+                        <button className="btn-unic-search active m-r-1" onClick={this.getUsers}>Clear </button>
                         <button className="btn-unic-search active" onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button>
                     </div>
 

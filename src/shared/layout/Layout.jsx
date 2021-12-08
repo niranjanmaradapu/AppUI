@@ -37,6 +37,8 @@ import Footer from '../footer/Footer';
 import AccountingDashboard from '../../components/AccountingPortal/AccountingDashboard';
 import ReportsDashboard from '../../components/reports/ReportsDashboard';
 import URMDashboard from '../../components/admin/URMDashboard';
+import ListOfEstimationSlips from '../../components/reports/ListOfEstimationSlips';
+import Rebarcoding from '../../components/InventoryPortal/Rebarcoding';
 
 
 
@@ -272,6 +274,17 @@ export default class Layout extends Component {
                                     path='/urmDashboard'
                                     exact={true}
                                     component={URMDashboard}
+                                />
+                                 <PrivateRoute
+                                    path='/listOfEstimationSlips'
+                                    exact={true}
+                                    component={ListOfEstimationSlips}
+                                />
+                                 
+                                 <PrivateRoute
+                                    path='/rebarcoding'
+                                    exact={true}
+                                    component={Rebarcoding}
                                 />
                             </Switch>
                         </div>

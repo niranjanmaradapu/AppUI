@@ -20,5 +20,15 @@ class LoginService {
     changePassword(obj) {
         return axios.post(BASE_URL+LOGIN_URL.changePassword,obj);
     }
+
+    getConfirmationCode(userName) {
+        const param = '/'+ userName; 
+        return axios.get(BASE_URL+LOGIN_URL.sendVerificationCode+param); 
+    }
+
+    changeForgotPassword(userName, confirmationCode, newForgotPassword) {
+        const param = '?username='+ userName + '&confirmarionCode=' +confirmationCode+ '&newPassword=' + newForgotPassword; 
+        return axios.post(BASE_URL+LOGIN_URL.forgotPassword+param, {}); 
+    }
 }
 export default new LoginService()

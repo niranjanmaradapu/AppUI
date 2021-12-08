@@ -31,7 +31,7 @@ axios.interceptors.request.use(
 // For response
 axios.interceptors.response.use(
    (res ) => {
-      if(res&& res.data && (res.data.isSuccess === 'true' || res.data.isSuccess === null)){
+      if(res&& res.data && (res.data.isSuccess === 'true' || res.data.isSuccess === null||res.data.isSuccess === undefined)){
          document.body.classList.remove('loading-indicator');
          if(res.data.result == null){
             toast.success(res.data.message);

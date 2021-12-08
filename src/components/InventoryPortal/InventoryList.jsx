@@ -12,13 +12,13 @@ export default class InventoryList extends Component {
       barcodeId: "",
       stockValue: 0,
       fromDate: "",
-      toDate:"",
+      toDate: "",
       productItemId: "",
-      inventoriesList : [],
-      domainDetails:{},
+      inventoriesList: [],
+      domainDetails: {},
       disableSavebtn: true,
-      totalListPrice:0,
-      totalStock:0
+      totalListPrice: 0,
+      totalStock: 0
 
     }
     this.addInventory = this.addInventory.bind(this);
@@ -29,7 +29,7 @@ export default class InventoryList extends Component {
   }
 
   addInventory() {
-    this.setState({ isAddInventory: true,disableSavebtn:true });
+    this.setState({ isAddInventory: true, disableSavebtn: true });
   }
 
   closeInventory() {
@@ -39,9 +39,9 @@ export default class InventoryList extends Component {
 
   componentWillMount() {
     this.state.domainDetails = JSON.parse(sessionStorage.getItem('selectedDomain'));
-    this.setState({domainDetails : this.state.domainDetails})
-   this.getAllInventories();
-}
+    this.setState({ domainDetails: this.state.domainDetails })
+    this.getAllInventories();
+  }
 
 
   getAllInventories() {
@@ -55,8 +55,7 @@ export default class InventoryList extends Component {
         this.state.inventoriesList = res.data.result;
         this.setState({ inventoriesList: this.state.inventoriesList });
         this.calculateTotalAmount();
-        console.log(this.state.inventoriesList);
-      }else{
+      } else {
         this.setState({ inventoriesList: [] })
       }
     }).catch(error => {
@@ -71,14 +70,14 @@ export default class InventoryList extends Component {
   calculateTotalAmount() {
     let stock = 0;
     let totalPrice = 0;
-    if(this.state.inventoriesList && this.state.inventoriesList.length > 0){
+    if (this.state.inventoriesList && this.state.inventoriesList.length > 0) {
       this.state.inventoriesList.forEach((element) => {
         stock = stock + element.stockValue;
         this.setState({ totalStock: stock });
         totalPrice = totalPrice + element.listPrice;
         this.setState({ totalListPrice: totalPrice });
       });
-    }else{
+    } else {
       this.setState({ totalStock: 0 });
       this.setState({ totalListPrice: 0 });
     }
@@ -88,69 +87,66 @@ export default class InventoryList extends Component {
   saveInventory() {
     const saveJson = {
       barcodeId: this.state.barcodeId,
-      stockValue: this.state.stockValue 
+      stockValue: this.state.stockValue
     }
     InventoryService.updateInventoryList(saveJson).then((res) => {
-        console.log(res);
-        if(res.data && res.data.isSuccess === "true"){
-          toast.success(res.data.result);
-          this.resetState();
-          this.setState({ isAddInventory: false });
-          this.state.barcodeId = "";
-          this.state.stockValue = 0;
-          this.props.history.push('/inventoryList');
-          this.getAllInventories();
-        }else{
-          toast.error(res.data.message);
-        }
+      if (res.data && res.data.isSuccess === "true") {
+        toast.success(res.data.result);
+        this.resetState();
+        this.setState({ isAddInventory: false });
+        this.state.barcodeId = "";
+        this.state.stockValue = 0;
+        this.props.history.push('/inventoryList');
+        this.getAllInventories();
+      } else {
+        toast.error(res.data.message);
+      }
     });
-}
-
-resetState(){
-  this.setState({barcodeId:"",stockValue:""});
-}
-
-
-searchInventory() {
-  const saveJson = {
-    fromDate:this.state.fromDate,
-    toDate: this.state.toDate,
-    productItemId:this.state.productItemId
   }
-  InventoryService.searchForInventory(saveJson).then((res) => {
-      console.log(res);
-      if(res.data && res.data.isSuccess === "true"){
+
+  resetState() {
+    this.setState({ barcodeId: "", stockValue: "" });
+  }
+
+
+  searchInventory() {
+    const saveJson = {
+      fromDate: this.state.fromDate,
+      toDate: this.state.toDate,
+      productItemId: this.state.productItemId
+    }
+    InventoryService.searchForInventory(saveJson).then((res) => {
+      if (res.data && res.data.isSuccess === "true") {
         this.setState({ inventoriesList: res.data.result })
         // this.state.inventoriesList = res.data.result;
-      }else{
+      } else {
         toast.info(res.data.message);
-          this.setState({ inventoriesList: [] })
-        
+        this.setState({ inventoriesList: [] })
+
       }
-  });
-}
-
-getbarcodeDetails = (e) =>{
-  if (e.key === "Enter") {
-  InventoryService.getBarcodeDetails(this.state.barcodeId,this.state.domainDetails).then((res) => { 
-    console.log(res); 
-    const barcode = res.data.result;
-    if(res && res.data.isSuccess === "true") {
-       this.setState({stockValue: barcode.stockValue});
-       this.setState({disableSavebtn: false});
-    }else{
-      toast.error(res.data.message);
-      this.setState({disableSavebtn: true});
-    }
-});
+    });
   }
-}
 
-invoicesListTable() {
-  return this.state.inventoriesList.map((items, index) => {
-      const { productItemId, barcodeId,costPrice,stockValue,uom,listPrice,discontinued } = items
+  getbarcodeDetails = (e) => {
+    if (e.key === "Enter") {
+      InventoryService.getBarcodeDetails(this.state.barcodeId, this.state.domainDetails).then((res) => {
+        const barcode = res.data.result;
+        if (res && res.data.isSuccess === "true") {
+          this.setState({ stockValue: barcode.stockValue });
+          this.setState({ disableSavebtn: false });
+        } else {
+          toast.error(res.data.message);
+          this.setState({ disableSavebtn: true });
+        }
+      });
+    }
+  }
+
+  invoicesListTable() {
+    return this.state.inventoriesList.map((items, index) => {
+      const { productItemId, barcodeId, costPrice, stockValue, uom, listPrice, discontinued } = items
       return (
-          <tr key={index}>
+        <tr key={index}>
           <td className="col-1 underline geeks">{productItemId}</td>
           <td className="col-1">{barcodeId}</td>
           <td className="col-2"></td>
@@ -162,13 +158,8 @@ invoicesListTable() {
         </tr>
 
       )
-  });
-}
-
-
-
-
-
+    });
+  }
 
   render() {
     return (
@@ -176,15 +167,15 @@ invoicesListTable() {
         <Modal isOpen={this.state.isAddInventory} size="lg">
           <ModalHeader><h5>Add Inventory</h5></ModalHeader>
           <ModalBody>
-            <div className="row">
+            <div className="row p-3">
               <div className="col-12">
-              <h6 className="text-red mb-3">Inventory Details</h6>
-                </div>
-              <div className="col-4 mt-3">
+                <h6 className="text-red mb-3 scaling-center scaling-mb">Inventory Details</h6>
+              </div>
+              <div className="col-sm-4 col-12 mt-3">
                 <div className="form-group">
                   <label>Barcode</label>
-                  <input type="text" className="form-control" placeholder=""  value={this.state.barcodeId}
-                  onChange={(e) => this.setState({ barcodeId: e.target.value })} onKeyPress={this.getbarcodeDetails}/> 
+                  <input type="text" className="form-control" placeholder="" value={this.state.barcodeId}
+                    onChange={(e) => this.setState({ barcodeId: e.target.value })} onKeyPress={this.getbarcodeDetails} />
                 </div>
               </div>
               {/* <div className="col-4">
@@ -219,12 +210,12 @@ invoicesListTable() {
                     <input type="text" className="form-control" placeholder="₹ 00" />
                 </div>
               </div> */}
-              <div className="col-4 mt-3">
+              <div className="col-sm-4 col-12 mt-3">
                 <div className="form-group">
                   <label>In Stock</label>
-                    <input type="number" className="form-control" placeholder="" value={this.state.stockValue}
-                  onChange={(e) =>
-                    this.setState({ stockValue: e.target.value })} />
+                  <input type="number" className="form-control" placeholder="" value={this.state.stockValue}
+                    onChange={(e) =>
+                      this.setState({ stockValue: e.target.value })} />
                 </div>
               </div>
 
@@ -251,7 +242,7 @@ invoicesListTable() {
             </button>
             <button
               className="btn-unic active"
-        disabled={this.state.disableSavebtn && !this.state.stockValue}
+              disabled={this.state.disableSavebtn && !this.state.stockValue}
               onClick={this.saveInventory}
             >
               Save
@@ -277,7 +268,7 @@ invoicesListTable() {
             <div className="form-group mt-2 mb-3">
               <input type="text" className="form-control"
                 placeholder="INVENTORY ID" value={this.state.productItemId}
-                onChange={(e) => this.setState({ productItemId: e.target.value })}/>
+                onChange={(e) => this.setState({ productItemId: e.target.value })} />
             </div>
           </div>
           <div className="col-sm-3 col-12 mb-3 scaling-center">
@@ -288,33 +279,28 @@ invoicesListTable() {
         <div className="row m-0 p-0 scaling-center">
           <h5 className="mt-1 mb-2 fs-18 p-l-0 scaling-mb">Inventory Details</h5>
           <div className="table-responsive">
-          <table className="table table-borderless mb-1 mt-2">
-            <thead>
-              <tr className="m-0 p-0">
-                <th className="col-1"># INV-ID</th>
-                <th className="col-1">BARCODE</th>
-                <th className="col-2">DESCRIPTION</th>
-                <th className="col-2">UNIT PRICE</th>
-                <th className="col-1">IN STOCK</th>
-                <th className="col-1">UOM</th>
-                <th className="col-2">VALUE</th>
-                <th className="col-2">DISCONTINUED</th>
-              </tr>
-            </thead>
-            <tbody>
-
-            {this.invoicesListTable()}
-            
-            </tbody>
-          </table>
+            <table className="table table-borderless mb-1 mt-2">
+              <thead>
+                <tr className="m-0 p-0">
+                  <th className="col-1"># INV-ID</th>
+                  <th className="col-1">BARCODE</th>
+                  <th className="col-2">DESCRIPTION</th>
+                  <th className="col-2">UNIT PRICE</th>
+                  <th className="col-1">IN STOCK</th>
+                  <th className="col-1">UOM</th>
+                  <th className="col-2">VALUE</th>
+                  <th className="col-2">DISCONTINUED</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.invoicesListTable()}
+              </tbody>
+            </table>
           </div>
           <div className="rect-cardred m-0 mb-4">
-
             <div className="row">
               <div className="col-sm-6 col-1 text-center">
-
               </div>
-
               <div className="col-sm-1 col-4">
                 <label>TOTAL STOCK</label>
                 <h6 className="pt-2">{this.state.totalStock}</h6>
@@ -326,12 +312,8 @@ invoicesListTable() {
               </div>
               <div className="col-sm-2 col-1"></div>
             </div>
-
-            
           </div>
-
         </div>
-
       </div>
     )
   }

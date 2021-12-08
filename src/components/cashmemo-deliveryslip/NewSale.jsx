@@ -13,6 +13,8 @@ import CustomerData from "./CustomerData";
 import Select from "react-select";
 import ecommerce from "../../assets/images/ecommerce.svg";
 import displayRazorpay from "../../commonUtils/PaymentGateway";
+import URMService from "../../services/URM/URMService";
+import CreateDeliveryService from "../../services/CreateDeliveryService";
 
 export default class NewSale extends Component {
   constructor(props) {
@@ -28,6 +30,7 @@ export default class NewSale extends Component {
       isCardSelected: false,
       isCashSelected: false,
       isBillLevelDisc: true,
+      isCalculator:false,
       isPayment: true,
       cashAmount: 0.0,
       taxAmount: 0,
@@ -65,6 +68,7 @@ export default class NewSale extends Component {
       showDiscReason: false,
       discApprovedBy: "",
       showTable: false,
+      dsNumberList: [],
       // customerDetails: {
       //     mobilenumber: '',
       //     customerName: '',
@@ -89,6 +93,9 @@ export default class NewSale extends Component {
       totalPromoDisc: 0,
       totalManualDisc: 0,
       netPayableAmount: 0,
+      promoDiscount: 0,
+      retailBarCodeList: [],
+      barCodeRetailList:[],
       genderList: [
         {
           value: "female",
@@ -101,6 +108,9 @@ export default class NewSale extends Component {
       ],
       customerFullName: "",
       customerMobilenumber: "",
+      isTextile: false,
+      isRetail: false,
+      lineItemsList: []
       // open: false,
     };
 
@@ -110,8 +120,24 @@ export default class NewSale extends Component {
     this.tagCustomer = this.tagCustomer.bind(this);
     this.showDiscount = this.showDiscount.bind(this);
     this.hideDiscount = this.hideDiscount.bind(this);
+    this.showCalculator = this.showCalculator.bind(this);
+    this.hideCal = this.hideCal.bind(this);
     this.saveDiscount = this.saveDiscount.bind(this);
+    this.getDeliverySlipDetails = this.getDeliverySlipDetails.bind(this);
+    this.getRetailBarcodeList = this.getRetailBarcodeList.bind(this);
     //this.handler = this.handler.bind(this);
+  }
+
+  componentWillMount() {
+
+    const clientId = JSON.parse(sessionStorage.getItem('selectedDomain'));
+    console.log(clientId.label);
+    if (clientId.label === "Textile") {
+      this.setState({ isTextile: true, isRetail: false });
+    } else if (clientId.label === "Retail") {
+      this.setState({ isTextile: false, isRetail: true });
+    }
+
   }
 
   openModal = () => {
@@ -177,14 +203,12 @@ export default class NewSale extends Component {
     this.setState({
       isCard: false,
     });
-    // const value  =  displayRazorpay(this.state.cardAmount)
-    // console.log(value);
+   const value  =  displayRazorpay(this.state.cardAmount)
   };
   pay = () => {
     NewSaleService.payment(this.state.cardAmount).then((res) => {
-      console.log(res.data);
       this.setState({ isPayment: false });
-      const data = res.data;
+      const data = JSON.parse(res.data.result);
       const options = {
         // process.env.RAZORPAY_KEY_ID
         key: "rzp_test_z8jVsg0bBgLQer",
@@ -195,11 +219,11 @@ export default class NewSale extends Component {
         image: ecommerce,
         order_id: data.id,
         handler: function (response) {
-          console.log("PAYMENT ID ::" + response.razorpay_payment_id);
-          console.log("ORDER ID :: " + response.razorpay_order_id);
+
 
           // return response;
           // alert("PAYMENT ID ::" + response.razorpay_payment_id);
+          toast.success("Payment Done Successfully");
           // alert("ORDER ID :: " + response.razorpay_order_id);
         },
         prefill: {
@@ -214,131 +238,138 @@ export default class NewSale extends Component {
     });
   };
 
-  // Added By Neelima
-  getDeliverySlipDetails = (e) => {
-    if (e.key === "Enter") {
-      this.setState({showTable:true});
-      this.state.barCodeList = [];
-      this.state.finalList = [];
-      this.state.rBarCodeList = [];
-      NewSaleService.getDeliverySlipDetails(this.state.dsNumber).then((res) => {
-        console.log(res);
-        // if(res.data.statusCodeValue === 200) {
-        this.state.dlslips.push(res.data.result.lineItems);
-        console.log(this.state.dlslips);
-        if (this.state.dlslips.length > 1) {
-          const barList = this.state.dlslips.filter(
-            (test, index, array) =>
-              index ===
-              array.findIndex((findTest) => findTest.dsNumber === test.dsNumber)
-          );
 
-          // this.state.dlslips = barList;
-          this.setState({ dlslips: barList });
-          this.state.barCodeList = [];
-          this.state.rBarCodeList = [];
-          this.state.dlslips.forEach((dlslip, index) => {
-            this.state.barCodeList.push(dlslip.lineItems);
-          });
+  getRetailBarcodeList() {
+    let costPrice = 0;
+    let discount = 0;
+    let total = 0;
+    CreateDeliveryService.getRetailBarcodeList(
+      this.state.retailBarCode
+    ).then((res) => {
+     if(res) {
+       this.setState({showTable: true});
+      this.state.retailBarCodeList.push(res.data.result);
+      if (this.state.retailBarCodeList.length > 1) {
+        const barList = this.state.retailBarCodeList.filter(
+          (test, index, array) =>
+            index ===
+            array.findIndex((findTest) => findTest.barcodeId === test.barcodeId)
+        );
 
-          this.state.barCodeList.forEach((data, i) => {
-            if (data.length > 1) {
-              data.forEach((item, id) => {
-                this.state.finalList.push(item);
-              });
-            } else {
-              this.state.finalList.push(data[0]);
-            }
+        if (barList.length > 1) {
+          this.setState({ barCodeRetailList: barList });
 
-            this.setState({ rBarCodeList: this.state.finalList });
-          });
-
-          if (this.state.manualDisc) {
-            this.state.finalList.forEach((element) => {
-              element.manualDisc = this.state.manualDisc;
-            });
-          }
-
-          this.state.grossAmount = 0;
-          this.state.totalPromoDisc = 0;
-          this.state.netPayableAmount = 0;
-
-          this.state.dlslips.forEach((slip, index) => {
-            this.state.grossAmount = this.state.grossAmount + slip.mrp;
-            this.state.totalPromoDisc =
-              this.state.totalPromoDisc + slip.promoDisc;
-            this.state.netPayableAmount =
-              this.state.netPayableAmount + slip.netAmount;
-          });
         } else {
-          this.state.finalList = this.state.dlslips.lineItems;
-          if (this.state.manualDisc) {
-            this.state.finalList.forEach((element) => {
-              element.manualDisc = this.state.manualDisc;
-            });
-          }
-          this.setState({
-            grossAmount: this.state.dlslips[0].mrp,
-            totalPromoDisc: this.state.dlslips[0].promoDisc,
-            totalManualDisc: this.state.manualDisc,
-            netPayableAmount: this.state.dlslips[0].netAmount,
-          });
+          this.setState({ barCodeRetailList: this.state.retailBarCodeList });
         }
 
-        console.log(this.state.manualDisc);
+      } else {
+        this.setState({ barCodeRetailList: this.state.retailBarCodeList });
+        // this.state.barCodeList = this.state.dlslips.lineItems;
+      }
 
-        // if(this.state.manualDisc) {
-        //     const totalDisc = this.state.totalPromoDisc + parseInt(this.state.manualDisc);
-        //     if(totalDisc < this.state.grossAmount) {
-        //         const netPayableAmount = (this.state.grossAmount) - totalDisc;
-        //         this.setState({netPayableAmount: netPayableAmount});
-        //     }
-        // }
-
-     //   this.getTaxAmount();
-
-        this.setState({ deliverySlipData: res.data });
-
-        this.setState({ isBillingDetails: true });
-
-        this.setState({ isBillLevelDisc: false });
-
-        this.setState({ manualDisc: "", dsNumber: "" });
-
-        // } else {
-        //     toast.error(res.data.body);
-        // }
-        console.log(this.state.manualDisc);
+      this.state.barCodeRetailList.forEach((barCode, index) => {
+        costPrice = costPrice + barCode.listPrice;
+        discount = discount + barCode.listPrice;
+        total = total + barCode.listPrice;
       });
+
+//      discount = discount + this.state.manualDisc;
+
+      this.setState({
+        netPayableAmount: total,
+        totalPromoDisc: discount,
+        grossAmount: costPrice,
+      });
+
+      this.getTaxAmount();
+     }
       
+    });
+  }
+
+
+
+  getDeliverySlipDetails() {
+
+    this.setState({ showTable: true });
+    let costPrice = 0;
+    let discount = 0;
+    let total = 0;
+    this.state.barCodeList = [];
+    this.state.finalList = [];
+    this.state.rBarCodeList = [];
+    const obj = {
+      "dsNumber": this.state.dsNumber,
     }
+    this.state.dsNumberList.push(obj);
+
+    NewSaleService.getDeliverySlipDetails(this.state.dsNumber).then((res) => {
+      this.state.dlslips.push(res.data.result);
+      if (this.state.dlslips.length > 1) {
+        const barList = this.state.dlslips.filter(
+          (test, index, array) =>
+            index ===
+            array.findIndex((findTest) => findTest.dsNumber === test.dsNumber)
+        );
+
+        if (barList.length > 1) {
+          let lineStorage = [];
+          barList.forEach((element, index) => {
+            let lineItems = element.lineItems;
+            lineStorage = [...lineStorage, ...lineItems];
+          });
+
+          this.setState({ barCodeList: lineStorage });
+
+        } else {
+          this.setState({ barCodeList: barList[0].lineItems });
+        }
+
+      } else {
+        this.setState({ barCodeList: this.state.dlslips[0].lineItems });
+        // this.state.barCodeList = this.state.dlslips.lineItems;
+      }
+
+      this.state.barCodeList.forEach((barCode, index) => {
+        costPrice = costPrice + barCode.grossValue;
+        discount = discount + barCode.discount;
+        total = total + barCode.netValue;
+      });
+
+      discount = discount + this.state.manualDisc;
+
+      this.setState({
+        netPayableAmount: total,
+        totalPromoDisc: discount,
+        grossAmount: costPrice,
+      });
+
+      this.getTaxAmount();
+    });
+
+
   }
 
   getTaxAmount() {
-    // this.state.taxAmount = 0;
-    // this.state.cashAmount = 0;
-    // this.state.returnCash = 0;
-    // this.state.grandNetAmount = 0;
-    // this.state.grandReceivedAmount = 0;
+
     NewSaleService.getTaxAmount(this.state.netPayableAmount).then((res) => {
-      console.log(res);
       this.setState({ taxAmount: res.data.result });
-      console.log(this.state.finalList);
-      if (this.state.finalList.length > 0) {
+      if (this.state.barCodeList.length > 0) {
         const grandNet = this.state.netPayableAmount + this.state.taxAmount;
         this.setState({
           grandNetAmount: grandNet,
           grandReceivedAmount: grandNet,
         });
         // this.state.grandNetAmount  =
-        // this.state.grandReceivedAmount = this.state.netPayableAmount + this.state.taxAmount;;
+        // this.state.grandReceivedAmount = this.state.netPayableAmount + this.state.taxAmount;
         if (this.state.cashAmount > this.state.grandNetAmount) {
           const returnCash = this.state.cashAmount - this.state.grandNetAmount;
           this.setState({ returnCash: returnCash });
         } else {
           this.state.cashAmount = 0;
           this.state.returnCash = 0;
-          this.state.grandNetAmount = 0;
+          //  this.state.grandNetAmount = 0;
           this.state.grandReceivedAmount = 0;
           this.setState({ isPayment: true });
           //  toast.info("Please enter sufficient amount");
@@ -350,7 +381,6 @@ export default class NewSale extends Component {
   getMobileDetails = (e) => {
     if (e.key === "Enter") {
       NewSaleService.getMobileData(this.state.mobilenumber).then((res) => {
-        console.log(res);
         if (res.data.result) {
           this.state.mobileData = res.data.result;
           this.setState({
@@ -370,37 +400,48 @@ export default class NewSale extends Component {
 
   showDiscount() {
     this.state.totalManualDisc = 0;
-    this.setState({ isBillingDisc: true });
+    this.setState({ isBillingDisc: true }, () => {
+      this.getDiscountReasons();
+    });
   }
 
   hideDiscount() {
     this.setState({ isBillingDisc: false });
   }
+  showCalculator() {
+   
+    this.setState({ isCalculator: true});
+  }
+
+  hideCal() {
+    this.setState({ isCalculator: false });
+  }
+  handleReasonChange = (e) => {
+    console.log(e);
+    this.setState({ dropValue: e.label });
+  }
 
   saveDiscount() {
-    // console.log("DIS");
     this.state.netPayableAmount = 0;
     const totalDisc =
-      this.state.totalPromoDisc + parseInt(this.state.totalManualDisc);
+      this.state.totalPromoDisc + parseInt(this.state.manualDisc);
     if (totalDisc < this.state.grossAmount) {
       const netPayableAmount = this.state.grossAmount - totalDisc;
       this.state.netPayableAmount = netPayableAmount;
       //  this.setState({netPayableAmount: netPayableAmount});
       this.getTaxAmount();
     }
-    this.getDiscountReasons();
-    this.setState({ showDiscReason: true });
+    const promDisc = this.state.manualDisc + this.state.totalPromoDisc;
+    this.setState({ showDiscReason: true, promoDiscount: promDisc });
 
     this.hideDiscount();
   }
 
   getDiscountReasons() {
     NewSaleService.getDiscountReasons().then((res) => {
-      console.log(res);
       if (res.status === 200) {
         //this.setState({discReasons: res.data});
         const discount = res.data.result;
-        console.log(discount);
         discount.forEach((dis, index) => {
           const obj = {
             value: dis,
@@ -416,59 +457,22 @@ export default class NewSale extends Component {
 
   handleChange(event) {
     this.setState({ mobilenumber: event.target.value });
-    //     this.setState({
-
-    //         errors: {}
-
-    //       });
-    //     let errors = {};
-
-    //   let isValid = true;
-    //     let input = this.state.input;
-
-    // input[event.target.name] = event.target.value;
-
-    // this.state.errors.phone = " "
-
-    // this.setState({
-
-    //   input
-
-    // });
-    // var pattern = new RegExp(/^[0-9\b]+$/);
-
-    // if (!pattern.test(input["phone"])) {
-
-    //   isValid = false;
-
-    //   errors["phone"] = "Please enter only number.";
-
-    // }else if(input["phone"].length != 10){
-
-    //   isValid = false;
-
-    //   errors["phone"] = "Please enter valid phone number.";
-
-    // }
-    // this.setState({
-
-    //     errors: errors
-
-    //   });
-
-    //   console.log(this.state.errors.phone);
   }
 
   getReturnAmount = () => {
-    if (this.state.finalList.length > 0) {
+    console.log(this.state.barCodeList);
+    if (this.state.barCodeList.length > 0) {
       this.setState({ isPayment: false });
     }
     this.state.grandNetAmount =
       this.state.netPayableAmount + this.state.taxAmount;
     this.state.grandReceivedAmount =
       this.state.netPayableAmount + this.state.taxAmount;
-    if (this.state.cashAmount > this.state.grandNetAmount) {
-      this.state.returnCash = this.state.cashAmount - this.state.grandNetAmount;
+    const collectedCash = parseInt(this.state.cashAmount);
+    if (collectedCash > this.state.grandNetAmount) {
+      this.state.returnCash = collectedCash - this.state.grandNetAmount;
+    } else if (collectedCash == this.state.grandNetAmount) {
+      this.setState({ isPayment: false });
     } else {
       this.state.cashAmount = 0;
       this.state.returnCash = 0;
@@ -477,12 +481,17 @@ export default class NewSale extends Component {
       this.setState({ isPayment: true });
       toast.info("Please enter sufficient amount");
     }
-
     this.hideCashModal();
   };
 
+  removeDuplicates(array, key) {
+    const lookup = new Set();
+    return array.filter(obj => !lookup.has(obj[key]) && lookup.add(obj[key]));
+  }
+
   savePayment() {
     this.state.discType = this.state.dropValue;
+    this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     if (this.state.showDiscReason) {
       if (this.state.discApprovedBy && this.state.discType) {
         this.createInvoice();
@@ -496,61 +505,195 @@ export default class NewSale extends Component {
 
   createInvoice() {
     sessionStorage.removeItem("recentSale");
-    const obj = {
-      approvedBy: "pos-user",
-      biller: "honey",
-      grossAmount: this.state.deliverySlipData.mrp,
-      totalPromoDisc: this.state.deliverySlipData.promoDisc,
-      totalManualDisc: 0.0,
-      netPayableAmount: this.state.deliverySlipData.netAmount,
-      taxAmount: this.state.deliverySlipData.taxAmount,
-      customerDetails: this.state.mobileData,
-      dlSlip: this.state.dlslips,
-      discType: this.state.discType,
-      discApprovedBy: this.state.discApprovedBy,
-      invoiceNumber: 100153,
-      natureOfSale: "InStore",
-      offlineNumber: 6789012345,
-      paymentAmountType: [
-        {
-          id: 1,
-          paymentAmount: 500,
-          paymentType: "Cash",
-        },
-        {
-          id: 1,
-          paymentAmount: 500,
-          paymentType: "Card",
-        },
-      ],
-      reason: "wish",
-      roundOff: 0,
-      taxAmount: 20,
-    };
+    let obj;
+    if(this.state.isTextile) {
+       obj = {
 
-    NewSaleService.saveSale(obj).then((res) => {
-      console.log(res)
-      if (res.data.status === 200 && res.data.result === null) {
-        this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
-        this.setState({
-          customerName: " ",
-          gender: " ",
-          dob: " ",
-          customerGST: " ",
-          address: " ",
-          manualDisc: "",
-          customerEmail: "",
-        });
-        this.setState({ showDiscReason: false, isPayment: true });
-        sessionStorage.setItem("recentSale", res.data.body);
-        toast.success(res.data.body);
-      } else {
-        toast.error(res.data.body);
+        "natureOfSale": "InStore",
+  
+        "domainId": 1,
+  
+        "storeId": null,
+  
+        "grossAmount": this.state.grossAmount,
+  
+        "totalPromoDisc": this.state.totalPromoDisc,
+  
+        "totalManualDisc": parseInt(this.state.manualDisc),
+  
+        "taxAmount": this.state.taxAmount,
+  
+        "discApprovedBy": this.state.discApprovedBy,
+  
+        "discType": this.state.discType,
+  
+        "approvedBy": null,
+  
+        "netPayableAmount": this.state.netPayableAmount,
+  
+        "offlineNumber": null,
+  
+        "UserId": null,
+  
+        "dlSlip": this.state.dsNumberList,
+        "lineItemsReVo": null,
+        "paymentAmountType": [{
+          "paymentType": "Cash",
+          "paymentAmount": this.state.cashAmount
+        }]
+  
       }
-    });
+
+      NewSaleService.saveSale(obj).then((res) => {
+        if (res) {
+          this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
+          this.setState({
+            customerName: " ",
+            gender: " ",
+            dob: " ",
+            customerGST: " ",
+            address: " ",
+            manualDisc: "",
+            customerEmail: "",
+        barCodeList:[],
+        grossAmount:0.0,
+        promoDiscount:0.0,
+        netPayableAmount:0.0,
+        taxAmount:0.0,
+        grandNetAmount:0.0
+
+
+
+          });
+          this.setState({ showDiscReason: false, isPayment: true });
+          this.setState({ showTable: false });
+          sessionStorage.setItem("recentSale", res.data.result);
+          toast.success(res.data.result);
+        } else {
+          toast.error(res.data.result);
+        }
+      });
+
+    } else if(this.state.isRetail) {
+      let lineItems=[];
+      this.state.retailBarCodeList.forEach((barCode,index) => {
+        const obj = {
+          "barCode": barCode.barcodeId,
+          "domainId": 2,
+          "itemPrice": barCode.listPrice,
+          "netValue":  barCode.listPrice,
+          "quantity": 1
+        } 
+        lineItems.push(obj);
+      });
+      CreateDeliveryService.getLineItem(lineItems, 2).then(res => {
+        if(res) {
+          let lineItemsList = [];
+          let dataResult = JSON.parse(res.data.result);
+          dataResult.forEach(element=> {
+              const obj = {
+                "lineItemId": element
+              }
+              lineItemsList.push(obj);
+            });
+          
+          
+       
+  
+          this.setState({lineItemsList: lineItemsList}, () => {
+
+            
+      obj = {
+
+        "natureOfSale": "InStore",
+  
+        "domainId": 2,
+  
+        "storeId": null,
+  
+        "grossAmount": this.state.grossAmount,
+  
+        "totalPromoDisc": this.state.totalPromoDisc,
+  
+        "totalManualDisc": parseInt(this.state.manualDisc),
+  
+        "taxAmount": this.state.taxAmount,
+  
+        "discApprovedBy": this.state.discApprovedBy,
+  
+        "discType": this.state.discType,
+  
+        "approvedBy": null,
+  
+        "netPayableAmount": this.state.netPayableAmount,
+  
+        "offlineNumber": null,
+  
+        "UserId": null,
+  
+        "dlSlip": null,
+        "lineItemsReVo": this.state.lineItemsList,
+        "paymentAmountType": [{
+          "paymentType": "Cash",
+          "paymentAmount": this.state.cashAmount
+        }]
+  
+      }
+
+
+            NewSaleService.saveSale(obj).then((res) => {
+              if (res) {
+                this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
+                this.setState({
+                  customerName: " ",
+                  gender: " ",
+                  dob: " ",
+                  customerGST: " ",
+                  address: " ",
+                  manualDisc: "",
+                  customerEmail: "",
+                  dsNumber: "",
+                  barcode: "",
+                  showTable: false,
+                  barCodeRetailList: []
+                });
+                this.setState({ showDiscReason: false, isPayment: true });
+                sessionStorage.setItem("recentSale", res.data.result);
+                toast.success(res.data.result);
+              } else {
+                toast.error(res.data.result);
+              }
+            });
+          });
+        }
+      });
+
+    }
+
+
+ 
+
+    
   }
 
   tagCustomer() {
+    const obj = {
+      "id": "",
+      "phoneNo": "+91" + this.state.mobilenumber,
+      "name": "",
+      "active": false,
+      "inActive": false,
+      "roleId": "",
+      "storeId": ""
+    }
+    URMService.getUserBySearch(obj).then(res => {
+      console.log(res);
+      if (res) {
+        this.setState({ userId: res.data.result[0].userId });
+      }
+    });
+
+
     this.state.mobileData = {
       address: this.state.address,
       altMobileNo: "",
@@ -571,30 +714,12 @@ export default class NewSale extends Component {
     this.hideModal();
   }
 
-  renderTableData() {
-    return this.state.dlslips.map((items, index) => {
-      const { barCode, itemPrice, promoDisc,netValue, grossValue, manualDisc, qty } = items;
-      return (
-        <tr key={index} className="row m-0 p-0">
-          <td className="col-1 geeks">
-            {index + 1}
-          </td>
-          <td className="col-3"><p>#{barCode}</p></td>
-          <td className="col-2">{qty}</td>
-          <td className="col-2">₹ {itemPrice}</td>
-          <td className="col-2">₹ 0</td>
-          <td className="col-2">₹ {netValue}</td>
-        </tr>
-      );
-    });
-  }
+
 
   handleCallback = (childData) => {
-    console.log(childData);
   };
 
   handleDiscountChange = (e) => {
-    console.log(e);
     this.setState({ dropValue: e.label });
     this.setState({ discType: e.label });
     this.setState({ selectedDisc: e });
@@ -622,51 +747,101 @@ export default class NewSale extends Component {
     }
   }
 
+
+
+
   showOrderDetails() {
+
+
+
     return this.state.showTable && (
-      <div >
-         <div className="table-responsive">
-        <table className="table table-borderless mb-1 mt-2">
-                  <thead>
-                    <tr className="m-0 p-0">
-                      <th className="col-1">S.NO</th>
-                      <th className="col-3">ITEM</th>
-                      <th className="col-2">QTY</th>
-                      <th className="col-2">N/Rate</th>
-                      <th className="col-2">Discount</th>
-                      <th className="col-2">VALUE</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-
-                    {this.renderTableData()}
-                    {/* <tr>
-                        <td className="col-1 geeks">
-                          01
-                        </td>
-                        <td className="col-3">Antheaa <p>#123456789</p></td>
-                        <td className="col-2">01</td>
-                        <td className="col-2">₹ 1,499.00</td>
-                        <td className="col-2">₹ 499.00</td>
-                        <td className="col-2">₹ 1,000.00</td>  
+      <div>
+        {
+          this.state.isTextile && (
+            <div className="table-responsive">
+              <table className="table table-borderless mb-1">
+                <thead>
+                  <tr className="m-0 p-0">
+                    <th className="col-1">S.NO</th>
+                    <th className="col-3">Item</th>
+                    <th className="col-2">Qty</th>
+                    <th className="col-2">Gross Amount</th>
+                    <th className="col-2">Discount</th>
+                    <th className="col-2">Net Value</th>
                   </tr>
-                  <tr>
-                        <td className="col-1 geeks">
-                          02
-                        </td>
-                        <td className="col-3">Antheaa <p>#123456789</p></td>
-                        <td className="col-2">01</td>
-                        <td className="col-2">₹ 1,499.00</td>
-                        <td className="col-2">₹ 499.00</td>
-                        <td className="col-2">₹ 1,000.00</td>  
-                  </tr> */}
+                </thead>
 
-                  </tbody>
-                </table>
-                </div>
+                <tbody>
+                  {this.state.barCodeList.map((items, index) => {
+                    return (
+                      <tr key={index}>
+                        <td className="col-1 geeks">
+                          {index + 1}
+                        </td>
+                        <td className="col-3"><p>#{items.barCode}</p></td>
+                        <td className="col-2">{items.quantity}</td>
+                        <td className="col-2">₹ {items.netValue}</td>
+                        <td className="col-2">₹ 0</td>
+                        <td className="col-2">₹ {items.itemPrice}</td>
+                      </tr>
+                    );
+                  })}
+
+
+                </tbody>
+              </table>
+
+            </div>
+          )
+        }
+
+        {
+          this.state.isRetail && (
+            <div className="table-responsive">
+              <table className="table table-borderless mb-1">
+                <thead>
+                  <tr className="m-0 p-0">
+                    <th className="col-1">S.NO</th>
+                    <th className="col-3">Item</th>
+                    <th className="col-2">Qty</th>
+                    <th className="col-2">Gross Amount</th>
+                    <th className="col-2">Discount</th>
+                    <th className="col-2">Net Value</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {this.state.barCodeRetailList.map((items, index) => {
+                    return (
+                      <tr key={index}>
+                        <td className="col-1 geeks">
+                          {index + 1}
+                        </td>
+                        <td className="col-3"><p>#{items.barcodeId}</p></td>
+                        <td className="col-2">{items.quantity}</td>
+                        <td className="col-2">₹ {items.netValue}</td>
+                        <td className="col-2">₹ 0</td>
+                        <td className="col-2">₹ {items.listPrice}</td>
+                      </tr>
+                    );
+                  })}
+
+
+                </tbody>
+              </table>
+
+            </div>
+          )
+        }
       </div>
-    )
+
+
+
+
+    );
+
   }
+
 
 
 
@@ -682,25 +857,6 @@ export default class NewSale extends Component {
     };
     return (
       <div className="maincontent">
-        {/* <button className='btn btn-primary' onClick={this.openModal}>
-              Open Modal
-            </button> */}
-        {/* <Popup\
-          isOpen={this.state.isOpen}
-          title={"Customer Details :"}
-          data={this.state.mobileData}
-          onClose={() => this.setState({ isOpen: false })}
-          actions={[
-            { title: "Tag Customer", onClick: () => this.setState({ isOpen: false })},
-            {
-              title: "Cancel",
-              onClick: () => this.setState({ isOpen: false }),
-            },
-          ]}
-        /> */}
-        {/* <Modal isOpen={this.state.open} size='modal-lg' onRequestHide={this.hideModal}>
-     <CustomerData  toggleModal={this.toggleModal} parentCallback = {this.handleCallback}/>
-     </Modal> */}
 
         <Modal isOpen={this.state.isBillingDisc} size="sm">
           <ModalHeader>Bill Level Discount</ModalHeader>
@@ -713,24 +869,31 @@ export default class NewSale extends Component {
                 <label>Amount</label>
                 <input
                   type="text"
-                  name="discount"
+                  name="amount"
+                  value={this.state.manualDisc}
+                  onChange={(e) => this.setState({ manualDisc: e.target.value })}
                   placeholder="₹"
                   className="form-control" />
               </div>
               <div className="col-12 mt-3">
                 <label>Discount Approved By</label>
-                <select className="form-control">
-                  <option>Select</option>
-                </select>
+                <input
+                  type="text"
+                  name="discount"
+                  value={this.state.discApprovedBy}
+                  onChange={(e) => this.setState({ discApprovedBy: e.target.value })}
+                  placeholder=""
+                  className="form-control" />
               </div>
               <div className="col-12 mt-3">
                 <label>Reason</label>
-                <select className="form-control">
-                  <option>Select Reason</option>
-                  <option>Diwali Festival Offer</option>
-                </select>
+                <Select className="m-t-3 upper-case select_control" placeholder="Select Reason"
+                  value={this.state.selectedDisc} // set selected value
+                  options={this.state.discReasons} // set list of the data
+                  onChange={this.handleDiscountChange} // assign onChange function
+                />
               </div>
-    
+
             </div>
           </ModalBody>
           <ModalFooter>
@@ -745,7 +908,25 @@ export default class NewSale extends Component {
             </button>
           </ModalFooter>
         </Modal>
+        <Modal isOpen={this.state.isCalculator} size="sm">
+          <ModalHeader>Calculator</ModalHeader>
+          <ModalBody>
+            <div className="row p-3">
+              <div className="col-12">
+                <h6 className="fs-14">Please provide below details</h6>
+              </div>
+             
+             
 
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <button className="btn-unic" onClick={this.hideCal}>
+              Cancel
+            </button>
+         
+          </ModalFooter>
+        </Modal>
         <Modal
           isOpen={this.state.isCash}
           size="lg"
@@ -790,19 +971,7 @@ export default class NewSale extends Component {
         >
           <ModalHeader>Card Payment</ModalHeader>
           <ModalBody>
-            {/* <div className="row">
-                            <div className="col-4">
-                                <label>Card Last 4 Digts: </label>
-                            </div>
-                            <div className="col-8">
 
-                                <input type="text" name="cash" className="form-control"
-                                    value={this.state.cardDigts}
-                                    onChange={(e) => this.setState({ cardDigts: e.target.value })}
-                                   
-                                />
-                            </div>
-                        </div> */}
             <div className="row">
               <div className="col-4">
                 <label>Amount: </label>
@@ -844,7 +1013,7 @@ export default class NewSale extends Component {
           </ModalHeader>
           <ModalBody>
             <div className="row p-3">
-              
+
               <div className="col-12">
                 <h6 className="fs-14 mb-4 mt-1">Please provide customer phone number </h6>
                 <label>Phone Number</label>
@@ -861,95 +1030,17 @@ export default class NewSale extends Component {
                 />
                 <div className="text-danger">{this.state.errors.phone}</div>
               </div>
-              {/* <div className="col-4">
-                <label>Customer Name</label>
-                <input
-                  type="text"
-                  name="customer"
-                  className="form-control"
-                  value={this.state.customerName}
-                  onChange={(e) =>
-                    this.setState({ customerName: e.target.value })
-                  }
-                />
-              </div>
-              <div className="col-4">
-                <label>Gender</label>
-                <select
-                  className="form-control"
-                  onChange={(e) => this.setState({ gender: e.target.value })}
-                >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Unisex">Unisex</option>
-                </select>
-              </div>
-              <div className="col-4 mt-3">
-                <label>Customer Email </label>
-                <input
-                  type="text"
-                  name="email"
-                  className="form-control"
-                  value={this.state.customerEmail}
-                  onChange={(e) =>
-                    this.setState({ customerEmail: e.target.value })
-                  }
-                />
-              </div>
-              <div className="col-4 mt-3">
-                <label>Date of Birth</label>
-                <input
-                  type="text"
-                  name="dob"
-                  className="form-control"
-                  value={this.state.dob}
-                  onChange={(e) => this.setState({ dob: e.target.value })}
-                />
-              </div>
-              <div className="col-4 mt-3">
-                <label>Customer GST Number</label>
-                <input
-                  type="text"
-                  name="gst"
-                  className="form-control"
-                  value={this.state.customerGST}
-                  onChange={(e) =>
-                    this.setState({ customerGST: e.target.value })
-                  }
-                />
-              </div>
-              <div className="col-4 mt-3">
-                <label>Address</label>
-                <textarea
-                  rows="3"
-                  name="address"
-                  className="form-control"
-                  value={this.state.address}
-                  onChange={(e) => this.setState({ address: e.target.value })}
-                />
-              </div>
-              
-              <div className="col-4 mt-3">
-                <div className="d-flex mt-5">
-                  <input type="checkbox" className="m-r-3 mt-1" name="check" />
-                  <label>Customer not interested to give his/her number </label>
-                </div>
-              </div> */}
+
               <div className="col-12">
-              <div className="d-flex mt-3 pointer">
-              <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-      <input type="checkbox" className="form-check-input filled-in" id="roundedExample2"  />
-      <label className="form-check-label" htmlFor="roundedExample2">Confirming me to receive promotional messages.</label>
-    </div>
-              {/* <Form.Check aria-label="option 1" label="Confirming me to receive promotional messages."/> */}
-              {/* <div className="custom-control custom-checkbox V1_checkbox-label">
-                    <input className="custom-control-input" type="checkbox" id="check1" />
-                    <label className="custom-control-label V1_custom-control-label p-t-0 p-l-2 fs-14"
-                      htmlFor="check1">Confirming me to receive promotional messages.</label>
-                </div> */}
+                <div className="d-flex mt-3 pointer">
+                  <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                    <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" />
+                    <label className="form-check-label" htmlFor="roundedExample2">Confirming me to receive promotional messages.</label>
+                  </div>
+
+                </div>
               </div>
-              </div>
-             
+
             </div>
           </ModalBody>
           <ModalFooter>
@@ -970,24 +1061,7 @@ export default class NewSale extends Component {
             {/* <h5>Create Sales Invoice</h5> */}
           </div>
           <div className="col-6 text-right pb-2">
-            {/* <button
-              type="button"
-              className="btn-bdr active m-r-2"
-              onClick={this.toggleModal}
-            >
-              TAG CUSTOMER <p>CTL+6</p>
-            </button> */}
 
-            {/* <button
-              type="button"
-              className={
-                "btn-save-ctl" + (this.state.isPayment ? " btn-disable" : "")
-              }
-              disabled={this.state.isPayment}
-              onClick={this.savePayment}
-            >
-              SAVE PAYMENT [CTL + 9]
-            </button> */}
           </div>
         </div>
 
@@ -997,20 +1071,44 @@ export default class NewSale extends Component {
               <div className="row">
                 <div className="col-12 col-sm-4">
                   <div className="form-group">
-                 
-                    <input type="search" className="form-control frm-pr"
-                      value={this.state.dsNumber}
-                      onChange={(e) => this.setState({ dsNumber: e.target.value })}
-                      onKeyPress={this.getDeliverySlipDetails}
-                      placeholder="ENTER BARCODE" />
- <button type="button"className="scan">
-                               <img src={scan}/> SCAN  
-                </button>
+
+                    {
+                      this.state.isTextile && (
+                        <div>
+                          <input type="search" className="form-control frm-pr"
+                            value={this.state.dsNumber}
+                            onChange={(e) => this.setState({ dsNumber: e.target.value })}
+
+                            placeholder="Enter DsNumber" />
+                          <button type="button" className="scan" onClick={this.getDeliverySlipDetails}>
+                            <img src={scan} /> SCAN
+                          </button>
+                        </div>
+                      )
+                    }
+
+                    {
+                      this.state.isRetail && (
+                        <div>
+                          <input type="search" className="form-control frm-pr"
+                            value={this.state.retailBarCode}
+                            onChange={(e) => this.setState({ retailBarCode: e.target.value })}
+
+                            placeholder="Enter Barcode" />
+                          <button type="button" className="scan" onClick={this.getRetailBarcodeList}>
+                            <img src={scan} /> SCAN
+                          </button>
+                        </div>
+                      )
+                    }
+
+
+
                   </div>
                 </div>
                 <div className="col-12 col-sm-8 scaling-center">
                   <button className="btn-unic m-r-2 scaling-mb">Find Item</button>
-                  <button className="btn-unic m-r-2 scaling-mb">Calculator</button>
+                  <button className="btn-unic m-r-2 scaling-mb" onClick={this.showCalculator}>Calculator</button>
                 </div>
               </div>
               <div className="row m-0 p-0">
@@ -1027,85 +1125,100 @@ export default class NewSale extends Component {
                     onClick={this.toggleModal}
                   >Tag Customer </button>
                   <button className="btn-unic m-r-2 scaling-mb" onClick={this.showDiscount} >Bill Level Discount</button>
-                  <button
+                  {/* <button
                     type="button"
-                    className="btn-unic mt-0 m-r-2 scaling-mb"
+                    className={
+                      "btn-unic mt-0 m-r-2 scaling-mb" + (this.state.isPayment ? " btn-disable" : "")
+                    }
+                    onClick={this.savePayment}
                   >
                     Save Payment
-                  </button>
-                  {/* <button className="btn-unic active">Save Payment</button>  */}
+                  </button> */}
+                  {/* <button className={"mt-0"+ (this.state.isPayment ? "btn-unic btn-disable" : "btn-unic active") }onClick={this.savePayment}>Save Payment</button> */}
                 </div>
-                    <div>{this.showOrderDetails()}</div>
-                <div className="rect-cardred m-0">
-                  <div className="row">
-                    <div className="col-2 text-center">
-                      <label>Items : <span className="font-bold"> 02</span></label>
-                      {/* <h6 className="pt-2">02</h6> */}
-                    </div>
+                <div>{this.showOrderDetails()}</div>
+                {
+                  this.state.showTable && (
 
-                    <div className="col-2">
-                      <label>Qty : <span className="font-bold"> 01</span></label>
-                      {/* <h6 className="pt-2">{this.state.mrpAmount} ₹</h6> */}
-                    </div>
-                    <div className="col-2">
-                      <label>N/Rate : <span className="font-bold"> ₹ 2,998</span> </label>
-                      {/* <h6 className="pt-2">{this.state.promoDisc} ₹</h6> */}
-                    </div>
-                    <div className="col-3">
-                      <label>Discount : <span className="font-bold"> ₹ 998</span> </label>
-                      {/* <h6 className="pt-2">{this.state.promoDisc} ₹</h6> */}
-                    </div>
-                    <div className="col-2">
-                      <label>Value : <span className="font-bold"> ₹ 2,000</span> </label>
-                      {/* <h6 className="pt-2">{this.state.promoDisc} ₹</h6> */}
-                    </div>
+                    <div>
+                      <div className="rect-cardred m-0">
+                        <div className="row">
+                          <div className="col-2 text-center">
+                            <label>Items : <span className="font-bold"> {this.state.barCodeList.length}</span></label>
+                            {/* <h6 className="pt-2">02</h6> */}
+                          </div>
 
-                  </div>
-                </div>
-                <div className="row p-0 m-0 mt-2">
-                  <div className="col-6 p-l-0">
-                    <h5 className="mt-2">
-                      Customer Details
-                    </h5>
-                  </div>
-                  <div className="col-6"></div>
-                  <table className="table table-borderless mb-1 mt-2">
-                    <thead>
-                      <tr className="m-0 p-0">
-                        <th className="col-3">NAME</th>
-                        <th className="col-3">MOBILE NUMBER</th>
-                        <th className="col-3">LOYALTY POINTS</th>
-                        <th className="col-3">EXPAIRY DATE</th>
+                          {/* <div className="col-2">
+                          <label>Qty : <span className="font-bold"> 01</span></label>
+                        </div> */}
+                          <div className="col-2">
 
-                      </tr>
-                    </thead>
-                  </table>
-                  <table className="table table-borderless gfg mb-0">
-                    <tbody>
-                      <tr>
-                        <td className="col-3 geeks">
-                          {/* John Peter */}
-                          {this.state.customerFullName}
-                        </td>
-                        <td className="col-3">+91  {this.state.customerMobilenumber}</td>
-                        <td className="col-3">
-                        <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-      <input type="checkbox" className="form-check-input filled-in" id="roundedExample2"  />
-      <label className="form-check-label" htmlFor="roundedExample2">526</label>
-                          {/* <div className="custom-control t_image custom-checkbox V1_checkbox-label">
+                            <label>N/Rate : <span className="font-bold"> ₹ {this.state.grossAmount}</span> </label>
+                            {/* <h6 className="pt-2">{this.state.promoDisc} ₹</h6> */}
+                          </div>
+                          <div className="col-3">
+                            <label>Discount : <span className="font-bold"> ₹
+                              {this.state.promoDiscount}
+                            </span> </label>
+                            {/* <h6 className="pt-2">{this.state.promoDisc} ₹</h6> */}
+                          </div>
+                          <div className="col-2">
+                            <label>Total : <span className="font-bold"> ₹ {this.state.netPayableAmount}</span> </label>
+                            {/* <h6 className="pt-2">{this.state.promoDisc} ₹</h6> */}
+                          </div>
+
+                        </div>
+                      </div>
+
+                      <div className="row p-0 m-0 mt-2">
+                        <div className="col-6 p-l-0">
+                          <h5 className="mt-2">
+                            Customer Details
+                          </h5>
+                        </div>
+                        <div className="col-6"></div>
+                        <table className="table table-borderless mb-1 mt-2">
+                          <thead>
+                            <tr className="m-0 p-0">
+                              <th className="col-3">NAME</th>
+                              <th className="col-3">MOBILE NUMBER</th>
+                              <th className="col-3">LOYALTY POINTS</th>
+                              <th className="col-3">EXPAIRY DATE</th>
+
+                            </tr>
+                          </thead>
+                        </table>
+                        <table className="table table-borderless gfg mb-0">
+                          <tbody>
+                            <tr>
+                              <td className="col-3 geeks">
+                                {/* John Peter */}
+                                {this.state.customerFullName}
+                              </td>
+                              <td className="col-3">+91  {this.state.customerMobilenumber}</td>
+                              <td className="col-3">
+                                <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                                  <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" />
+                                  <label className="form-check-label" htmlFor="roundedExample2">526</label>
+                                  {/* <div className="custom-control t_image custom-checkbox V1_checkbox-label">
                             <input className="custom-control-input" type="checkbox" id="check1" />
                             <label className="custom-control-label V1_custom-control-label p-l-1 p-t-0 fs-14"
                               htmlFor="check1">526</label> */}
 
-                          </div>
-                        </td> 
-                        <td className="col-3">31 Dec 2021</td>
+                                </div>
+                              </td>
+                              <td className="col-3">31 Dec 2021</td>
 
-                      </tr>
+                            </tr>
 
-                    </tbody>
-                  </table>
-                </div>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                  )
+                }
+
               </div>
             </div>
             <div className="col-sm-4 col-12">
@@ -1116,7 +1229,7 @@ export default class NewSale extends Component {
                     <label>Total Amount</label>
                   </div>
                   <div className="col-7 text-right">
-                    <label className="font-bold">₹ 1,500.00</label>
+                    <label className="font-bold">₹ {this.state.netPayableAmount}</label>
                   </div>
                 </div>
                 <div className="row">
@@ -1124,17 +1237,17 @@ export default class NewSale extends Component {
                     <label>CGST</label>
                   </div>
                   <div className="col-7 text-right">
-                    <label className="font-bold">₹ 75.00</label>
+                    <label className="font-bold">₹ {this.state.taxAmount}</label>
                   </div>
                 </div>
-                <div className="row">
+                {/* <div className="row">
                   <div className="col-5">
                     <label>SGST</label>
                   </div>
                   <div className="col-7 text-right">
                     <label className="font-bold">₹ 75.00</label>
                   </div>
-                </div>
+                </div> */}
 
 
                 <div className="payment">
@@ -1143,7 +1256,7 @@ export default class NewSale extends Component {
                       <label>Payable Amount</label>
                     </div>
                     <div className="col-7 p-l-0 pt-1 text-right">
-                      <label className="font-bold">₹ 1,650.00</label>
+                      <label className="font-bold">₹ {this.state.grandNetAmount}</label>
                     </div>
                   </div>
 
@@ -1161,7 +1274,7 @@ export default class NewSale extends Component {
                   <ul>
                     <li>
                       <span>
-                        <img src={card} />
+                        <img src={card}  onClick={this.getCardModel}/>
                         <label>CARD</label>
                       </span>
 
@@ -1187,7 +1300,7 @@ export default class NewSale extends Component {
                       </span>
 
                     </li>
-                    <li>
+                    <li >
                       <span>
                         <img src={khata} />
                         <label>KHATA</label>
@@ -1198,16 +1311,18 @@ export default class NewSale extends Component {
                   </ul>
                 </div>
                 <div className="mt-3">
-                  <button className="btn-login_v1 mt-3 mb-3">PROCEED TO CHECKOUT</button>
-                  <button className="btn-unic p-2 w-100">HOLD PAYMENT</button>
+                  <button 
+                  className={"mt-1 w-100 "+ (this.state.isPayment ? "btn-unic btn-disable" : "btn-unic active") } onClick={this.savePayment}
+                  >PROCEED TO CHECKOUT</button>
+                  {/* <button className="btn-unic p-2 w-100">HOLD PAYMENT</button> */}
                 </div>
               </div>
             </div>
-         
+
           </div>
         </div>
 
-  
+
       </div>
     );
   }

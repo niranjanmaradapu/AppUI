@@ -208,6 +208,26 @@
         }
     }
 }
+&-selection{
+    background-color: #FEE4E7;
+    color: #614D4F;
+    padding:2%;
+    text-align: center;
+    font-size:14px;
+    padding-top:7px;
+    height:38px;
+    // font-weight:700;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 1px solid #F4D0D7;
+    vertical-align: middle !important;
+    position: relative;
+    // top:9px;
+    &.active{
+        background-color: #ED1C24 !important;
+        color:$white !important;
+    }
+}
    &-bill{
        background-color: #FFECEF;
        color: #FF0000;
@@ -551,7 +571,7 @@
     background-color: #ffffff;
     color: #858585;
     font-size: 14px;
-    min-width: 198px;
+    min-width: 150px;
     cursor: pointer;
     padding-right: 1.4rem;
     padding-left: 1.4rem;

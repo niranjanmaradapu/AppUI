@@ -18,6 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { withTranslation } from 'react-i18next';
+import { saveDataInIndexDB, getDataFromIndexDB } from '../../utility.js';
 class CeateDeliverySlip extends Component {
   constructor(props) {
     super(props);
@@ -58,6 +59,7 @@ class CeateDeliverySlip extends Component {
       lineItemsList: []
     };
     //  this.getDeliverySlips();
+    this.getDataFromDB();
     this.createDeliverySlip = this.createDeliverySlip.bind(this);
     this.remberSalesMan = this.remberSalesMan.bind(this);
     this.checkPromo = this.checkPromo.bind(this);
@@ -65,8 +67,14 @@ class CeateDeliverySlip extends Component {
     this.hideModal = this.hideModal.bind(this);
     this.generateNew = this.generateNew.bind(this);
     //  this.deleteTableRow = this.deleteTableRow.bind(this);
+ 
+     
   }
-
+  getDataFromDB = async () => {
+    let data = await getDataFromIndexDB();
+    console.log('Data ', data);
+  };
+  
   getDeliverySlips = (e) => {
     this.setState({ type: this.state.selectedType.label });
     let mrp = 0;
@@ -486,8 +494,11 @@ class CeateDeliverySlip extends Component {
       CreateDeliveryService.saveDelivery(createObj).then(res=> {
         if(res) {
           toast.success(res.data.message);
+         
         }
       });
+
+      this.hideModal();
   }
 
 

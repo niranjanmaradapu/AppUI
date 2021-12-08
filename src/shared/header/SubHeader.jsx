@@ -310,6 +310,7 @@ class SubHeader extends Component {
 
 setHeaders() {
   console.log(this.state.message);
+  const user = JSON.parse(sessionStorage.getItem("user"));
   const domainName = sessionStorage.getItem("domainName");
   if(domainName === "config_user") { 
     this.state.moduleNames.forEach(ele => {
@@ -317,19 +318,44 @@ setHeaders() {
           this.setState({buttonsList: ele.children})
       }
   });
-  } else {
+  } 
+  else if(user["custom:isSuperAdmin"] === "true") {
      URMService.getSubPrivileges(this.state.message).then(res => {
-    console.log(res);
     if(res) {
       this.setState({buttonsList: res.data.result});
     }
   });
+  } else {
+    if(user && user["custom:roleName"]) {
+      URMService.getSubPrivilegesbyRoleId(user["custom:roleName"]).then(res => {
+        if(res) {
+        //  this.setState({buttonsList: res.data.result});
+        const subPrivilegesList = res.data.result?.subPrivilages;
+        let subList = [];
+        subPrivilegesList.forEach((element,index)=> {
+          if(element.parentPrivillageId == this.state.message) {
+            subList.push(element);
+          }
+        });
+        subList = this.removeDuplicates(subList,"id");
+         this.setState({buttonsList:subList});
+
+        }
+      });
+    }
   }
 
  
 
    
 }
+
+
+    
+ removeDuplicates(array, key) {
+      const lookup = new Set();
+      return array.filter(obj => !lookup.has(obj[key]) && lookup.add(obj[key]));
+    } 
 
 
   // setHeaders() {

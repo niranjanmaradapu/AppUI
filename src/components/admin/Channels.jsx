@@ -19,7 +19,8 @@ export default class Channels extends Component {
             isTable: false,
             clientId: "",
             isMultiDomain: false,
-            userName: ""
+            userName: "",
+            isAddDomain: false
         }
 
         this.showChannels = this.showChannels.bind(this);
@@ -55,6 +56,11 @@ export default class Channels extends Component {
             if (res) {
                 this.setState({ domainLists: res.data.result });
             }
+
+            if(this.state.domainLists.length === this.state.channlesList.length) {
+                this.setState({isAddDomain: true});
+            }
+            console.log(this.state.isAddDomain);
         });
     }
 
@@ -115,6 +121,13 @@ export default class Channels extends Component {
                         {this.getTableData()}
                     </tbody>
                 </table>
+                <div>
+                    {this.state.isAddDomain &&(
+                          <div>
+                                            <span style={{ color: "red" }}>User already have all the domains</span>
+                                        </div> 
+                    )}
+                </div>
             </div>
         )
     }
@@ -134,6 +147,8 @@ export default class Channels extends Component {
                 </tr>
             );
         });
+        
+        
     }
 
     handleSelectChange = (e) => {
@@ -192,7 +207,7 @@ export default class Channels extends Component {
                 <Modal isOpen={this.state.showModal} size="md">
                     <ModalHeader>Create Domain</ModalHeader>
                     <ModalBody>
-                        <div className="maincontent">
+                        <div className="p-3">
                             <div className="row">
                                 <div className="col-12">
                                     <h6 className="fs-14">Please add your new domain name</h6>
@@ -238,7 +253,13 @@ export default class Channels extends Component {
                         <h5>List Of Domains</h5>
                     </div>
                     <div className="col-sm-6 col-12 scaling-center scaling-mb text-right mb-1">
-                        <button className="btn-unic-search active" onClick={this.showChannels}><i className="icon-retail mr-1"></i>  Add Domain </button>
+                        <button 
+                          className={
+                            "btn-unic-search active" +
+                            (this.state.isAddDomain ? " btn-disable" : "")
+                          }
+                        
+                        onClick={this.showChannels}><i className="icon-retail mr-1"></i>  Add Domain To Client </button>
 
                     </div>
                 </div>

@@ -94,6 +94,11 @@ class URMService {
         return axios.get(BASE_URL+USER_MANAGEMENT_URL.getSubPrivilege+param);
     }
 
+    getSubPrivilegesbyRoleId(roleId) {
+        const param = '/'+ roleId; 
+        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getPrivilegesByName+param); 
+    }
+
     getDomainName(clientDomainId) {
         const param = '/'+ clientDomainId; 
         return axios.get(BASE_URL+USER_MANAGEMENT_URL.getDomainName+param);

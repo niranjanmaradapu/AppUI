@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import dress1 from '../../assets/images/midi_blue.svg';
 import scan from '../../assets/images/scan.svg';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import CreateDeliveryService from '../../services/CreateDeliveryService';
+import { toast } from 'react-toastify';
 
 export default class GenerateReturnSlip extends Component {
     constructor(props) {
@@ -9,6 +11,10 @@ export default class GenerateReturnSlip extends Component {
       this.state = {
         isTagCustomer: false,
         isGenerateSlip: false,
+        invoiceNo:"",
+        mobileNo: "",
+        returnslipsList:[],
+        reason: ""
       };
       this.tagCustomer = this.tagCustomer.bind(this);
       this.closeTagCustomer = this.closeTagCustomer.bind(this);
@@ -30,6 +36,90 @@ export default class GenerateReturnSlip extends Component {
 
     closegenerateReturn() {
       this.setState({isGenerateSlip: false});
+    }
+
+    saveGenerateReturnSlip() {
+      const saveobj = {
+            "barcodes": this.state.returnslipsList,
+            "mobileNumber": this.state.mobileNo,
+            "invoiceNo": this.state.invoiceNo,
+            "reason": this.state.reason,
+            "iSReviewed": false,
+            "customerName": "deep",
+            "totalAmount": 899,
+            "createdBy": "manideep"
+        } 
+
+        CreateDeliveryService.saveGenerateReturnSlip(saveobj).then(res => {
+          if(res) {
+            toast.success(res.data.result);
+          }
+        })
+
+    }
+
+    getReturnSlipDetails() {
+      const obj = {
+            invoiceNo: this.state.invoiceNo,
+            mobileNo: this.state.mobileNo,
+            domianId:1 //this feild is mandatory
+        } 
+      CreateDeliveryService.getReturnSlipDetails(obj).then(res => {
+        console.log(res);
+        if(res) {
+          this.setState({returnslipsList: res.data.result});
+        }
+      });
+    }
+
+    renderTableData() {
+      return this.state.returnslipsList.length > 0 &&  this.state.returnslipsList.map((items, index) => {
+        const { barcode, quantity, netValue } = items;
+        return (
+           <div>
+              <tr>
+                    <td className="col-1 geeks">
+                      {index+1}
+                    </td>
+                    <td className="col-5">
+                      <div className="d-flex">
+                        <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                          <input type="checkbox" className="form-check-input filled-in mt-3" id="roundedExample2" checked />
+                          <label className="form-check-label" htmlFor="roundedExample2"></label>
+
+                          <img src={dress1} />
+                        </div>
+                        <div className="td_align ">
+                          <label>Antheaa</label>
+                          <label>Women Black & Rust Orange Floral Print #123456789</label>
+                        </div>
+
+                      </div>  </td>
+                    <td className="col-2">{barcode}</td>
+                    <td className="col-2">{quantity}</td>
+                    <td className="col-2">₹ {netValue}</td>
+                  </tr>
+           </div>
+        );
+    });
+    }
+
+    getTableData(){
+      return this.state.returnslipsList.map((items,index) => {
+        const { barcode, quantity, netValue } = items;
+        return (
+           <div>
+                 <tr>
+              <td className="col-4 geeks">
+              {barcode}
+              </td>
+              <td className="col-4">{quantity}</td>
+              <td className="col-4">₹ {netValue}</td>
+            </tr>
+         
+             </div>
+        )
+      });
     }
 
   render() {
@@ -56,20 +146,7 @@ export default class GenerateReturnSlip extends Component {
         </table>
         <table className="table table-borderless gfg">
           <tbody>
-            <tr>
-              <td className="col-4 geeks">
-              CR12345678912
-              </td>
-              <td className="col-4">04</td>
-              <td className="col-4">₹ 3,447.00</td>
-            </tr>
-            <tr>
-              <td className="col-4 geeks">
-              CR12345678913
-              </td>
-              <td className="col-4">02</td>
-              <td className="col-4">₹ 3,447.00</td>
-            </tr>
+          {this.getTableData()}
             
 
           </tbody>
@@ -83,7 +160,7 @@ export default class GenerateReturnSlip extends Component {
             </button>
             <button
               className="btn-bdrG pt-2 active fs-12"
-              onClick={this.closegenerateReturn}
+              onClick={this.saveGenerateReturnSlip}
             >
               GENERATE NEW
             </button>
@@ -104,85 +181,12 @@ export default class GenerateReturnSlip extends Component {
                   className="form-control"
                 />
               </div>
-              {/* <div className="col-4">
-                <label>Customer Name</label>
-                <input
-                  type="text"
-                  name="customer"
-                  className="form-control"
-                  value={this.state.customerName}
-                  onChange={(e) =>
-                    this.setState({ customerName: e.target.value })
-                  }
-                />
-              </div>
-              <div className="col-4">
-                <label>Gender</label>
-                <select
-                  className="form-control"
-                  onChange={(e) => this.setState({ gender: e.target.value })}
-                >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Unisex">Unisex</option>
-                </select>
-              </div>
-              <div className="col-4 mt-3">
-                <label>Customer Email </label>
-                <input
-                  type="text"
-                  name="email"
-                  className="form-control"
-                  value={this.state.customerEmail}
-                  onChange={(e) =>
-                    this.setState({ customerEmail: e.target.value })
-                  }
-                />
-              </div>
-              <div className="col-4 mt-3">
-                <label>Date of Birth</label>
-                <input
-                  type="text"
-                  name="dob"
-                  className="form-control"
-                  value={this.state.dob}
-                  onChange={(e) => this.setState({ dob: e.target.value })}
-                />
-              </div>
-              <div className="col-4 mt-3">
-                <label>Customer GST Number</label>
-                <input
-                  type="text"
-                  name="gst"
-                  className="form-control"
-                  value={this.state.customerGST}
-                  onChange={(e) =>
-                    this.setState({ customerGST: e.target.value })
-                  }
-                />
-              </div>
-              <div className="col-4 mt-3">
-                <label>Address</label>
-                <textarea
-                  rows="3"
-                  name="address"
-                  className="form-control"
-                  value={this.state.address}
-                  onChange={(e) => this.setState({ address: e.target.value })}
-                />
-              </div>
-              
-              <div className="col-4 mt-3">
-                <div className="d-flex mt-5">
-                  <input type="checkbox" className="m-r-3 mt-1" name="check" />
-                  <label>Customer not interested to give his/her number </label>
-                </div>
-              </div> */}
+             
               <div className="col-12">
               <div className="d-flex mt-3 pointer">
-              <div class="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-      <input type="checkbox" class="form-check-input filled-in" id="roundedExample2" checked />
-      <label class="form-check-label" htmlFor="roundedExample2">Confirming me to receive promotional messages.</label>
+              <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+      <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" checked />
+      <label className="form-check-label" htmlFor="roundedExample2">Confirming me to receive promotional messages.</label>
     </div>
        
               </div>
@@ -208,8 +212,10 @@ export default class GenerateReturnSlip extends Component {
               <div className="col-12 col-sm-4">
                 <div className="form-group">
                   <input type="search" className="form-control frm-pr"
-                    placeholder="ENTER BARCODE" />
-                           <button type="button"className="scan">
+                    placeholder="Enter Invoice Number" 
+                    value={this.state.invoiceNo}
+                    onChange={(e) => this.setState({invoiceNo: e.target.value })}/>
+                           <button type="button"className="scan" onClick={this.getReturnSlipDetails}>
                                <img src={scan}/> SCAN  
                 </button>
                 </div>
@@ -217,11 +223,12 @@ export default class GenerateReturnSlip extends Component {
               <div className="col-12 col-sm-4">
                 <div className="form-group scaling-mb">
                   <input type="search" className="form-control"
-                    placeholder="CUSTMER PHONE NUMBER" />
+                    placeholder="CUSTMER PHONE NUMBER"    value={this.state.mobileNo}
+                    onChange={(e) => this.setState({mobileNo: e.target.value })} />
                 </div>
               </div>
               <div className="col-12 col-sm-4 p-r-0 p-l-0 scaling-center">
-                <button className="btn-unic-search active m-r-2 scaling-mb">SEARCH</button>
+                <button className="btn-unic-search active m-r-2 scaling-mb" onClick={this.getReturnSlipDetails}>SEARCH</button>
                 <button className="btn-unic scaling-mb" onClick={this.tagCustomer}>Customer Tagging</button>
               </div>
             </div>
@@ -245,16 +252,16 @@ export default class GenerateReturnSlip extends Component {
                 </thead>
                 <tbody>
 
-                  {/* {this.renderTableData()} */}
-                  <tr>
+                  {this.renderTableData()}
+                  {/* <tr>
                     <td className="col-1 geeks">
                       01
                     </td>
                     <td className="col-5">
                       <div className="d-flex">
-                        <div class="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                          <input type="checkbox" class="form-check-input filled-in mt-3" id="roundedExample2" checked />
-                          <label class="form-check-label" htmlFor="roundedExample2"></label>
+                        <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                          <input type="checkbox" className="form-check-input filled-in mt-3" id="roundedExample2" checked />
+                          <label className="form-check-label" htmlFor="roundedExample2"></label>
 
                           <img src={dress1} />
                         </div>
@@ -273,9 +280,9 @@ export default class GenerateReturnSlip extends Component {
                       02
                     </td>
                     <td className="col-5">     <div className="d-flex">
-                      <div class="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                        <input type="checkbox" class="form-check-input filled-in mt-3" id="roundedExample2" checked />
-                        <label class="form-check-label" htmlFor="roundedExample2"></label>
+                      <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                        <input type="checkbox" className="form-check-input filled-in mt-3" id="roundedExample2" checked />
+                        <label className="form-check-label" htmlFor="roundedExample2"></label>
                         <img src={dress1} />
                       </div>
                       <div className="td_align ">
@@ -293,9 +300,9 @@ export default class GenerateReturnSlip extends Component {
                       03
                     </td>
                     <td className="col-5">     <div className="d-flex">
-                      <div class="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                        <input type="checkbox" class="form-check-input filled-in mt-3" id="roundedExample2" checked />
-                        <label class="form-check-label" htmlFor="roundedExample2"></label>
+                      <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                        <input type="checkbox" className="form-check-input filled-in mt-3" id="roundedExample2" checked />
+                        <label className="form-check-label" htmlFor="roundedExample2"></label>
                         <img src={dress1} />
                       </div>
                       <div className="td_align ">
@@ -307,7 +314,7 @@ export default class GenerateReturnSlip extends Component {
                     <td className="col-2">BAR352547</td>
                     <td className="col-2">02</td>
                     <td className="col-2">₹ 1,500.00</td>
-                  </tr>
+                  </tr> */}
 
                 </tbody>
               </table>
@@ -386,7 +393,8 @@ export default class GenerateReturnSlip extends Component {
                     <button type="button" className=""> Apply</button>
                     <input type="text" className="form-control" placeholder="COUPON CODE" />
                   </div> */}
-              <select className="form-control">
+              <select className="form-control"   value={this.state.reason}
+                    onChange={(e) => this.setState({reason: e.target.value })} >
                 <option>Not fitting</option>
                 <option>Damaged Piece</option>
                 <option>Quality Is Not Good</option>

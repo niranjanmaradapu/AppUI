@@ -1,11 +1,12 @@
 import ecommerce from "../../src/assets/images/ecommerce.svg";
 import axios from 'axios';
-export default async function displayRazorpay(value) {
-  console.log(value);
+export default async function displayRazorpay(value, newsaleId) {
+  console.log(newsaleId);
   const URL= process.env.REACT_APP_BASE_URL+'/paymentgateway/paymentgateway/create_order'
    console.log(URL);
    const body =   JSON.stringify(  { "amount": value,
-    "info": "order_request"}    )
+    "info": "order_request",
+  "newsaleId": newsaleId}    )
    return  axios.post(URL, body, {
     headers: {
         'Content-Type': 'application/json',

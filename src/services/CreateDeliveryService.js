@@ -54,6 +54,15 @@ class CreateDeliveryService {
         return axios.post(BASE_URL + CREATE_DELIVERY_SLIP_URL.saveReturnSlip, saveobj);
     }
 
+    getUserByMobile(mobileNumber) {
+        const param = '/' + mobileNumber;
+        return axios.get(BASE_URL + CREATE_DELIVERY_SLIP_URL.getCustomerMobile + param);
+    }
+
+    getGiftVochersList() {
+        return axios.get(BASE_URL + CREATE_DELIVERY_SLIP_URL.getGiftVochers);
+    }
+
 }
 
 export default new CreateDeliveryService()

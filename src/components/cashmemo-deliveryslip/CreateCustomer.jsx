@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { toast } from 'react-toastify';
 import CreateDeliveryService from '../../services/CreateDeliveryService';
 
 export default class CreateCustomer extends Component {
@@ -26,7 +27,10 @@ clientDomain:[],
 gstNumber: "",
 gstmobile:"",
 gstemail:"",
-gstaddress:""
+gstaddress:"",
+isCustomer:"true",
+isConfigUser:"false"
+
     };
 
     this.addCustomer = this.addCustomer.bind(this);
@@ -37,7 +41,32 @@ gstaddress:""
     this.state.phoneNumber = "+91"+ this.state.phoneNumber;
     CreateDeliveryService.addCustomer(this.state).then(res =>{
       if(res) {
-
+      toast.success(res.data.result.body);
+      this.setState({
+        email:"",	
+        phoneNumber:"",
+        birthDate:"",
+        gender:"",
+        name:"",
+        username:"",
+        tempPassword:"Otsi@123",
+        parentId:"1",
+        domianId:"802",
+        address:"",
+        role:{
+            roleName:""
+        },
+        stores:[],
+        clientId:"",
+        isConfigUser:"",
+        clientDomain:[],
+        gstNumber: "",
+        gstmobile:"",
+        gstemail:"",
+        gstaddress:"",
+        isCustomer:"true",
+        isConfigUser:"false"
+      })
       }
     });
 

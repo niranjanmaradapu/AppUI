@@ -149,7 +149,8 @@ export default class BarcodeList extends Component {
   }
 
   getAllBarcodes() {
-    let saveJson = {}
+    let saveJson = {};
+    this.setState({ sortedStoreIds: []});
     if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
       saveJson = {
         fromDate: this.state.fromDate,
@@ -202,7 +203,8 @@ export default class BarcodeList extends Component {
 
   getStoreNamesById() {
     let obj = {};
-    this.setState({ sortedStoreIds: [] })
+    this.state.sortedStoreIds = [];
+    this.setState({ sortedStoreIds: this.state.sortedStoreIds })
     if (this.state.storeIds && this.state.storeIds.length > 0) {
       InventoryService.getStoreNamesByIds(this.state.storeIds).then((res) => {
         if (res && res.data && res.data.result && res.data.result.length > 0) {
@@ -213,7 +215,7 @@ export default class BarcodeList extends Component {
             }
             this.state.sortedStoreIds.push(obj);
           });
-          this.setState({ sortedStoreIds: this.state.sortedStoreIds })
+          this.setState({ sortedStoreIds: this.state.sortedStoreIds});
           this.storeNameMap();
         }
       });
@@ -421,6 +423,11 @@ export default class BarcodeList extends Component {
     //     this.setState({ status: this.state.statusTypeList[0].id })
     //   }
     // }
+
+    if(isEdit){
+      this.getAllSections(this.state.division);
+      this.getAllSubsections(this.state.section);  
+    }
   }
 
 
@@ -642,7 +649,7 @@ export default class BarcodeList extends Component {
           <label>Status Type
           <span className="text-red font-bold">*</span>
           </label>
-          <select className="form-control" placeholder="Select Store" onChange={this.handleStatusChange} value={this.state.status}>
+          <select className="form-control" placeholder="Select Store" onChange={this.handleStatusChange} value={this.state.status} disabled={this.state.isEdit}>
             <option value='' disabled>Select</option>
             {this.state.statusTypeList.map(item => (
               <option key={item.id} value={item.id}>
@@ -665,7 +672,7 @@ export default class BarcodeList extends Component {
           <label>Stock date
           <span className="text-red font-bold">*</span>
           </label>
-          <input type="date" className="form-control" placeholder="" value={this.state.productValidity}
+          <input type="date" className="form-control" placeholder="" value={this.state.productValidity} disabled={this.state.isEdit}
             onChange={(e) => this.setState({ productValidity: e.target.value })} />
           {(this.retailFieldsErr && !this.state.productValidity) ? this.errorDiv('dateErr') : null}
         </div>
@@ -681,7 +688,7 @@ export default class BarcodeList extends Component {
           <label>QTY
           <span className="text-red font-bold">*</span>
           </label>
-          <input type="number" className="form-control" placeholder="" value={this.state.stockValue}
+          <input type="number" className="form-control" placeholder="" value={this.state.stockValue} 
             onChange={(e) =>
               this.setState({ stockValue: e.target.value })
             } />
@@ -723,7 +730,7 @@ export default class BarcodeList extends Component {
           <label>Name
           <span className="text-red font-bold">*</span>
           </label>
-          <input type="text" className="form-control" placeholder="" value={this.state.name}
+          <input type="text" className="form-control" placeholder="" value={this.state.name} disabled={this.state.isEdit}
             onChange={(e) =>
               this.setState({ name: e.target.value })} />
           {(this.retailFieldsErr && !this.state.name) ? this.errorDiv('nameErr') : null}
@@ -749,7 +756,7 @@ export default class BarcodeList extends Component {
           <option>Select Division</option>
         </select> */}
 
-            <select className="form-control" placeholder="Select Division" onChange={this.handleDivisionChange} value={this.state.division}>
+            <select className="form-control" placeholder="Select Division" onChange={this.handleDivisionChange} value={this.state.division} disabled={this.state.isEdit}>
               <option value='' disabled>Select</option>
               {this.state.divisionsList.map(item => (
                 <option key={item.id} value={item.id}>
@@ -766,7 +773,7 @@ export default class BarcodeList extends Component {
         <span className="text-red font-bold">*</span>
             </label>
 
-            <select className="form-control" placeholder="Select Section" onChange={this.handleSectionChange} value={this.state.section}>
+            <select className="form-control" placeholder="Select Section" onChange={this.handleSectionChange} value={this.state.section} disabled={this.state.isEdit}>
               <option value='' disabled>Select</option>
               {this.state.sectionsList.map(item => (
 
@@ -789,7 +796,7 @@ export default class BarcodeList extends Component {
         </select> */}
 
 
-            <select className="form-control" placeholder="Select Sub Section" onChange={this.handleSubsectionChange} value={this.state.subSection}>
+            <select className="form-control" placeholder="Select Sub Section" onChange={this.handleSubsectionChange} value={this.state.subSection} disabled={this.state.isEdit}>
               <option value='' disabled>Select</option>
               {this.state.subSectionsList.map(item => (
                 <option key={item.id} value={item.id}>
@@ -811,7 +818,7 @@ export default class BarcodeList extends Component {
           <option>Select Category</option>
         </select> */}
 
-            <select className="form-control" placeholder="Select Category" onChange={this.handleCategoryChange} value={this.state.category}>
+            <select className="form-control" placeholder="Select Category" onChange={this.handleCategoryChange} value={this.state.category} disabled={this.state.isEdit}>
               <option value='' disabled>Select</option>
               {this.state.categoriesList.map(item => (
                 <option key={item.id} value={item.id}>
@@ -890,9 +897,11 @@ export default class BarcodeList extends Component {
   render() {
     const { options, id, value } = this.state;
     return (
-      <div className="p-3">
+      <div className="">
         <Modal isOpen={this.state.isAddBarcode} size="lg">
-          <ModalHeader><h5>Add Barcode</h5></ModalHeader>
+          <ModalHeader><h5>
+            {this.state.isEdit ? 'Edit Barcode' : 'Add Barcode'}
+            </h5></ModalHeader>
           <ModalBody>
             <div className="p-3">
               <div className="col-12 scaling-center scaling-mb">
@@ -919,7 +928,7 @@ export default class BarcodeList extends Component {
                     <label>Colour
                   <span className="text-red font-bold">*</span>
                     </label>
-                    <input type="text" className="form-control" placeholder="" value={this.state.colour}
+                    <input type="text" className="form-control" placeholder="" value={this.state.colour} disabled={this.state.isEdit}
                       onChange={(e) =>
                         this.setState({ colour: e.target.value })} />
                     {(this.commonFieldsErr && !this.state.colour) ? this.errorDiv('colourErr') : null}
@@ -939,7 +948,7 @@ export default class BarcodeList extends Component {
                     <label>Batch No
                   <span className="text-red font-bold">*</span>
                     </label>
-                    <input type="text" className="form-control" placeholder="" value={this.state.batchNo}
+                    <input type="text" className="form-control" placeholder="" value={this.state.batchNo} disabled={this.state.isEdit}
                       onChange={(e) =>
                         this.setState({ batchNo: e.target.value })} />
                     {(this.commonFieldsErr && !this.state.batchNo) ? this.errorDiv('batchErr') : null}
@@ -950,7 +959,7 @@ export default class BarcodeList extends Component {
                     <label>Cost Price
                   <span className="text-red font-bold">*</span>
                     </label>
-                    <input type="number" className="form-control" placeholder="₹ 00" value={this.state.costPrice}
+                    <input type="number" className="form-control" placeholder="₹ 00" value={this.state.costPrice} disabled={this.state.isEdit}
                       onChange={(e) =>
                         this.setState({ costPrice: e.target.value })} />
                     {(this.commonFieldsErr && !this.state.costPrice) ? this.errorDiv('costErr') : null}
@@ -961,7 +970,7 @@ export default class BarcodeList extends Component {
                     <label>List Price
                   <span className="text-red font-bold">*</span>
                     </label>
-                    <input type="number" className="form-control" placeholder="₹ 00" value={this.state.listPrice}
+                    <input type="number" className="form-control" placeholder="₹ 00" value={this.state.listPrice} 
                       onChange={(e) =>
                         this.setState({ listPrice: e.target.value })} />
                     {(this.commonFieldsErr && !this.state.listPrice) ? this.errorDiv('listErr') : null}
@@ -976,7 +985,7 @@ export default class BarcodeList extends Component {
                     <label>UOM
                   <span className="text-red font-bold">*</span>
                     </label>
-                    <select className="form-control" placeholder="Select Store" onChange={this.handleChange} value={this.state.uom} >
+                    <select className="form-control" placeholder="Select Store" onChange={this.handleChange} value={this.state.uom} disabled={this.state.isEdit}>
                       <option value='' disabled>Select</option>
                       {this.state.uomsList.map(item => (
                         <option key={item.value} value={item.value}>
@@ -1000,7 +1009,7 @@ export default class BarcodeList extends Component {
                     <label>HSN Code
                   <span className="text-red font-bold">*</span>
                     </label>
-                    <select className="form-control" placeholder="Select Store" onChange={this.handleHsnChange} value={this.state.hsnCode} >
+                    <select className="form-control" placeholder="Select Store" onChange={this.handleHsnChange} value={this.state.hsnCode} disabled={this.state.isEdit}>
                       <option value='' disabled>Select</option>
                       {this.state.hsnList.map(item => (
                         <option key={item.id} value={item.id}>
@@ -1017,7 +1026,7 @@ export default class BarcodeList extends Component {
                     <label>EMP ID
                   <span className="text-red font-bold">*</span>
                     </label>
-                    <input type="text" className="form-control" placeholder="" value={this.state.empId}
+                    <input type="text" className="form-control" placeholder="" value={this.state.empId} disabled={this.state.isEdit}
                       onChange={(e) => this.setState({ empId: e.target.value })} />
                     {(this.commonFieldsErr && !this.state.empId) ? this.errorDiv('empErr') : null}
                   </div>
@@ -1027,7 +1036,7 @@ export default class BarcodeList extends Component {
                     <label>Store
                   <span className="text-red font-bold">*</span>
                     </label>
-                    <select className="form-control" placeholder="Select Store" onChange={this.handleStoreChange} value={this.state.storeId} >
+                    <select className="form-control" placeholder="Select Store" onChange={this.handleStoreChange} value={this.state.storeId} disabled={this.state.isEdit}>
                       <option value='' disabled>Select</option>
                       {this.state.storesList.map(item => (
                         <option key={item.id} value={item.id}>
@@ -1058,6 +1067,7 @@ export default class BarcodeList extends Component {
             </button>
           </ModalFooter>
         </Modal>
+        <div className="maincontent">
         <div className="row">
           <div className="col-sm-3 col-12">
             <div className="form-group mt-2">
@@ -1094,8 +1104,8 @@ export default class BarcodeList extends Component {
           </div>
         </div>
         <div className="row m-0 p-0 scaling-center">
-          <h5 className="mb-3 fs-18 p-l-0">Barcode Details</h5>
-          <div className="table-responsive">
+          <h5 className="mb-2 fs-18 p-l-0 mt-3">Barcode Details</h5>
+          <div className="table-responsive p-0">
             <table className="table table-borderless mb-1">
               <thead>
 
@@ -1110,6 +1120,7 @@ export default class BarcodeList extends Component {
               </tbody>
             </table>
           </div>
+        </div>
         </div>
       </div>
     )

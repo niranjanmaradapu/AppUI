@@ -315,14 +315,18 @@ setHeaders() {
   if(domainName === "config_user") { 
     this.state.moduleNames.forEach(ele => {
       if(ele.parentName == this.state.message) {
-          this.setState({buttonsList: ele.children})
+          this.setState({buttonsList: ele.children}, ()=>{
+            this.setState({selectedChildName: this.state.buttonsList[0].name});
+          });
       }
   });
   } 
   else if(user["custom:isSuperAdmin"] === "true") {
      URMService.getSubPrivileges(this.state.message).then(res => {
     if(res) {
-      this.setState({buttonsList: res.data.result});
+      this.setState({buttonsList: res.data.result}, ()=>{
+        this.setState({selectedChildName: this.state.buttonsList[0].name});
+      });
     }
   });
   } else {
@@ -338,12 +342,16 @@ setHeaders() {
           }
         });
         subList = this.removeDuplicates(subList,"id");
-         this.setState({buttonsList:subList});
+         this.setState({buttonsList:subList}, ()=>{
+          this.setState({selectedChildName: this.state.buttonsList[0].name});
+        });
 
         }
       });
     }
   }
+
+ // console.log(this.state.buttonsList);
 
  
 
@@ -352,91 +360,13 @@ setHeaders() {
 
 
     
- removeDuplicates(array, key) {
-      const lookup = new Set();
-      return array.filter(obj => !lookup.has(obj[key]) && lookup.add(obj[key]));
-    } 
+removeDuplicates(array,key){
+const lookup=new Set();
+return array.filter(obj=>!lookup.has(obj[key])&&lookup.add(obj[key]));
+} 
 
-
-  // setHeaders() {
-
-  //   this.state.moduleNames.forEach(ele => {
-  //     if(ele.parentName == this.state.message) {
-  //         this.setState({buttonsList: ele.children})
-  //     }
-  // });
-  //     }
-
-  // componentWillMount() {
-  //   const user = sessionStorage.getItem('domainName');
-  //   const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
-  //   console.log(selectedDomain);
-  //   if (user === 'config-user') {
-  //     this.setState({ message: "URM Portal" }, () => { this.setHeaders(); })
-  //   } else {
-  //     eventBus.on("subHeader", (data) =>
-  //       this.setState({ message: data.message }, () => { this.setHeaders(); })
-  //     );
-
-  //   }
-   
-
-
-  // }
-
-  // setHeaders() {
-  //   this.state.buttonsList = [];
-  //   const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
-  //   console.log(selectedDomain);
-  //   let header = this.state.moduleNames;
-  //   if (selectedDomain && selectedDomain.label === "Retail") {
-  //     header = this.state.moduleRetailNames;
-  //   }
-  //   this.setState({ moduleNames: header },  () => { this.getChilds(); });
-  //   console.log(this.state.moduleNames);
-    
-  // }
-
-  // getChilds() {
-  //   this.state.buttonsList = [];
-  //   const usersList = JSON.parse(sessionStorage.getItem("usersList"));
-  //   const user = sessionStorage.getItem('domainName');
-  //   if(user === "config-user") {
-  //     this.state.moduleNames.forEach(ele => {
-  //       if (ele.parentName == this.state.message) {
-  //         this.setState({ buttonsList: ele.children })
-  //       }
-  //     });
-  //   } else if(usersList && usersList.length > 0) {
-     
-  //     for(let i = 0 ; i < usersList.length ; i++) {  
-  //       if(usersList[i].role === "super_admin" && user === usersList[i].name) { 
-  //         this.state.moduleNames.forEach(ele => {
-  //           if (ele.parentName == this.state.message) {
-  //             this.setState({ buttonsList: ele.children })
-  //           }
-  //         });
-          
-  //       } else  if(user === usersList[i].name) {
-  //         for(let j = 0 ; j < this.state.moduleNames.length; j++) {
-  //           if(this.state.moduleNames[j].parentName == "Customer Portal" && this.state.message =="Customer Portal") {
-  //             this.setState({ buttonsList: usersList[i].selectedPrivilages.selectedList });
-  //             break;
-
-  //           }   else if (this.state.moduleNames[j].parentName == this.state.message) {
-  //                 this.setState({ buttonsList: this.state.moduleNames[j].children });
-  //                 break;
-  //                }
-  //         }
-  //       }
-  //     }
-
-  //   }
-    
-  // }
 
   handleNavigationChange(index, childPath, childName) {
-    console.log(childPath);
     this.setState({ selectedChildName: childName });
     this.props.history.push(childPath);
   }
@@ -457,14 +387,7 @@ setHeaders() {
 
   render() {
 
-    // const  modules  = this.state.moduleNames;
-
-    // let modulesList = modules.length > 0
-    //   && modules.map((item, i) => {
-    //   return (
-    //     <button>{item.parentName}</button>
-    //   )
-    // }, this);
+  
 
     return (
       <div className="header-sub">

@@ -14,16 +14,35 @@ export default class GenerateReturnSlip extends Component {
         invoiceNo:"",
         mobileNo: "",
         returnslipsList:[],
-        reason: ""
+        reason: "",
+        netValue: 0,
+        quantity: 0,
+        netValueList: [],
+        returnSlipTotal: 0,
+        isgenerateReturnSlip: true
+
       };
       this.tagCustomer = this.tagCustomer.bind(this);
       this.closeTagCustomer = this.closeTagCustomer.bind(this);
       this.generateReturn = this.generateReturn.bind(this);
       this.closegenerateReturn = this.closegenerateReturn.bind(this);
+      this.getReturnSlipDetails = this.getReturnSlipDetails.bind(this);
+      this.saveGenerateReturnSlip = this.saveGenerateReturnSlip.bind(this);
+      this.getCustomer = this.getCustomer.bind(this);
     }
 
     tagCustomer(){
       this.setState({isTagCustomer: true});
+     
+    }
+
+    getCustomer() {
+      CreateDeliveryService.getUserByMobile("+91"+this.state.mobilenumber).then(res => { 
+        if(res) {
+          this.setState({isgenerateReturnSlip: false})
+        }
+      });
+      this.closeTagCustomer();
     }
 
     closeTagCustomer(){
@@ -39,44 +58,113 @@ export default class GenerateReturnSlip extends Component {
     }
 
     saveGenerateReturnSlip() {
+      let barList= [];
+      this.state.returnslipsList.forEach(element => {
+        const obj = {
+          barCode: element.barcode
+        }
+        barList.push(obj);
+      });
+
       const saveobj = {
-            "barcodes": this.state.returnslipsList,
-            "mobileNumber": this.state.mobileNo,
-            "invoiceNo": this.state.invoiceNo,
-            "reason": this.state.reason,
-            "iSReviewed": false,
-            "customerName": "deep",
-            "totalAmount": 899,
-            "createdBy": "manideep"
+       "barcodes":barList,
+       "mobileNumber":this.state.mobileNo,
+       "invoiceNo":this.state.invoiceNo,
+       "reason":this.state.reason,
+        "iSReviewed":false,
+        "customerName":"",
+        "totalAmount": this.state.returnSlipTotal,
+       "createdBy":"",
+       "domianId":1
         } 
 
         CreateDeliveryService.saveGenerateReturnSlip(saveobj).then(res => {
           if(res) {
             toast.success(res.data.result);
+            this.setState({
+              isTagCustomer: false,
+              isGenerateSlip: false,
+              invoiceNo:"",
+              mobileNo: "",
+              returnslipsList:[],
+              reason: "",
+              netValue: 0,
+              quantity: 0,
+              netValueList: [],
+              returnSlipTotal: 0,
+              isgenerateReturnSlip: true
+            })
           }
-        })
+        });
 
     }
 
     getReturnSlipDetails() {
       const obj = {
-            invoiceNo: this.state.invoiceNo,
+      invoiceNo:this.state.invoiceNo,
             mobileNo: this.state.mobileNo,
-            domianId:1 //this feild is mandatory
+      domianId:1 //this feild is mandatory
         } 
       CreateDeliveryService.getReturnSlipDetails(obj).then(res => {
         console.log(res);
         if(res) {
-          this.setState({returnslipsList: res.data.result});
+          this.setState({returnslipsList: res.data.result},()=>{
+            let costprice= 0;
+            let quantity=0;
+            this.state.returnslipsList.forEach(element=> {
+              costprice = costprice + element.netValue;
+              quantity = quantity + element.quantity;
+              element.isChecked = false
+            });
+
+            this.setState({netValue: costprice, quantity: quantity});
+          });
         }
       });
     }
 
+    getReturnslipTotal(e, value, selectedElement) {
+
+      selectedElement.isChecked = e.target.checked;
+
+      if (e.target.checked) {
+          const obj = {
+              netValue: selectedElement.netValue,
+              barCode : selectedElement.barcode
+              
+          }
+          this.state.netValueList.push(obj);
+
+
+
+      } else {
+          let index = this.state.netValueList.findIndex(ele => ele.barcode === selectedElement.barcode);
+          this.state.netValueList.splice(index, 1);
+      }
+
+      const netValueList = this.removeDuplicates(this.state.netValueList, "barcode");
+      this.setState({ netValueList: netValueList }, ()=>{
+        let returnSlipTotal = 0;
+        this.state.netValueList.forEach(element =>{
+          returnSlipTotal = returnSlipTotal+ element.netValue
+        });
+
+        this.setState({returnSlipTotal: returnSlipTotal})
+      });
+
+
+     }
+
+     removeDuplicates(array, key) {
+      const lookup = new Set();
+      return array.filter(obj => !lookup.has(obj[key]) && lookup.add(obj[key]));
+  }
+
     renderTableData() {
       return this.state.returnslipsList.length > 0 &&  this.state.returnslipsList.map((items, index) => {
-        const { barcode, quantity, netValue } = items;
+        const { barcode, quantity, netValue, isChecked } = items;
         return (
-           <div>
+     
               <tr>
                     <td className="col-1 geeks">
                       {index+1}
@@ -84,22 +172,25 @@ export default class GenerateReturnSlip extends Component {
                     <td className="col-5">
                       <div className="d-flex">
                         <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                          <input type="checkbox" className="form-check-input filled-in mt-3" id="roundedExample2" checked />
+                          <input type="checkbox" className="form-check-input filled-in mt-3" id="roundedExample2"  
+                          value={isChecked} 
+                          onChange={(e) => this.getReturnslipTotal(e, index, items)}
+                          />
                           <label className="form-check-label" htmlFor="roundedExample2"></label>
-
+6
                           <img src={dress1} />
                         </div>
-                        <div className="td_align ">
+                        {/* <div className="td_align ">
                           <label>Antheaa</label>
                           <label>Women Black & Rust Orange Floral Print #123456789</label>
-                        </div>
+                        </div> */}
 
                       </div>  </td>
                     <td className="col-2">{barcode}</td>
                     <td className="col-2">{quantity}</td>
                     <td className="col-2">₹ {netValue}</td>
                   </tr>
-           </div>
+           
         );
     });
     }
@@ -179,6 +270,11 @@ export default class GenerateReturnSlip extends Component {
                   type="text"
                   name="mobile"
                   className="form-control"
+                  value={this.state.mobilenumber}
+                  minLength="10"
+                  maxLength="10"
+                  onChange={(e) => this.setState({ mobilenumber: e.target.value })}
+
                 />
               </div>
              
@@ -200,7 +296,7 @@ export default class GenerateReturnSlip extends Component {
             </button>
             <button
               className="btn btn-bdr active fs-12"
-              onClick={this.closeTagCustomer}
+              onClick={this.getCustomer}
             >
               Confirm
             </button>
@@ -232,14 +328,16 @@ export default class GenerateReturnSlip extends Component {
                 <button className="btn-unic scaling-mb" onClick={this.tagCustomer}>Customer Tagging</button>
               </div>
             </div>
-            <div className="row m-0 p-0">
+            {
+              this.state.returnslipsList.length > 0 && (
+                <div className="row m-0 p-0">
               <div className="col-12 col-sm-4 p-l-0">
                 <h5 className="mt-0 mb-3">
                   List Of Items For Return
                 </h5>
               </div>
               <div className="col-sm-8 col-12 text-right p-r-0"></div>
-              <div className="table-responsive">
+              <div className="table-responsive p-0">
               <table className="table table-borderless mb-1 mt-1">
                 <thead>
                   <tr className="m-0 p-0">
@@ -253,161 +351,76 @@ export default class GenerateReturnSlip extends Component {
                 <tbody>
 
                   {this.renderTableData()}
-                  {/* <tr>
-                    <td className="col-1 geeks">
-                      01
-                    </td>
-                    <td className="col-5">
-                      <div className="d-flex">
-                        <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                          <input type="checkbox" className="form-check-input filled-in mt-3" id="roundedExample2" checked />
-                          <label className="form-check-label" htmlFor="roundedExample2"></label>
-
-                          <img src={dress1} />
-                        </div>
-                        <div className="td_align ">
-                          <label>Antheaa</label>
-                          <label>Women Black & Rust Orange Floral Print #123456789</label>
-                        </div>
-
-                      </div>  </td>
-                    <td className="col-2">BAR353526</td>
-                    <td className="col-2">02</td>
-                    <td className="col-2">₹ 1,000.00</td>
-                  </tr>
-                  <tr>
-                    <td className="col-1 geeks">
-                      02
-                    </td>
-                    <td className="col-5">     <div className="d-flex">
-                      <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                        <input type="checkbox" className="form-check-input filled-in mt-3" id="roundedExample2" checked />
-                        <label className="form-check-label" htmlFor="roundedExample2"></label>
-                        <img src={dress1} />
-                      </div>
-                      <div className="td_align ">
-                        <label>Antheaa</label>
-                        <label>Women Black & Rust Orange Floral Print #123456789</label>
-                      </div>
-
-                    </div>  </td>
-                    <td className="col-2">BAR352546</td>
-                    <td className="col-2">02</td>
-                    <td className="col-2">₹ 1,200.00</td>
-                  </tr>
-                  <tr>
-                    <td className="col-1 geeks">
-                      03
-                    </td>
-                    <td className="col-5">     <div className="d-flex">
-                      <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                        <input type="checkbox" className="form-check-input filled-in mt-3" id="roundedExample2" checked />
-                        <label className="form-check-label" htmlFor="roundedExample2"></label>
-                        <img src={dress1} />
-                      </div>
-                      <div className="td_align ">
-                        <label>Antheaa</label>
-                        <label>Women Black & Rust Orange Floral Print #123456789</label>
-                      </div>
-
-                    </div>  </td>
-                    <td className="col-2">BAR352547</td>
-                    <td className="col-2">02</td>
-                    <td className="col-2">₹ 1,500.00</td>
-                  </tr> */}
-
+                
                 </tbody>
               </table>
               </div>
 
-              {/* <div>{this.showOrderDetails()}</div> */}
+             
               <div className="rect-cardred m-0">
                 <div className="row">
                   <div className="col-2 text-center">
-                    <label>Items : <span className="font-bold"> 02</span></label>
+                    <label>Items : <span className="font-bold"> {this.state.returnslipsList.length}</span></label>
                   </div>
 
                   <div className="col-2">
-                    <label>Qty : <span className="font-bold"> 01</span></label>
+                    <label>Qty : <span className="font-bold"> {this.state.quantity}</span></label>
                   </div>
                   <div className="col-2">
-                    <label>N/Rate : <span className="font-bold"> ₹ 2,998</span> </label>
+                    <label>N/Rate : <span className="font-bold"> ₹ {this.state.netValue}</span> </label>
                   </div>
                   <div className="col-3">
-                    <label>Discount : <span className="font-bold"> ₹ 998</span> </label>
+                    <label>Discount : <span className="font-bold"> ₹ 0</span> </label>
                   </div>
                   <div className="col-2">
-                    <label>Value : <span className="font-bold"> ₹ 2,000</span> </label>
+                    <label>Value : <span className="font-bold"> ₹ {this.state.netValue}</span> </label>
                   </div>
 
                 </div>
               </div>
               </div>
+              )
+            }
+            
           </div>
-          <div className="col-12 col-sm-4">
-            <div className="rect-grey pb-3">
-              <h5 className="m-b-5">Return summary</h5>
-              {/* <div className="row">
-                    <div className="col-5">
-                      <label>Total Amount</label>
+          {
+              this.state.returnslipsList.length > 0 && ( 
+                <div className="col-12 col-sm-4">
+                <div className="rect-grey pb-3">
+                  <h5 className="m-b-5">Return summary</h5>
+               
+    
+                  <div className="payment">
+                    <div className="row">
+                      <div className="col-5 p-r-0 pt-1">
+                        <label>Return Amount</label>
+                      </div>
+                      <div className="col-7 p-l-0 pt-1 text-right">
+                        <label className="font-bold">₹ {this.state.returnSlipTotal}</label>
+                      </div>
                     </div>
-                    <div className="col-7 text-right">
-                      <label className="font-bold">₹ 1,500.00</label>
-                    </div>
+    
                   </div>
-                  <div className="row">
-                    <div className="col-5">
-                      <label>CGST</label>
-                    </div>
-                    <div className="col-7 text-right">
-                      <label className="font-bold">₹ 75.00</label>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-5">
-                      <label>SGST</label>
-                    </div>
-                    <div className="col-7 text-right">
-                      <label className="font-bold">₹ 75.00</label>
-                    </div>
-                  </div>
-   */}
-
-              <div className="payment">
-                <div className="row">
-                  <div className="col-5 p-r-0 pt-1">
-                    <label>Return Amount</label>
-                  </div>
-                  <div className="col-7 p-l-0 pt-1 text-right">
-                    <label className="font-bold">₹ 1,650.00</label>
+                  <h5 className="m-b-3 m-t-5 p-t-4">Return for reason <span className="text-red float-none fs-18">*</span></h5>
+              
+                  <select className="form-control"   value={this.state.reason}
+                        onChange={(e) => this.setState({reason: e.target.value })} >
+                    <option>Not fitting</option>
+                    <option>Damaged Piece</option>
+                    <option>Quality Is Not Good</option>
+                    <option>Other</option>
+                  </select>
+                  <textarea rows="4" cols="46" className="form-control mt-3" placeholder="Write Comments"></textarea>
+    
+                  <div className="mt-3">
+                    <button       className={"mt-1 w-100 "+ (this.state.isGenerateReturnSlip ? "btn-unic btn-disable" : "btn-unic active") }
+                    onClick={this.generateReturn}>GENERATE RETURN SLIP</button>
+                
                   </div>
                 </div>
-
               </div>
-              <h5 className="m-b-3 m-t-5 p-t-4">Return for reason <span className="text-red float-none fs-18">*</span></h5>
-              {/* <div className="form-group apply_btn">
-                    <button type="button" className=""> Apply</button>
-                    <input type="text" className="form-control" placeholder="ENTER RT NUMBER" />
-                  </div> */}
-              {/* <div className="form-group apply_btn mb-2">
-                    <button type="button" className=""> Apply</button>
-                    <input type="text" className="form-control" placeholder="COUPON CODE" />
-                  </div> */}
-              <select className="form-control"   value={this.state.reason}
-                    onChange={(e) => this.setState({reason: e.target.value })} >
-                <option>Not fitting</option>
-                <option>Damaged Piece</option>
-                <option>Quality Is Not Good</option>
-                <option>Other</option>
-              </select>
-              <textarea rows="4" cols="46" className="form-control mt-3" placeholder="Write Comments"></textarea>
-
-              <div className="mt-3">
-                <button className="btn-login_v1 mt-3 mb-3" onClick={this.generateReturn}>GENERATE RETURN SLIP</button>
-                {/* <button className="btn-unic p-2 w-100">HOLD PAYMENT</button> */}
-              </div>
-            </div>
-          </div>
+              )}
+         
 
         </div>
       </div>

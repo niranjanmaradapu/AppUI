@@ -20,7 +20,9 @@ export const CREATE_DELIVERY_SLIP_URL = {
 
     createTagCustomerToGv: "/new-sale/newsale/tagCustomerToGv",
     getReturnSlips: "/new-sale/newsale/getInvoiceDetails",
-    saveReturnSlip: "/customer/customer/createReturnSlip"
+    saveReturnSlip: "/customer/customer/createReturnSlip",
+    getCustomerMobile: "/user-management/user/customer/mobileNo",
+    getGiftVochers: "/new-sale/newsale/getlistofgv"
 }
 
 export const NEW_SALE_URL = {
@@ -37,7 +39,7 @@ export const CREATE_CUSTOMER_URL = {
 }
 export const GENERATE_RETURN_SLIPS_URL = {
     getInvoiceDetails: "/customer/customer/getInvoiceDetails",
-    getMobileData: "/customer/customer/getCustomerDetails",
+    getMobileData: "/user-management/user/customer/mobileNo",
     saveCustomer: "/new-sale/newsale/savecustomerdetails",
     generateReturnSlip: "/customer/customer/createReturnSlip",
     getListOfReturnslips: "customer/getListOfReturnSlips"
@@ -64,7 +66,10 @@ export const INVENTORY_URLS = {
     getAllSections: "/catalog-categories/catalog/getcategoriesByid",
     getAllCategories: "/catalog-categories/catalog/ListOfAllCategories",
     getAllHsnList:"/hsn-details/hsnDetails/getHsnDetails",
-    getStoreNamesByIds: '/user-management/store/storeList'
+    getStoreNamesByIds: '/user-management/store/storeList',
+
+    getReBarcodeTextileBarcodeDetails: '/inventory/inventoryTextile/getAllAdjustments',
+    getEmpNameByEmpId: "/user-management/user/getUser "
     
 }
 
@@ -99,6 +104,11 @@ export const  DELIVERYSLIPS_LIST_URL = {
 
 }
 
+
+
+export const  ESTIMATIONSLIP_LIST_URL = {
+    estimationslipsList: "/new-sale/newsale/getlistofdeliveryslips"
+}
 
 
 export const  RETURNSLIPS_LIST_URL = {

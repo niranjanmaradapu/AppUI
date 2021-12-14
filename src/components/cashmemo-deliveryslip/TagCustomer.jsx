@@ -35,6 +35,8 @@ export default class TagCustomer extends Component {
         totalAmount: "",
         leftOverAmount: "",
         createdDate: "",
+        giftVochersList: [],
+        isGiftVocher: false
       },
     };
 
@@ -42,6 +44,25 @@ export default class TagCustomer extends Component {
     this.handleChangeGvNumber = this.handleChangeGvNumber.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.createTagCustomerToGv = this.createTagCustomerToGv.bind(this);
+    this.getGiftVochersList = this.getGiftVochersList.bind(this);
+    
+  }
+
+  componentWillMount() {
+      this.getGiftVochersList();
+  }
+
+  getGiftVochersList() {
+    CreateDeliveryService.getGiftVochersList().then(res =>{
+      if(res) {
+       
+        this.setState({giftVochersList: res.data.result, isGiftVocher: true});
+
+        console.log(this.state.giftVochersList);
+        // this.state.giftVochersList = res.data.result;
+        // console.log(this.state.giftVochersList);
+      }
+    });
   }
 
   handleChangeMobile(event) {
@@ -145,6 +166,30 @@ export default class TagCustomer extends Component {
     }
   };
 
+  getGiftVocherTable() {
+    return  this.state.giftVochersList.map((items, index) => {
+      const { gvId, gvNumber, createdDate, expiryDate, totalAmount, leftOverAmount } = items;
+      return ( 
+        <tr key={index}>
+                        <td className="col-1 geeks">
+                          {index+1}
+                        </td>
+                    
+                        <td className="col-1">{gvId}</td>
+                        <td className="col-2">{gvNumber}</td>
+                        <td className="col-2">{createdDate}</td>
+                        <td className="col-2">{expiryDate}</td>
+                        <td className="col-2">
+                        <span className="m-r-3">₹ {totalAmount}</span>
+                         {/* <img src={edit} className="w-12 pb-2 pointer"/>
+                         <i className="icon-delete m-l-2 fs-16 pointer"></i> */}
+                        </td>  
+                        <td className="col-2">₹ {leftOverAmount}</td>
+                  </tr>
+      );
+    });
+  }
+
   render() {
     return (
       <div className="maincontent">
@@ -195,7 +240,9 @@ export default class TagCustomer extends Component {
              </div>
              <div className="col-12 col-sm-9">
              <h5 className="mt-2 mb-3 fs-18">List of gift vouchers</h5>
-             <div className="table-responsive scaling-mb">
+             {
+               this.state.isGiftVocher > 0 && (
+                 <div className="table-responsive scaling-mb">
              <table className="table table-borderless mb-1 mt-2">
                   <thead>
                     <tr className="m-0 p-0">
@@ -203,159 +250,21 @@ export default class TagCustomer extends Component {
                       <th className="col-1">BARCODE</th>
                       <th className="col-2">GV NUMBER</th>
                       <th className="col-2">CREATED ON</th>
-                      <th className="col-2">START DATE</th>
+                     
                       <th className="col-2">END DATE</th>
                       <th className="col-2">VALUE</th>
+                      <th className="col-2">LEFT OVER MONEY</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                        <td className="col-1 geeks">
-                          01
-                        </td>
-                    
-                        <td className="col-1">BAR3563</td>
-                        <td className="col-2">GV2523</td>
-                        <td className="col-2">15 Sep 2021</td>
-                        <td className="col-2">23 Sep 2021</td>
-                        <td className="col-2">23 Oct 2021</td>
-                        <td className="col-2">
-                        <span className="m-r-3">₹ 1,400.00</span>
-                         <img src={edit} className="w-12 pb-2 pointer"/>
-                         <i className="icon-delete m-l-2 fs-16 pointer"></i>
-                        </td>  
-                  </tr>
-                  <tr>
-                        <td className="col-1 geeks">
-                          02
-                        </td>
-                    
-                        <td className="col-1">BAR3557</td>
-                        <td className="col-2">GV2527</td>
-                        <td className="col-2">17 Sep 2021</td>
-                        <td className="col-2">22 Sep 2021</td>
-                        <td className="col-2">22 Oct 2021</td>
-                        <td className="col-2">
-                        <span className="m-r-3">₹ 1,400.00</span>
-                         <img src={edit} className="w-12 pb-2 pointer"/>
-                         <i className="icon-delete m-l-2 fs-16 pointer"></i>
-                        </td>  
-                  </tr>
-                  <tr>
-                        <td className="col-1 geeks">
-                          03
-                        </td>
-                    
-                        <td className="col-1">BAR3526</td>
-                        <td className="col-2">GV2526</td>
-                        <td className="col-2">15 Sep 2021</td>
-                        <td className="col-2">21 Sep 2021</td>
-                        <td className="col-2">21 Oct 2021</td>
-                        <td className="col-2">
-                        <span className="m-r-3">₹ 1,500.00</span>
-                         <img src={edit} className="w-12 pb-2 pointer"/>
-                         <i className="icon-delete m-l-2 fs-16 pointer"></i>
-                        </td>  
-                  </tr>
-                  <tr>
-                        <td className="col-1 geeks">
-                          04
-                        </td>
-                    
-                        <td className="col-1">BAR3534</td>
-                        <td className="col-2">GV2525</td>
-                        <td className="col-2">18 Sep 2021</td>
-                        <td className="col-2">25 Sep 2021</td>
-                        <td className="col-2">25 Oct 2021</td>
-                        <td className="col-2">
-                         <span className="m-r-3">₹ 1,000.00</span>
-                         <img src={edit} className="w-12 pb-2 pointer"/>
-                         <i className="icon-delete m-l-2 fs-16 pointer"></i>
-                        </td>  
-                  </tr>
-                  <tr>
-                        <td className="col-1 geeks">
-                          05
-                        </td>
-                    
-                        <td className="col-1">BAR3534</td>
-                        <td className="col-2">GV2525</td>
-                        <td className="col-2">18 Sep 2021</td>
-                        <td className="col-2">25 Sep 2021</td>
-                        <td className="col-2">25 Oct 2021</td>
-                        <td className="col-2">
-                         <span className="m-r-3">₹ 1,000.00</span>
-                         <img src={edit} className="w-12 pb-2 pointer"/>
-                         <i className="icon-delete m-l-2 fs-16 pointer"></i>
-                        </td>  
-                  </tr>
-                  <tr>
-                        <td className="col-1 geeks">
-                          06
-                        </td>
-                    
-                        <td className="col-1">BAR3534</td>
-                        <td className="col-2">GV2525</td>
-                        <td className="col-2">18 Sep 2021</td>
-                        <td className="col-2">25 Sep 2021</td>
-                        <td className="col-2">25 Oct 2021</td>
-                        <td className="col-2">
-                         <span className="m-r-3">₹ 1,000.00</span>
-                         <img src={edit} className="w-12 pb-2 pointer"/>
-                         <i className="icon-delete m-l-2 fs-16 pointer"></i>
-                        </td>  
-                  </tr>
-                  <tr>
-                        <td className="col-1 geeks">
-                          07
-                        </td>
-                    
-                        <td className="col-1">BAR3557</td>
-                        <td className="col-2">GV2527</td>
-                        <td className="col-2">17 Sep 2021</td>
-                        <td className="col-2">22 Sep 2021</td>
-                        <td className="col-2">22 Oct 2021</td>
-                        <td className="col-2">
-                        <span className="m-r-3">₹ 1,400.00</span>
-                         <img src={edit} className="w-12 pb-2 pointer"/>
-                         <i className="icon-delete m-l-2 fs-16 pointer"></i>
-                        </td>  
-                  </tr>
-                  <tr>
-                        <td className="col-1 geeks">
-                          08
-                        </td>
-                    
-                        <td className="col-1">BAR3557</td>
-                        <td className="col-2">GV2527</td>
-                        <td className="col-2">17 Sep 2021</td>
-                        <td className="col-2">22 Sep 2021</td>
-                        <td className="col-2">22 Oct 2021</td>
-                        <td className="col-2">
-                        <span className="m-r-3">₹ 1,400.00</span>
-                         <img src={edit} className="w-12 pb-2 pointer"/>
-                         <i className="icon-delete m-l-2 fs-16 pointer"></i>
-                        </td>  
-                  </tr>
-                  <tr>
-                        <td className="col-1 geeks">
-                          09
-                        </td>
-                    
-                        <td className="col-1">BAR3557</td>
-                        <td className="col-2">GV2527</td>
-                        <td className="col-2">17 Sep 2021</td>
-                        <td className="col-2">22 Sep 2021</td>
-                        <td className="col-2">22 Oct 2021</td>
-                        <td className="col-2">
-                        <span className="m-r-3">₹ 1,400.00</span>
-                         <img src={edit} className="w-12 pb-2 pointer"/>
-                         <i className="icon-delete m-l-2 fs-16 pointer"></i>
-                        </td>  
-                  </tr>
+                    {this.getGiftVocherTable()}
+                   
                   </tbody>
                 </table>
                 </div>
+               )
+             }
+            
              </div>
            </div>
          </div>

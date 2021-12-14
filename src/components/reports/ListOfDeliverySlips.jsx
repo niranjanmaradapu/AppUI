@@ -51,7 +51,10 @@ export default class ListOfDeliverySlips extends Component {
       dateFrom: this.state.dateFrom,
       dateTo: this.state.dateTo,
       store: {
-        id: parseInt(this.state.storeId),
+        id:
+          parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
+            ? this.state.storeId
+            : undefined,
         name: this.state.storeName,
       },
       // barcode: this.state.barcode,

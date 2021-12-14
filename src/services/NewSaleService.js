@@ -28,16 +28,22 @@ class NewSaleService {
         return axios.post(BASE_URL+NEW_SALE_URL.saveSale, obj);
     }
 
-    payment(value){
+    payment(value, newsaleId){
         const URL= process.env.REACT_APP_BASE_URL+'/paymentgateway/paymentgateway/create_order'
         console.log(URL);
         const body =   JSON.stringify(  { "amount": value,
-         "info": "order_request"}    )
+         "info": "order creations",
+        "newsaleId":newsaleId}    )
         return  axios.post(URL, body, {
          headers: {
              'Content-Type': 'application/json',
          }
-     })
+     });
     }
-}
+
+    postPaymentData(paymentOrderId, status) {
+        const param = '?razorPayId='+ paymentOrderId +'&payStatus'+ status; 
+        return axios.post(BASE_URL+NEW_SALE_URL.saveSale+param, {});
+    }
+} 
 export default new NewSaleService()

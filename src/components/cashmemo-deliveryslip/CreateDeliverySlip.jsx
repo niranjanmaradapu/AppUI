@@ -143,7 +143,7 @@ class CeateDeliverySlip extends Component {
 
             this.setState({ barList: this.state.itemsList }, () => {
               this.state.barList.forEach((element) => {
-                element.productTextile.qty = 10;
+             //   element.productTextile.qty = 10;
                 element.quantity = 1;
               });
               this.calculateTotal();
@@ -205,6 +205,8 @@ class CeateDeliverySlip extends Component {
             smNumber: "",
             barList: [],
             itemsList: [],
+            showTable: false
+          
           });
         } else {
           toast.error(res.data.body);
@@ -494,6 +496,14 @@ class CeateDeliverySlip extends Component {
       CreateDeliveryService.saveDelivery(createObj).then(res=> {
         if(res) {
           toast.success(res.data.message);
+          this.setState({
+            barCode: "",
+            smNumber: "",
+            barList: [],
+            itemsList: [],
+            showTable: false
+          
+          });
          
         }
       });
@@ -573,15 +583,7 @@ class CeateDeliverySlip extends Component {
           <div className="row">
             <div className="col-6 col-sm-3 sele">
               <div className="form-group">
-                {/* <select className="form-control" onChange={(e) => {
-                                this.setState({ type : e.target.value });
-                                if(this.state.type == "Meters") {
-                                    this.setState({isQuantity: false});
-                                }
-                        }}>
-                                    <option value="Pieces">Pieces</option>
-                                    <option value="Meters">Meters</option>
-                                </select> */}
+               
 
                 <Select
                   className="upper-case"
@@ -639,8 +641,7 @@ class CeateDeliverySlip extends Component {
             </div>
             <div className="col-sm-3 scaling-ptop col-6">
               <div className="form-group">
-                {/* className={"btn-group pull-right " + (this.props.showBulkActions ? 'show' : 'hidden' */}
-                {/* <input type="number" className="form-control" placeholder="Check Promo Discount [Ctrl + 3]"/> */}
+            
                 <button
                   className={
                     "btn-login btn-create mt-3" +

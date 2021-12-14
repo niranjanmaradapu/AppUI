@@ -37,6 +37,10 @@ class InventoryService {
     getStoreNamesByIds(list){
         return axios.post(BASE_URL+INVENTORY_URLS.getStoreNamesByIds,list);
     }
+
+    getEmpNamesByIds(list){
+        return axios.post(BASE_URL+INVENTORY_URLS.getEmpNameByEmpId,list);
+    }
     
     
 
@@ -82,6 +86,14 @@ class InventoryService {
         return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesList,list);
         }else{
             return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesListTextile,list);
+        }
+    }
+
+    getReBarcodeDetails(list,domain){
+        if (domain && domain.label === "Retail") {
+        return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesList,list);
+        }else{
+            return axios.post(BASE_URL+INVENTORY_URLS.getReBarcodeTextileBarcodeDetails,list);
         }
     }
 

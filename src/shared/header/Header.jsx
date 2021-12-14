@@ -526,8 +526,11 @@ class Header extends Component {
      else {
        if(user["cognito:groups"][0] !== "config_user") {
         URMService.getSelectedPrivileges(user["custom:roleName"]).then(res => {
-          this.setState({moduleNames: res.data.result.parentPrivilages});
-          eventBus.dispatch("subHeader", { message: (res.data.result && res.data.result.parentPrivilages.length>0)?res.data.result.parentPrivilages[0].id:"" });
+          if(res && res.data && res.data.result){
+            this.setState({moduleNames: res.data.result.parentPrivilages});
+            eventBus.dispatch("subHeader", { message: (res.data.result && res.data.result.parentPrivilages.length>0)?res.data.result.parentPrivilages[0].id:"" });
+          }
+         
         });
        }
    
@@ -750,12 +753,22 @@ class Header extends Component {
     eventBus.dispatch("subHeader", { message: e.target.value });
     this.state.moduleNames.forEach(ele => {
       if (ele.id == e.target.value) {
-        parentPath = ele.path
-      }
-      console.log(parentPath);
-      this.props.history.push(parentPath);
+       parentPath = ele.path
+  
+         // parentPath = ele.subPrivillages[0].childPath;
+        
+      } 
+      
+      
 
     });
+    // this.props.history.push(parentPath);
+    // console.log(parentPath);
+      if(parentPath) {
+        this.props.history.push(parentPath);
+      } else {
+        this.props.history.push("/dashboard");
+      }
 
    // this.props.history.push("/dashboard");
 

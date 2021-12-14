@@ -13,7 +13,7 @@ export default class SalesReport extends Component {
     this.state = {
       dateFrom: "",
       dateTo: "",
-      mobileNumber: null,
+      custMobileNumber: null,
       billStatus: null,
       invoiceNumber: null,
       empId: null,
@@ -24,18 +24,23 @@ export default class SalesReport extends Component {
     this.getSaleBills = this.getSaleBills.bind(this);
     this.viewReport = this.viewReport.bind(this);
     this.closeViewReport = this.closeViewReport.bind(this);
+    this.validation = this.validation.bind(this);
   }
 
   getSaleBills() {
     const obj = {
       // dsNumber: this.state.dsNumber,
       // status: this.state.status,
-      dateFrom: this.state.dateFrom,
-      dateTo: this.state.dateTo,
-      mobileNumber: this.state.mobileNumber,
-      billStatus: this.state.billStatus,
-      invoiceNumber: this.state.invoiceNumber,
-      empId: this.state.empId,
+      dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
+      dateTo: this.state.dateTo ? this.state.dateTo : undefined,
+      custMobileNumber: this.state.custMobileNumber
+        ? this.state.custMobileNumber
+        : undefined,
+      billStatus: this.state.billStatus ? this.state.billStatus : undefined,
+      invoiceNumber: this.state.invoiceNumber
+        ? this.state.invoiceNumber
+        : undefined,
+      empId: this.state.empId ? this.state.empId : undefined,
     };
     ListOfSaleBillsService.getSaleBills(obj).then((res) => {
       console.log(res.data.result);
@@ -106,17 +111,24 @@ export default class SalesReport extends Component {
 
   renderTableData() {
     return this.state.sbList.map((items, index) => {
-      const { invoiceNumber, empId, createdDate, billStatus, newsaleId } =
-        items;
+      const {
+        invoiceNumber,
+        empId,
+        createdDate,
+        status,
+        billStatus,
+        newsaleId,
+      } = items;
       return (
         <tr className="" key={index}>
           <td className="col-1">{index + 1}</td>
           <td className="col-3">{invoiceNumber}</td>
           <td className="col-2">{empId}</td>
           <td className="col-2">{createdDate}</td>
-          <td className="col-2">
+          {/* <td className="col-2">
             {billStatus && <button className="btn-active">{billStatus}</button>}
-          </td>
+          </td> */}
+          <td className="col-2">{status}</td>
           <td className="col-2 text-center">
             <img src={print} className="w-12 m-r-2 pb-2" />
             <img
@@ -174,12 +186,21 @@ export default class SalesReport extends Component {
   }
 
   validation(e) {
-    const regex = /^[0-9\b]+$/;
-    const value = e.target.value;
-    if (value === "" || regex.test(value))
-      this.setState({
-        [e.target.id]: e.target.value,
-      });
+    this.setState({
+      [e.target.id]: e.target.value,
+      mobileNumber: e.target.value,
+    });
+
+    // const regex = /^[0-9\b]+$/;
+    // const value = e.target.value;
+    // if (value === "" || regex.test(value)) {
+    //   this.setState({
+    //     [e.target.id]: e.target.value,
+    //     mobileNumber: e.target.value,
+    //   });
+    // } else {
+    //   // toast.error("pls enter numbers")
+    // }
   }
 
   render() {
@@ -327,7 +348,11 @@ export default class SalesReport extends Component {
                 value={this.state.billStatus}
                 onChange={(e) => this.setState({ billStatus: e.target.value })}
               >
-                <option>BILL POSITION</option>
+                <option>BILLPOSITION</option>
+                <option>New</option>
+                <option>Pending</option>
+                <option>Cancelled</option>
+                <option>success</option>
               </select>
             </div>
           </div>
@@ -346,17 +371,32 @@ export default class SalesReport extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
-              <input
+              {/* <input
                 type="text"
                 name="mobile"
-                id="mobileNumber"
+                id="phone"
                 className="form-control"
                 placeholder="MOBILE NUMBER"
                 value={this.state.mobileNumber}
                 // onChange={(e) =>
                 //   this.setState({ mobileNumber: e.target.value })}
-                maxLength={10}
-                onChange={(e) => this.validation(e)}
+                maxLength="10"
+                minLength="10"
+                onChange={this.validation}
+              /> */}
+              <input
+                type="text"
+                className="form-control"
+                placeholder="MOBILE NUMBER"
+                value={this.state.custMobileNumber}
+                // maxLength="12"
+                // minLength="12"
+                // onFocus={this.validation}
+                // onChange={this.validation}
+                onChange={(e) =>
+                  this.setState({ custMobileNumber: e.target.value })
+                }
+                // autoComplete="off"
               />
             </div>
           </div>

@@ -278,7 +278,7 @@ export default class InventoryList extends Component {
         </div>
         <div className="row m-0 p-0 scaling-center">
           <h5 className="mt-1 mb-2 fs-18 p-l-0 scaling-mb">Inventory Details</h5>
-          <div className="table-responsive">
+          <div className="table-responsive p-0">
             <table className="table table-borderless mb-1 mt-2">
               <thead>
                 <tr className="m-0 p-0">

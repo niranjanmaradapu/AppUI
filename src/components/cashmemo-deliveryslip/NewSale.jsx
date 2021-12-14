@@ -88,11 +88,13 @@ export default class NewSale extends Component {
         mobileNumber: "",
         name: "",
         email: "",
+        newSaleId:"",
       },
       grossAmount: 0,
       totalPromoDisc: 0,
       totalManualDisc: 0,
       netPayableAmount: 0,
+      netCardPayment: 0,
       promoDiscount: 0,
       retailBarCodeList: [],
       barCodeRetailList:[],
@@ -110,7 +112,8 @@ export default class NewSale extends Component {
       customerMobilenumber: "",
       isTextile: false,
       isRetail: false,
-      lineItemsList: []
+      lineItemsList: [],
+      paymentOrderId:""
       // open: false,
     };
 
@@ -191,6 +194,7 @@ export default class NewSale extends Component {
       isCashSelected: true,
     });
   };
+
   getCardModel = () => {
     this.setState({
       isCard: true,
@@ -206,7 +210,8 @@ export default class NewSale extends Component {
    const value  =  displayRazorpay(this.state.cardAmount)
   };
   pay = () => {
-    NewSaleService.payment(this.state.cardAmount).then((res) => {
+    console.log(this.state.netPayableAmount);
+    NewSaleService.payment(this.state.netCardPayment, this.state.newSaleId).then((res) => {
       this.setState({ isPayment: false });
       const data = JSON.parse(res.data.result);
       const options = {
@@ -223,8 +228,12 @@ export default class NewSale extends Component {
 
           // return response;
           // alert("PAYMENT ID ::" + response.razorpay_payment_id);
+         // this.setState({paymentOrderId:  response.razorpay_order_id });
           toast.success("Payment Done Successfully");
+          
+       //   this.postPaymentData(response.razorpay_order_id);
           // alert("ORDER ID :: " + response.razorpay_order_id);
+          
         },
         prefill: {
           name: "Kadali",
@@ -237,6 +246,20 @@ export default class NewSale extends Component {
       // this.setState({taxAmount: res.data});
     });
   };
+
+  postPaymentData(paymentOrderId) {
+   
+    NewSaleService.postPaymentData(paymentOrderId, true).then(res =>{
+      if(res) {
+        this.setState({
+          showTable: false,
+          paymentOrderId: "",
+          newSaleId: "",
+          netPayableAmount:0.0
+        })
+      }
+    });
+  }
 
 
   getRetailBarcodeList() {
@@ -270,7 +293,7 @@ export default class NewSale extends Component {
 
       this.state.barCodeRetailList.forEach((barCode, index) => {
         costPrice = costPrice + barCode.listPrice;
-        discount = discount + barCode.listPrice;
+        discount = discount + barCode.promoDisc;
         total = total + barCode.listPrice;
       });
 
@@ -292,7 +315,7 @@ export default class NewSale extends Component {
 
   getDeliverySlipDetails() {
 
-    this.setState({ showTable: true });
+    this.setState({ showTable: false });
     let costPrice = 0;
     let discount = 0;
     let total = 0;
@@ -305,6 +328,7 @@ export default class NewSale extends Component {
     this.state.dsNumberList.push(obj);
 
     NewSaleService.getDeliverySlipDetails(this.state.dsNumber).then((res) => {
+      this.setState({ showTable: true });
       this.state.dlslips.push(res.data.result);
       if (this.state.dlslips.length > 1) {
         const barList = this.state.dlslips.filter(
@@ -332,7 +356,7 @@ export default class NewSale extends Component {
       }
 
       this.state.barCodeList.forEach((barCode, index) => {
-        costPrice = costPrice + barCode.grossValue;
+        costPrice = costPrice + barCode.itemPrice;
         discount = discount + barCode.discount;
         total = total + barCode.netValue;
       });
@@ -348,7 +372,7 @@ export default class NewSale extends Component {
       this.getTaxAmount();
     });
 
-
+      
   }
 
   getTaxAmount() {
@@ -403,6 +427,8 @@ export default class NewSale extends Component {
     this.setState({ isBillingDisc: true }, () => {
       this.getDiscountReasons();
     });
+
+    // manualDisc: "",discApprovedBy:"", selectedDisc:{}
   }
 
   hideDiscount() {
@@ -422,6 +448,7 @@ export default class NewSale extends Component {
   }
 
   saveDiscount() {
+    console.log(this.state.totalPromoDisc);
     this.state.netPayableAmount = 0;
     const totalDisc =
       this.state.totalPromoDisc + parseInt(this.state.manualDisc);
@@ -431,7 +458,7 @@ export default class NewSale extends Component {
       //  this.setState({netPayableAmount: netPayableAmount});
       this.getTaxAmount();
     }
-    const promDisc = this.state.manualDisc + this.state.totalPromoDisc;
+    const promDisc =  parseInt(this.state.manualDisc) + this.state.totalPromoDisc;
     this.setState({ showDiscReason: true, promoDiscount: promDisc });
 
     this.hideDiscount();
@@ -469,6 +496,7 @@ export default class NewSale extends Component {
     this.state.grandReceivedAmount =
       this.state.netPayableAmount + this.state.taxAmount;
     const collectedCash = parseInt(this.state.cashAmount);
+    
     if (collectedCash > this.state.grandNetAmount) {
       this.state.returnCash = collectedCash - this.state.grandNetAmount;
     } else if (collectedCash == this.state.grandNetAmount) {
@@ -503,7 +531,10 @@ export default class NewSale extends Component {
     }
   }
 
-  createInvoice() {
+  
+
+createInvoice() {
+    this.setState({netCardPayment: this.state.netPayableAmount })
     sessionStorage.removeItem("recentSale");
     let obj;
     if(this.state.isTextile) {
@@ -544,9 +575,13 @@ export default class NewSale extends Component {
   
       }
 
+      if(this.state.isCard) {
+        delete obj.paymentAmountType
+      }
+
       NewSaleService.saveSale(obj).then((res) => {
         if (res) {
-          this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
+          this.setState({ isBillingDetails: false, dsNumber: "", finalList: []});
           this.setState({
             customerName: " ",
             gender: " ",
@@ -558,7 +593,7 @@ export default class NewSale extends Component {
         barCodeList:[],
         grossAmount:0.0,
         promoDiscount:0.0,
-        netPayableAmount:0.0,
+      
         taxAmount:0.0,
         grandNetAmount:0.0
 
@@ -569,6 +604,8 @@ export default class NewSale extends Component {
           this.setState({ showTable: false });
           sessionStorage.setItem("recentSale", res.data.result);
           toast.success(res.data.result);
+          this.setState({newSaleId: res.data.result});
+          this.pay()
         } else {
           toast.error(res.data.result);
         }
@@ -660,6 +697,8 @@ export default class NewSale extends Component {
                 this.setState({ showDiscReason: false, isPayment: true });
                 sessionStorage.setItem("recentSale", res.data.result);
                 toast.success(res.data.result);
+                this.setState({newSaleId: res.data.result});
+                this.pay();
               } else {
                 toast.error(res.data.result);
               }
@@ -686,30 +725,33 @@ export default class NewSale extends Component {
       "roleId": "",
       "storeId": ""
     }
-    URMService.getUserBySearch(obj).then(res => {
+    CreateDeliveryService.getUserByMobile("+91"+this.state.mobilenumber).then(res => {
       console.log(res);
       if (res) {
-        this.setState({ userId: res.data.result[0].userId });
-      }
-    });
-
-
+        const mobileData = res.data.result;
+        this.setState({ userId: res.data.result.userId,customerFullName: res.data.result.userName
+         });
+         
     this.state.mobileData = {
       address: this.state.address,
       altMobileNo: "",
       dob: this.state.dob,
-      gender: this.state.gender,
+      gender: mobileData.gender,
       gstNumber: this.state.gstNumber,
-      mobileNumber: this.state.mobilenumber,
-      name: this.state.customerName,
+      mobileNumber: mobileData.phoneNumber,
+      name: mobileData.userName,
       email: this.state.customerEmail,
     };
 
     this.setState({
       isBillingDetails: true,
-      customerMobilenumber: this.state.mobilenumber,
+      customerMobilenumber:  mobileData.phoneNumber,
     });
-    this.state.customerFullName = this.state.customerName;
+  
+      }
+    });
+
+
     // this.state.customerMobilenumber = ;
     this.hideModal();
   }
@@ -964,7 +1006,7 @@ export default class NewSale extends Component {
             </button>
           </ModalFooter>
         </Modal>
-        <Modal
+        {/* <Modal
           isOpen={this.state.isCard}
           size="lg"
           onRequestHide={this.hideCardModal}
@@ -1004,7 +1046,7 @@ export default class NewSale extends Component {
               PAY
             </button>
           </ModalFooter>
-        </Modal>
+        </Modal> */}
         <Modal isOpen={this.state.openn} size="sm">
           <ModalHeader>
             {/* <ModalClose onClick={this.hideModal}/> */}
@@ -1195,7 +1237,7 @@ export default class NewSale extends Component {
                                 {/* John Peter */}
                                 {this.state.customerFullName}
                               </td>
-                              <td className="col-3">+91  {this.state.customerMobilenumber}</td>
+                              <td className="col-3"> {this.state.customerMobilenumber}</td>
                               <td className="col-3">
                                 <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
                                   <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" />
@@ -1274,7 +1316,7 @@ export default class NewSale extends Component {
                   <ul>
                     <li>
                       <span>
-                        <img src={card}  onClick={this.getCardModel}/>
+                        <img src={card}  onClick={this.savePayment}/>
                         <label>CARD</label>
                       </span>
 

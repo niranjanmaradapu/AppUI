@@ -173,7 +173,7 @@ class Login extends Component {
         // toast.error('Invalid Credentials');
         this.setState({ userName: "", password: "", selectedOption: null });
         sessionStorage.removeItem("user");
-        window.location.reload();
+      //  window.location.reload();
       }
     });
 

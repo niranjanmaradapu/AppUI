@@ -42,6 +42,7 @@ export default class BarcodeList extends Component {
       qty: "",
       stockValue: "",
       productItemId: "",
+      selectedStoreId: "",
       name: "",
       productTextile: "",
       barcodeTextileId: "",
@@ -105,17 +106,20 @@ export default class BarcodeList extends Component {
     this.state.domainDetails = JSON.parse(sessionStorage.getItem('selectedDomain'));
     this.setState({ domainDetails: this.state.domainDetails })
     const user = JSON.parse(sessionStorage.getItem('user'));
+    this.setState({selectedStoreId:JSON.parse(sessionStorage.getItem('storeId'))});
     if (user["custom:isSuperAdmin"] === "true") {
       this.setState({
         clientId: user["custom:clientId1"],
-      }, () => { this.getAllBarcodes(); this.getDomainsList(); this.getAllUoms();
+     
+      }, () => { this.getAllBarcodes(); this.getAllStoresList(); this.getAllUoms();
          this.getAllDivisions(); this.getHsnDetails(); this.getAllCategories(); this.loadErrorMsgs(); });
     } else {
       this.setState({
         clientId: user["custom:clientId1"],
-        domainId: user["custom:domianId1"]
+        // domainId: user["custom:domianId1"]
       }, () => { this.getAllStoresList(); this.getAllBarcodes(); this.getAllUoms();; this.getAllDivisions(); this.getHsnDetails(); this.getAllCategories();; this.loadErrorMsgs(); });
     }
+    
   }
 
   handleChange = (e) => {
@@ -150,7 +154,7 @@ export default class BarcodeList extends Component {
 
   getAllBarcodes() {
     let saveJson = {};
-    this.setState({ sortedStoreIds: []});
+    this.setState({ sortedStoreIds: [] });
     if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
       saveJson = {
         fromDate: this.state.fromDate,
@@ -161,7 +165,8 @@ export default class BarcodeList extends Component {
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,
-        barcode: this.state.barcodeSearchId
+        barcode: this.state.barcodeSearchId,
+        storeId: this.state.selectedStoreId
       }
     }
 
@@ -345,7 +350,7 @@ export default class BarcodeList extends Component {
   }
 
   getAllStoresList() {
-    URMService.getStoresByDomainId(this.state.domainId).then((res) => {
+    URMService.getStoresByDomainId(this.state.domainDetails.value).then((res) => {
       if (res) {
         res.data.result.forEach((ele, index) => {
           const obj = {
@@ -370,7 +375,7 @@ export default class BarcodeList extends Component {
   }
 
   getbarcodeDetails(barcodeId) {
-    InventoryService.getBarcodeDetails(barcodeId, this.state.domainDetails).then((res) => {
+    InventoryService.getBarcodeDetails(barcodeId, this.state.domainDetails,this.state.selectedStoreId).then((res) => {
       const barcode = res.data.result;
       if (res && res.data.isSuccess === "true") {
         if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
@@ -424,7 +429,7 @@ export default class BarcodeList extends Component {
     //   }
     // }
 
-    if(isEdit){
+    if(isEdit && this.state.domainDetails.label === "Textile" ){
       this.getAllSections(this.state.division);
       this.getAllSubsections(this.state.section);  
     }
@@ -446,7 +451,7 @@ export default class BarcodeList extends Component {
         empId: this.state.empId,
         uom: this.state.uom,
         isBarcode: false,
-        domainDataId: this.state.domainId,
+        domainDataId: this.state.domainDetails.value,
         name: this.state.name,
         hsnCode: this.state.hsnCode,
         batchNo: this.state.batchNo,
@@ -511,7 +516,7 @@ export default class BarcodeList extends Component {
         empId: this.state.empId,
         uom: this.state.uom,
         barcodeId: this.state.barcodeId,
-        domainDataId: this.state.domainId,
+        domainDataId: this.state.domainDetails.value,
         productItemId: this.state.productItemId,
         name: this.state.name,
         hsnCode: this.state.hsnCode,

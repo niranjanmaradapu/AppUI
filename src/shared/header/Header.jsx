@@ -361,108 +361,7 @@ class Header extends Component {
     }
   }
 
-  // componentWillMount() {
-  //   const user = sessionStorage.getItem('domainName');
-  //   const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
-  //   this.state.domainsList = JSON.parse(sessionStorage.getItem('domainList'));
-  //   const usersList = JSON.parse(sessionStorage.getItem('usersList'));
-  //   this.state.copyModules = JSON.parse(JSON.stringify(this.state.moduleNames));
-  //   const loggedUser = JSON.parse(sessionStorage.getItem("loggedUser"));
-  //   this.state.user = user;
-  //   console.log(this.state.user);
-  //   if(loggedUser && loggedUser.role !== "super_admin" && loggedUser.role !== "admin_textile" 
-  //   && loggedUser.role !== "admin_retail") {
-  //     this.state.headertype = "Customer Portal";
-  //     this.setAdminHeader();
-  //   }
-  //   this.state.user = user;
-  //   let obj = [];
-  //   const logOut = {
-  //     value: 4,
-  //     label: "Logout"
-  //   }
-  //   let selectedUser;
-  //   if(usersList && usersList.length > 0 ) { 
-  //     usersList.forEach((userli, index) =>{
-  //       if(user === userli.name) {
-  //         selectedUser = userli
-  //       }
-  //     });
-  //   }
 
-  //   //   if (this.state.domainsList && this.state.domainsList.length > 0 && user !== 'config_user' && selectedUser.role === 'super_admin') {
-  //   //     this.state.domainsList.forEach((ele, index) => {
-  //   //       const element = {
-  //   //         value: index,
-  //   //         label: ele.domain
-  //   //       }
-  //   //       obj.push(element);
-  //   //     });
-
-
-      
-  //   // } else {
-  //   //   if(usersList && usersList.length > 0 ) {
-  //   //     usersList.forEach((ele, index)=> {
-  //   //       if(user === ele.name) {
-  //   //         const element = {
-  //   //           value: index,
-  //   //           label: ele.domain
-  //   //         }
-  //   //         obj.push(element);
-  //   //       }
-  //   //     });
-        
-  //   //   }
-  //   // }
-
-  //   obj.push(logOut);
-
-  //   // obj = this.removeDuplicates(obj, "label");
-
-  //   this.setState({ dropData: obj });
-  //   if (selectedDomain) {
-  //     this.setState({ selectedOption: selectedDomain });
-  //   } else {
-  //     this.setState({ selectedOption: obj[0] });
-  //   }
-
-  //   // const userData=JSON.parse(sessionStorage.getItem('user'));
-  //   // if(userData["cognito:groups"][0] === "super_admin"){
-  //   //  this.setState({dropData:data})
-  //   // }else {
-  //   //  this.setState({dropData:data1})
-  //   // }
-
-  //   let header = this.state.moduleNames;
-  //   if (user === 'config-user') {
-  //     this.state.headertype = "URM Portal";
-  //     // header = [
-  //     //   {
-  //     //     parentName: "URM Portal",
-  //     //     path: "/users",
-  //     //     parentImage: "icon-r_brand fs-30 i_icon",
-  //     //     children: [
-  //     //       { childName: "Users", childImage: "deliveryslip", childPath: "/users" },
-  //     //       { childName: "Roles", childImage: "sale", childPath: "/roles" },
-  //     //       { childName: "Stores", childImage: "deliveryslip", childPath: "/stores" },
-  //     //       { childName: "Domain", childImage: "deliveryslip", childPath: "/domain" },
-  //     //     ],
-  //     //   },
-
-  //     // ]
-
-  //     header = this.state.moduleNames;
-  //     eventBus.dispatch("subHeader", { message: this.state.headertype });
-
-  //   } else if (selectedDomain && selectedDomain.label === "Retail") {
-  //     header = this.state.moduleRetailNames;
-  //   }
-
-
-  //   this.setState({ moduleNames: header });
-
-  // }
 
   componentWillMount() {
 
@@ -475,7 +374,9 @@ class Header extends Component {
     this.state.user = user["cognito:username"];
     if(domainName === "config_user") {
       let header;
-      this.state.headertype = "URM Portal";
+       this.state.headertype = "URM Portal";
+       console.log(this.state.headertype);
+       eventBus.dispatch("subHeader", { message: this.state.headertype });
           header = [
             {
               name: "URM Portal",
@@ -485,10 +386,18 @@ class Header extends Component {
               children: [
                 { childName: "Users", childImage: "deliveryslip", childPath: "/users" },
                 { childName: "Roles", childImage: "sale", childPath: "/roles" },
-                { childName: "Stores", childImage: "deliveryslip", childPath: "/stores" },
-                { childName: "Domain", childImage: "deliveryslip", childPath: "/domain" },
               ],
             },
+            {
+              name: "Accounting Portal",
+              id:'2',
+              path: "/domain",
+              parentImage: "icon-r_brand fs-30 i_icon",
+              children: [
+                { childName: "Domain", childImage: "deliveryslip", childPath: "/domain" },
+                { childName: "Stores", childImage: "deliveryslip", childPath: "/stores" },
+               ],
+            }
     
           ];
           const dropData = [
@@ -500,7 +409,7 @@ class Header extends Component {
 
           this.setState({dropData:dropData})
          this.setState({moduleNames: header});
-          eventBus.dispatch("subHeader", { message: this.state.headertype });
+         
     } else if(user["custom:isSuperAdmin"] === "true") {
       const clientId =  user["custom:clientId1"];
     //   URMService.getMasterDomainsList().then((res) => {
@@ -515,6 +424,7 @@ class Header extends Component {
 
     URMService.getDomainsList(clientId).then((res) => { 
       if(res) {
+       console.log(res.data.result);
         this.setState({domainLists: res.data.result}, () => {
                     this.getDomains();
                   });
@@ -524,7 +434,7 @@ class Header extends Component {
     
     }
      else {
-       if(user["cognito:groups"][0] !== "config_user") {
+       if(user["cognito:groups"] && user["cognito:groups"][0] !== "config_user") {
         URMService.getSelectedPrivileges(user["custom:roleName"]).then(res => {
           if(res && res.data && res.data.result){
             this.setState({moduleNames: res.data.result.parentPrivilages});
@@ -544,32 +454,11 @@ class Header extends Component {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const clientId =  user["custom:clientId1"];
     const domainId = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    //const domainName = sessionStorage.getItem("domainName");
-
-    // if(this.state.user !== "config_user" && user["custom:isSuperAdmin"] === "false") {
-    //   URMService.getDomainsList(clientId).then(res => {
-    //     console.log(res);
-    //     if(res) {
-    //     const domainList = res.data.result;
-    //     if(domainList.length > 0) {
-        
-    //       domainList.forEach(ele => {
-    //         const obj  = {
-    //           value: ele.clientDomainaId,
-    //           label: ele.domaiName
-    //         }
-    //         dataDrop.push(obj);
-    //       });
-         
-    //     }
-    //   }
-    //   });
-    // } else
-    
+       
     if(user["custom:isSuperAdmin"] === "true") { 
       this.state.domainLists.forEach((ele, index) => {
         const obj  = {
-          value: index,
+          value: ele.clientDomainaId,
           label: ele.domaiName
         }
         dataDrop.push(obj);
@@ -584,7 +473,7 @@ class Header extends Component {
         this.setAdminHeader();
       });
     } 
-    else if(user["cognito:groups"][0] !== "config_user" && user["custom:clientDomians"]) {
+    else if(user["cognito:groups"] && user["cognito:groups"][0] !== "config_user" && user["custom:clientDomians"]) {
      
       const clientDomainId = user["custom:clientDomians"].split(",")[0];
       URMService.getDomainName(clientDomainId).then(res => {
@@ -606,9 +495,19 @@ class Header extends Component {
     };
   dataDrop.push(dropLogout);
   
-  this.setState({dropData:dataDrop});
+  this.setState({dropData:dataDrop},()=>{
+    console.log(this.state.dropData);
+    sessionStorage.setItem("selectedDomain", JSON.stringify(dataDrop[1]));
+  });
+ 
   const domainName = JSON.parse(sessionStorage.getItem("selectedDomain"));
   this.setState({ selectedOption: domainName });
+  console.log(this.state.selectedOption);
+
+  if(domainName === "config_user") {
+   
+     eventBus.dispatch("subHeader", { message: this.state.headertype });
+  }
  
   } 
  
@@ -706,7 +605,7 @@ class Header extends Component {
 
   getChilds() {
     let parentPath;
-    eventBus.dispatch("subHeader", { message: this.state.headertype });
+  //  eventBus.dispatch("subHeader", { message: this.state.headertype });
     this.state.moduleNames.forEach(ele => {
       if (ele.parentName == this.state.headertype) {
         parentPath = ele.path
@@ -748,13 +647,25 @@ class Header extends Component {
 
 
   handleSelectChange = (e) => {
+    console.log(e.target.value);
+    const domainName = sessionStorage.getItem("domainName");
     let parentPath;
     this.setState({headertype: e.target.value});
     eventBus.dispatch("subHeader", { message: e.target.value });
     this.state.moduleNames.forEach(ele => {
       if (ele.id == e.target.value) {
-       parentPath = ele.path
-  
+        if(ele.path) {
+          parentPath = ele.path;
+        } else {
+          if(ele.subPrivillages) {
+            parentPath = ele.subPrivillages[0].childPath;
+          }
+        }
+       
+       if(domainName === "config_user") {
+        eventBus.dispatch("subHeader", { message: ele.name });
+       }
+    //   
          // parentPath = ele.subPrivillages[0].childPath;
         
       } 
@@ -780,10 +691,16 @@ class Header extends Component {
 
     let modulesList = modules.length > 0
       && modules.map((item, i) => {
-        return (
-          <option key={i} value={item.id}>{item.name}</option>
-          // <option key={i} value={item.parentName}>{item.parentName}</option>
-        )
+        {
+          return item.name && (
+            <option key={i} value={item.id}>{item.name}</option>
+          )
+        }
+        // return (
+          
+        //   <option key={i} value={item.id}>{item.name}</option>
+        //   // <option key={i} value={item.parentName}>{item.parentName}</option>
+        // )
       }, this);
 
     //   if(this.state.domainsList && this.state.domainsList.length > 0) {

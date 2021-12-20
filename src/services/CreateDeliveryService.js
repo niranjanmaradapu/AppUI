@@ -4,8 +4,8 @@ import { BASE_URL } from '../commonUtils/Base';
 
 class CreateDeliveryService {
 
-    getBarCodeList(barCode, smNumber) {
-        const param = '?barcode=' + barCode;
+    getBarCodeList(barCode, smNumber,storeId) {
+        const param = '?barcode=' + barCode+'&storeId='+storeId;
         return axios.get(BASE_URL + CREATE_DELIVERY_SLIP_URL.getDeliverySlip + param);
     }
 

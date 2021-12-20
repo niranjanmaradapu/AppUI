@@ -43,10 +43,12 @@ class Login extends Component {
       roleName: "",
       confirmationCode: "",
       newForgotPassword: "",
+      storeId: "",
+      domainId: ""
     };
+
     sessionStorage.setItem("lang", this.state.value);
     this.handleRadioChange = this.handleRadioChange.bind(this);
-    this.getDropdownList = this.getDropdownList.bind(this);
     this.hideRegister = this.hideRegister.bind(this);
     this.showRegister = this.showRegister.bind(this);
     this.registerClient = this.registerClient.bind(this);
@@ -62,8 +64,8 @@ class Login extends Component {
 
   componentWillMount() {
     sessionStorage.removeItem("selectedDomain");
-  
-    
+
+
     //this.state.storeNames = data
   }
 
@@ -87,9 +89,142 @@ class Login extends Component {
     this.setState({ dropValue: e.label });
   };
 
-  gotoDashboard() {
+
+
+  login = () => {
+    const obj = {
+      email: this.state.userName,
+      password: this.state.password,
+    };
+
+    LoginService.getAuth(obj).then((res) => {
+      console.log(res);
+      if (res && res.data && res.data.isSuccess === "true") {
+        if (res.data.result.authenticationResult) {
+          const token = res.data.result.authenticationResult.idToken;
+          sessionStorage.setItem("user", JSON.stringify(jwt_decode(token)));
+          sessionStorage.setItem("token", JSON.stringify(token));
+          // this.getDropdownList();
+          const role = JSON.parse(sessionStorage.getItem("user"));
+          if (role["cognito:groups"]) {
+            if (role["cognito:groups"][0] === "super_admin") {
+              this.getModel();
+            } else if (role["cognito:groups"][0] === "config_user") {
+              sessionStorage.setItem("domainName", role["cognito:groups"][0]);
+              this.props.history.push("/users");
+            } else {
+              sessionStorage.setItem("domainName", role["cognito:groups"][0]);
+              this.getStores();
+            }
+
+          }  else {
+            this.getStores();
+          }
+            
+          
+          // if(role["custom:assignedStores"]){
+          //   const table = role["custom:assignedStores"].split(",").map(pair => pair.split(":"));
+          //   sessionStorage.setItem("storeId", table[0][1]);
+          //   console.log(table[0][1]);
+          // }
+
+
+
+          //     const table1 = table.split(",").map(pair => pair.split(":")); //[["key","value"],["key","value"]]
+          //     console.log(table1);
+          //     const result = Object.values(table1);
+          //     console.log(result);
+        } else {
+          if (res.data.result.challengeName === "NEW_PASSWORD_REQUIRED") {
+            const roleData = res.data.result
+              ? JSON.parse(res.data.result.challengeParameters.userAttributes)
+              : "";
+            this.setState({
+              isChangePassword: true,
+              isRegister: false,
+              isForgot: false,
+              isLogin: false,
+              sessionData: res.data.result.session,
+              roleName: roleData["custom:roleName"],
+            });
+
+            console.log(this.state.roleName);
+          }
+        }
+
+
+      } else {
+        // toast.error('Invalid Credentials');
+        this.setState({ userName: "", password: "", selectedOption: null });
+        sessionStorage.removeItem("user");
+        //  window.location.reload();
+      }
+    });
+
+    //  this.props.history.push("/users");
+  };
+
+  getStores() {
+    console.log("Stores List")
     const role = JSON.parse(sessionStorage.getItem("user"));
-    console.log(role);
+    if (role["custom:isSuperAdmin"] === "true") {
+      const domain = JSON.parse(sessionStorage.getItem('selectedDomain'));
+      URMService.getStoresByDomainId(domain.value).then(res => {
+        if(res) {
+          console.log(res);
+          let store = [];
+          const storeData = res.data.result;
+          storeData.forEach(storeData=>{
+            const obj = {
+              storeName: storeData.name,
+              storeId: storeData.id
+            }
+            store.push(obj);
+          });
+          this.setState({ storesName: store }, () => {
+            sessionStorage.setItem("storeId", this.state.storesName[0].storeId);
+          });
+    
+          if (store && store.length > 1) {
+            this.setState({ isStores: true });
+          } else {
+            sessionStorage.setItem("storeId", this.state.storesName[0].storeId);
+            this.getDashboard();
+          }
+        }
+      })
+    } else if (role["custom:assignedStores"]) {
+      const table = role["custom:assignedStores"].split(",").map(pair => pair.split(":"));
+      let store = [];
+      table.forEach((element, index) => {
+        if (element[0] && element[1]) {
+          const obj = {
+            storeName: element[0],
+            storeId: element[1]
+          }
+          store.push(obj);
+        }
+
+      })
+
+      this.setState({ storesName: store }, () => {
+        sessionStorage.setItem("storeId", this.state.storesName[0].storeId);
+      });
+
+      if (store && store.length > 1) {
+        this.setState({ isStores: true });
+      } else {
+        sessionStorage.setItem("storeId", this.state.storesName[0].storeId);
+        this.getDashboard();
+      }
+
+    } else {
+      this.props.history.push("/dashboard");
+    }
+  }
+
+  getDashboard() {
+    const role = JSON.parse(sessionStorage.getItem("user"));
     if (role["cognito:groups"]) {
       if (role["cognito:groups"][0] === "super_admin") {
         this.getModel();
@@ -111,74 +246,6 @@ class Login extends Component {
       // window.location.reload();
     }
   }
-
-  login = () => {
-    const obj = {
-      email: this.state.userName,
-      password: this.state.password,
-    };
-
-    LoginService.getAuth(obj).then((res) => {
-      console.log(res);
-      if (res && res.data && res.data.isSuccess === "true") {
-        if (res.data.result.authenticationResult) {
-          const token = res.data.result.authenticationResult.idToken;
-          sessionStorage.setItem("user", JSON.stringify(jwt_decode(token)));
-          sessionStorage.setItem("token", JSON.stringify(token));
-         // this.getDropdownList();
-          const role = JSON.parse(sessionStorage.getItem("user"));
-    //console.log(role["custom:assignedStores"].split(",")[0]);
-    // const storesList  = role["custom:assignedStores"].split(",");
-    // if(storesList.length > 1) {
-    //   this.setState({ storesName:storesList, isStores: true});
-    // }
-    if (role["cognito:groups"]) {
-      if (role["cognito:groups"][0] === "super_admin") {
-        this.getModel();
-      } else if (role["cognito:groups"][0] === "config_user") {
-        sessionStorage.setItem("domainName", role["cognito:groups"][0]);
-        // sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
-        this.props.history.push("/users");
-      } else {
-        sessionStorage.setItem("domainName", role["cognito:groups"][0]);
-        //  sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
-        this.props.history.push("/dashboard");
-      }
-    } else if (role["custom:isSuperAdmin"] === "true") {
-      // sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
-      this.props.history.push("/dashboard");
-    } else {
-      toast.error("No Role Available");
-      // sessionStorage.removeItem('user')
-      // window.location.reload();
-    }
-        } else {
-          if (res.data.result.challengeName === "NEW_PASSWORD_REQUIRED") {
-            const roleData = res.data.result
-              ? JSON.parse(res.data.result.challengeParameters.userAttributes)
-              : "";
-            this.setState({
-              isChangePassword: true,
-              isRegister: false,
-              isForgot: false,
-              isLogin: false,
-              sessionData: res.data.result.session,
-              roleName: roleData["custom:roleName"],
-            });
-
-            console.log(this.state.roleName);
-          }
-        }
-      } else {
-        // toast.error('Invalid Credentials');
-        this.setState({ userName: "", password: "", selectedOption: null });
-        sessionStorage.removeItem("user");
-      //  window.location.reload();
-      }
-    });
-
-    //  this.props.history.push("/users");
-  };
 
   changePassword() {
     // let roleName;
@@ -215,6 +282,7 @@ class Login extends Component {
   }
 
   getModel() {
+    console.log("user")
     const user = JSON.parse(sessionStorage.getItem("user"));
     const clientId = user["custom:clientId1"];
     URMService.getDomainsList(clientId).then((res) => {
@@ -252,8 +320,9 @@ class Login extends Component {
     });
   }
 
-  handleClick(val, domainName) {
-    console.log(domainName);
+  handleClick(val, domainName, domainId) {
+    console.log(domainId);
+    this.setState({domainId:domainId})
     // data1.forEach((ele, index) => {
     //     if (domainName === ele.label) {
 
@@ -261,38 +330,39 @@ class Login extends Component {
     //     }
     // });
     const obj = {
-      "value":0,
-    "label":domainName
-  }
-  sessionStorage.setItem('selectedDomain', JSON.stringify(obj));
-    if (domainName === "Textile") {
-      this.props.history.push("dashboard");
-    } else if (domainName === "Retail") {
-      this.props.history.push("dashboard");
-    } else if (domainName === "Electronics") {
-      this.props.history.push("electronics");
-    } else if (domainName === "Admin") {
-      this.props.history.push("/users");
-    } else if (domainName === "MultiDomain") {
-      this.props.history.push("/retail");
+      "value": domainId,
+      "label": domainName
     }
+    sessionStorage.setItem('selectedDomain', JSON.stringify(obj));
+    this.getStores();
+    // if (domainName === "Textile") {
+    //   this.props.history.push("dashboard");
+    // } else if (domainName === "Retail") {
+    //   this.props.history.push("dashboard");
+    // } else if (domainName === "Electronics") {
+    //   this.props.history.push("electronics");
+    // } else if (domainName === "Admin") {
+    //   this.props.history.push("/users");
+    // } else if (domainName === "MultiDomain") {
+    //   this.props.history.push("/retail");
+    // }
   }
 
-  getStoresDropdown() {
-    return (
-      this.state.isStores && (
-        <div>
-          <Select
-            className="m-t-3 upper-case select_control"
-            placeholder="Select Store"
-            value={this.state.selectedOption} // set selected value
-            options={this.state.storeNames} // set list of the data
-            onChange={this.handleChange} // assign onChange function
-          />
-        </div>
-      )
-    );
-  }
+  // getStoresDropdown() {
+  //   return (
+  //     this.state.isStores && (
+  //       <div>
+  //         <Select
+  //           className="m-t-3 upper-case select_control"
+  //           placeholder="Select Store"
+  //           value={this.state.selectedOption} // set selected value
+  //           options={this.state.storeNames} // set list of the data
+  //           onChange={this.handleChange} // assign onChange function
+  //         />
+  //       </div>
+  //     )
+  //   );
+  // }
 
   showRegister() {
     this.setState({
@@ -481,31 +551,7 @@ class Login extends Component {
     }
   }
 
-  getDropdownList() {
-    console.log(this.state.userName);
-  
-      const user = JSON.parse(sessionStorage.getItem('user'));
-      if (user) {
-          this.setState({ clientId: user["custom:clientId1"]}, ()=>{
-            URMService.getAllStores(this.state.clientId).then(res => {
-              if (res) {
-                  this.setState({ storeNames: res.data.result}, ()=>{
-                    if(this.state.storeNames && this.state.storeNames.length > 1) {
-                      this.setState({isStores: true});
-                    } else {
-                      this.gotoDashboard()
-                    }
-                  });
-              }
-            });
-          });
-      }
-    
-    // this.state.storeNames = this.removeDuplicates(
-    //   this.state.storeNames,
-    //   "label"
-    // );
-  }
+
 
   showDomains() {
     return (
@@ -516,7 +562,7 @@ class Login extends Component {
             return (
               <li
                 key={index}
-                onClick={(e) => this.handleClick(index + 1, element.domaiName)}
+                onClick={(e) => this.handleClick(index + 1, element.domaiName,element.clientDomainaId )}
               >
                 <a>
                   <img src={element.src} />
@@ -571,31 +617,57 @@ class Login extends Component {
     }
   }
 
+
   render() {
     const { t, i18n } = this.props;
+    let storeList;
+    if (this.state.storesName && this.state.storesName.length > 0) {
+      const modules = this.state.storesName;
+      storeList = modules.length > 0
+        && modules.map((item, i) => {
+          return (
+
+            <option key={i} value={item.storeId}>{item.storeName}</option>
+          )
+        }, this);
+    }
     return (
       <div className="login">
-       <Modal className="fullModal" isOpen={this.state.isStores} size="xl">
-        <ModalHeader>
-          Select Store
-        </ModalHeader>
-        <ModalBody>
-        <div>
-          <Select
-            className="m-t-3 upper-case select_control"
-            placeholder="Select Store"
-            value={this.state.selectedOption} // set selected value
-            options={this.state.storeNames} // set list of the data
-            onChange={this.handleChange} // assign onChange function
-          />
-        </div>
-        </ModalBody>
-        <ModalFooter>
-        <button className="btn-login_v1 mt-3" onClick={this.gotoDashboard}>
-                     Ok
-                    </button>
-        </ModalFooter>
-         </Modal>
+        <Modal className="" isOpen={this.state.isStores} size="">
+          <ModalHeader>
+            Select Store
+          </ModalHeader>
+          <ModalBody>
+            <div className="p-4">
+
+              <select className="form-control" value={this.state.storeId}
+
+                onChange={(e) => {
+                  this.setState({ storeId: e.target.value }, () => {
+                    sessionStorage.setItem("storeId", this.state.storeId)
+                  })
+                }}>
+
+                {storeList}
+              </select >
+            </div>
+          </ModalBody>
+          <ModalFooter>
+          <button className="btn-unic fs-12 mt-3" onClick={(e) => {
+              this.props.history.push("/dashboard");
+            }
+            }>
+              Cancel
+            </button>
+            <button className="btn-unic active fs-12 mt-3" onClick={(e) => {
+              this.props.history.push("/dashboard");
+            }
+            }>
+              OK
+            </button>
+          
+          </ModalFooter>
+        </Modal>
 
         <Modal className="fullModal" isOpen={this.state.isModel} size="xl">
           <div className="">
@@ -712,7 +784,7 @@ class Login extends Component {
                           this.setState({ userName: e.target.value })
                         }
                         autoComplete="off"
-                       // onKeyPress={this.getDropdownList}
+                        // onKeyPress={this.getDropdownList}
                         placeholder={t("Username")}
                       />
                       <input
@@ -727,7 +799,6 @@ class Login extends Component {
                       />
                     </div>
 
-                    <div>{this.getStoresDropdown()}</div>
 
                     <div className="form-check checkbox-rounded checkbox-living-coral-filled pt-1 mt-3">
                       <input
@@ -896,7 +967,7 @@ class Login extends Component {
                   <div className="login-right-formreg select_control">
                     <div className="row p-3">
                       <h5 className="">
-                        New User <br /> Register{" "}
+                        Register <br /> New Client{" "}
                       </h5>
                       <div className="col-6">
                         <label>

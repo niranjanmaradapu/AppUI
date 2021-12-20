@@ -35,6 +35,7 @@ export default class Rebarcoding extends Component {
       fromDate: "",
       toDate: "",
       barcodeSearchId: "",
+      selectedStoreId: "",
       barcodesList: [],
       domainDetails: {},
       isEdit: false,
@@ -90,19 +91,20 @@ export default class Rebarcoding extends Component {
 
   componentWillMount() {
     this.state.domainDetails = JSON.parse(sessionStorage.getItem('selectedDomain'));
-    this.setState({ domainDetails: this.state.domainDetails })
+    this.setState({ domainDetails: this.state.domainDetails });
     const user = JSON.parse(sessionStorage.getItem('user'));
+    this.setState({selectedStoreId:JSON.parse(sessionStorage.getItem('storeId'))});
     if (user["custom:isSuperAdmin"] === "true") {
       this.setState({
         clientId: user["custom:clientId1"],
       }, () => {
-        this.getAllBarcodes(); this.getDomainsList(); this.getAllUoms();
+        this.getAllBarcodes(); this.getAllStoresList(); this.getAllUoms();
         this.getAllDivisions(); this.getHsnDetails(); this.getAllCategories();
       });
     } else {
       this.setState({
         clientId: user["custom:clientId1"],
-        domainId: user["custom:domianId1"]
+        // domainId: user["custom:domianId1"]
       }, () => { this.getAllStoresList(); this.getAllBarcodes(); this.getAllUoms();; this.getAllDivisions(); this.getHsnDetails(); this.getAllCategories(); });
     }
   }
@@ -120,7 +122,8 @@ export default class Rebarcoding extends Component {
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,
-        currentBarcodeId: this.state.barcodeSearchId
+        currentBarcodeId: this.state.barcodeSearchId,
+        storeId: this.state.selectedStoreId
       }
     }
 
@@ -303,7 +306,7 @@ export default class Rebarcoding extends Component {
   }
 
   getAllStoresList() {
-    URMService.getStoresByDomainId(this.state.domainId).then((res) => {
+    URMService.getStoresByDomainId(this.state.domainDetails.value).then((res) => {
       if (res) {
         res.data.result.forEach((ele, index) => {
           const obj = {
@@ -328,7 +331,7 @@ export default class Rebarcoding extends Component {
   }
 
   getbarcodeDetails(barcodeId) {
-    InventoryService.getBarcodeDetails(barcodeId, this.state.domainDetails).then((res) => {
+    InventoryService.getBarcodeDetails(barcodeId, this.state.domainDetails,this.state.selectedStoreId).then((res) => {
       const barcode = res.data.result;
       if (res && res.data.isSuccess === "true") {
         if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
@@ -499,8 +502,8 @@ export default class Rebarcoding extends Component {
       const { currentBarcodeId, toBeBarcodeId, createdBy, fromDate } = items
       return (
         <tr key={index}>
-          <td className="col-2 underline">{currentBarcodeId}</td>
           <td className="col-2 underline">{toBeBarcodeId}</td>
+          <td className="col-2 underline">{currentBarcodeId}</td>
           <td className="col-2">{createdBy}</td>
           <td className="col-2">-</td>
           <td className="col-2">{fromDate}</td>

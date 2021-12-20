@@ -39,6 +39,7 @@ export default class NewSale extends Component {
       rBarCodeList: [],
       discReasons: [],
       selectedDisc: {},
+      userId:"NA",
       deliverySlipData: {
         barcode: [],
         mrp: "",
@@ -135,6 +136,9 @@ export default class NewSale extends Component {
 
     const clientId = JSON.parse(sessionStorage.getItem('selectedDomain'));
     console.log(clientId.label);
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    this.setState({userId : parseInt(user["custom:userId"])});
+    console.log(this.state.userId);
     if (clientId.label === "Textile") {
       this.setState({ isTextile: true, isRetail: false });
     } else if (clientId.label === "Retail") {
@@ -191,6 +195,9 @@ export default class NewSale extends Component {
       isCash: true,
     });
     this.setState({
+      isCard: false,
+    });
+    this.setState({
       isCashSelected: true,
     });
   };
@@ -199,9 +206,10 @@ export default class NewSale extends Component {
     this.setState({
       isCard: true,
     });
-    this.setState({
-      isCardSelected: true,
-    });
+    this.savePayment();
+    // this.setState({
+    //   isCardSelected: true,
+    // });
   };
   hideCardModal = () => {
     this.setState({
@@ -531,11 +539,10 @@ export default class NewSale extends Component {
     }
   }
 
-  
-
-createInvoice() {
+  createInvoice() {
     this.setState({netCardPayment: this.state.netPayableAmount })
     sessionStorage.removeItem("recentSale");
+   
     let obj;
     if(this.state.isTextile) {
        obj = {
@@ -564,7 +571,7 @@ createInvoice() {
   
         "offlineNumber": null,
   
-        "UserId": null,
+        "userId": this.state.userId,
   
         "dlSlip": this.state.dsNumberList,
         "lineItemsReVo": null,
@@ -590,14 +597,15 @@ createInvoice() {
             address: " ",
             manualDisc: "",
             customerEmail: "",
+            netPayableAmount:0.0,
         barCodeList:[],
         grossAmount:0.0,
         promoDiscount:0.0,
       
         taxAmount:0.0,
-        grandNetAmount:0.0
+        grandNetAmount:0.0,
 
-
+        isPayment:true
 
           });
           this.setState({ showDiscReason: false, isPayment: true });
@@ -605,7 +613,10 @@ createInvoice() {
           sessionStorage.setItem("recentSale", res.data.result);
           toast.success(res.data.result);
           this.setState({newSaleId: res.data.result});
-          this.pay()
+         // this.pay()
+          if(this.state.isCard) {
+            this.pay()
+          }
         } else {
           toast.error(res.data.result);
         }
@@ -666,7 +677,7 @@ createInvoice() {
   
         "offlineNumber": null,
   
-        "UserId": null,
+        "userId": null,
   
         "dlSlip": null,
         "lineItemsReVo": this.state.lineItemsList,
@@ -698,7 +709,10 @@ createInvoice() {
                 sessionStorage.setItem("recentSale", res.data.result);
                 toast.success(res.data.result);
                 this.setState({newSaleId: res.data.result});
-                this.pay();
+              
+                if(this.state.isCard) {
+                  this.pay();
+                }
               } else {
                 toast.error(res.data.result);
               }
@@ -1316,7 +1330,7 @@ createInvoice() {
                   <ul>
                     <li>
                       <span>
-                        <img src={card}  onClick={this.savePayment}/>
+                        <img src={card}  onClick={this.getCardModel}/>
                         <label>CARD</label>
                       </span>
 

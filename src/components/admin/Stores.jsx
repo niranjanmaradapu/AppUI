@@ -37,6 +37,8 @@ export default class Stores extends Component {
             fields: {},
             focus: false,
             isSearch: false,
+            gstNumber: "",
+            isGstNumber: false
         }
 
         this.showStores = this.showStores.bind(this);
@@ -65,6 +67,8 @@ export default class Stores extends Component {
             errors: {},
             isEdit: false,
             isSearch: false,
+            isGstNumber: false,
+            gstNumber:""
 
         });
         this.getDomainsList();
@@ -136,6 +140,27 @@ export default class Stores extends Component {
                 this.setState({ stateId: ele.stateId });
             }
         });
+
+        this.getGSTNumber()
+    }
+
+    getGSTNumber() {
+    
+        const stateCode = this.state.isSearch ? this.state.searchState : this.state.stateName;
+        URMService.getGSTDetails(stateCode, this.state.clientId).then(res => {
+            console.log(res)
+            if (res) {
+                this.setState({gstNumber: res.data.result.gstNumber},()=>{
+                    if(this.state.gstNumber) {
+                        this.setState({isGstNumber: true});
+                    } else {
+                        this.setState({isGstNumber: false});
+                    }
+                })
+            }
+
+        });
+
     }
 
     getAllStores() {
@@ -164,7 +189,7 @@ export default class Stores extends Component {
             "stateId": this.state.searchState,
             "cityId": this.state.searchCity,
             "districtId": this.state.searchDistrict,
-            "storeName": ""
+            "storeName": null
         }
 
         URMService.getStoresBySearch(searchStore).then(res => {
@@ -196,7 +221,9 @@ export default class Stores extends Component {
                     "domainId": this.state.domain,
                     "createdBy": this.state.userName,
                     "createdDate": "",
-                    "stateCode": this.state.stateName
+                    "stateCode": this.state.stateName,
+                    "gstNumber": this.state.gstNumber,
+                    "clientId":this.state.clientId
 
                 }
 
@@ -218,7 +245,9 @@ export default class Stores extends Component {
                     "phoneNumber": this.state.phoneNumber,
                     "domainId": this.state.domain,
                     "createdBy": this.state.userName,
-                    "stateCode": this.state.stateName
+                    "stateCode": this.state.stateName,
+                    "gstNumber": this.state.gstNumber,
+                    "clientId":this.state.clientId
                 }
                 URMService.saveStore(saveObj).then(res => {
                     if (res) {
@@ -315,26 +344,26 @@ export default class Stores extends Component {
         let formIsValid = true;
 
         //Name
-        if (!this.state.city) {
-            formIsValid = false;
-            errors["city"] = "Enter City";
-        }
+        // if (!this.state.city) {
+        //     formIsValid = false;
+        //     errors["city"] = "Enter City";
+        // }
 
 
 
         // Area 
-        if (!this.state.area) {
-            formIsValid = false;
-            errors["area"] = "Enter area";
-        }
+        // if (!this.state.area) {
+        //     formIsValid = false;
+        //     errors["area"] = "Enter area";
+        // }
 
 
 
         // Mobile
-        if (!this.state.phoneNumber) {
-            formIsValid = false;
-            errors["phoneNumber"] = "Enter phoneNumber";
-        }
+        // if (!this.state.phoneNumber) {
+        //     formIsValid = false;
+        //     errors["phoneNumber"] = "Enter phoneNumber";
+        // }
 
         // if (typeof this.state.phoneNumber !== "undefined") {
         //     if (!this.state.phoneNumber.match(/^[0-9\b]+$/)) {
@@ -376,6 +405,11 @@ export default class Stores extends Component {
             errors["districtName"] = "Enter District Name";
         }
 
+        // gstNumber 
+        if (!this.state.gstNumber) {
+            formIsValid = false;
+            errors["gstNumber"] = "Enter gstNumber ";
+        }
 
 
 
@@ -454,7 +488,7 @@ export default class Stores extends Component {
                                 </div>
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
-                                        <label>State</label>
+                                        <label>State<span className="text-red font-bold">*</span></label>
                                         {/* <select className="form-control" value={this.state.stateName}
                                             onChange={(e) => this.setState({ stateName: e.target.value })}
                                         >
@@ -465,23 +499,20 @@ export default class Stores extends Component {
                                         </select> */}
 
                                         <select className="form-control" value={this.state.stateName}
-                                            onChange={(e) => this.setState({ stateName: e.target.value }, () => {
+                                            onChange={(e) => this.setState({ stateName: e.target.value, isGstNumber:false, gstNumber:"" }, () => {
                                                 this.getDistricts()
                                             })}>
 
                                             {statesList}
                                         </select >
 
-                                        {/* <div>
-                                            <span style={{ color: "red" }}>{this.state.errors["stateName"]}</span>
-                                        </div> */}
-
+                                       
 
                                     </div>
                                 </div>
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
-                                        <label>District</label>
+                                        <label>District<span className="text-red font-bold">*</span></label>
                                         {/* <select className="form-control" value={this.state.district}
                                             onChange={(e) => this.setState({ district: e.target.value })}>
                                             <option> Select </option>
@@ -605,12 +636,22 @@ export default class Stores extends Component {
                                     </div>
                                 </div>
                                 <div className="col-sm-4 col-12">
-                                    {/* <div className="form-group">
-                                        <label>Mobile Number</label>
-                                        <input type="text" className="form-control" placeholder="+91" maxLength="10" minLength="10"
-                                            value={this.state.mobileNumber}
-                                            onChange={(e) => this.setState({ mobileNumber: e.target.value })} />
-                                    </div> */}
+                                    <div className="form-group">
+                                        <label>GST Number</label>
+                                        <input type="text" className="form-control" placeholder="Gst Number" 
+                                            value={this.state.gstNumber}
+                                            disabled={this.state.isGstNumber}
+                                            onChange={(e) => this.setState({ gstNumber: e.target.value })} />
+                                            {
+                                                !this.state.isGstNumber && (
+                                                    <div>
+                                                    <span style={{ color: "red" }}>Please Provide GSTNumber</span>
+                                                </div>
+                                                )
+                                            }
+                                           
+
+                                    </div>
                                 </div>
                             </div>
                         </div>

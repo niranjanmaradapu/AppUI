@@ -99,6 +99,8 @@ class SubHeader extends Component {
             { childName: "Debit Notes", childImage: "sale", childPath: "/debitNotes" },
             { childName: "Create Tax Master", childImage: "deliveryslip", childPath: "/createTaxMaster" },
             { childName: "Create HSN Code", childImage: "deliveryslip", childPath: "/createHSN" },
+            { childName: "Stores",name: "Stores", childImage: "deliveryslip", childPath: "/stores" },
+            { childName: "Domain", name:"Domain", childImage: "deliveryslip", childPath: "/domain" },
           ],
         },
 
@@ -140,8 +142,7 @@ class SubHeader extends Component {
           children: [
             { childName: "Users", name: "Users", childImage: "deliveryslip", childPath: "/users" },
             { childName: "Roles", name: "Roles", childImage: "sale", childPath: "/roles" },
-            { childName: "Stores",name: "Stores", childImage: "deliveryslip", childPath: "/stores" },
-            { childName: "Domain", name:"Domain", childImage: "deliveryslip", childPath: "/domain" },
+           
           ],
         },
         {
@@ -291,6 +292,29 @@ class SubHeader extends Component {
           ],
         },
       ],
+      moduleConfigheader : [
+        {
+          parentName: "URM Portal",
+          id:'1',
+          path: "/users",
+          parentImage: "icon-r_brand fs-30 i_icon",
+          children: [
+            { name: "Users", childImage: "deliveryslip", childPath: "/users" },
+            { name: "Roles", childImage: "sale", childPath: "/roles" },
+          ],
+        },
+        {
+          parentName: "Accounting Portal",
+          id:'2',
+          path: "/domain",
+          parentImage: "icon-r_brand fs-30 i_icon",
+          children: [
+            { name: "Domain", childImage: "deliveryslip", childPath: "/domain" },
+            { name: "Stores", childImage: "deliveryslip", childPath: "/stores" },
+           ],
+        }
+
+      ],
     }
     this.setHeaders = this.setHeaders.bind(this);
     this.handleNavigationChange = this.handleNavigationChange.bind(this);
@@ -300,20 +324,29 @@ class SubHeader extends Component {
 
   componentWillMount() {
     const domainName = sessionStorage.getItem("domainName");
-    if(domainName === "config_user") { 
-    this.setState({ message: "URM Portal" }, () => { this.setHeaders(); })
-    } else {
-      eventBus.on("subHeader", (data) =>
+    // if(domainName === "config_user") { 
+    // this.setState({ message: "URM Portal" }, () => { this.setHeaders(); })
+    // } else {
+    //   eventBus.on("subHeader", (data) =>
+    //   this.setState({ message: data.message }, () => {this.setHeaders();}));
+    // }
+
+    eventBus.on("subHeader", (data) =>
       this.setState({ message: data.message }, () => {this.setHeaders();}));
-    }
+      console.log(this.state.message);
+      if(!this.state.message) {
+          if(domainName === "config_user") { 
+       this.setState({ message: "URM Portal" }, () => { this.setHeaders(); })
+      }
+      }
 }
 
 setHeaders() {
   console.log(this.state.message);
   const user = JSON.parse(sessionStorage.getItem("user"));
   const domainName = sessionStorage.getItem("domainName");
-  if(domainName === "config_user") { 
-    this.state.moduleNames.forEach(ele => {
+  if( user["custom:isConfigUser"] === "true") { 
+    this.state.moduleConfigheader.forEach(ele => {
       if(ele.parentName == this.state.message) {
           this.setState({buttonsList: ele.children}, ()=>{
             this.setState({selectedChildName: this.state.buttonsList[0].name});
@@ -343,7 +376,8 @@ setHeaders() {
         });
         subList = this.removeDuplicates(subList,"id");
          this.setState({buttonsList:subList}, ()=>{
-          this.setState({selectedChildName: this.state.buttonsList[0].name});
+           console.log(this.state.buttonsList)
+          this.setState({selectedChildName: this.state.buttonsList.length  > 0 ? this.state.buttonsList[0].name: ""});
         });
 
         }
@@ -373,7 +407,7 @@ return array.filter(obj=>!lookup.has(obj[key])&&lookup.add(obj[key]));
   renderButtons() {
     return this.state.buttonsList.map((items, index) => {
       const { name, childPath } = items;
-      return (
+      return name && (
         <button key={index} className={`btn-unic m-r-2 ${this.state.selectedChildName == name ? 'active m-r-2 ' : ''}`}
           onClick={() => this.handleNavigationChange(index, childPath, name)}>{name}</button>
       );

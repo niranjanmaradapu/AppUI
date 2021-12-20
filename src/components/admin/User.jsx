@@ -26,6 +26,7 @@ export default class User extends Component {
             usersList: [],
             storesList: [],
             rolesList: [],
+            rolesData:[],
             domainsList: [],
             domain: "",
             isSuperAdmin: false,
@@ -140,6 +141,7 @@ export default class User extends Component {
             email: "",
             isEdit: false,
             errors: {}, 
+            isAdmin: false
 
         });
         this.getDomainsList();
@@ -177,8 +179,17 @@ export default class User extends Component {
     getAllRolesList() {
         URMService.getRolesByDomainId(this.state.domain).then((res) =>{
             if(res) {
-                 this.setState({rolesList: res.data.result,
-                     role: res.data.result[0].roleName});
+               
+                 this.setState({rolesData: res.data.result,
+                     role: res.data.result[0].roleName},()=>{
+                         const obj = {
+                             roleName: "Select"
+                         }
+                        this.state.rolesData.splice(0,0,obj);
+                         this.setState({rolesList: this.state.rolesData})
+                         console.log(this.state.rolesList);
+
+                     });
 
                 // this.state.rolesList =  res.data.result;
                 // this.state.role = res.data.result[0].roleName;
@@ -379,7 +390,7 @@ export default class User extends Component {
             URMService.editUser(saveObj).then((response) => {
                 if(response) {
                     toast.success("User Created Successfully");
-                    this.getDomainsList();
+                                      this.getDomainsList();
                     this.hideCreateUser();
                     
                 }
@@ -418,6 +429,8 @@ export default class User extends Component {
                         
                     }
                 });
+
+               
                 
     
         }
@@ -437,7 +450,7 @@ export default class User extends Component {
 
     getTableData() {
         return this.state.usersList.map((items, index) => {
-            const {userId, userName, roleName, stores, createdDate } = items;
+            const {userId, userName, roleName, stores, createdDate, active } = items;
             return (
 
                 <tr className="" key={index}>
@@ -456,7 +469,19 @@ export default class User extends Component {
                     </td>
                     <td className="col-2">{createdDate}</td>
                     {/* <td className="col-1">{address}</td> */}
-                    <td className="col-1"><button type="button" className="btn-active">Active</button></td>
+                    <td className="col-1">
+                        <div>
+                        {
+                            active === true && (
+                                <button type="button" className="btn-active">Active</button>
+                            )
+
+                           
+                             
+                        }
+                        </div>
+                       
+                        </td>
                     <td className="col-1">
                         <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} />
                         <i className="icon-delete"></i></td>
@@ -509,7 +534,8 @@ export default class User extends Component {
     }
 
     setRoles = (e) => {
-        this.setState({ role: e.target.value });
+        console.log(e.target.value)
+        this.setState({ role: e.target.value  === "Select" ? null : e.target.value });
     }
 
     addStores() {
@@ -578,10 +604,10 @@ export default class User extends Component {
 
 
     
-     removeDuplicates(array, key) {
-            const lookup = new Set();
-            return array.filter(obj => !lookup.has(obj[key]) && lookup.add(obj[key]));
-          } 
+    removeDuplicates(array,key) {
+        const lookup = new Set();
+        return array.filter(obj => !lookup.has(obj[key]) && lookup.add(obj[key]));
+    } 
 
 
     getStoresList() {
@@ -717,7 +743,7 @@ export default class User extends Component {
                                     <div className="form-group">
                                         <label>Name <span className="text-red font-bold">*</span></label>
                                         <input type="text" className="form-control" placeholder="Enter Name"
-                                            value={this.state.name}
+                                            value={this.state.name} disabled={this.state.isEdit}
                                             onChange={(e) => this.setState({ name: e.target.value })}
                                             autoComplete="off" />
                                              <div>
@@ -765,7 +791,7 @@ export default class User extends Component {
                                     <div className="form-group">
                                         <label>Email <span className="text-red font-bold">*</span></label>
                                         <input type="email" className="form-control" placeholder="sample@gmail.com"
-                                            value={this.state.email}
+                                            value={this.state.email} disabled={this.state.isEdit}
                                             onChange={this.emailValidation}
                                             autoComplete="off" />
                                              <div>

@@ -76,6 +76,7 @@ class CeateDeliverySlip extends Component {
   };
   
   getDeliverySlips = (e) => {
+    const storeId = sessionStorage.getItem("storeId");
     this.setState({ type: this.state.selectedType.label });
     let mrp = 0;
     let promo = 0;
@@ -84,7 +85,8 @@ class CeateDeliverySlip extends Component {
       if (this.state.barCode && this.state.smNumber) {
         CreateDeliveryService.getBarCodeList(
           this.state.barCode,
-          this.state.smNumber
+          this.state.smNumber,
+          storeId
         ).then((res) => {
 
           console.log(res);

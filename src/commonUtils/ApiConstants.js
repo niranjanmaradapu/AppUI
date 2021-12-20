@@ -167,5 +167,6 @@ export const USER_MANAGEMENT_URL = {
     editStore: "/user-management/store/store",
     editRole: "/user-management/roles/updateRole",
     editUser: "/user-management/user/updateUser",
-    getUserBySearch:"/user-management/user/getUser"
+    getUserBySearch:"/user-management/user/getUser",
+    getGSTNumber: "/user-management/store/getgstDetails"
 }

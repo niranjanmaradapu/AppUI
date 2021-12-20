@@ -79,6 +79,11 @@ class URMService {
         return axios.get(BASE_URL+USER_MANAGEMENT_URL.getDistricts+param);
     }
 
+    getGSTDetails(stateId, clientId) {
+        const param = '?clientId='+ clientId+'&stateCode='+stateId; 
+        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getGSTNumber+param);
+    }
+
     getUsers(clientId) {
         const param = '/'+ clientId; 
         return axios.get(BASE_URL+USER_MANAGEMENT_URL.getAllUsers+param);

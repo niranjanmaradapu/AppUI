@@ -18,7 +18,8 @@ export default class InventoryList extends Component {
       domainDetails: {},
       disableSavebtn: true,
       totalListPrice: 0,
-      totalStock: 0
+      totalStock: 0,
+      selectedStoreId: ""
 
     }
     this.addInventory = this.addInventory.bind(this);
@@ -39,6 +40,7 @@ export default class InventoryList extends Component {
 
   componentWillMount() {
     this.state.domainDetails = JSON.parse(sessionStorage.getItem('selectedDomain'));
+    this.setState({selectedStoreId:JSON.parse(sessionStorage.getItem('storeId'))});
     this.setState({ domainDetails: this.state.domainDetails })
     this.getAllInventories();
   }
@@ -129,7 +131,7 @@ export default class InventoryList extends Component {
 
   getbarcodeDetails = (e) => {
     if (e.key === "Enter") {
-      InventoryService.getBarcodeDetails(this.state.barcodeId, this.state.domainDetails).then((res) => {
+      InventoryService.getBarcodeDetails(this.state.barcodeId, this.state.domainDetails,this.state.selectedStoreId).then((res) => {
         const barcode = res.data.result;
         if (res && res.data.isSuccess === "true") {
           this.setState({ stockValue: barcode.stockValue });

@@ -74,9 +74,9 @@ export default class Roles extends Component {
     searchRoles() {
         this.setState({isSearch: true});
         const searchRole = {
-            "roleName": this.state.searchRole,
-            "createdBy": this.state.searchCreatedby,
-            "createdDate": this.state.searchCreatedDate
+            "roleName": this.state.searchRole ? this.state.searchRole : null,
+            "createdBy": this.state.searchCreatedby ? this.state.searchCreatedby : null,
+            "createdDate": this.state.searchCreatedDate ? this.state.searchCreatedDate : null
         }
 
         URMService.getRolesBySearch(searchRole).then(res => {
@@ -363,13 +363,24 @@ export default class Roles extends Component {
                     {
                         node.subPrivillages.map((child) => {
                             return (
+                                
                                 <div>
                                     <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-15">
-                                        
-                                        <input type="checkbox" className="form-check-input filled-in mt-1" id="remember{{index}}"
+                                        {
+                                            child.name && (
+                                                <div>
+                                                     <input type="checkbox" className="form-check-input filled-in mt-1" id="remember{{index}}"
                                             name="child{{i}}"  checked={child.checked}
                                             onChange={(e) => this.setPrivileges(e, i, node, child)} />
                                         <label className="form-check-label" htmlFor="remember">  {child.name}</label>
+
+                                                    </div>
+                                            )
+                                        }
+                                        {/* <input type="checkbox" className="form-check-input filled-in mt-1" id="remember{{index}}"
+                                            name="child{{i}}"  checked={child.checked}
+                                            onChange={(e) => this.setPrivileges(e, i, node, child)} />
+                                        <label className="form-check-label" htmlFor="remember">  {child.name}</label> */}
 
                                     </div>
                                 </div>
@@ -440,7 +451,7 @@ export default class Roles extends Component {
             parentsList: items.parentPrivilages,
             roleId: items.roleId,
             isSearch: false,
-            domain: items.clientDomian.clientDomainaId
+            domain: items.clientDomainVo.clientDomainaId
         }, ()=>{
             this.getPrivilegesByDomainId();
         });
@@ -462,7 +473,7 @@ export default class Roles extends Component {
 
     getRoleTable() {
         return this.state.rolesList.map((items, index) => {
-            const { roleName, createdBy, createdDate, discription } = items;
+            const { roleName, createdBy, createdDate, discription, usersCount } = items;
             return (
                 // <tr className="">
                 //     <td className="col-3 geeks">{privilege}</td>
@@ -470,9 +481,10 @@ export default class Roles extends Component {
                 <tr className="">
                     <td className="col-1 geeks">{index + 1}</td>
                     <td className="col-2">{roleName}</td>
-                    <td className="col-2">{items?.clientDomian?.domaiName}</td>
+                    <td className="col-2">{items?.clientDomainVo?.domaiName}</td>
                     <td className="col-2">{createdBy}</td>
                     <td className="col-2">{createdDate}</td>
+                    <td className="col-1">{usersCount}</td>
                     <td className="col-2">{discription}</td>
                     <td className="col-1">
                         <img src={edit} className="w-12 m-r-2 pb-2"  onClick={(e) => this.editRole(items)} />
@@ -498,6 +510,7 @@ export default class Roles extends Component {
                             <th className="col-2">Domain</th>
                             <th className="col-2">Created By</th>
                             <th className="col-2">Created Date</th>
+                            <th className="col-1">User Count</th>
                             <th className="col-2">Description</th>
                             <th className="col-1"></th>
                         </tr>
@@ -597,7 +610,7 @@ export default class Roles extends Component {
 
                                 <div className="col-12 col-sm-4 mt-4">
                                     <div className="form-group">
-                                    <input type="checkbox" className="form-check-input filled-in mt-1" id="admin" name="superadmin" value={this.state.isAdmin} 
+                                    {/* <input type="checkbox" className="form-check-input filled-in mt-1" id="admin" name="superadmin" value={this.state.isAdmin} 
                                        onChange={(e) => this.setState({ isAdmin: e.target.checked, isSuperAdmin: e.target.checked },()=>{
                                            if(this.state.isAdmin) {
                                                this.setState({domain:""}, ()=>{
@@ -609,8 +622,8 @@ export default class Roles extends Component {
                                                });
                                            }
                                           
-                                       })}/>
-                                        <label className="form-check-label p-l-2" htmlFor="remember">Is Super Admin</label>
+                                       })}/> */}
+                                        {/* <label className="form-check-label p-l-2" htmlFor="remember">Is Super Admin</label> */}
                                     </div>
                                 </div>
 
@@ -631,7 +644,7 @@ export default class Roles extends Component {
                                 <div className="col-4 mt-4">
                                     <button type="button" className="btn-unic-redbdr" 
                                     
-                                    onClick={this.createRole}>Add Privileges </button>
+                                    onClick={this.createRole}>Privilege Mapping </button>
                                 </div>
 
                             </div>

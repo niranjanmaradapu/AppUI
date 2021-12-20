@@ -60,12 +60,12 @@ class InventoryService {
         }
     }
   
-    getBarcodeDetails(barcodeId,domain) { 
+    getBarcodeDetails(barcodeId,domain,storesId) { 
         if (domain  && domain.label === "Retail") {
-            const param1 = '?barcodeId='+ barcodeId;
+            const param1 = '?barcodeId='+ barcodeId + '&storeId='+ storesId;
             return axios.get(BASE_URL + INVENTORY_URLS.getRetailBarcodeDetails + param1);
         } else {
-            const param2 = '?barcode='+ barcodeId;
+            const param2 = '?barcode='+ barcodeId + '&storeId='+ storesId;
             return axios.get(BASE_URL + INVENTORY_URLS.getTextileBarcodeDetails + param2);
         }
     }

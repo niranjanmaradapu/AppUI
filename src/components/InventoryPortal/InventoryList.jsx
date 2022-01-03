@@ -254,6 +254,7 @@ export default class InventoryList extends Component {
         <div className="row">
           <div className="col-sm-3 col-12">
             <div className="form-group mt-2 mb-3">
+            <label>From Date</label>
               <input type="date" className="form-control"
                 placeholder="FROM DATE" value={this.state.fromDate}
                 onChange={(e) => this.setState({ fromDate: e.target.value })} />
@@ -261,6 +262,7 @@ export default class InventoryList extends Component {
           </div>
           <div className="col-sm-3 col-12">
             <div className="form-group mt-2 mb-3">
+            <label>To Date</label>
               <input type="date" className="form-control"
                 placeholder="TO DATE" value={this.state.toDate}
                 onChange={(e) => this.setState({ toDate: e.target.value })} />
@@ -268,12 +270,13 @@ export default class InventoryList extends Component {
           </div>
           <div className="col-sm-3 col-12">
             <div className="form-group mt-2 mb-3">
+            <label>Inventory ID</label>
               <input type="text" className="form-control"
                 placeholder="INVENTORY ID" value={this.state.productItemId}
                 onChange={(e) => this.setState({ productItemId: e.target.value })} />
             </div>
           </div>
-          <div className="col-sm-3 col-12 mb-3 scaling-center">
+          <div className="col-sm-3 col-12 mb-3 mt-3 pt-2 scaling-center">
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.getAllInventories}>SEARCH</button>
             <button className="btn-unic-redbdr mt-2" onClick={this.addInventory}>Add Inventory</button>
           </div>

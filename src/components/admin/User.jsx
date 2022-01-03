@@ -118,16 +118,7 @@ export default class User extends Component {
           
        }
 
-    // emailValidation(){
-    //     const regex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-    //     if(!this.state.email || regex.test(this.state.email) === false){
-    //         this.setState({
-    //             error: "Email is not valid"
-    //         });
-    //         return false;
-    //     }
-    //     return true;
-    // }
+   
 
     showCreateUser() {
         this.setState({ showModal: true,isSearch: false, isSuperAdmin: false });
@@ -150,13 +141,13 @@ export default class User extends Component {
     searchUser() {
         this.setState({isSearch: true});
         const obj = {
-            "id":"",
-            "phoneNo":"",
-            "name":"",
-            "active":this.state.userType === "Active" ? true : false,
-            "inActive":this.state.userType === "InActive" ? true : false,
-            "roleId": this.state.searchRole,
-            "storeId": this.state.searchStore
+            "id": null,
+            "phoneNo": null,
+            "name": null,
+            "active":this.state.userType === "Active" ? "True" : "False",
+            "inActive":this.state.userType === "InActive" ? "True" : "False",
+            "roleName": this.state.searchRole ? this.state.searchRole : null,
+            "storeName": this.state.searchStore ? this.state.searchStore : null
             }
 
             URMService.getUserBySearch(obj).then(res => {
@@ -170,7 +161,7 @@ export default class User extends Component {
     getAllStoresList() {
         URMService.getStoresByDomainId(this.state.domain).then((res) =>{
             if(res) {
-               this.setState({storesList: res.data.result, storeName: []});
+               this.setState({storesList: res.data.result, storeName: this.state.isEdit ? this.state.storeName : []});
              // this.state.storesList = res.data.result;
             }
         }); 
@@ -181,7 +172,7 @@ export default class User extends Component {
             if(res) {
                
                  this.setState({rolesData: res.data.result,
-                     role: res.data.result[0].roleName},()=>{
+                     role: this.state.isEdit ? this.state.role : res.data.result[0].roleName},()=>{
                          const obj = {
                              roleName: "Select"
                          }
@@ -191,8 +182,7 @@ export default class User extends Component {
 
                      });
 
-                // this.state.rolesList =  res.data.result;
-                // this.state.role = res.data.result[0].roleName;
+                
             }
            
          }); 
@@ -200,27 +190,6 @@ export default class User extends Component {
 
 
 
-    // checkRole() {
-    //     if (this.state.rolesList && this.state.rolesList.length > 0) {
-    //         this.state.rolesList.forEach((ele, index) => {
-    //             if (this.state.role === ele.role) {
-    //                 this.state.selectedPrivilages = ele;
-    //                 // sessionStorage.setItem("selectedPrivilages", ele);
-    //             }
-    //         });
-    //     }
-    //     if (this.state.role === 'super_admin') {
-    //         // this.state.isSuperAdmin = true;
-
-    //         this.setState({ isSuperAdmin: true, storeName: "", domain: "" });
-    //     } else {
-    //         this.setState({
-    //             isSuperAdmin: false,
-    //             storeName: this.state.storesList[0].storeName,
-    //             domain: this.state.domainsList[0].domain
-    //         });
-    //     }
-    // }
 
     hideCreateUser() {
         this.setState({ showModal: false });
@@ -248,9 +217,12 @@ export default class User extends Component {
 
     getUsers() {
         if(this.state.isSearch) {
-            this.state.searchStore = "";
-            this.state.userType = "";
-            this.state.searchRole = "";
+            this.setState({
+                searchStore : "",
+                userType : "Select User Type",
+                searchRole : ""
+            })
+           
         }
         URMService.getUsers(this.state.clientId).then(res => {
             console.log(res);
@@ -272,10 +244,10 @@ export default class User extends Component {
             "id":items.userId,
             "phoneNo":"",
             "name":"",
-            "active":false,
-            "inActive":false,
-            "roleId": "",
-            "storeId": ""
+            "active":"False",
+            "inActive": "False",
+            "roleName": "",
+            "storeName": ""
             }
         URMService.getUserBySearch(obj).then(res=> {
             console.log(res);
@@ -297,7 +269,8 @@ export default class User extends Component {
                     isSearch: false,
                     userId: items.userId,
                 }, () => {
-                   // this.getAllRolesList();
+                    this.getAllRolesList();
+                    this.getAllStoresList();
                     this.setState({isSuperAdmin: this.state.isAdmin })
                 });
         
@@ -474,6 +447,16 @@ export default class User extends Component {
                         {
                             active === true && (
                                 <button type="button" className="btn-active">Active</button>
+                            )
+
+                           
+                             
+                        }
+                        </div>
+                        <div>
+                        {
+                            active === false && (
+                                <button type="button" className="btn-inactive">Inactive</button>
                             )
 
                            

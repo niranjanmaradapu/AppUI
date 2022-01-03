@@ -1076,6 +1076,7 @@ export default class BarcodeList extends Component {
         <div className="row">
           <div className="col-sm-3 col-12">
             <div className="form-group mt-2">
+            <label>From Date</label>
               <input type="date" className="form-control"
                 placeholder="FROM DATE" value={this.state.fromDate}
                 onChange={(e) =>
@@ -1084,6 +1085,7 @@ export default class BarcodeList extends Component {
           </div>
           <div className="col-sm-3 col-12">
             <div className="form-group mt-2">
+            <label>To Date</label>
               <input type="date" className="form-control"
                 placeholder="TO DATE" value={this.state.toDate}
                 onChange={(e) =>
@@ -1092,6 +1094,7 @@ export default class BarcodeList extends Component {
           </div>
           <div className="col-sm-3 col-12">
             <div className="form-group mt-2">
+            <label>Barecode ID</label>
               <input type="text" className="form-control frm-pr"
                 placeholder="BARCODE ID" value={this.state.barcodeSearchId}
                 onChange={(e) =>
@@ -1103,7 +1106,7 @@ export default class BarcodeList extends Component {
                 </button> */}
             </div>
           </div>
-          <div className="col-3 col-sm-3 col-12 scaling-center scaling-mb scaling-mtop">
+          <div className="col-3 col-sm-3 col-12 mt-3 pt-2 scaling-center scaling-mb scaling-mtop">
             <button className="btn-unic-search active m-r-2 mt-1" onClick={this.getAllBarcodes}>SEARCH</button>
             <button className="btn-unic-redbdr mt-2" onClick={this.openBarcode}>Add Barcode</button>
           </div>

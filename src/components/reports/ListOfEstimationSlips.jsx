@@ -3,13 +3,16 @@ import print from "../../assets/images/print.svg";
 import view from "../../assets/images/view.svg";
 import ListOfEstimationSlipsService from "../../services/Reports/ListOfEstimationSlipsService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import moment from "moment";
 
 export default class ListOfEstimationSlips extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      dateFrom: "",
-      dateTo: "",
+      dateFrom: moment(new Date()).format("YYYY-MM-DD").toString(),
+      dateTo: moment(new Date()).format("YYYY-MM-DD").toString(),
+      // dateFrom: "",
+      // dateTo: "",
       status: null,
       barcode: null,
       dsNumber: null,
@@ -49,6 +52,7 @@ export default class ListOfEstimationSlips extends Component {
       barcode: this.state.barcode ? this.state.barcode : undefined,
       dsNumber: this.state.dsNumber ? this.state.dsNumber : undefined,
     };
+
     ListOfEstimationSlipsService.getEstimationSlips(obj).then((res) => {
       console.log("data", res.data.result);
       if (res.data.result.deliverySlipVo) {
@@ -56,9 +60,6 @@ export default class ListOfEstimationSlips extends Component {
           let grossValueData = "";
           let netValueData = "";
 
-          // sampleAPi(prop.rtnumber).then((resp)=>{
-          //   prop.checForCheckBox =resp.result
-          // })
           if (prop.lineItems.length > 0) {
             grossValueData = Array.prototype.map
               .call(prop.lineItems, function (item) {
@@ -129,7 +130,7 @@ export default class ListOfEstimationSlips extends Component {
 
   renderTableData() {
     return this.state.dsList.map((items, index) => {
-      const { dsNumber, createdDate, status, grossVal, promoDisc, netVal } =
+      const { dsNumber, createdDate, status, mrp, promoDisc, netAmount } =
         items;
       return (
         <tr className="m-0 p-0" key={index}>
@@ -137,9 +138,9 @@ export default class ListOfEstimationSlips extends Component {
           <td className="col-2">{dsNumber}</td>
           <td className="col-1">{createdDate}</td>
           <td className="col-1">{status}</td>
-          <td className="col-2">₹{grossVal}</td>
+          <td className="col-2">₹{mrp}</td>
           <td className="col-2">{promoDisc}</td>
-          <td className="col-2">₹{netVal}</td>
+          <td className="col-2">₹{netAmount}</td>
           <td className="col-2 text-center">
             <img src={print} className="w-12 m-r-2 pb-2" />
             <img
@@ -184,12 +185,11 @@ export default class ListOfEstimationSlips extends Component {
   }
 
   handleSelect(e) {
-    // let obj = this.state.selectOption.find((o) => o.name === e.target.value);
-    this.setState({
-      //   itemId: obj.id,
-
-      status: e.target.value,
-    });
+    if (e.target.value != "DS STATUS") {
+      this.setState({
+        status: e.target.value,
+      });
+    }
   }
 
   render() {
@@ -229,15 +229,6 @@ export default class ListOfEstimationSlips extends Component {
                     <td>1234</td>
                     <td>001</td>
                     <td>4699</td>
-                    <td>01</td>
-                    <td>1,120</td>
-                    <td>800</td>
-                  </tr>
-                  <tr>
-                    <td>BAR002</td>
-                    <td>Western Wear</td>
-                    <td>002</td>
-                    <td>4610</td>
                     <td>01</td>
                     <td>1,120</td>
                     <td>800</td>

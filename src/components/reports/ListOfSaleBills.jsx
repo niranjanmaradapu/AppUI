@@ -3,14 +3,16 @@ import print from "../../assets/images/print.svg";
 import view from "../../assets/images/view.svg";
 import ListOfReturnSlipsService from "../../services/Reports/ListOfReturnSlipsService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-
+import moment from "moment";
 export default class ListOfSaleBills extends Component {
   constructor(props) {
     super(props);
     this.state = {
       RecentSaleNumber: sessionStorage.getItem("recentSale"),
-      dateFrom: "",
-      dateTo: "",
+      dateFrom: moment(new Date()).format("YYYY-MM-DD").toString(),
+      dateTo: moment(new Date()).format("YYYY-MM-DD").toString(),
+      // dateFrom: "",
+      // dateTo: "",
       createdBy: null,
       rtNumber: null,
       barcode: null,
@@ -27,11 +29,11 @@ export default class ListOfSaleBills extends Component {
 
   getReturnSlips() {
     const obj = {
-      dateFrom: this.state.dateFrom,
-      dateTo: this.state.dateTo,
-      createdBy: this.state.createdBy,
-      rtNumber: this.state.rtNumber,
-      barcode: this.state.barcode,
+      dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
+      dateTo: this.state.dateTo ? this.state.dateTo : undefined,
+      createdBy: this.state.createdBy ? this.state.createdBy : undefined,
+      rtNumber: this.state.rtNumber ? this.state.rtNumber : undefined,
+      barcode: this.state.barcode ? this.state.barcode : undefined,
     };
 
     ListOfReturnSlipsService.getReturnSlips(obj).then((res) => {
@@ -39,9 +41,6 @@ export default class ListOfSaleBills extends Component {
       if (res.data.result) {
         res.data.result.map((prop, i) => {
           let barcodeData = "";
-          // sampleAPi(prop.rtnumber).then((resp)=>{
-          //   prop.checForCheckBox =resp.result
-          // })
           if (prop.barcodes.length > 0) {
             barcodeData = Array.prototype.map
               .call(prop.barcodes, function (item) {
@@ -61,22 +60,10 @@ export default class ListOfSaleBills extends Component {
     });
   }
 
-  // getReturnslipDetails(rtNumber) {
-  //   ListOfReturnSlipsService.getReturnslipDetails(rtNumber).then((res) => {
-  //     console.log("............");
-  //     this.setState({
-  //       rsDetailsList: res.data.result,
-  //     });
-  //   });
-  // }
-
   getReturnslipDetails(rtNumber) {
     ListOfReturnSlipsService.getReturnslipDetails(rtNumber).then((res) => {
       console.log("..........", res.data.result);
-      // this.state.rsData = res.data.result;
-      // let filterData = this.state.rsDetailsList.filter(
-      //   (x) => x.rtNumber == rtNumber
-      // );
+
       let data = res.data.result;
 
       console.log("dataaaa", data);
@@ -190,7 +177,6 @@ export default class ListOfSaleBills extends Component {
           <tr key={index}>
             <td>{barCode}</td>
             <td>{section}</td>
-            {/* <td>350</td> */}
             <td>{hsnCode}</td>
             <td>{quantity}</td>
             <td>{grossValue}</td>
@@ -256,10 +242,8 @@ export default class ListOfSaleBills extends Component {
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
-                    {/* <th className="col-1"> </th> */}
                     <th className="">Barcode</th>
                     <th className="">Section</th>
-                    {/* <th className="">EMP ID</th> */}
                     <th className="">HSN Code</th>
                     <th className="">QTY</th>
                     <th className="">mrp</th>
@@ -269,7 +253,6 @@ export default class ListOfSaleBills extends Component {
                     <th className="">CGST</th>
                     <th className="">SGST</th>
                     <th className="">IGST</th>
-                    {/* <th className="col-4">Description</th> */}
                     <th className="">Net Amount</th>
                   </tr>
                 </thead>
@@ -279,21 +262,6 @@ export default class ListOfSaleBills extends Component {
               <td>Western Wear</td>
               <td>001</td>
               <td>4699</td>
-              <td>01</td>
-              <td>1,120</td>
-              <td>800</td>
-              <td>5.00</td>
-              <td>333.33</td>
-              <td>8.33</td>
-              <td>8.33</td>
-              <td>0.00</td>
-              <td>350</td>
-            </tr>
-            <tr>
-              <td>BAR002</td>
-              <td>Western Wear</td>
-              <td>002</td>
-              <td>4610</td>
               <td>01</td>
               <td>1,120</td>
               <td>800</td>
@@ -426,124 +394,7 @@ export default class ListOfSaleBills extends Component {
                   <i className="icon-delete m-l-2 fs-16"></i>
                 </td>
               </tr>
-              <tr className="m-0 p-0">
-                <td className="col-1">02</td>
-                <td className="col-2">RTS00002</td>
-                <td className="col-2">BAR00002</td>
-                <td className="col-2">EMP124</td>
-                <td className="col-2">30 Dec 2021</td>
-                <td className="col-2">₹ 2,000.00</td>
-                <td className="col-1 text-center">
-                  <img src={print} className="w-12 m-r-2 pb-2" />
-                  <img src={view} className="w-12 pb-2" />
-                  <i className="icon-delete m-l-2 fs-16"></i>
-                </td>
-              </tr>
-              <tr className="m-0 p-0">
-                <td className="col-1">03</td>
-                <td className="col-2">RTS00003</td>
-                <td className="col-2">BAR00003</td>
-                <td className="col-2">EMP124</td>
-                <td className="col-2">30 Dec 2021</td>
-                <td className="col-2">₹ 2,000.00</td>
-                <td className="col-1 text-center">
-                  <img src={print} className="w-12 m-r-2 pb-2" />
-                  <img src={view} className="w-12 pb-2" />
-                  <i className="icon-delete m-l-2 fs-16"></i>
-                </td>
-              </tr>
-              <tr className="m-0 p-0">
-                <td className="col-1">04</td>
-                <td className="col-2">RTS00004</td>
-                <td className="col-2">BAR00004</td>
-                <td className="col-2">EMP125</td>
-                <td className="col-2">30 Dec 2021</td>
-                <td className="col-2">₹ 2,000.00</td>
-                <td className="col-1 text-center">
-                  <img src={print} className="w-12 m-r-2 pb-2" />
-                  <img src={view} className="w-12 pb-2" />
-                  <i className="icon-delete m-l-2 fs-16"></i>
-                </td>
-              </tr>
-              <tr className="m-0 p-0">
-                <td className="col-1">05</td>
-                <td className="col-2">RTS00005</td>
-                <td className="col-2">BAR00005</td>
-                <td className="col-2">EMP126</td>
-                <td className="col-2">30 Dec 2021</td>
-                <td className="col-2">₹ 2,000.00</td>
-                <td className="col-1 text-center">
-                  <img src={print} className="w-12 m-r-2 pb-2" />
-                  <img src={view} className="w-12 pb-2" />
-                  <i className="icon-delete m-l-2 fs-16"></i>
-                </td>
-              </tr>
-              <tr className="m-0 p-0">
-                <td className="col-1">06</td>
-                <td className="col-2">RTS00006</td>
-                <td className="col-2">BAR00006</td>
-                <td className="col-2">EMP127</td>
-                <td className="col-2">30 Dec 2021</td>
-                <td className="col-2">₹ 2,000.00</td>
-                <td className="col-1 text-center">
-                  <img src={print} className="w-12 m-r-2 pb-2" />
-                  <img src={view} className="w-12 pb-2" />
-                  <i className="icon-delete m-l-2 fs-16"></i>
-                </td>
-              </tr>
-              <tr className="m-0 p-0">
-                <td className="col-1">07</td>
-                <td className="col-2">RTS00007</td>
-                <td className="col-2">BAR00007</td>
-                <td className="col-2">EMP128</td>
-                <td className="col-2">30 Dec 2021</td>
-                <td className="col-2">₹ 2,000.00</td>
-                <td className="col-1 text-center">
-                  <img src={print} className="w-12 m-r-2 pb-2" />
-                  <img src={view} className="w-12 pb-2" />
-                  <i className="icon-delete m-l-2 fs-16"></i>
-                </td>
-              </tr>
-              <tr className="m-0 p-0">
-                <td className="col-1">08</td>
-                <td className="col-2">RTS00008</td>
-                <td className="col-2">BAR00008</td>
-                <td className="col-2">EMP129</td>
-                <td className="col-2">30 Dec 2021</td>
-                <td className="col-2">₹ 2,000.00</td>
-                <td className="col-1 text-center">
-                  <img src={print} className="w-12 m-r-2 pb-2" />
-                  <img src={view} className="w-12 pb-2" />
-                  <i className="icon-delete m-l-2 fs-16"></i>
-                </td>
-              </tr>
-              <tr className="m-0 p-0">
-                <td className="col-1">09</td>
-                <td className="col-2">RTS00009</td>
-                <td className="col-2">BAR00009</td>
-                <td className="col-2">EMP130</td>
-                <td className="col-2">30 Dec 2021</td>
-                <td className="col-2">₹ 2,000.00</td>
-                <td className="col-1 text-center">
-                  <img src={print} className="w-12 m-r-2 pb-2" />
-                  <img src={view} className="w-12 pb-2" />
-                  <i className="icon-delete m-l-2 fs-16"></i>
-                </td>
-              </tr>
-              <tr className="m-0 p-0">
-                <td className="col-1">10</td>
-                <td className="col-2">RTS00010</td>
-                <td className="col-2">BAR00010</td>
-                <td className="col-2">EMP131</td>
-                <td className="col-2">30 Dec 2021</td>
-                <td className="col-2">₹ 2,000.00</td>
-                <td className="col-1 text-center">
-                  <img src={print} className="w-12 m-r-2 pb-2" />
-                  <img src={view} className="w-12 pb-2" />
-                  <i className="icon-delete m-l-2 fs-16"></i>
-                </td>
-              </tr>
-            </tbody> */}
+             </tbody> */}
 
               <tbody>{this.renderTableData()}</tbody>
             </table>

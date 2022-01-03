@@ -129,5 +129,21 @@ class URMService {
 
     }
 
+    getusersByRole(clientId) {
+        const param = '?clientId='+ clientId; 
+        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getusersByRole+param);
+
+    }
+
+    getActiveUsers(clientId) {
+        const param = '?clientId='+ clientId; 
+        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getActiveUsers+param);
+    }
+
+    getStoresVsEmployees(clientId) {
+        const param = '?clientId='+ clientId; 
+        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getStoresVsEmployee+param);
+    }
+
 }
 export default new URMService()

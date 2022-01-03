@@ -116,7 +116,16 @@ export default class Stores extends Component {
     getStates() {
         URMService.getStates().then(res => {
             if (res && res.data.result.length > 0) {
-                this.setState({ stateList: res.data.result, stateName: res.data.result[0].stateCode });
+                this.setState({ stateList: res.data.result, stateName: res.data.result[0].stateCode }, ()=>{
+                  
+                    const obj = {
+                        stateCode: "Select",
+                        stateName: "Select"
+
+                    }
+                    this.state.stateList.splice(0,0,obj);
+
+                });
             }
 
 
@@ -129,7 +138,14 @@ export default class Stores extends Component {
         console.log(stateCode);
         URMService.getDistricts(stateCode).then(res => {
             if (res) {
-                this.setState({ districtList: res.data.result, district: this.state.isEdit ? this.state.district : res.data.result[0].districtId });
+                this.setState({ districtList: res.data.result, district: this.state.isEdit ? this.state.district : res.data.result[0].districtId }, () => {
+                    const obj = {
+                        districtId: "Select",
+                        districtName: "Select"
+
+                    }
+                    this.state.districtList.splice(0,0,obj);
+                });
             }
 
         });
@@ -141,7 +157,7 @@ export default class Stores extends Component {
             }
         });
 
-        this.getGSTNumber()
+        this.getGSTNumber();
     }
 
     getGSTNumber() {
@@ -442,6 +458,7 @@ export default class Stores extends Component {
         let statesList = states.length > 0
             && states.map((item, i) => {
                 return (
+                   
                     <option key={i} value={item.stateCode}>{item.stateName}</option>
                 )
             }, this);
@@ -645,7 +662,7 @@ export default class Stores extends Component {
                                             {
                                                 !this.state.isGstNumber && (
                                                     <div>
-                                                    <span style={{ color: "red" }}>Please Provide GSTNumber</span>
+                                                    <span style={{ color: "red" }}>Please Provide GST Number</span>
                                                 </div>
                                                 )
                                             }

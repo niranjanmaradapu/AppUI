@@ -129,6 +129,9 @@ export default class NewSale extends Component {
     this.saveDiscount = this.saveDiscount.bind(this);
     this.getDeliverySlipDetails = this.getDeliverySlipDetails.bind(this);
     this.getRetailBarcodeList = this.getRetailBarcodeList.bind(this);
+    this.getGvModel = this.getGvModel.bind(this);
+    this.hideGVModel = this.hideGVModel.bind(this);
+    this.saveGVNumber = this.saveGVNumber.bind(this);
     //this.handler = this.handler.bind(this);
   }
 
@@ -201,6 +204,24 @@ export default class NewSale extends Component {
       isCashSelected: true,
     });
   };
+
+  getGvModel() {
+    this.setState({isgvModel: true});
+  }
+
+  hideGVModel() {
+    this.setState({isgvModel: false});
+  }
+
+  saveGVNumber() {
+    const obj = [this.state.gvNumber];
+    CreateDeliveryService.saveGVNumber(obj,true).then(resposne =>{
+      if(resposne) {
+        toast.success(resposne.data.message);
+      }
+    })
+    this.hideGVModel()
+  }
 
   getCardModel = () => {
     this.setState({
@@ -912,7 +933,51 @@ export default class NewSale extends Component {
       },
     };
     return (
+      
       <div className="maincontent">
+
+
+<Modal
+          isOpen={this.state.isgvModel}
+          size="lg"
+          onRequestHide={this.hideGVModel}
+        >
+          <ModalHeader>Issue GV Number</ModalHeader>
+          <ModalBody>
+            <div className="row">
+              <div className="col-4">
+                <label> GV Number: </label>
+              </div>
+              <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.gvNumber}
+                  onChange={(e) =>
+                    this.setState({ gvNumber: e.target.value })
+                  }
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+            <br></br>
+          </ModalBody>
+          <ModalFooter>
+            <button className="pt-2 btn-bdr" onClick={this.hideGVModel}>
+              CANCEL
+            </button>
+            <button
+              className="btn btn-bdr active fs-12"
+              onClick={this.saveGVNumber}
+            >
+              SAVE 
+            </button>
+          </ModalFooter>
+        </Modal>
+
+      
+
 
         <Modal isOpen={this.state.isBillingDisc} size="sm">
           <ModalHeader>Bill Level Discount</ModalHeader>
@@ -1356,13 +1421,21 @@ export default class NewSale extends Component {
                       </span>
 
                     </li>
-                    <li >
+                    <li>
                       <span>
                         <img src={khata} />
                         <label>KHATA</label>
                       </span>
 
                     </li>
+                    <li>
+                      <span>
+                        <img src={khata}  onClick={this.getGvModel} />
+                        <label> GV</label>
+                      </span>
+
+                    </li>
+
 
                   </ul>
                 </div>

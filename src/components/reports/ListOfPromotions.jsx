@@ -1,3 +1,4 @@
+import moment from "moment";
 import React, { Component } from "react";
 import edit from "../../assets/images/edit.svg";
 import view from "../../assets/images/view.svg";
@@ -7,6 +8,8 @@ export default class ListOfPromotions extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      // startDate: moment(new Date()).format("YYYY-MM-DD").toString(),
+      // endDate: moment(new Date()).format("YYYY-MM-DD").toString(),
       startDate: "",
       endDate: "",
       storeName: "",
@@ -52,10 +55,10 @@ export default class ListOfPromotions extends Component {
           <td className="col-2">{storeName}</td>
           <td className="col-2">{startDate}</td>
           <td className="col-2">{endDate}</td>
-          <td className="col-2 text-center">
-            {/* <img src={edit} className="w-12 m-r-2 pb-2" /> */}
+          {/* <td className="col-2 text-center">
+            <img src={edit} className="w-12 m-r-2 pb-2" />
             <i className="icon-delete fs-16"></i>
-          </td>
+          </td> */}
         </tr>
       );
     });
@@ -64,18 +67,46 @@ export default class ListOfPromotions extends Component {
   componentWillMount() {
     const user = JSON.parse(sessionStorage.getItem("user"));
     console.log("user", user);
-    this.setState(
-      {
-        userName: user["cognito:username"],
-        isEdit: false,
-        clientId: user["custom:clientId1"],
-        domainId1: user["custom:domianId1"],
-      },
-      () => {
-        console.log(this.state);
-        this.getStoreNames(user["custom:domianId1"]);
-      }
-    );
+    if (user["custom:isSuperAdmin"] === "true") {
+      this.state.domainDetails = JSON.parse(
+        sessionStorage.getItem("selectedDomain")
+      );
+
+      console.log(
+        ">>>>>>>domain",
+        JSON.parse(sessionStorage.getItem("selectedDomain"))
+      );
+      let testData = [];
+      testData.push(JSON.parse(sessionStorage.getItem("selectedDomain")));
+
+      console.log(">>>>>>parsedata", testData);
+
+      this.setState(
+        {
+          storeList: testData,
+          clientId: user["custom:clientId1"],
+          domainId1: testData[0].value,
+          domainDetails: this.state.domainDetails,
+        },
+        () => {
+          console.log(this.state);
+          this.getStoreNames(this.state.domainId1);
+        }
+      );
+    } else {
+      this.setState(
+        {
+          userName: user["cognito:username"],
+          isEdit: false,
+          clientId: user["custom:clientId1"],
+          domainId1: user["custom:domianId1"],
+        },
+        () => {
+          console.log(this.state);
+          this.getStoreNames(user["custom:domianId1"]);
+        }
+      );
+    }
   }
 
   getStoreNames = (domainId) => {
@@ -102,17 +133,36 @@ export default class ListOfPromotions extends Component {
   };
 
   render() {
+    console.log("startdate", moment(new Date()).format("YYYY-DD-MM"));
     return (
       <div className="maincontent">
         <div className="row">
           <div className="col-6 col-sm-3 mt-2 mb-2">
             <div className="form-group">
-              <input
+              {/* <input
                 type="date"
                 className="form-control"
                 placeholder="START DATE"
+                // defaultValue={this.state.startDate}
+                //value="29-01-2021"
                 value={this.state.startDate}
-                onChange={(e) => this.setState({ startDate: e.target.value })}
+                onChange={(e) =>
+                  this.setState({
+                    startDate: e.target.value,
+                  })
+                }
+              /> */}
+              <input
+                type="date"
+                id="start"
+                className="form-control"
+                name="trip-start"
+                value={this.state.startDate}
+                onChange={(e) =>
+                  this.setState({
+                    startDate: e.target.value,
+                  })
+                }
               />
             </div>
           </div>
@@ -120,8 +170,8 @@ export default class ListOfPromotions extends Component {
             <div className="form-group">
               <input
                 type="date"
+                name="trip-start"
                 className="form-control"
-                placeholder="END DATE"
                 value={this.state.endDate}
                 onChange={(e) => this.setState({ endDate: e.target.value })}
               />
@@ -172,22 +222,6 @@ export default class ListOfPromotions extends Component {
               /> */}
             </div>
           </div>
-          {/* <div className="col-3 mt-2">
-                    <div className="form-group">
-                        <input type="text" className="form-control" placeholder="EMP ID"/>
-                    </div>
-                </div>
-                <div className="col-3 mt-2">
-                    <div className="form-group">
-                        <input type="text" className="form-control" placeholder="BARCODE NUMBER >"/>
-                    </div>
-                </div>
-                <div className="col-3 mt-2">
-                    <div className="form-group">
-                        <input type="text" className="form-control" placeholder="BARCODE NUMBER <"/>
-                    </div>
-                </div> */}
-
           <div className="col-6 col-sm-3 scaling-mb mt-2">
             <div className="form-group" onClick={this.getPromotions}>
               <button className="btn-unic-search active">SEARCH </button>
@@ -224,115 +258,7 @@ export default class ListOfPromotions extends Component {
                   <i className="icon-delete fs-16"></i>
                 </td>
               </tr>
-              <tr className="">
-                <td className="col-1">PRO1102</td>
-                <td className="col-2">Buy 2 Get 1</td>
-                <td className="col-2">1Kg Sugar</td>
-                <td className="col-2">Jntu</td>
-                <td className="col-2">30 Sep 2021</td>
-                <td className="col-2">30 Oct 2021</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">PRO1103</td>
-                <td className="col-2">Buy 1 Get 1</td>
-                <td className="col-2">1Kg Sugar</td>
-                <td className="col-2">Nizampet</td>
-                <td className="col-2">30 Sep 2021</td>
-                <td className="col-2">30 Oct 2021</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">PRO1104</td>
-                <td className="col-2">Buy 1 Get 1</td>
-                <td className="col-2">1Kg Sugar</td>
-                <td className="col-2">Ameerpet</td>
-                <td className="col-2">30 Sep 2021</td>
-                <td className="col-2">30 Oct 2021</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">PRO1105</td>
-                <td className="col-2">Buy 1 Get 1</td>
-                <td className="col-2">1Kg Sugar</td>
-                <td className="col-2">Dilsuknagar</td>
-                <td className="col-2">30 Sep 2021</td>
-                <td className="col-2">30 Oct 2021</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">PRO1106</td>
-                <td className="col-2">Buy 1 Get 1</td>
-                <td className="col-2">1Kg Sugar</td>
-                <td className="col-2">Ameerpet</td>
-                <td className="col-2">30 Sep 2021</td>
-                <td className="col-2">30 Oct 2021</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">PRO1107</td>
-                <td className="col-2">Buy 1 Get 1</td>
-                <td className="col-2">1Kg Sugar</td>
-                <td className="col-2">Ecil</td>
-                <td className="col-2">30 Sep 2021</td>
-                <td className="col-2">30 Oct 2021</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">PRO1108</td>
-                <td className="col-2">Buy 1 Get 1</td>
-                <td className="col-2">1Kg Sugar</td>
-                <td className="col-2">Secunderabad</td>
-                <td className="col-2">30 Sep 2021</td>
-                <td className="col-2">30 Oct 2021</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">PRO1109</td>
-                <td className="col-2">Buy 1 Get 1</td>
-                <td className="col-2">1Kg Sugar</td>
-                <td className="col-2">Madhapur</td>
-                <td className="col-2">30 Sep 2021</td>
-                <td className="col-2">30 Oct 2021</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">PRO1110</td>
-                <td className="col-2">Buy 1 Get 1</td>
-                <td className="col-2">1Kg Sugar</td>
-                <td className="col-2">Kokapet</td>
-                <td className="col-2">30 Sep 2021</td>
-                <td className="col-2">30 Oct 2021</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-            </tbody> */}
+             </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
             </table>
           </div>

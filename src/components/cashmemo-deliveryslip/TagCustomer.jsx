@@ -36,7 +36,11 @@ export default class TagCustomer extends Component {
         leftOverAmount: "",
         createdDate: "",
         giftVochersList: [],
-        isGiftVocher: false
+        isGiftVocher: false,
+        amount: "",
+        fromDate:"",
+        toDate:"",
+        description:""
       },
     };
 
@@ -45,6 +49,7 @@ export default class TagCustomer extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.createTagCustomerToGv = this.createTagCustomerToGv.bind(this);
     this.getGiftVochersList = this.getGiftVochersList.bind(this);
+    this.addGiftVoucher = this.addGiftVoucher.bind(this);
     
   }
 
@@ -75,7 +80,7 @@ export default class TagCustomer extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    console.log("state values", this.state);
+    
     this.createTagCustomerToGv();
   }
 
@@ -167,26 +172,51 @@ export default class TagCustomer extends Component {
   };
 
   getGiftVocherTable() {
-    return  this.state.giftVochersList.map((items, index) => {
-      const { gvId, gvNumber, createdDate, expiryDate, totalAmount, leftOverAmount } = items;
-      return ( 
-        <tr key={index}>
-                        <td className="col-1 geeks">
-                          {index+1}
-                        </td>
+    // return this.state.giftVochersList.length > 0 && this.state.giftVochersList.map((items, index) => {
+    //   const { gvId, gvNumber, createdDate, expiryDate, totalAmount, leftOverAmount } = items;
+    //   return ( 
+    //     <tr key={index}>
+    //                     <td className="col-1 geeks">
+    //                       {index+1}
+    //                     </td>
                     
-                        <td className="col-1">{gvId}</td>
-                        <td className="col-2">{gvNumber}</td>
-                        <td className="col-2">{createdDate}</td>
-                        <td className="col-2">{expiryDate}</td>
-                        <td className="col-2">
-                        <span className="m-r-3">₹ {totalAmount}</span>
-                         {/* <img src={edit} className="w-12 pb-2 pointer"/>
-                         <i className="icon-delete m-l-2 fs-16 pointer"></i> */}
-                        </td>  
-                        <td className="col-2">₹ {leftOverAmount}</td>
-                  </tr>
-      );
+    //                     <td className="col-1">{gvId}</td>
+    //                     <td className="col-2">{gvNumber}</td>
+    //                     <td className="col-2">{createdDate}</td>
+    //                     <td className="col-2">{expiryDate}</td>
+    //                     <td className="col-2">
+    //                     <span className="m-r-3">₹ {totalAmount}</span>
+    //                      {/* <img src={edit} className="w-12 pb-2 pointer"/>
+    //                      <i className="icon-delete m-l-2 fs-16 pointer"></i> */}
+    //                     </td>  
+    //                     <td className="col-2">₹ {leftOverAmount}</td>
+    //               </tr>
+    //   );
+    // });
+  }
+
+  addGiftVoucher() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const obj = {
+      "gvNumber": this.state.gvNumber,
+    "description": this.state.description,
+    "fromDate": this.state.fromDate,
+    "toDate":  this.state.toDate,
+    "clientId": user["custom:clientId1"],
+    "value": this.state.amount
+    }
+    CreateDeliveryService.saveGiftVoucher(obj).then(res =>{
+      if(res && res.data.isSuccess === "true") {
+        this.setState({
+          gvNumber:"",
+          description:"",
+          fromDate:"",
+          toDate:"",
+          amount:""
+        })
+        toast.success(res.data.message)
+        
+      }
     });
   }
 
@@ -199,27 +229,38 @@ export default class TagCustomer extends Component {
              <h5 className="mt-2 mb-3 fs-18">Generate gift vouchure </h5>
                   <div className="form-group mt-2 mb-3">
                       <input type="search" className="form-control"
-                        placeholder="Enter MobileNumber"  value={this.state.mobileNumber}
-                        onChange={this.handleChangeMobile}
-                        minLength="10"
-                        maxLength="10"
-                        onKeyPress={this.getMobileDetails} />
+                        placeholder="Enter GV Number"  value={this.state.gvNumber}
+                        onChange={(e) =>
+                          this.setState({ gvNumber: e.target.value })
+                        }
+                         />
                     </div>
                     <div className="form-group mb-3">
                       <input type="search" className="form-control"
-                          placeholder="Enter Name"
-                        value={this.state.name}
+                          placeholder="Enter Description"
+                        value={this.state.description}
                         onChange={(e) =>
-                          this.setState({ name: e.target.value })
+                          this.setState({ description: e.target.value })
                         } />
                     </div>
                     <div className="form-group mb-3">
+                    <input type="date" className="form-control"  placeholder="Enter FromDate"
+                                            value={this.state.fromDate}
+                                            onChange={(e) => this.setState({ fromDate: e.target.value })}
+                                            autoComplete="off" />
+                    </div>
+                    <div className="form-group mb-3">
+                    <input type="date" className="form-control"  placeholder="Enter ToDate"
+                                            value={this.state.toDate}
+                                            onChange={(e) => this.setState({ toDate: e.target.value })}
+                                            autoComplete="off" />
+                    </div>
+                    <div className="form-group mb-3">
                       <input type="text" className="form-control"
-                       placeholder="Enter GV Number"
-                       value={this.state.gvNumber}
-                       disabled={!this.state.customerId}
-                       onChange={this.handleChangeGvNumber}
-                       onKeyPress={this.getGvNumberDetails} />
+                       placeholder="Enter Value"
+                       value={this.state.amount}
+                       onChange={(e) => this.setState({ amount: e.target.value })}
+                       />
                     </div>
                     {/* <div className="form-group mb-3">
                       <input type="text" className="form-control"
@@ -229,14 +270,8 @@ export default class TagCustomer extends Component {
                       <input type="text" className="form-control"
                         placeholder="GV AMOUNT" />
                     </div> */}
-                    <button className="btn-unic-search active mt-1 m-r-2"  disable={
-                          !this.state.customerId ||
-                          !this.state.gvId ||
-                          !this.state.mobileNumber ||
-                          !this.state.name ||
-                          !this.state.gvNumber
-                        }
-                        onClick={this.handleSubmit}>GENERATE VOUCHER</button>
+                    <button className="btn-unic-search active mt-1 m-r-2" 
+                        onClick={this.addGiftVoucher}>ADD GIFT VOUCHER</button>
              </div>
              <div className="col-12 col-sm-9">
              <h5 className="mt-2 mb-3 fs-18">List of gift vouchers</h5>

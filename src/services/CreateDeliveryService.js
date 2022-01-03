@@ -63,6 +63,15 @@ class CreateDeliveryService {
         return axios.get(BASE_URL + CREATE_DELIVERY_SLIP_URL.getGiftVochers);
     }
 
+    saveGiftVoucher(saveobj) {
+        return axios.post(BASE_URL + CREATE_DELIVERY_SLIP_URL.saveGiftVoucher, saveobj);
+    }
+
+    saveGVNumber(gvObj, status) {
+        const param = '?flag=' + status;
+        return axios.put(BASE_URL + CREATE_DELIVERY_SLIP_URL.changeGvFlag + param, gvObj);
+    }
+
 }
 
 export default new CreateDeliveryService()

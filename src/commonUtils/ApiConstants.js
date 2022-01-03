@@ -22,7 +22,9 @@ export const CREATE_DELIVERY_SLIP_URL = {
     getReturnSlips: "/new-sale/newsale/getInvoiceDetails",
     saveReturnSlip: "/customer/customer/createReturnSlip",
     getCustomerMobile: "/user-management/user/customer/mobileNo",
-    getGiftVochers: "/new-sale/newsale/getlistofgv"
+    getGiftVochers: "/new-sale/newsale/getlistofgv",
+    saveGiftVoucher: "/new-sale/newsale/saveGv",
+    changeGvFlag: "/new-sale/newsale/changeflaggv"
 }
 
 export const NEW_SALE_URL = {
@@ -168,5 +170,9 @@ export const USER_MANAGEMENT_URL = {
     editRole: "/user-management/roles/updateRole",
     editUser: "/user-management/user/updateUser",
     getUserBySearch:"/user-management/user/getUser",
-    getGSTNumber: "/user-management/store/getgstDetails"
+    getGSTNumber: "/user-management/store/getgstDetails",
+    getusersByRole: "/user-management/reports/usersByRole",
+    getActiveUsers:"/user-management/reports/activeVsInactiveUsers",
+    getStoresVsEmployee: "/user-management/reports/storesVsEmployees"
+
 }

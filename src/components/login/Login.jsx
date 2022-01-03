@@ -208,13 +208,13 @@ class Login extends Component {
       })
 
       this.setState({ storesName: store }, () => {
-        sessionStorage.setItem("storeId", this.state.storesName[0].storeId);
+        sessionStorage.setItem("storeId", this.state.storesName[0]?.storeId);
       });
 
       if (store && store.length > 1) {
         this.setState({ isStores: true });
       } else {
-        sessionStorage.setItem("storeId", this.state.storesName[0].storeId);
+        sessionStorage.setItem("storeId", this.state.storesName[0]?.storeId);
         this.getDashboard();
       }
 
@@ -395,8 +395,10 @@ class Login extends Component {
         this.setState({
           isForgot: false,
           isLogin: false,
-          userName: "",
+         
           password: "",
+          confirmationCode:"",
+          newForgotPassword:"",
           isRegister: false,
           isChangePassword: false,
           isconfirmPassword: true,

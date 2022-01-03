@@ -136,45 +136,75 @@ export default class ListOfReturnSlips extends Component {
   closeViewReport() {
     this.setState({ isView: false });
   }
-
-  componentWillMount() {
+  componentDidMount() {
     const user = JSON.parse(sessionStorage.getItem("user"));
     console.log("user", user);
-    this.setState(
-      {
-        userName: user["cognito:username"],
-        isEdit: false,
-        clientId: user["custom:clientId1"],
-        domainId1: user["custom:domianId1"],
-      },
-      () => {
-        console.log(this.state);
-        this.getStoreNames(user["custom:domianId1"]);
-      }
-    );
+    if (user["custom:isSuperAdmin"] === "true") {
+      this.state.domainDetails = JSON.parse(
+        sessionStorage.getItem("selectedDomain")
+      );
+
+      console.log(
+        ">>>>>>>doma",
+        JSON.parse(sessionStorage.getItem("selectedDomain"))
+      );
+      let testData = [];
+      testData.push(JSON.parse(sessionStorage.getItem("selectedDomain")));
+      console.log(">>>>>>parse", testData);
+
+      this.setState(
+        {
+          storeList: testData,
+          clientId: user["custom:clientId1"],
+          domainId1: testData[0].value,
+          domainDetails: this.state.domainDetails,
+        },
+        () => {
+          console.log(this.state);
+          this.getStoreNames(this.state.domainId1);
+        }
+      );
+    } else {
+      this.setState(
+        {
+          userName: user["cognito:username"],
+          isEdit: false,
+          clientId: user["custom:clientId1"],
+          domainId1: user["custom:domianId1"],
+        },
+        () => {
+          console.log(this.state);
+          this.getStoreNames(user["custom:domianId1"]);
+        }
+      );
+    }
   }
+
+  componentWillMount() {}
 
   getStoreNames = (domainId) => {
     console.log("vgfgfhgfhgf", this.state.domainId1, domainId);
-    ListOfBarcodesService.getStoreNames(domainId).then((res) => {
-      console.log("........", res);
-      var optionList = [];
-      if (res.data.result) {
-        var obj = { id: "0", name: "SELECT STORE" };
-        optionList.push(obj);
-        res.data.result.map((data) => {
-          obj = {
-            id: data.id,
-            name: data.name,
-          };
+    if (domainId != undefined) {
+      ListOfBarcodesService.getStoreNames(domainId).then((res) => {
+        console.log("........", res);
+        var optionList = [];
+        if (res.data.result) {
+          var obj = { id: "0", name: "SELECT STORE" };
           optionList.push(obj);
-        });
-      }
+          res.data.result.map((data) => {
+            obj = {
+              id: data.id,
+              name: data.name,
+            };
+            optionList.push(obj);
+          });
+        }
 
-      this.setState({
-        storeList: optionList,
+        this.setState({
+          storeList: optionList,
+        });
       });
-    });
+    }
   };
 
   renderTableData() {
@@ -197,7 +227,7 @@ export default class ListOfReturnSlips extends Component {
                 this.viewReport(barcode);
               }}
             />
-            <i className="icon-delete fs-16"></i>
+            {/* <i className="icon-delete fs-16"></i> */}
           </td>
         </tr>
       );
@@ -218,9 +248,7 @@ export default class ListOfReturnSlips extends Component {
       // return this.state.popupData.map((items, index) => {
       const { barcode, itemMrp, storeName, qty } = this.state.popupData;
       return (
-        // <tr className="m-0 p-0">
         <tr>
-          {/* <th>{index + 1}</th> */}
           <td>{barcode}</td>
           <td>{itemMrp}</td>
           <td>{storeName}</td>
@@ -236,49 +264,10 @@ export default class ListOfReturnSlips extends Component {
         <Modal isOpen={this.state.isView} className="modal-fullscreen">
           <ModalHeader>BARCODE DETAILS </ModalHeader>
           <ModalBody>
-            {/* <div className="row mb-2">
-              <div className="col-3">
-                <div className="">
-                  <label>Memo No : </label>{" "}
-                  <span className="font-bold fs-13">
-                    {" "}
-                    {this.state.invoiceNumber}
-                  </span>
-                </div>
-              </div>
-              <div className="col-3">
-                <div className="">
-                  <label>Customer : </label>{" "}
-                  <span className="font-bold fs-13">
-                    {this.state.customerName}
-                  </span>
-                </div>
-              </div>
-
-              <div className="col-3">
-                <div className="">
-                  <label>Mobile : </label>{" "}
-                  <span className="font-bold fs-13">
-                    {" "}
-                    {this.state.mobileNumber}
-                  </span>
-                </div>
-              </div>
-              <div className="col-3">
-                <div className="">
-                  <label>Date : </label>{" "}
-                  <span className="font-bold fs-13">
-                    {" "}
-                    {this.state.createdDate}
-                  </span>
-                </div>
-              </div>
-            </div> */}
             <div className="table-responsive">
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
-                    {/* <th className="">S.NO.</th> */}
                     <th className="">BARCODE</th>
                     <th className="">MRP</th>
                     <th className="">STORE</th>
@@ -291,21 +280,6 @@ export default class ListOfReturnSlips extends Component {
                     <td>Western Wear</td>
                     <td>001</td>
                     <td>4699</td>
-                    <td>01</td>
-                    <td>1,120</td>
-                    <td>800</td>
-                    <td>5.00</td>
-                    <td>333.33</td>
-                    <td>8.33</td>
-                    <td>8.33</td>
-                    <td>0.00</td>
-                    <td>350</td>
-                  </tr>
-                  <tr>
-                    <td>BAR002</td>
-                    <td>Western Wear</td>
-                    <td>002</td>
-                    <td>4610</td>
                     <td>01</td>
                     <td>1,120</td>
                     <td>800</td>
@@ -411,19 +385,6 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-          {/* <div className="col-6 col-sm-3 mt-2">
-            <div className="form-group">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="BARCODE MRP >"
-                value={this.state.itemMrpGreaterThan}
-                onChange={(e) =>
-                  this.setState({ itemMrpGreaterThan: e.target.value })
-                }
-              />
-            </div> 
-           </div> */}
           <div className="col-6 col-sm-3 mt-2">
             <div className="form-group">
               <input
@@ -451,7 +412,6 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-
           <div className="col-6 col-sm-3 scaling-mb mt-2">
             <div className="form-group">
               <button
@@ -475,9 +435,9 @@ export default class ListOfReturnSlips extends Component {
                   <th className="col-2">Barcode</th>
                   <th className="col-2">Barcode Store</th>
                   <th className="col-2">EMP ID</th>
-                  <th className="col-1">QTY</th>
+                  <th className="col-2">QTY</th>
                   <th className="col-2">BARCODE MRP</th>
-                  <th className="col-2"></th>
+                  <th className="col-2">VIEW</th>
                 </tr>
               </thead>
               {/* <tbody>
@@ -493,115 +453,7 @@ export default class ListOfReturnSlips extends Component {
                   <i className="icon-delete fs-16"></i>
                 </td>
               </tr>
-              <tr className="">
-                <td className="col-1">02</td>
-                <td className="col-2">BAR00002</td>
-                <td className="col-2">KPHB 9th Phase</td>
-                <td className="col-2">EMP124</td>
-                <td className="col-1">20</td>
-                <td className="col-2">₹ 2,000</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">03</td>
-                <td className="col-2">BAR00003</td>
-                <td className="col-2">JNTU</td>
-                <td className="col-2">EMP126</td>
-                <td className="col-1">10</td>
-                <td className="col-2">₹ 2,000</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">04</td>
-                <td className="col-2">BAR00004</td>
-                <td className="col-2">Nizampet</td>
-                <td className="col-2">EMP127</td>
-                <td className="col-1">30</td>
-                <td className="col-2">₹ 2,000</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">05</td>
-                <td className="col-2">BAR00005</td>
-                <td className="col-2">Ameerpet</td>
-                <td className="col-2">EMP128</td>
-                <td className="col-1">15</td>
-                <td className="col-2">₹ 2,000</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">06</td>
-                <td className="col-2">BAR00006</td>
-                <td className="col-2">Ameerpet</td>
-                <td className="col-2">EMP129</td>
-                <td className="col-1">15</td>
-                <td className="col-2">₹ 2,000</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">07</td>
-                <td className="col-2">BAR00007</td>
-                <td className="col-2">Panjagutta</td>
-                <td className="col-2">EMP130</td>
-                <td className="col-1">18</td>
-                <td className="col-2">₹ 2,000</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">08</td>
-                <td className="col-2">BAR00008</td>
-                <td className="col-2">Attapur</td>
-                <td className="col-2">EMP131</td>
-                <td className="col-1">25</td>
-                <td className="col-2">₹ 2,000</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">09</td>
-                <td className="col-2">BAR00009</td>
-                <td className="col-2">Attapur-2</td>
-                <td className="col-2">EMP132</td>
-                <td className="col-1">25</td>
-                <td className="col-2">₹ 2,000</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-              <tr className="">
-                <td className="col-1">10</td>
-                <td className="col-2">BAR00010</td>
-                <td className="col-2">Madhapur</td>
-                <td className="col-2">EMP133</td>
-                <td className="col-1">50</td>
-                <td className="col-2">₹ 2,000</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-            </tbody> */}
+             </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
             </table>
           </div>

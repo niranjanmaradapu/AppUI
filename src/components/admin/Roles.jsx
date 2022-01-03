@@ -25,7 +25,7 @@ export default class Roles extends Component {
             productTreeList: [],
             parentsList: [],
             childList: [],
-            errors:{},
+            errors: {},
             isAdmin: false,
             isSuperAdmin: false
 
@@ -58,10 +58,12 @@ export default class Roles extends Component {
     }
 
     getAllRoles() {
-        if(this.state.isSearch) {
-            this.setState({searchCreatedby:"",
-        searchCreatedDate:"",
-    searchRole:""});
+        if (this.state.isSearch) {
+            this.setState({
+                searchCreatedby: "",
+                searchCreatedDate: "",
+                searchRole: ""
+            });
         }
         URMService.getAllRoles(this.state.clientId).then((res) => {
             if (res) {
@@ -72,7 +74,7 @@ export default class Roles extends Component {
     }
 
     searchRoles() {
-        this.setState({isSearch: true});
+        this.setState({ isSearch: true });
         const searchRole = {
             "roleName": this.state.searchRole ? this.state.searchRole : null,
             "createdBy": this.state.searchCreatedby ? this.state.searchCreatedby : null,
@@ -80,7 +82,7 @@ export default class Roles extends Component {
         }
 
         URMService.getRolesBySearch(searchRole).then(res => {
-            if(res) {
+            if (res) {
                 this.setState({ rolesList: res.data.result, isRole: true })
             }
         });
@@ -96,50 +98,51 @@ export default class Roles extends Component {
     }
 
 
-    
+
     handleValidation() {
         let errors = {};
         let formIsValid = true;
-    
+
         //Name
         if (!this.state.roleName) {
-          formIsValid = false;
-          errors["roleName"] = "Enter Role Name";
+            formIsValid = false;
+            errors["roleName"] = "Enter Role Name";
         }
-    
-     
-    
+
+
+
         // Area 
         if (!this.state.descriptionName) {
             formIsValid = false;
             errors["descriptionName"] = "Enter Description";
-          }
-      
-         
-          //Domain 
+        }
+
+
+        //Domain 
         //   if (!this.state.domain) {
         //     formIsValid = false;
         //     errors["domain"] = "Enter Domain";
         //   }
-      
-    
+
+
         this.setState({ errors: errors });
         return formIsValid;
-    
-        }
+
+    }
 
 
     showRoles() {
         //    this.setState(this.baseState);
-        this.setState({ showModal: true,isAdmin: false, isSuperAdmin:false,isSearch: false,  isEdit: false, errors: {}, selectedPrivilegesList: [] });
+        this.setState({ showModal: true, isAdmin: false, isSuperAdmin: false, isSearch: false, isEdit: false, errors: {}, selectedPrivilegesList: [] });
         if (this.state.domainList && this.state.domainList.length > 0) {
-            this.setState({ domain: this.state.domainList[0].clientDomainaId }, ()=>{
+            this.setState({ domain: this.state.domainList[0].clientDomainaId }, () => {
                 this.getPrivilegesByDomainId();
             });
         }
-        this.setState({showModal: true,
+        this.setState({
+            showModal: true,
             roleName: "",
-            
+
             descriptionName: "",
             childList: [],
             parentsList: [],
@@ -158,77 +161,80 @@ export default class Roles extends Component {
     }
 
     addRoles() {
-       // const roleId = 
-       const formValid = this.handleValidation();
-        if(formValid) {
-       if(this.state.isEdit) {
-        const saveObj = {
-            "roleName": this.state.roleName,
-            "description": this.state.descriptionName,
-            "clientDomianId": parseInt(this.state.domain),
-            "createdBy": this.state.userName,
-            "parentPrivilages": this.state.parentsList,
-            "subPrivillages": this.state.childList,
-            "roleId": this.state.roleId
+        // const roleId = 
+        const formValid = this.handleValidation();
+        if (formValid) {
+            if (this.state.isEdit) {
+                const saveObj = {
+                    "roleName": this.state.roleName,
+                    "description": this.state.descriptionName,
+                    "clientDomianId": parseInt(this.state.domain),
+                    "createdBy": this.state.userName,
+                    "parentPrivilages": this.state.parentsList,
+                    "subPrivillages": this.state.childList,
+                    "roleId": this.state.roleId
+                }
+
+                URMService.editRole(saveObj).then((res) => {
+                    if (res) {
+                        toast.success(res.data.result);
+                        this.getAllRoles()
+                        this.hideRoles();
+                    }
+                });
+            } else {
+                const saveObj = {
+                    "roleName": this.state.roleName,
+                    "description": this.state.descriptionName,
+                    "clientDomianId": parseInt(this.state.domain),
+                    "createdBy": this.state.userName,
+                    "parentPrivilages": this.state.parentsList,
+                    "subPrivillages": this.state.childList,
+                }
+
+                URMService.saveRole(saveObj).then((res) => {
+                    if (res) {
+                        toast.success(res.data.result);
+                        this.getAllRoles()
+                        this.hideRoles();
+                    }
+                });
+            }
+        } else {
+            toast.info("Please Enter all mandatory fields");
         }
 
-        URMService.editRole(saveObj).then((res) => {
-            if (res) {
-                toast.success(res.data.result);
-                this.getAllRoles()
-                this.hideRoles();
-            }
-        });
-       } else {
-        const saveObj = {
-            "roleName": this.state.roleName,
-            "description": this.state.descriptionName,
-            "clientDomianId": parseInt(this.state.domain),
-            "createdBy": this.state.userName,
-            "parentPrivilages": this.state.parentsList,
-            "subPrivillages": this.state.childList,
-        }
-
-        URMService.saveRole(saveObj).then((res) => {
-            if (res) {
-                toast.success(res.data.result);
-                this.getAllRoles()
-                this.hideRoles();
-            }
-        });
-       }
-    } else {
-        toast.info("Please Enter all mandatory fields");
-    }
-       
     }
 
     getPrivilegesByDomainId() {
-        let selectedDomainId =0;
+        let selectedDomainId = 0;
         this.state.domainList.forEach((ele, index) => {
-            if(ele.clientDomainaId === parseInt(this.state.domain)) {
-                if(ele.domaiName === "Textile") {
+            if (ele.clientDomainaId === parseInt(this.state.domain)) {
+                if (ele.domaiName === "Textile") {
                     selectedDomainId = 1;
-                } else if(ele.domaiName === "Retail") {
+                } else if (ele.domaiName === "Retail") {
                     selectedDomainId = 2;
-                } 
+                }
             }
         });
 
 
         URMService.getAllPrivilegesbyDomain(selectedDomainId).then(res => {
-            if(res) {
+            if (res) {
                 this.setState({ productsList: res.data.result });
                 this.state.productsList.forEach((element, index) => {
-                    element.subPrivillages.forEach((child,index) =>{
-                        child.checked = false;
-                    });
+                    if(element.subPrivillages && element.subPrivillages.length > 0){
+                        element.subPrivillages.forEach((child, index) => {
+                            child.checked = false;
+                        });
+                    }
+                    
                 });
 
                 console.log(this.state.productsList);
                 this.getSelectedPrivileges(this.state.parentsList, this.state.childList);
             }
-          });
+        });
 
     }
 
@@ -236,7 +242,7 @@ export default class Roles extends Component {
         // this.state.PrivilegesList.forEach((ele,index) =>{
         //     ele.isCheck = false;
         // });
-        this.setState({ showRole: true});
+        this.setState({ showRole: true });
         this.getPrivilegesByDomainId();
         // if(this.state.parentsList.length > 0) {
         //     this.getSelectedPrivileges(this.state.parentsList, this.state.childList);
@@ -291,67 +297,67 @@ export default class Roles extends Component {
         //   this.setState({ parentsList: this.state.parentsList })
         this.setState({ PrivilegesList: this.state.PrivilegesList });
 
-     //   this.getSelectedPrivileges(this.state.parentsList, this.state.childList);
+        //   this.getSelectedPrivileges(this.state.parentsList, this.state.childList);
 
     }
 
     getSelectedPrivileges(parentsList, childList) {
-        if(parentsList.length > 0) {
+        if (parentsList && parentsList.length > 0) {
             console.log(this.state.domainList);
-            this.state.productsList.forEach((product,index) =>{
-                product.subPrivillages.forEach(subPrivilage =>{
-                    childList.forEach((child,index)=>{
-                        if(subPrivilage.id === child.id) {
-                            subPrivilage.checked  = true;
+            this.state.productsList.forEach((product, index) => {
+                product.subPrivillages.forEach(subPrivilage => {
+                    childList.forEach((child, index) => {
+                        if (subPrivilage.id === child.id) {
+                            subPrivilage.checked = true;
                         }
                     });
                 });
-                
+
             });
         }
 
-    //     let productsList =[];
-    //     parentsList.forEach((parent,index) => {
-    //         let subPrivileges = [];
-    //         childList.forEach((child,index) => {
-    //             let updateSubPrivilege;
-    //             if(parent.id === child.parentPrivillageId) {
-    //                 child.checked = true;
-    //                 subPrivileges.push(child);
-    //                // childList.splice(child, index);
-    //             }
-                
-    //             updateSubPrivilege = this.removeDuplicates(subPrivileges, "name");
-    //             console.log(updateSubPrivilege);
+        //     let productsList =[];
+        //     parentsList.forEach((parent,index) => {
+        //         let subPrivileges = [];
+        //         childList.forEach((child,index) => {
+        //             let updateSubPrivilege;
+        //             if(parent.id === child.parentPrivillageId) {
+        //                 child.checked = true;
+        //                 subPrivileges.push(child);
+        //                // childList.splice(child, index);
+        //             }
 
-    //         });
+        //             updateSubPrivilege = this.removeDuplicates(subPrivileges, "name");
+        //             console.log(updateSubPrivilege);
 
-    //         const obj = {
-    //             "createdBy": parent.createdBy,
-    //             "createdDate": parent.createdDate,
-    //             "description": parent.description,
-    //             "domian": parent.domian,
-    //             "id": parent.id,
-    //             "lastModifyedDate": parent.lastModifyedDate,
-    //             "name": parent.name,
-    //             "parentImage": parent.parentImage,
-    //             "path": parent.path,
-    //             "subPrivillages": subPrivileges
-    //         }
-    //         productsList.push(obj);
-            
+        //         });
 
-           
-    //     });
+        //         const obj = {
+        //             "createdBy": parent.createdBy,
+        //             "createdDate": parent.createdDate,
+        //             "description": parent.description,
+        //             "domian": parent.domian,
+        //             "id": parent.id,
+        //             "lastModifyedDate": parent.lastModifyedDate,
+        //             "name": parent.name,
+        //             "parentImage": parent.parentImage,
+        //             "path": parent.path,
+        //             "subPrivillages": subPrivileges
+        //         }
+        //         productsList.push(obj);
 
-    //   //  this.setState({productsList: productsList });
-    //   this.state.productsList = productsList;
-    //     console.log(this.state.productsList);
+
+
+        //     });
+
+          this.setState({productsList: this.state.productsList });
+        //   this.state.productsList = productsList;
+           console.log(this.state.productsList);
     }
 
     getPrivilegesList() {
-
-        return this.state.productsList.map((node, i) => {
+        console.log(this.state.productsList);
+        return this.state.productsList.length > 0 && this.state.productsList.map((node, i) => {
             const parentName = node.name;
             const label = <span className="node">{parentName}</span>
             return (
@@ -359,22 +365,24 @@ export default class Roles extends Component {
                     key={parentName + "|" + i}
                     nodeLabel={label}
                     defaultCollapse={false}
+                    
+                    
                 >
                     {
-                        node.subPrivillages.map((child) => {
+                      node.subPrivillages &&  node.subPrivillages.length > 0 &&  node.subPrivillages.map((child) => {
                             return (
-                                
+
                                 <div>
                                     <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-15">
                                         {
                                             child.name && (
                                                 <div>
-                                                     <input type="checkbox" className="form-check-input filled-in mt-1" id="remember{{index}}"
-                                            name="child{{i}}"  checked={child.checked}
-                                            onChange={(e) => this.setPrivileges(e, i, node, child)} />
-                                        <label className="form-check-label" htmlFor="remember">  {child.name}</label>
+                                                    <input type="checkbox" className="form-check-input filled-in mt-1" id="remember{{index}}"
+                                                        name="child{{i}}" checked={child.checked}
+                                                        onChange={(e) => this.setPrivileges(e, i, node, child)} />
+                                                    <label className="form-check-label" htmlFor="remember">  {child.name}</label>
 
-                                                    </div>
+                                                </div>
                                             )
                                         }
                                         {/* <input type="checkbox" className="form-check-input filled-in mt-1" id="remember{{index}}"
@@ -414,7 +422,7 @@ export default class Roles extends Component {
     }
 
     addedRoles() {
-        return this.state.childList.length > 0 && (
+        return this.state.childList && this.state.childList.length > 0 && (
             <div>
                 <div className="row mt-3">
                     <h6 className="text-red mb-2 fs-14"></h6>
@@ -442,17 +450,18 @@ export default class Roles extends Component {
     }
 
     editRole(items) {
-       console.log(items);
-        this.setState({showModal: true,
+        console.log(items);
+        this.setState({
+            showModal: true,
             roleName: items.roleName,
-            isEdit : true,
+            isEdit: true,
             descriptionName: items.discription,
-            childList: items.subPrivilages,
-            parentsList: items.parentPrivilages,
+            childList: items.subPrivilageVo,
+            parentsList: items.parentPrivilageVo,
             roleId: items.roleId,
             isSearch: false,
             domain: items.clientDomainVo.clientDomainaId
-        }, ()=>{
+        }, () => {
             this.getPrivilegesByDomainId();
         });
 
@@ -467,8 +476,8 @@ export default class Roles extends Component {
         //     });
         // });
 
-      
-        
+
+
     }
 
     getRoleTable() {
@@ -487,7 +496,7 @@ export default class Roles extends Component {
                     <td className="col-1">{usersCount}</td>
                     <td className="col-2">{discription}</td>
                     <td className="col-1">
-                        <img src={edit} className="w-12 m-r-2 pb-2"  onClick={(e) => this.editRole(items)} />
+                        <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editRole(items)} />
                         <i className="icon-delete"></i>
                     </td>
                 </tr>
@@ -502,25 +511,25 @@ export default class Roles extends Component {
                     <h5>Roles List</h5>
                 </div>
                 <div className="table-responsive p-0">
-                <table className="table table-borderless mb-0">
-                    <thead>
-                        <tr className="">
-                            <th className="col-1">S.No </th>
-                            <th className="col-2">Role</th>
-                            <th className="col-2">Domain</th>
-                            <th className="col-2">Created By</th>
-                            <th className="col-2">Created Date</th>
-                            <th className="col-1">User Count</th>
-                            <th className="col-2">Description</th>
-                            <th className="col-1"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {this.getRoleTable()}
+                    <table className="table table-borderless mb-0">
+                        <thead>
+                            <tr className="">
+                                <th className="col-1">S.No </th>
+                                <th className="col-2">Role</th>
+                                <th className="col-2">Domain</th>
+                                <th className="col-2">Created By</th>
+                                <th className="col-2">Created Date</th>
+                                <th className="col-1">User Count</th>
+                                <th className="col-2">Description</th>
+                                <th className="col-1"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.getRoleTable()}
 
 
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         )
@@ -549,7 +558,7 @@ export default class Roles extends Component {
                         <div className="maincontent p-0">
                             <table className="table table-borderless">
                                 <thead>
-                                   
+
                                 </thead>
                                 <tbody>
 
@@ -566,19 +575,19 @@ export default class Roles extends Component {
 
                 <Modal isOpen={this.state.showModal} size="lg">
                     <ModalHeader>  {
-                            !this.state.isEdit && (
-                                <div>
-                                    Create Role
-                                    </div>
-                               
-                            )
-                        }
+                        !this.state.isEdit && (
+                            <div>
+                                Create Role
+                            </div>
+
+                        )
+                    }
                         {
                             this.state.isEdit && (
                                 <div>
-                                Edit Role
-                                    </div>
-                               
+                                    Edit Role
+                                </div>
+
                             )
                         }</ModalHeader>
                     <ModalBody>
@@ -590,7 +599,7 @@ export default class Roles extends Component {
                                         <input type="text" className="form-control" placeholder="" value={this.state.roleName}
                                             onChange={(e) => this.setState({ roleName: e.target.value })}
                                             autoComplete="off" />
-                                             {/* <div>
+                                        {/* <div>
                                                          <span style={{ color: "red" }}>{this.state.errors["roleName"]}</span>
                                                         </div> */}
                                     </div>
@@ -602,7 +611,7 @@ export default class Roles extends Component {
                                         <input type="text" className="form-control" placeholder="" value={this.state.descriptionName}
                                             onChange={(e) => this.setState({ descriptionName: e.target.value })}
                                             autoComplete="off" />
-                                            {/* <div>
+                                        {/* <div>
                                                          <span style={{ color: "red" }}>{this.state.errors["descriptionName"]}</span>
                                                         </div> */}
                                     </div>
@@ -610,7 +619,7 @@ export default class Roles extends Component {
 
                                 <div className="col-12 col-sm-4 mt-4">
                                     <div className="form-group">
-                                    {/* <input type="checkbox" className="form-check-input filled-in mt-1" id="admin" name="superadmin" value={this.state.isAdmin} 
+                                        {/* <input type="checkbox" className="form-check-input filled-in mt-1" id="admin" name="superadmin" value={this.state.isAdmin} 
                                        onChange={(e) => this.setState({ isAdmin: e.target.checked, isSuperAdmin: e.target.checked },()=>{
                                            if(this.state.isAdmin) {
                                                this.setState({domain:""}, ()=>{
@@ -631,8 +640,8 @@ export default class Roles extends Component {
                                     <div className="form-group">
                                         <label>Domain<span className="text-red font-bold">*</span></label>
 
-                                        <select className="form-control" value={this.state.domain}  disabled={this.state.isSuperAdmin}
-                                            onChange={(e) => this.setState({ domain: e.target.value }, ()=> {this.getPrivilegesByDomainId()})}>
+                                        <select className="form-control" value={this.state.domain} disabled={this.state.isSuperAdmin}
+                                            onChange={(e) => this.setState({ domain: e.target.value }, () => { this.getPrivilegesByDomainId() })}>
 
                                             {modulesList}
                                         </select >
@@ -642,9 +651,9 @@ export default class Roles extends Component {
                                     </div>
                                 </div>
                                 <div className="col-4 mt-4">
-                                    <button type="button" className="btn-unic-redbdr" 
-                                    
-                                    onClick={this.createRole}>Privilege Mapping </button>
+                                    <button type="button" className="btn-unic-redbdr"
+
+                                        onClick={this.createRole}>Privilege Mapping </button>
                                 </div>
 
                             </div>
@@ -675,7 +684,7 @@ export default class Roles extends Component {
                     </div>
                     <div className="col-sm-3 col-12 mt-2">
                         <div className="form-group">
-                            <input type="text" className="form-control" placeholder="Created By"  value={this.state.searchCreatedby}
+                            <input type="text" className="form-control" placeholder="Created By" value={this.state.searchCreatedby}
                                 onChange={(e) => this.setState({ searchCreatedby: e.target.value })} />
                         </div>
                     </div>

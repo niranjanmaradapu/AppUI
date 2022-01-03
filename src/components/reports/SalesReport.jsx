@@ -6,13 +6,16 @@ import print from "../../assets/images/print.svg";
 import view from "../../assets/images/view.svg";
 import ListOfSaleBillsService from "../../services/Reports/ListOfSaleBillsService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import moment from "moment";
 
 export default class SalesReport extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      dateFrom: "",
-      dateTo: "",
+      dateFrom: moment(new Date()).format("YYYY-MM-DD").toString(),
+      dateTo: moment(new Date()).format("YYYY-MM-DD").toString(),
+      // dateFrom: "",
+      // dateTo: "",
       custMobileNumber: null,
       billStatus: null,
       invoiceNumber: null,
@@ -29,8 +32,6 @@ export default class SalesReport extends Component {
 
   getSaleBills() {
     const obj = {
-      // dsNumber: this.state.dsNumber,
-      // status: this.state.status,
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
       dateTo: this.state.dateTo ? this.state.dateTo : undefined,
       custMobileNumber: this.state.custMobileNumber
@@ -49,7 +50,6 @@ export default class SalesReport extends Component {
       this.setState({
         sbList: res.data.result.newSaleVo,
         sbDetailsList: res.data.result.newSaleVo,
-        // customerName: data.customerName,
       });
     });
   }
@@ -253,7 +253,6 @@ export default class SalesReport extends Component {
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
-                    {/* <th className="col-1"> </th> */}
                     <th className="">Barcode</th>
                     <th className="">Section</th>
                     <th className="">EMP ID</th>
@@ -266,7 +265,6 @@ export default class SalesReport extends Component {
                     <th className="">CGST</th>
                     <th className="">SGST</th>
                     <th className="">IGST</th>
-                    {/* <th className="col-4">Description</th> */}
                     <th className="">Net Amount</th>
                   </tr>
                 </thead>
@@ -276,21 +274,6 @@ export default class SalesReport extends Component {
                     <td>Western Wear</td>
                     <td>001</td>
                     <td>4699</td>
-                    <td>01</td>
-                    <td>1,120</td>
-                    <td>800</td>
-                    <td>5.00</td>
-                    <td>333.33</td>
-                    <td>8.33</td>
-                    <td>8.33</td>
-                    <td>0.00</td>
-                    <td>350</td>
-                  </tr>
-                  <tr>
-                    <td>BAR002</td>
-                    <td>Western Wear</td>
-                    <td>002</td>
-                    <td>4610</td>
                     <td>01</td>
                     <td>1,120</td>
                     <td>800</td>
@@ -452,311 +435,11 @@ export default class SalesReport extends Component {
 
                     </td>
                  </tr>  
-                 <tr className="">
-                    <td className="col-1">02</td>
-                    <td className="col-3">INV00002</td>
-                    <td className="col-2">EMP124</td>
-                    <td className="col-2">30 Dec 2021</td>
-                    <td className="col-2"><button className="btn-inactive">Terminated</button></td>
-                    <td className="col-2 text-center">
-                    <img src={print} className="w-12 m-r-2 pb-2"/>
-                    <img src={view} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i>
-
-                    </td>
-                 </tr>   
-                 <tr className="">
-                    <td className="col-1">03</td>
-                    <td className="col-3">INV00003</td>
-                    <td className="col-2">EMP124</td>
-                    <td className="col-2">30 Dec 2021</td>
-                    <td className="col-2"><button className="btn-active">Settled</button></td>
-                    <td className="col-2 text-center">
-                    <img src={print} className="w-12 m-r-2 pb-2"/>
-                    <img src={view} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i>
-
-                    </td>
-                 </tr> 
-                 <tr className="">
-                    <td className="col-1">04</td>
-                    <td className="col-3">INV00004</td>
-                    <td className="col-2">EMP125</td>
-                    <td className="col-2">30 Dec 2021</td>
-                    <td className="col-2"><button className="btn-active">Settled</button></td>
-                    <td className="col-2 text-center">
-                    <img src={print} className="w-12 m-r-2 pb-2"/>
-                    <img src={view} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i>
-
-                    </td>
-                 </tr>  
-                 <tr className="">
-                    <td className="col-1">05</td>
-                    <td className="col-3">INV00005</td>
-                    <td className="col-2">EMP126</td>
-                    <td className="col-2">30 Dec 2021</td>
-                    <td className="col-2"><button className="btn-active">Settled</button></td>
-                    <td className="col-2 text-center">
-                    <img src={print} className="w-12 m-r-2 pb-2"/>
-                    <img src={view} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i>
-
-                    </td>
-                 </tr>  
-                 <tr className="">
-                    <td className="col-1">06</td>
-                    <td className="col-3">INV00006</td>
-                    <td className="col-2">EMP127</td>
-                    <td className="col-2">30 Dec 2021</td>
-                    <td className="col-2"><button className="btn-active">Settled</button></td>
-                    <td className="col-2 text-center">
-                    <img src={print} className="w-12 m-r-2 pb-2"/>
-                    <img src={view} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i>
-
-                    </td>
-                 </tr>
-                 <tr className="">
-                    <td className="col-1">07</td>
-                    <td className="col-3">INV00007</td>
-                    <td className="col-2">EMP128</td>
-                    <td className="col-2">30 Dec 2021</td>
-                    <td className="col-2"><button className="btn-inactive">Terminated</button></td>
-                    <td className="col-2 text-center">
-                    <img src={print} className="w-12 m-r-2 pb-2"/>
-                    <img src={view} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i>
-
-                    </td>
-                 </tr>  
-                 <tr className="">
-                    <td className="col-1">08</td>
-                    <td className="col-3">INV00008</td>
-                    <td className="col-2">EMP129</td>
-                    <td className="col-2">30 Dec 2021</td>
-                    <td className="col-2"><button className="btn-inactive">Terminated</button></td>
-                    <td className="col-2 text-center">
-                    <img src={print} className="w-12 m-r-2 pb-2"/>
-                    <img src={view} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i>
-
-                    </td>
-                 </tr>  
-                 <tr className="">
-                    <td className="col-1">09</td>
-                    <td className="col-3">INV00009</td>
-                    <td className="col-2">EMP130</td>
-                    <td className="col-2">30 Dec 2021</td>
-                    <td className="col-2"><button className="btn-inactive">Terminated</button></td>
-                    <td className="col-2 text-center">
-                    <img src={print} className="w-12 m-r-2 pb-2"/>
-                    <img src={view} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i>
-
-                    </td>
-                 </tr>  
-                 <tr className="">
-                    <td className="col-1">10</td>
-                    <td className="col-3">INV00010</td>
-                    <td className="col-2">EMP131</td>
-                    <td className="col-2">30 Dec 2021</td>
-                    <td className="col-2"><button className="btn-inactive">Terminated</button></td>
-                    <td className="col-2 text-center">
-                    <img src={print} className="w-12 m-r-2 pb-2"/>
-                    <img src={view} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i>
-
-                    </td>
-                 </tr>  
-
                 </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
             </table>
           </div>
         </div>
-        {/* <div className="rect p-l-0 p-r-0 pt-0">
-                <div className="navigation">
-                    <div style={{ display: 'block', padding: 20 }}>
-                        <Tabs defaultActiveKey="second">
-                            <Tab eventKey="first" title="SALES SUMMARY">
-                         
-                            </Tab>
-                            <Tab eventKey="second" title="RETURN SUMMARY">
-                            <table className="table table-borderless">
-                                    <thead>
-                                        <tr className="row m-0 p-0">
-                                            <th className="col-2">Location</th>
-                                            <th className="col-1">Tax Desc</th>
-                                            <th className="col-1">Total MRP</th>
-                                            <th className="col-1">Total Dis</th>
-                                            <th className="col-1">Bill Value</th>
-                                            <th className="col-2">Taxable Amt</th>
-                                            <th className="col-1">Tax Amt</th>
-                                            <th className="col-1">SGST</th>
-                                            <th className="col-1">CGST</th>
-                                            <th className="col-1">IGST</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr className="row m-0 p-0">
-                                            <td className="col-2">Hyderabad</td>
-                                            <td className="col-1">Totals</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                      
-                                            <td className="col-2">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                        </tr>
-                                        <tr className="row m-0 p-0">
-                                            <td className="col-2">Hyderabad</td>
-                                            <td className="col-1">Totals</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                  
-                                            <td className="col-2">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                        </tr>
-                                        <tr className="row m-0 p-0">
-                                            <td className="col-2">Hyderabad</td>
-                                            <td className="col-1">Totals</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-2">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                        </tr>
-                                        <tr className="row m-0 p-0">
-                                            <td className="col-2">Hyderabad</td>
-                                            <td className="col-1">Totals</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-2">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-
-                                        </tr>
-                                        <tr className="row m-0 p-0">
-                                            <td className="col-2">Hyderabad</td>
-                                            <td className="col-1">Totals</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-2">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </Tab>
-                            <Tab eventKey="third" title="OVERALL SUMMARY">
-                            <table className="table table-borderless">
-                                    <thead>
-                                        <tr className="row m-0 p-0">
-                                            <th className="col-2">Location</th>
-                                            <th className="col-1">Tax Desc</th>
-                                            <th className="col-1">Total MRP</th>
-                                            <th className="col-1">Total Dis</th>
-                                            <th className="col-1">Bill Value</th>
-                                            <th className="col-2">Taxable Amt</th>
-                                            <th className="col-1">Tax Amt</th>
-                                            <th className="col-1">SGST</th>
-                                            <th className="col-1">CGST</th>
-                                            <th className="col-1">IGST</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr className="row m-0 p-0">
-                                            <td className="col-2">Hyderabad</td>
-                                            <td className="col-1">Totals</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                      
-                                            <td className="col-2">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                        </tr>
-                                        <tr className="row m-0 p-0">
-                                            <td className="col-2">Hyderabad</td>
-                                            <td className="col-1">Totals</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                  
-                                            <td className="col-2">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                        </tr>
-                                        <tr className="row m-0 p-0">
-                                            <td className="col-2">Hyderabad</td>
-                                            <td className="col-1">Totals</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-2">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                        </tr>
-                                        <tr className="row m-0 p-0">
-                                            <td className="col-2">Hyderabad</td>
-                                            <td className="col-1">Totals</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-2">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-
-                                        </tr>
-                                        <tr className="row m-0 p-0">
-                                            <td className="col-2">Hyderabad</td>
-                                            <td className="col-1">Totals</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-2">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-                                            <td className="col-1">₹00:00</td>
-
-                                        </tr>
-                        
-                                     
-                                    </tbody>
-                                </table>
-                            </Tab>
-                        </Tabs>
-                    </div>
-                 </div>
-                </div> */}
       </div>
     );
   }

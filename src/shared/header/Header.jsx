@@ -477,13 +477,16 @@ class Header extends Component {
      
       const clientDomainId = user["custom:clientDomians"].split(",")[0];
       URMService.getDomainName(clientDomainId).then(res => {
+        
         if(res) {
           const obj  = {
-            value: res.data.result.domain[0]?.id,
+            value: res.data.result.clientDomainaId,
             label: res.data.result.domaiName
           }
           dataDrop.push(obj);
           sessionStorage.setItem("selectedDomain", JSON.stringify(dataDrop[1]));
+          const domainName = JSON.parse(sessionStorage.getItem("selectedDomain"));
+          this.setState({ selectedOption: domainName });
         }
       });
     }
@@ -495,14 +498,13 @@ class Header extends Component {
     };
   dataDrop.push(dropLogout);
   
-  this.setState({dropData:dataDrop},()=>{
+  this.setState({dropData:dataDrop},()=> {
     console.log(this.state.dropData);
-    sessionStorage.setItem("selectedDomain", JSON.stringify(dataDrop[1]));
+  //  sessionStorage.setItem("selectedDomain", JSON.stringify(dataDrop[1]));
   });
  
   const domainName = JSON.parse(sessionStorage.getItem("selectedDomain"));
   this.setState({ selectedOption: domainName });
-  console.log(this.state.selectedOption);
 
   if(domainName === "config_user") {
    

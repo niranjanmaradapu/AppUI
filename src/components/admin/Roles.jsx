@@ -305,13 +305,16 @@ export default class Roles extends Component {
         if (parentsList && parentsList.length > 0) {
             console.log(this.state.domainList);
             this.state.productsList.forEach((product, index) => {
-                product.subPrivillages.forEach(subPrivilage => {
-                    childList.forEach((child, index) => {
-                        if (subPrivilage.id === child.id) {
-                            subPrivilage.checked = true;
-                        }
+                if(product.subPrivillages && product.subPrivillages.length > 0) {
+                    product.subPrivillages.forEach(subPrivilage => {
+                        childList.forEach((child, index) => {
+                            if (subPrivilage.id === child.id) {
+                                subPrivilage.checked = true;
+                            }
+                        });
                     });
-                });
+                }
+               
 
             });
         }

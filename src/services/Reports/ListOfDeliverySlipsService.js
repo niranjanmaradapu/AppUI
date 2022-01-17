@@ -4,7 +4,8 @@ import { BASE_URL } from '../../commonUtils/Base';
 
 class ListOfDeliverySlipsService {
     
-    getDeliverySlips(data) {
+    getDeliverySlips(data,storeId) {
+     //   const param = '?storeId='+ storeId; 
         return axios.post(BASE_URL+ DELIVERYSLIPS_LIST_URL.deliveryslipsList,data);
     }
 

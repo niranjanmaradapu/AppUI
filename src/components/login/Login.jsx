@@ -253,22 +253,29 @@ class Login extends Component {
     // if (role["cognito:groups"][0] !== "config_user" && role["custom:isSuperAdmin"] === "false") {
     //     roleName = role["cognito:groups"][0];
     // }
-    const obj = {
-      userName: this.state.userName,
-      password: this.state.currentPassword,
-      newPassword: this.state.newPassword,
-      session: this.state.sessionData,
-      roleName: this.state.roleName,
-    };
+    console.log(this.state.newPassword, this.state.confirmPassword);
 
-    LoginService.changePassword(obj).then((res) => {
-      console.log(res);
-      if (res) {
-        toast.success("Password Changed Successfully");
-        //    window.location.reload();
-      }
-      this.hideChangePassword();
-    });
+    if(this.state.newPassword == this.state.confirmPassword) {
+      const obj = {
+        userName: this.state.userName,
+        password: this.state.password,
+        newPassword: this.state.newPassword,
+        session: this.state.sessionData,
+        roleName: this.state.roleName,
+      };
+  
+      LoginService.changePassword(obj).then((res) => {
+        console.log(res);
+        if (res) {
+          toast.success("Password Changed Successfully");
+          //    window.location.reload();
+        }
+        this.hideChangePassword();
+      });
+    } else {
+      toast.error("Confirm Password and Passsword doesn't match");
+    }
+   
   }
 
   hideChangePassword() {
@@ -656,7 +663,7 @@ class Login extends Component {
           </ModalBody>
           <ModalFooter>
           <button className="btn-unic fs-12 mt-3" onClick={(e) => {
-              this.props.history.push("/dashboard");
+            this.setState({isStores: false, isModel: false, userName: "", password:""})
             }
             }>
               Cancel
@@ -922,7 +929,7 @@ class Login extends Component {
                       Update New <br /> Password{" "}
                     </h5>
                     <div className="form-group m-t-2">
-                      <input
+                      {/* <input
                         type="text"
                         className="mt-3 mb-3 form-control"
                         value={this.state.currentPassword}
@@ -932,7 +939,7 @@ class Login extends Component {
                         }
                         autoComplete="off"
                         placeholder="Current Password"
-                      />
+                      /> */}
                       <input
                         type="password"
                         className="form-control"
@@ -942,6 +949,17 @@ class Login extends Component {
                           this.setState({ newPassword: e.target.value })
                         }
                         placeholder="New Password"
+                      />
+                       <input
+                        type="password"
+                        className="mt-3 mb-3 form-control"
+                        value={this.state.currentPassword}
+                        name="confirmPassword"
+                        onChange={(e) =>
+                          this.setState({ confirmPassword: e.target.value })
+                        }
+                        autoComplete="off"
+                        placeholder="Confirm Password"
                       />
                     </div>
                     <button

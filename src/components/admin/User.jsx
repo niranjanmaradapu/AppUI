@@ -269,8 +269,12 @@ export default class User extends Component {
                     isSearch: false,
                     userId: items.userId,
                 }, () => {
-                    this.getAllRolesList();
-                    this.getAllStoresList();
+                    const user = sessionStorage.getItem('domainName');
+                    if(user !== 'config_user') {
+                        this.getAllRolesList();
+                        this.getAllStoresList();
+                    }
+                   
                     this.setState({isSuperAdmin: this.state.isAdmin })
                 });
         

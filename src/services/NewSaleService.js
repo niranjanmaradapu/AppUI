@@ -32,7 +32,7 @@ class NewSaleService {
         const URL= process.env.REACT_APP_BASE_URL+'/paymentgateway/paymentgateway/create_order'
         console.log(URL);
         const body =   JSON.stringify(  { "amount": value,
-         "info": "order creations",
+         "info": "order creations",
         "newsaleId":newsaleId}    )
         return  axios.post(URL, body, {
          headers: {
@@ -41,9 +41,20 @@ class NewSaleService {
      });
     }
 
+    getCoupons(clientId, couponCode) {
+        const param = '/'+ clientId + '?gvNumber='+couponCode;
+        return axios.get(BASE_URL+NEW_SALE_URL.getCoupons+param);
+    }
+
+    getHsnDetails() {
+        return axios.get(BASE_URL+NEW_SALE_URL.getHsnDetails);
+    }
+
     postPaymentData(paymentOrderId, status) {
         const param = '?razorPayId='+ paymentOrderId +'&payStatus'+ status; 
         return axios.post(BASE_URL+NEW_SALE_URL.saveSale+param, {});
     }
+
+  
 } 
 export default new NewSaleService()

@@ -4,6 +4,9 @@ import edit from '../../assets/images/edit.svg';
 import left from "../../assets/images/table_arrow_left.svg";
 import right from "../../assets/images/table_arrow_right.svg";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import PromotionsService from "../../services/PromotionsService";
+import { toast } from "react-toastify";
+import URMService from '../../services/URM/URMService';
 
 
 export default class LoyaltyPoints extends Component {
@@ -11,40 +14,170 @@ export default class LoyaltyPoints extends Component {
     super(props);
     this.state = {
       isAdd: false,
+      invoiceNumber: '',
+      mobileNumer: '',
+      amountPaid: '',
+      clientId: '',
+      listAllLoyaltyPoints: [],
+      saveMobileNumer: '',
+      amountPaid: '',
+      name: '',
+      saveInvoiceNumber: '',
+      userId: '',
+      invoiceCreatedDate: ''
     }
     this.addLoyalityPoints = this.addLoyalityPoints.bind(this);
     this.closeLoyalityPoints = this.closeLoyalityPoints.bind(this);
+    this.saveLoyalyatyPoints = this.saveLoyalyatyPoints.bind(this);
+    this.getInvoiceDetails = this.getInvoiceDetails.bind(this);
+    this.getAllLoyaltyPoints = this.getAllLoyaltyPoints.bind(this);
+    this.searchLoyaltyPoints = this.searchLoyaltyPoints.bind(this);
   }
+  componentDidMount() {
+    const selectedDomain = sessionStorage.getItem('selectedDomain');
+    const domainName =  JSON.parse(selectedDomain);
+    // URMService.getSelectedPrivileges(domainName.label).then(res => {
+    //   if(res.data.isSuccess === 'true') {
+    //    //  this.setState({ clientId:  res.data.result['clientDomian']['domain'][0].id});
+    //   } else {
+    //     toast.error(res.data.message);
+    //   }      
+    // });
+    this.getAllLoyaltyPoints();
+  }
+  getAllLoyaltyPoints () {
+    PromotionsService.getAllLoyaltyPoints().then((res) => {
+      if(res.data.isSuccess === 'true') {
+        this.setState({
+          listAllLoyaltyPoints: res.data['result']
+        });
+      } else {
+        toast.error(res.data.message);
+      }
+    });
+  }
+  searchLoyaltyPoints() {
+    const { invoiceNumber, mobileNumer } = this.state;
+   const obj =  {
+      invoiceNumber: invoiceNumber,
+      mobileNumber : mobileNumer
+    }
+    PromotionsService.searchLoyaltyPoints(obj).then((res) => {
+      if(res.data.isSuccess === 'true') {
+        this.setState({
+          invoiceNumber: '',
+          mobileNumber : '',
+          listAllLoyaltyPoints: res.data['result']
+        });
+      } else {
+          toast.error(res.data.message);
+      }
+    });
 
+  }
+  
+  getInvoiceDetails = (e) => {
+    if(e.key === 'Enter') {
+      PromotionsService.getInvoiceDetails(this.state.saveInvoiceNumber).then(res => {
+        if(res.data.isSuccess === 'true') {
+          const result = res.data['result'];
+           this.setState({
+             saveMobileNumer: result.mobileNumber,
+             amountPaid: result.netPayableAmount,
+             name: result.customerName,
+             userId: result.userId,
+             invoiceCreatedDate: result.createdDate
+           });
+         } else {
+          toast.error(res.data.message);
+         }
+       });
+    }
+    
+  }
 
   addLoyalityPoints() {
     this.setState({ isAdd: true });
   }
-
-
   closeLoyalityPoints() {
     this.setState({ isAdd: false });
   }
-    render() {
+  handleInvoiceNumber(e) {
+    this.setState({ invoiceNumber: e.target.value });
+  }
+  handleAmountPaid(e) {
+    this.setState({ amountPaid: e.target.value });
+  }
+  handleMobileNumer(e) {
+    this.setState({ mobileNumer: e.target.value });
+  }
+  handleSaveInvoiceNumber(e) {
+    this.setState({ saveInvoiceNumber: e.target.value });
+  }
+  handleaSaveName(e) {
+    this.setState({ name: e.target.value });
+  }
+  handleAmountPaid(e) {
+    this.setState({ amountPaid: e.target.value });
+  }
+  handleSaveMobileNumer(e) {
+    this.setState({ saveMobileNumer: e.target.value });
+  } 
+  getTodaysDate() {
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0');
+    var yyyy = today.getFullYear();
+    today = yyyy + '-' + mm  + '-' + dd;
+    return today;
+  }
+  
+  saveLoyalyatyPoints() {
+    const { saveMobileNumer, name, saveInvoiceNumber, amountPaid, clientId, userId, createdDate } = this.state;
+    const obj = {
+      userId: userId,
+      domainId: clientId,
+      mobileNumber: saveMobileNumer,
+      customerName: name,
+      invoiceNumber: saveInvoiceNumber,
+      invoiceCreatedDate: createdDate === undefined ? this.getTodaysDate() : createdDate,
+      invoiceAmount: amountPaid
+    }
+    PromotionsService.saveLoyaltyPoints(obj).then(res => {
+      if(res.data.isSuccess === 'true') {
+        toast.success(res.data.message);
+        this.setState({
+          isAdd: false,
+          userId: '',
+          domainId: '',
+          mobileNumber: '',
+          customerName: '',
+          invoiceNumber: '',
+          invoiceCreatedDate: '',
+          invoiceAmount: ''
+        });
+      } else {
+        toast.error(res.data.message);
+      }
+      this.getAllLoyaltyPoints();
+    });
+  }
+
+    render() { 
         return (
             <div className="maincontent">
                       <Modal isOpen={this.state.isAdd} size="lg">
           <ModalHeader>Add Loyalty Points</ModalHeader>
           <ModalBody>
           <div className="row">
-                <div className="col-4">
+                {/* <div className="col-4">
                 <div className="form-group">
                   <label>Name</label>
                   <input type="text" className="form-control" placeholder="" />
                 </div>
-                </div>
-                <div className="col-4">
-                <div className="form-group">
-                  <label>Mobile Number</label>
-                  <input type="text" className="form-control" placeholder="" />
-                </div>
-                </div>
-                <div className="col-4">
+                </div> */}
+                
+                {/* <div className="col-4">
                 <div className="form-group">
                   <label>Gender</label>
                   <select className="form-control">
@@ -54,37 +187,49 @@ export default class LoyaltyPoints extends Component {
                     <option>Other</option>
                   </select>
                 </div>
-                </div>
-                <div className="col-12 mt-3">
+                </div> */}
+                {/* <div className="col-12 mt-3">
                 <div className="form-group">
                   <label>Address</label>
                   <input type="text" className="form-control" placeholder="Enter Address" />
                 </div>
-                </div>
+                </div> */}
                 <div className="col-4 mt-3">
                 <div className="form-group">
                   <label>Invoice No</label>
-                  <input type="text" className="form-control" placeholder="" />
+                  <input type="text" value={this.state.saveInvoiceNumber} onKeyDown={(e) => this.getInvoiceDetails(e)} onChange={(e) => this.handleSaveInvoiceNumber(e)} className="form-control" placeholder="" />
+                </div>
+                </div>
+                <div className="col-4 mt-3">
+                <div className="form-group">
+                  <label>Name</label>
+                  <input type="text" value={this.state.name} onChange={(e) => this.handleaSaveName(e)} className="form-control" placeholder="" />
                 </div>
                 </div>
                 <div className="col-4 mt-3">
                 <div className="form-group">
                   <label>Amount Paid</label>
-                  <input type="text" className="form-control" placeholder="₹" />
+                  <input type="text" disabled="true" value={this.state.amountPaid} onChange={(e) => this.handleAmountPaid(e)} className="form-control" placeholder="₹" />
                 </div>
                 </div>
                 <div className="col-4 mt-3">
                 <div className="form-group">
+                  <label>Mobile Number</label>
+                  <input type="text" value={this.state.saveMobileNumer}  onChange={(e) => this.handleSaveMobileNumer(e)} className="form-control" placeholder="" />
+                </div>
+                </div>
+                {/* <div className="col-4 mt-3">
+                <div className="form-group">
                   <label>Add Points </label>
                   <select className="form-control">
                     <option>Select Points</option>
-                    {/* <option>Store Manager</option>
+                    <option>Store Manager</option>
                     <option>Admin</option>
-                    <option>Super Admin</option> */}
+                    <option>Super Admin</option> 
                   </select>
                 </div>
-                </div>
-                <div className="col-4 mt-3">
+                </div> */}
+                {/* <div className="col-4 mt-3">
                 <div className="form-group">
                   <label>Store</label>
                     <select className="form-control">
@@ -93,7 +238,7 @@ export default class LoyaltyPoints extends Component {
                       <option>LB Nagar</option>
                     </select>
                 </div>
-                </div>
+                </div> */}
                 </div>
           </ModalBody>
           <ModalFooter>
@@ -102,7 +247,7 @@ export default class LoyaltyPoints extends Component {
             </button>
             <button
               className="btn-unic active fs-12"
-              onClick={this.closeLoyalityPoints}
+              onClick={this.saveLoyalyatyPoints}
             >
               Save
             </button>
@@ -111,23 +256,15 @@ export default class LoyaltyPoints extends Component {
             <div className="row">
               <div className="col-sm-3 col-12">
                 <div className="form-group mt-2 mb-3">
-                 <select className="form-control">
-                     <option>Select State</option>
-                     <option>Andhra Pradesh</option>
-                     <option>Telangana</option>
-                 </select>
+                   <input value={this.state.invoiceNumber} placeholder="Invoice Number" onChange={(e) => this.handleInvoiceNumber(e)} type="text" className="form-control" />
                 </div>
               </div>
               <div className="col-sm-3 col-12">
                 <div className="form-group mt-2 mb-3">
-                <select className="form-control">
-                     <option>Select District</option>
-                     <option>Guntur</option>
-                     <option>Krishna</option>
-                 </select>
+                    <input value={this.state.mobileNumer} placeholder="Mobile Number" onChange={(e) => this.handleMobileNumer(e)} type="text" className="form-control" />
                 </div>
               </div>
-              <div className="col-sm-3 col-12">
+              {/* <div className="col-sm-3 col-12">
                 <div className="form-group mt-2 mb-3">
                 <select className="form-control">
                      <option>Select Store</option>
@@ -136,9 +273,9 @@ export default class LoyaltyPoints extends Component {
                      <option>Lakshmipuram</option>
                  </select>
                 </div>
-              </div>
+              </div> */}
               <div className="col-sm-3 col-12 scaling-mb scaling-center">
-                <button className="btn-unic-search active m-r-2 mt-2">SEARCH</button>
+                <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchLoyaltyPoints}>SEARCH</button>
                 <button className="btn-unic-redbdr mt-2" onClick={this.addLoyalityPoints}>Add Loyalty Points</button>
               </div>
             </div>
@@ -161,85 +298,21 @@ export default class LoyaltyPoints extends Component {
                     <th className="col-1"></th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td className="col-1 underline geeks">01</td>
-                    <td className="col-2">Ramesh G</td>
-                    <td className="col-2">+91XXX XXX 1233</td>
-                    <td className="col-2">5000</td>
-                    <td className="col-2">30 Sep 2021</td>
-                    <td className="col-2">₹ 500</td>
-                    <td className="col-1">  
-                    <img src={edit} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i></td>
-                  </tr>
-                  <tr>
-                    <td className="col-1 underline geeks">02</td>
-                    <td className="col-2">Santhosh Kumar</td>
-                    <td className="col-2">+91XXX XXX 1212</td>
-                    <td className="col-2">5000</td>
-                    <td className="col-2">30 Sep 2021</td>
-                    <td className="col-2">₹ 500</td>
-                    <td className="col-1">  
-                    <img src={edit} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i></td>
-                  </tr>
-                  <tr>
-                    <td className="col-1 underline geeks">03</td>
-                    <td className="col-2">Ramya Sree</td>
-                    <td className="col-2">+91XXX XXX 1212</td>
-                    <td className="col-2">5000</td>
-                    <td className="col-2">30 Sep 2021</td>
-                    <td className="col-2">₹ 500</td>
-                    <td className="col-1">  
-                    <img src={edit} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i></td>
-                  </tr>
-                  <tr>
-                    <td className="col-1 underline geeks">04</td>
-                    <td className="col-2">Sandhya Rani</td>
-                    <td className="col-2">+91XXX XXX 1213</td>
-                    <td className="col-2">5000</td>
-                    <td className="col-2">30 Sep 2021</td>
-                    <td className="col-2">₹ 500</td>
-                    <td className="col-1">  
-                    <img src={edit} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i></td>
-                  </tr>
-                  <tr>
-                    <td className="col-1 underline geeks">05</td>
-                    <td className="col-2">Kumar</td>
-                    <td className="col-2">+91XXX XXX 1213</td>
-                    <td className="col-2">5000</td>
-                    <td className="col-2">30 Sep 2021</td>
-                    <td className="col-2">₹ 500</td>
-                    <td className="col-1">  
-                    <img src={edit} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i></td>
-                  </tr>
-                  <tr>
-                    <td className="col-1 underline geeks">06</td>
-                    <td className="col-2">Ravi Raj</td>
-                    <td className="col-2">+91XXX XXX 1213</td>
-                    <td className="col-2">5000</td>
-                    <td className="col-2">30 Sep 2021</td>
-                    <td className="col-2">₹ 500</td>
-                    <td className="col-1">  
-                    <img src={edit} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i></td>
-                  </tr>
-                  <tr>
-                    <td className="col-1 underline geeks">07</td>
-                    <td className="col-2">Ravi</td>
-                    <td className="col-2">+91XXX XXX 1213</td>
-                    <td className="col-2">5000</td>
-                    <td className="col-2">30 Sep 2021</td>
-                    <td className="col-2">₹ 500</td>
-                    <td className="col-1">  
-                    <img src={edit} className="w-12 pb-2"/>
-                         <i className="icon-delete m-l-2 fs-16"></i></td>
-                  </tr>
-                </tbody>
+                  <tbody>
+                      {this.state.listAllLoyaltyPoints.length > 0 && this.state.listAllLoyaltyPoints.map((item, index) => {
+                          return( 
+                            <tr key={index}>
+                              <td className="col-1 underline geeks">{item.loyaltyId}</td>
+                              <td className="col-2">{item.customerName}</td>
+                              <td className="col-2">{item.mobileNumber}</td>
+                              <td className="col-2">{item.loyaltyPoints}</td>
+                              <td className="col-2">{item.expiredDate}</td>
+                              <td className="col-1">0</td>
+                            </tr> 
+                            )
+                          })}
+                      {this.state.listAllLoyaltyPoints.length == 0  && <tr>No records found!</tr>}
+                  </tbody>
               </table>
              </div>
     

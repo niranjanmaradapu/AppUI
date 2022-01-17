@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import edit from '../../assets/images/edit.svg';
 import { ToastContainer, toast } from "react-toastify";
 import CreateDeliveryService from '../../services/CreateDeliveryService';
+import moment from "moment";
 
 export default class TagCustomer extends Component {
   constructor(props) {
@@ -38,9 +39,9 @@ export default class TagCustomer extends Component {
         giftVochersList: [],
         isGiftVocher: false,
         amount: "",
-        fromDate:"",
-        toDate:"",
-        description:""
+        fromDate: "",
+        toDate: "",
+        description: ""
       },
     };
 
@@ -50,20 +51,22 @@ export default class TagCustomer extends Component {
     this.createTagCustomerToGv = this.createTagCustomerToGv.bind(this);
     this.getGiftVochersList = this.getGiftVochersList.bind(this);
     this.addGiftVoucher = this.addGiftVoucher.bind(this);
-    
+
   }
 
   componentWillMount() {
-      this.getGiftVochersList();
+    this.getGiftVochersList();
   }
 
   getGiftVochersList() {
-    CreateDeliveryService.getGiftVochersList().then(res =>{
-      if(res) {
-       
-        this.setState({giftVochersList: res.data.result, isGiftVocher: true});
+    CreateDeliveryService.getGiftVochersList().then(res => {
+      if (res) {
+        if(res.data.result != "Record not found") {
+          this.setState({ giftVochersList: res.data.result, isGiftVocher: true });
+        }
+        
 
-        console.log(this.state.giftVochersList);
+
         // this.state.giftVochersList = res.data.result;
         // console.log(this.state.giftVochersList);
       }
@@ -80,7 +83,7 @@ export default class TagCustomer extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    
+
     this.createTagCustomerToGv();
   }
 
@@ -89,7 +92,7 @@ export default class TagCustomer extends Component {
       this.state.customerId,
       this.state.gvId
     ).then((res) => {
-      
+
       if (
         this.state.mobileNumber &&
         this.state.name &&
@@ -120,8 +123,8 @@ export default class TagCustomer extends Component {
                 mobileNumber: res.data.result.mobileNumber,
                 gstNumber: res.data.result.gstNumber,
                 address: res.data.result.address,
-                email:res.data.result.email,
-                dob:res.data.result.dob,
+                email: res.data.result.email,
+                dob: res.data.result.dob,
                 gender: res.data.result.gender,
                 altMobileNo: res.data.result.altMobileNo,
               });
@@ -172,50 +175,50 @@ export default class TagCustomer extends Component {
   };
 
   getGiftVocherTable() {
-    // return this.state.giftVochersList.length > 0 && this.state.giftVochersList.map((items, index) => {
-    //   const { gvId, gvNumber, createdDate, expiryDate, totalAmount, leftOverAmount } = items;
-    //   return ( 
-    //     <tr key={index}>
-    //                     <td className="col-1 geeks">
-    //                       {index+1}
-    //                     </td>
-                    
-    //                     <td className="col-1">{gvId}</td>
-    //                     <td className="col-2">{gvNumber}</td>
-    //                     <td className="col-2">{createdDate}</td>
-    //                     <td className="col-2">{expiryDate}</td>
-    //                     <td className="col-2">
-    //                     <span className="m-r-3">₹ {totalAmount}</span>
-    //                      {/* <img src={edit} className="w-12 pb-2 pointer"/>
-    //                      <i className="icon-delete m-l-2 fs-16 pointer"></i> */}
-    //                     </td>  
-    //                     <td className="col-2">₹ {leftOverAmount}</td>
-    //               </tr>
-    //   );
-    // });
+    if (this.state.giftVochersList && this.state.giftVochersList.length > 0) {
+      return this.state.giftVochersList.map((items, index) => {
+        const { gvNumber, fromDate, toDate, value, isActivated } = items;
+        return (
+          <tr key={index}>
+            <td className="col-1 geeks">
+              {index + 1}
+            </td>
+            <td className="col-2">{gvNumber}</td>
+            <td className="col-2">{fromDate}</td>
+            <td className="col-2">{toDate}</td>
+            <td className="col-2">₹ {value}
+
+            </td>
+
+          </tr>
+        );
+      });
+    }
+
   }
 
   addGiftVoucher() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     const obj = {
       "gvNumber": this.state.gvNumber,
-    "description": this.state.description,
-    "fromDate": this.state.fromDate,
-    "toDate":  this.state.toDate,
-    "clientId": user["custom:clientId1"],
-    "value": this.state.amount
+      "description": this.state.description,
+      "fromDate": this.state.selectedFromDate,
+      "toDate": this.state.selectedToDate,
+      "clientId": user["custom:clientId1"],
+      "value": this.state.amount
     }
-    CreateDeliveryService.saveGiftVoucher(obj).then(res =>{
-      if(res && res.data.isSuccess === "true") {
+    CreateDeliveryService.saveGiftVoucher(obj).then(res => {
+      if (res && res.data.isSuccess === "true") {
         this.setState({
-          gvNumber:"",
-          description:"",
-          fromDate:"",
-          toDate:"",
-          amount:""
-        })
+          gvNumber: "",
+          description: "",
+          fromDate: "",
+          toDate: "",
+          amount: ""
+        });
+        this.getGiftVochersList();
         toast.success(res.data.message)
-        
+
       }
     });
   }
@@ -223,46 +226,58 @@ export default class TagCustomer extends Component {
   render() {
     return (
       <div className="maincontent">
-         <div className="customer-gift">
-           <div className="row">
-             <div className="col-12 col-sm-3">
-             <h5 className="mt-2 mb-3 fs-18">Generate gift vouchure </h5>
-                  <div className="form-group mt-2 mb-3">
-                      <input type="search" className="form-control"
-                        placeholder="Enter GV Number"  value={this.state.gvNumber}
-                        onChange={(e) =>
-                          this.setState({ gvNumber: e.target.value })
-                        }
-                         />
-                    </div>
-                    <div className="form-group mb-3">
-                      <input type="search" className="form-control"
-                          placeholder="Enter Description"
-                        value={this.state.description}
-                        onChange={(e) =>
-                          this.setState({ description: e.target.value })
-                        } />
-                    </div>
-                    <div className="form-group mb-3">
-                    <input type="date" className="form-control"  placeholder="Enter FromDate"
-                                            value={this.state.fromDate}
-                                            onChange={(e) => this.setState({ fromDate: e.target.value })}
-                                            autoComplete="off" />
-                    </div>
-                    <div className="form-group mb-3">
-                    <input type="date" className="form-control"  placeholder="Enter ToDate"
-                                            value={this.state.toDate}
-                                            onChange={(e) => this.setState({ toDate: e.target.value })}
-                                            autoComplete="off" />
-                    </div>
-                    <div className="form-group mb-3">
-                      <input type="text" className="form-control"
-                       placeholder="Enter Value"
-                       value={this.state.amount}
-                       onChange={(e) => this.setState({ amount: e.target.value })}
-                       />
-                    </div>
-                    {/* <div className="form-group mb-3">
+        <div className="customer-gift">
+          <div className="row">
+            <div className="col-12 col-sm-3">
+              <h5 className="mt-2 mb-3 fs-18">Generate gift voucher </h5>
+              <div className="form-group mt-2 mb-3">
+                <input type="search" className="form-control"
+                  placeholder="Enter GV Number" value={this.state.gvNumber}
+                  onChange={(e) =>
+                    this.setState({ gvNumber: e.target.value })
+                  }
+                />
+              </div>
+              <div className="form-group mb-3">
+                <input type="search" className="form-control"
+                  placeholder="Enter Description"
+                  value={this.state.description}
+                  onChange={(e) =>
+                    this.setState({ description: e.target.value })
+                  } />
+              </div>
+              <div className="form-group mb-3">
+                <input type="date" className="form-control" placeholder="Enter FromDate"
+                  value={this.state.fromDate}
+                  onChange={(e) => this.setState({ fromDate: e.target.value }, () => {
+                    var localTime = moment().format('YYYY-MM-DD'); // store localTime
+                    var proposedDate = this.state.fromDate + "T00:00:00.000Z";
+
+                    this.setState({ selectedFromDate: proposedDate })
+                  }
+
+                  )}
+                  autoComplete="off" />
+              </div>
+              <div className="form-group mb-3">
+                <input type="date" className="form-control" placeholder="Enter ToDate"
+                  value={this.state.toDate}
+                  onChange={(e) => this.setState({ toDate: e.target.value }, () => {
+                    var localToTime = moment().format('YYYY-MM-DD'); // store localTime
+                    var proposedToDate = this.state.toDate + "T00:00:00.000Z";
+
+                    this.setState({ selectedToDate: proposedToDate })
+                  })}
+                  autoComplete="off" />
+              </div>
+              <div className="form-group mb-3">
+                <input type="text" className="form-control"
+                  placeholder="Enter Value"
+                  value={this.state.amount}
+                  onChange={(e) => this.setState({ amount: e.target.value })}
+                />
+              </div>
+              {/* <div className="form-group mb-3">
                       <input type="text" className="form-control"
                         placeholder="END DATE" />
                     </div>
@@ -270,40 +285,40 @@ export default class TagCustomer extends Component {
                       <input type="text" className="form-control"
                         placeholder="GV AMOUNT" />
                     </div> */}
-                    <button className="btn-unic-search active mt-1 m-r-2" 
-                        onClick={this.addGiftVoucher}>ADD GIFT VOUCHER</button>
-             </div>
-             <div className="col-12 col-sm-9">
-             <h5 className="mt-2 mb-3 fs-18">List of gift vouchers</h5>
-             {
-               this.state.isGiftVocher > 0 && (
-                 <div className="table-responsive scaling-mb">
-             <table className="table table-borderless mb-1 mt-2">
-                  <thead>
-                    <tr className="m-0 p-0">
-                      <th className="col-1">S.NO</th>
-                      <th className="col-1">BARCODE</th>
-                      <th className="col-2">GV NUMBER</th>
-                      <th className="col-2">CREATED ON</th>
-                     
-                      <th className="col-2">END DATE</th>
-                      <th className="col-2">VALUE</th>
-                      <th className="col-2">LEFT OVER MONEY</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {this.getGiftVocherTable()}
-                   
-                  </tbody>
-                </table>
-                </div>
-               )
-             }
-            
-             </div>
-           </div>
-         </div>
-      </div>     
+              <button className="btn-unic-search active mt-1 m-r-2"
+                onClick={this.addGiftVoucher}>ADD GIFT VOUCHER</button>
+            </div>
+            <div className="col-12 col-sm-9">
+              <h5 className="mt-2 mb-3 fs-18">List of gift vouchers</h5>
+              {
+                this.state.isGiftVocher > 0 && (
+                  <div className="table-responsive scaling-mb">
+                    <table className="table table-borderless mb-1 mt-2">
+                      <thead>
+                        <tr className="m-0 p-0">
+                          <th className="col-1">S.NO</th>
+
+                          <th className="col-2">GV NUMBER</th>
+                          <th className="col-2">FROM DATE</th>
+
+                          <th className="col-2">TO DATE</th>
+                          <th className="col-2">VALUE</th>
+
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {this.getGiftVocherTable()}
+
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              }
+
+            </div>
+          </div>
+        </div>
+      </div>
     )
   }
 }

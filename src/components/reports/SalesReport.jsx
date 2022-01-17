@@ -23,12 +23,32 @@ export default class SalesReport extends Component {
       sbList: [],
       sbDetailsList: [],
       isView: false,
+      domainId: "",
+      storeId: "",
     };
     this.getSaleBills = this.getSaleBills.bind(this);
     this.viewReport = this.viewReport.bind(this);
     this.closeViewReport = this.closeViewReport.bind(this);
     this.validation = this.validation.bind(this);
   }
+
+  
+  componentWillMount() {
+    const storeId = sessionStorage.getItem("storeId");
+    const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
+    if(domainData.label == "Textile") {
+      this.setState({domainId: 1}); 
+    } else if(domainData.label == "Retail") {
+      this.setState({domainId: 2}); 
+    }
+
+    this.setState({storeId: storeId})
+
+
+
+   
+   
+}
 
   getSaleBills() {
     const obj = {
@@ -42,6 +62,8 @@ export default class SalesReport extends Component {
         ? this.state.invoiceNumber
         : undefined,
       empId: this.state.empId ? this.state.empId : undefined,
+      domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
+      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined
     };
     ListOfSaleBillsService.getSaleBills(obj).then((res) => {
       console.log(res.data.result);

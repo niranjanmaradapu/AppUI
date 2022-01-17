@@ -1,21 +1,19 @@
-import React, { Component } from 'react';
-import urm_graph1 from '../../assets/images/urm_graph1.svg';
-import urm_graph2 from '../../assets/images/urm_graph2.svg';
-import urm_graph3 from '../../assets/images/urm_graph3.svg';
-import URMService from '../../services/URM/URMService';
-import { Doughnut } from 'react-chartjs-2';
-import 'chart.js/auto';
 import { Chart } from 'chart.js';
+import 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import React, { Component } from 'react';
+import { Doughnut } from 'react-chartjs-2';
+import colors from "../../colors.json";
+import URMService from '../../services/URM/URMService';
 
 
 Chart.register(ChartDataLabels);
 Chart.defaults.set('plugins.datalabels', {
-    color: '#fbf1c7',
+    color: '#000000',
 });
 Chart.defaults.font.weight = 'italic';
 Chart.defaults.font.size = 16;
-
+Chart.defaults.plugins.legend = false;
 
 export default class URMDashboard extends Component {
     constructor(props) {
@@ -29,7 +27,7 @@ export default class URMDashboard extends Component {
             usersByRoleChart: {},
             activeInactiveUsersChart: {},
             storesVsEmployeesChart: {},
-        }
+        };
     }
 
     componentWillMount() {
@@ -63,9 +61,14 @@ export default class URMDashboard extends Component {
                         this.state.activeUsersData.forEach(data => {
                             indexName.push(data.name);
                             indexCount.push(data.count);
-                            indexColor.push(data.colorCodeVo.colorCode);
-                            indexHoverColor.push(data.colorCodeVo.rgb);
+
                         });
+
+                        colors.forEach(data => {
+                            indexColor.push(data.normalColorCode);
+                            // indexHoverColor.push(data.hoverColorCode);
+                        });
+
                         this.setState({
                             activeInactiveUsersChart: {
                                 labels: indexName,
@@ -74,13 +77,13 @@ export default class URMDashboard extends Component {
                                         label: "Active vs Inactive Users",
                                         data: indexCount,
                                         backgroundColor: indexColor,
-                                        hoverBackgroundColor: indexHoverColor,
+                                        // hoverBackgroundColor: indexHoverColor,
                                         hoverBorderColor: '#282828',
                                         hoverBorderWidth: '3',
                                     }
                                 ]
                             }
-                        })
+                        });
                     }
                 );
             }
@@ -97,26 +100,35 @@ export default class URMDashboard extends Component {
                         let indexCount = [];
                         let indexColor = [];
                         let indexHoverColor = [];
-                        
+
                         this.state.storesData.forEach(data => {
                             indexName.push(data.name);
                             indexCount.push(data.count);
-                            indexColor.push(data.colorCodeVo.colorCode);
-                            indexHoverColor.push(data.colorCodeVo.rgb);
                         });
+
+                        colors.forEach(data => {
+                            indexColor.push(data.normalColorCode);
+                            // indexHoverColor.push(data.hoverColorCode);
+                        });
+
                         this.setState({
                             storesVsEmployeesChart: {
                                 labels: indexName,
                                 datasets: [{
-                                    label: "Stores Vs Employees",
+                                    label: "Stores Vs Pos Employees",
                                     data: indexCount,
                                     backgroundColor: indexColor,
-                                    hoverBackgroundColor: indexHoverColor,
+                                    // hoverBackgroundColor: indexHoverColor,
                                     hoverBorderColor: '#282828',
                                     hoverBorderWidth: '3',
-                                }]
+                                }],
+                                options: {
+                                    legend: {
+                                        display: false //This will do the task
+                                    }
+                                }
                             }
-                        })
+                        });
                     }
                 );
             }
@@ -138,9 +150,14 @@ export default class URMDashboard extends Component {
                         this.state.usersData.forEach(data => {
                             indexName.push(data.name);
                             indexCount.push(data.count);
-                            indexColor.push(data.colorCodeVo.colorCode);
-                            indexHoverColor.push(data.colorCodeVo.rgb);
                         });
+
+                        colors.forEach(data => {
+                            indexColor.push(data.normalColorCode);
+                            // indexHoverColor.push(data.hoverColorCode);
+                        });
+
+
                         this.setState({
                             usersByRoleChart: {
                                 labels: indexName,
@@ -149,13 +166,13 @@ export default class URMDashboard extends Component {
                                         label: "Users By Role",
                                         data: indexCount,
                                         backgroundColor: indexColor,
-                                        hoverBackgroundColor: indexHoverColor,
+                                        // hoverBackgroundColor: indexHoverColor,
                                         hoverBorderColor: '#282828',
                                         hoverBorderWidth: '3',
-                                    }
+                                    },
                                 ]
                             }
-                        })
+                        });
                     }
                 );
 
@@ -204,7 +221,7 @@ export default class URMDashboard extends Component {
                             </div>
                             <div className="rect-image pb-3">
                                 {Object.keys(this.state.activeInactiveUsersChart).length &&
-                                    <Doughnut 
+                                    <Doughnut
                                         data={this.state.activeInactiveUsersChart}
                                         height={400}
                                         width={400}
@@ -221,13 +238,13 @@ export default class URMDashboard extends Component {
                         <div className="rect">
                             <div className="row">
                                 <div className="col-12 scaling-center">
-                                    <h5 className="fs-20 mt-2">Stores vs Employees</h5>
+                                    <h5 className="fs-20 mt-2">Stores vs POS Employees</h5>
                                 </div>
 
                             </div>
                             <div className="rect-image pb-3">
-                                {Object.keys(this.state.storesVsEmployeesChart).length && 
-                                    <Doughnut 
+                                {Object.keys(this.state.storesVsEmployeesChart).length &&
+                                    <Doughnut
                                         data={this.state.storesVsEmployeesChart}
                                         height={400}
                                         width={400}
@@ -242,6 +259,6 @@ export default class URMDashboard extends Component {
                     </div>
                 </div>
             </div>
-        )
+        );
     }
 }

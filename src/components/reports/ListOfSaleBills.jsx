@@ -20,12 +20,26 @@ export default class ListOfSaleBills extends Component {
       rsDetailsList: [],
       rsData: [],
       isView: false,
+      domainId: "",
+      storeId: ""
     };
     this.getReturnSlips = this.getReturnSlips.bind(this);
     // this.viewReport = this.viewReport.bind(this);
     this.closeViewReport = this.closeViewReport.bind(this);
     this.getReturnslipDetails = this.getReturnslipDetails.bind(this);
   }
+
+  componentWillMount() {
+    const storeId = sessionStorage.getItem("storeId");
+    const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
+    if(domainData.label == "Textile") {
+      this.setState({domainId: 1}); 
+    } else if(domainData.label == "Retail") {
+      this.setState({domainId: 2}); 
+    }
+
+    this.setState({storeId: storeId});
+}
 
   getReturnSlips() {
     const obj = {
@@ -34,6 +48,8 @@ export default class ListOfSaleBills extends Component {
       createdBy: this.state.createdBy ? this.state.createdBy : undefined,
       rtNumber: this.state.rtNumber ? this.state.rtNumber : undefined,
       barcode: this.state.barcode ? this.state.barcode : undefined,
+      domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
+      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined
     };
 
     ListOfReturnSlipsService.getReturnSlips(obj).then((res) => {

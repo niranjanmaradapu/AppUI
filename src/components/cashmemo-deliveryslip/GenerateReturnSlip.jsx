@@ -12,6 +12,7 @@ export default class GenerateReturnSlip extends Component {
         isTagCustomer: false,
         isGenerateSlip: false,
         invoiceNo:"",
+        userId: "NA",
         mobileNo: "",
         returnslipsList:[],
         reason: "",
@@ -29,6 +30,11 @@ export default class GenerateReturnSlip extends Component {
       this.getReturnSlipDetails = this.getReturnSlipDetails.bind(this);
       this.saveGenerateReturnSlip = this.saveGenerateReturnSlip.bind(this);
       this.getCustomer = this.getCustomer.bind(this);
+    }
+
+    componentWillMount() {
+      const user = JSON.parse(sessionStorage.getItem('user'));
+    this.setState({ userId: parseInt(user["custom:userId"]) });
     }
 
     tagCustomer(){
@@ -58,6 +64,7 @@ export default class GenerateReturnSlip extends Component {
     }
 
     saveGenerateReturnSlip() {
+      const storeId = sessionStorage.getItem("storeId");
       let barList= [];
       this.state.returnslipsList.forEach(element => {
         const obj = {
@@ -71,6 +78,8 @@ export default class GenerateReturnSlip extends Component {
        "mobileNumber":this.state.mobileNo,
        "invoiceNo":this.state.invoiceNo,
        "reason":this.state.reason,
+       "userId":this.state.userId,
+       "storeId":storeId,
         "iSReviewed":false,
         "customerName":"",
         "totalAmount": this.state.returnSlipTotal,
@@ -218,11 +227,11 @@ export default class GenerateReturnSlip extends Component {
       <div className="maincontent">
         
         <Modal isOpen={this.state.isGenerateSlip} size="lg">
-        <div className="headerGreen"><h5>Thank you!</h5></div>
+        <div className="headerGreen"><h5>List of Return Items</h5></div>
           <ModalBody>
           <div className="row">
               <div className="col-12 mb-2">
-              <label className="text-green fs-14">Return slip generated successfully</label>
+              <label className="text-green fs-14"></label>
                 </div>
                 <div className="col-12 mt-3">
                 <table className="table table-borderless mb-1">

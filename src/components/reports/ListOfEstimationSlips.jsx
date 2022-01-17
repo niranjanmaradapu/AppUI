@@ -20,6 +20,8 @@ export default class ListOfEstimationSlips extends Component {
       dsDetailsList: [],
       itemId: "",
       itemName: "",
+      domainId: "",
+      storeId: "",
       selectOption: [
         {
           name: "DS STATUS",
@@ -44,6 +46,19 @@ export default class ListOfEstimationSlips extends Component {
     this.closeViewReport = this.closeViewReport.bind(this);
   }
 
+  componentWillMount() {
+    const storeId = sessionStorage.getItem("storeId");
+    const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
+    if(domainData.label == "Textile") {
+      this.setState({domainId: 1}); 
+    } else if(domainData.label == "Retail") {
+      this.setState({domainId: 2}); 
+    }
+
+    this.setState({storeId: storeId});
+}
+
+
   getEstimationSlip() {
     const obj = {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
@@ -51,6 +66,8 @@ export default class ListOfEstimationSlips extends Component {
       status: this.state.status ? this.state.status : undefined,
       barcode: this.state.barcode ? this.state.barcode : undefined,
       dsNumber: this.state.dsNumber ? this.state.dsNumber : undefined,
+      domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
+      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined
     };
 
     ListOfEstimationSlipsService.getEstimationSlips(obj).then((res) => {
@@ -138,7 +155,8 @@ export default class ListOfEstimationSlips extends Component {
           <td className="col-2">{dsNumber}</td>
           <td className="col-1">{createdDate}</td>
           <td className="col-1">{status}</td>
-          <td className="col-2">₹{mrp}</td>
+          {/* <td className="col-2">₹{mrp}</td> */}
+          <td className="col-2">₹{netAmount}</td>
           <td className="col-2">{promoDisc}</td>
           <td className="col-2">₹{netAmount}</td>
           <td className="col-2 text-center">
@@ -174,7 +192,7 @@ export default class ListOfEstimationSlips extends Component {
             <td>{barCode}</td>
             <td>{salesman}</td>
             <td>{quantity}</td>
-            <td>{itemPrice}</td>
+            <td>{netValue}</td>
             <td>{grossValue}</td>
             <td>{discount}</td>
             <td>{netValue}</td>

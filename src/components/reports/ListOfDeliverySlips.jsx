@@ -15,6 +15,7 @@ export default class ListOfDeliverySlips extends Component {
       itemId: "",
       itemName: "",
       storeList: [],
+      domaindataId:"",
 
       // selectOption: [
       //   {
@@ -65,9 +66,14 @@ export default class ListOfDeliverySlips extends Component {
       this.state.storeId &&
       this.state.storeName
     ) {
+
       obj = {
         dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
         dateTo: this.state.dateTo ? this.state.dateTo : undefined,
+        storeId:  parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
+        ? parseInt(this.state.storeId)
+        : undefined,
+        domainId: this.state.domaindataId ? parseInt(this.state.domaindataId) : undefined,
         store: {
           id:
             parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
@@ -90,11 +96,15 @@ export default class ListOfDeliverySlips extends Component {
       obj = {
         dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
         dateTo: this.state.dateTo ? this.state.dateTo : undefined,
+        storeId:  parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
+        ? parseInt(this.state.storeId)
+        : undefined,
+        domainId: this.state.domaindataId ? parseInt(this.state.domaindataId) : undefined,
       };
     }
 
     console.log(">>>>>Parms", obj);
-    ListOfDeliverySlipsService.getDeliverySlips(obj)
+    ListOfDeliverySlipsService.getDeliverySlips(obj, parseInt(this.state.storeId))
       .then((res) => {
         // console.log("......", res);
         console.log(res.data.result);
@@ -138,7 +148,15 @@ export default class ListOfDeliverySlips extends Component {
 
   componentWillMount() {
     const user = JSON.parse(sessionStorage.getItem("user"));
+    const storeId = sessionStorage.getItem("storeId");
+    this.setState({storeId: storeId});
     console.log("user", user);
+    const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
+    if(domainData.label == "Textile") {
+      this.setState({domaindataId: 1}); 
+    } else if(domainData.label == "Retail") {
+      this.setState({domaindataId: 2}); 
+    }
     if (user["custom:isSuperAdmin"] === "true") {
       this.state.domainDetails = JSON.parse(
         sessionStorage.getItem("selectedDomain")

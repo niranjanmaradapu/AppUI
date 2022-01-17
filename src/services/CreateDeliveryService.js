@@ -23,8 +23,8 @@ class CreateDeliveryService {
         return axios.post(BASE_URL + CREATE_DELIVERY_SLIP_URL.saveDelivery, createObj);
     }
 
-    getRetailBarcodeList(barCode) {
-        const param = '?barcodeId=' + barCode;
+    getRetailBarcodeList(barCode, storeId) {
+        const param = '?barcodeId=' + barCode + '&storeId='+ storeId;
         return axios.get(BASE_URL + CREATE_DELIVERY_SLIP_URL.getRetailBarcode + param);
     }
 

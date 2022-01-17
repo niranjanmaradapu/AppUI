@@ -15,6 +15,11 @@ import ecommerce from "../../assets/images/ecommerce.svg";
 import displayRazorpay from "../../commonUtils/PaymentGateway";
 import URMService from "../../services/URM/URMService";
 import CreateDeliveryService from "../../services/CreateDeliveryService";
+import axios from 'axios';
+import { BASE_URL } from "../../commonUtils/Base";
+import { NEW_SALE_URL } from "../../commonUtils/ApiConstants";
+
+
 
 export default class NewSale extends Component {
   constructor(props) {
@@ -29,8 +34,7 @@ export default class NewSale extends Component {
       btnDisabled: true,
       isCardSelected: false,
       isCashSelected: false,
-      isBillLevelDisc: true,
-      isCalculator:false,
+      isCalculator: false,
       isPayment: true,
       cashAmount: 0.0,
       taxAmount: 0,
@@ -39,7 +43,7 @@ export default class NewSale extends Component {
       rBarCodeList: [],
       discReasons: [],
       selectedDisc: {},
-      userId:"NA",
+      userId: "NA",
       deliverySlipData: {
         barcode: [],
         mrp: "",
@@ -54,6 +58,8 @@ export default class NewSale extends Component {
       customerName: "",
       gender: "",
       customerEmail: "",
+      couponCode: "",
+      ccCollectedCash:"",
       dob: "",
       customerGST: "",
       address: "",
@@ -61,7 +67,7 @@ export default class NewSale extends Component {
       grandNetAmount: 0.0,
       grandReceivedAmount: 0.0,
       grandBalance: 0,
-      returnCash: 0.0,
+      returnCash: 0,
       input: {},
       isBillingDetails: false,
       errors: {},
@@ -89,7 +95,7 @@ export default class NewSale extends Component {
         mobileNumber: "",
         name: "",
         email: "",
-        newSaleId:"",
+        newSaleId: "",
       },
       grossAmount: 0,
       totalPromoDisc: 0,
@@ -98,7 +104,7 @@ export default class NewSale extends Component {
       netCardPayment: 0,
       promoDiscount: 0,
       retailBarCodeList: [],
-      barCodeRetailList:[],
+      barCodeRetailList: [],
       genderList: [
         {
           value: "female",
@@ -114,7 +120,15 @@ export default class NewSale extends Component {
       isTextile: false,
       isRetail: false,
       lineItemsList: [],
-      paymentOrderId:""
+      paymentOrderId: "",
+      idClient: "",
+      stateGST: 0,
+      centralGST: 0,
+      isCouponApplied: true,
+      enablePayment: false,
+      isCCModel: false,
+      isCCPay: false
+      
       // open: false,
     };
 
@@ -132,6 +146,11 @@ export default class NewSale extends Component {
     this.getGvModel = this.getGvModel.bind(this);
     this.hideGVModel = this.hideGVModel.bind(this);
     this.saveGVNumber = this.saveGVNumber.bind(this);
+    this.onCouponCode = this.onCouponCode.bind(this);
+    this.getHsnDetails = this.getHsnDetails.bind(this);
+    this.getCCModel = this.getCCModel.bind(this);
+    this.hideCCModel = this.hideCCModel.bind(this);
+    this.saveCCAmount = this.saveCCAmount.bind(this);
     //this.handler = this.handler.bind(this);
   }
 
@@ -140,14 +159,30 @@ export default class NewSale extends Component {
     const clientId = JSON.parse(sessionStorage.getItem('selectedDomain'));
     console.log(clientId.label);
     const user = JSON.parse(sessionStorage.getItem('user'));
-    this.setState({userId : parseInt(user["custom:userId"])});
-    console.log(this.state.userId);
+    this.setState({ userId: parseInt(user["custom:userId"]), idClient: user["custom:clientId1"] });
     if (clientId.label === "Textile") {
       this.setState({ isTextile: true, isRetail: false });
     } else if (clientId.label === "Retail") {
       this.setState({ isTextile: false, isRetail: true });
     }
 
+    this.getHsnDetails();
+
+  }
+
+  getHsnDetails() {
+    NewSaleService.getHsnDetails().then(response => {
+      if (response) {
+        const details = response.data.result;
+        let slabVos = [];
+        details.forEach(detail => {
+          if (detail.slabVos)
+            slabVos.push(detail.slabVos);
+        });
+
+        sessionStorage.setItem("HsnDetails", JSON.stringify(slabVos));
+      }
+    });
   }
 
   openModal = () => {
@@ -196,6 +231,8 @@ export default class NewSale extends Component {
   getCashModel = () => {
     this.setState({
       isCash: true,
+      cashAmount: 0,
+      returnCash: 0
     });
     this.setState({
       isCard: false,
@@ -205,22 +242,130 @@ export default class NewSale extends Component {
     });
   };
 
+  getCCModel() {
+    this.setState({isCCModel: true});
+  }
+
+  hideCCModel() {
+    this.setState({isCCModel: false});
+  }
+
+  saveCCAmount() {
+    
+    this.state.discType = this.state.dropValue;
+    this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
+    sessionStorage.removeItem("recentSale");
+    const storeId = sessionStorage.getItem("storeId");
+    let obj;
+    if (this.state.isTextile) {
+      obj = {
+
+        "natureOfSale": "InStore",
+
+        "domainId": 1,
+
+        "storeId": parseInt(storeId),
+
+        "grossAmount": this.state.grossAmount,
+
+        "totalPromoDisc": this.state.totalPromoDisc,
+
+        "totalManualDisc": parseInt(this.state.manualDisc),
+
+        "taxAmount": this.state.taxAmount,
+
+        "discApprovedBy": this.state.discApprovedBy,
+
+        "discType": this.state.discType,
+
+        "approvedBy": null,
+
+        "netPayableAmount": this.state.netPayableAmount,
+
+        "offlineNumber": null,
+
+        "userId": this.state.userId,
+        "sgst": this.state.centralGST,
+        "cgst": this.state.centralGST,
+        "dlSlip": this.state.dsNumberList,
+        "lineItemsReVo": null,
+        "paymentAmountType": [
+          {
+          "paymentType": "Cash",
+          "paymentAmount": this.state.ccCollectedCash
+        },
+        {
+          "paymentType": "Card",
+          "paymentAmount": this.state.ccCardCash
+        }
+
+      ]
+
+      }
+
+     
+
+      NewSaleService.saveSale(obj).then((res) => {
+        if (res) {
+          this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
+          this.setState({
+            customerName: " ",
+            gender: " ",
+            dob: " ",
+            customerGST: " ",
+            address: " ",
+            manualDisc: "",
+            customerEmail: "",
+            netPayableAmount: 0.0,
+            barCodeList: [],
+            grossAmount: 0.0,
+            promoDiscount: 0.0,
+            cashAmount: 0,
+            taxAmount: 0.0,
+            grandNetAmount: 0.0,
+            returnCash: 0,
+            stateGST: 0,
+            centralGST: 0,
+            isPayment: true,
+            isCCPay: true,
+            isCCModel: false,
+
+
+          });
+          this.setState({ showDiscReason: false, isPayment: true });
+          this.setState({ showTable: false });
+          sessionStorage.setItem("recentSale", res.data.result);
+          toast.success(res.data.result);
+          this.setState({ newSaleId: res.data.result });
+          // this.pay()
+        
+            this.pay()
+          
+        } else {
+          toast.error(res.data.result);
+        }
+      });
+
+    }
+
+  }
+
   getGvModel() {
-    this.setState({isgvModel: true});
+    this.setState({ isgvModel: true });
   }
 
   hideGVModel() {
-    this.setState({isgvModel: false});
+    this.setState({ isgvModel: false });
   }
 
   saveGVNumber() {
     const obj = [this.state.gvNumber];
-    CreateDeliveryService.saveGVNumber(obj,true).then(resposne =>{
-      if(resposne) {
+    CreateDeliveryService.saveGVNumber(obj, true).then(resposne => {
+      if (resposne) {
         toast.success(resposne.data.message);
       }
     })
-    this.hideGVModel()
+    this.hideGVModel();
   }
 
   getCardModel = () => {
@@ -232,15 +377,33 @@ export default class NewSale extends Component {
     //   isCardSelected: true,
     // });
   };
+
+  onCouponCode() {
+    NewSaleService.getCoupons(this.state.idClient, this.state.couponCode).then(res => {
+      if (res.data.result !== "Record not found") {
+        let grandTotal = this.state.grandNetAmount;
+        if (grandTotal > res.data.result.value) {
+          grandTotal = grandTotal - res.data.result.value;
+        }
+        this.setState({ grandNetAmount: grandTotal }, () => {
+          this.setState({isCouponApplied: false});
+        });
+      } else {
+        toast.error(res.data.result);
+      }
+    });
+  }
+
   hideCardModal = () => {
     this.setState({
       isCard: false,
     });
-   const value  =  displayRazorpay(this.state.cardAmount)
+    const value = displayRazorpay(this.state.cardAmount)
   };
   pay = () => {
-    console.log(this.state.netPayableAmount);
-    NewSaleService.payment(this.state.netCardPayment, this.state.newSaleId).then((res) => {
+    console.log(this.state.isCCPay);
+    const cardAmount = this.state.isCCPay ? Math.round(this.state.ccCardCash) : Math.round(this.state.netCardPayment)
+    NewSaleService.payment(cardAmount, this.state.newSaleId).then((res) => {
       this.setState({ isPayment: false });
       const data = JSON.parse(res.data.result);
       const options = {
@@ -254,15 +417,21 @@ export default class NewSale extends Component {
         order_id: data.id,
         handler: function (response) {
 
+          console.log(response);
 
           // return response;
           // alert("PAYMENT ID ::" + response.razorpay_payment_id);
-         // this.setState({paymentOrderId:  response.razorpay_order_id });
+          // this.setState({paymentOrderId:  response.razorpay_order_id });
+         // const result = await axios.post("http://localhost:5000/payment/success", data);
           toast.success("Payment Done Successfully");
-          
-       //   this.postPaymentData(response.razorpay_order_id);
+
+
+          // let payResult =  this.postPaymentData(response.razorpay_order_id);
+          let status = true
+          const param = '?razorPayId='+  response.razorpay_order_id +'&payStatus='+status; 
+        const result =  axios.post(BASE_URL+NEW_SALE_URL.saveSale+param, {});
           // alert("ORDER ID :: " + response.razorpay_order_id);
-          
+
         },
         prefill: {
           name: "Kadali",
@@ -272,19 +441,19 @@ export default class NewSale extends Component {
       };
       const paymentObject = new window.Razorpay(options);
       paymentObject.open();
-      // this.setState({taxAmount: res.data});
+       this.setState({isCCPay: false});
     });
   };
 
   postPaymentData(paymentOrderId) {
-   
-    NewSaleService.postPaymentData(paymentOrderId, true).then(res =>{
-      if(res) {
+
+    NewSaleService.postPaymentData(paymentOrderId, true).then(res => {
+      if (res) {
         this.setState({
           showTable: false,
           paymentOrderId: "",
           newSaleId: "",
-          netPayableAmount:0.0
+          netPayableAmount: 0.0
         })
       }
     });
@@ -292,51 +461,53 @@ export default class NewSale extends Component {
 
 
   getRetailBarcodeList() {
+    const storeId = sessionStorage.getItem("storeId");
     let costPrice = 0;
     let discount = 0;
     let total = 0;
     CreateDeliveryService.getRetailBarcodeList(
-      this.state.retailBarCode
+      this.state.retailBarCode,
+      storeId
     ).then((res) => {
-     if(res) {
-       this.setState({showTable: true});
-      this.state.retailBarCodeList.push(res.data.result);
-      if (this.state.retailBarCodeList.length > 1) {
-        const barList = this.state.retailBarCodeList.filter(
-          (test, index, array) =>
-            index ===
-            array.findIndex((findTest) => findTest.barcodeId === test.barcodeId)
-        );
+      if (res) {
+        this.setState({ showTable: true, enablePayment: true });
+        this.state.retailBarCodeList.push(res.data.result);
+        if (this.state.retailBarCodeList.length > 1) {
+          const barList = this.state.retailBarCodeList.filter(
+            (test, index, array) =>
+              index ===
+              array.findIndex((findTest) => findTest.barcodeId === test.barcodeId)
+          );
 
-        if (barList.length > 1) {
-          this.setState({ barCodeRetailList: barList });
+          if (barList.length > 1) {
+            this.setState({ barCodeRetailList: barList });
+
+          } else {
+            this.setState({ barCodeRetailList: this.state.retailBarCodeList });
+          }
 
         } else {
           this.setState({ barCodeRetailList: this.state.retailBarCodeList });
+          // this.state.barCodeList = this.state.dlslips.lineItems;
         }
 
-      } else {
-        this.setState({ barCodeRetailList: this.state.retailBarCodeList });
-        // this.state.barCodeList = this.state.dlslips.lineItems;
+        this.state.barCodeRetailList.forEach((barCode, index) => {
+          costPrice = costPrice + barCode.listPrice;
+          discount = discount + barCode.promoDisc;
+          total = total + barCode.listPrice;
+        });
+
+        //      discount = discount + this.state.manualDisc;
+
+        this.setState({
+          netPayableAmount: total,
+          totalPromoDisc: discount,
+          grossAmount: costPrice,
+        });
+
+        this.getTaxAmount();
       }
 
-      this.state.barCodeRetailList.forEach((barCode, index) => {
-        costPrice = costPrice + barCode.listPrice;
-        discount = discount + barCode.promoDisc;
-        total = total + barCode.listPrice;
-      });
-
-//      discount = discount + this.state.manualDisc;
-
-      this.setState({
-        netPayableAmount: total,
-        totalPromoDisc: discount,
-        grossAmount: costPrice,
-      });
-
-      this.getTaxAmount();
-     }
-      
     });
   }
 
@@ -398,37 +569,61 @@ export default class NewSale extends Component {
         grossAmount: costPrice,
       });
 
+      if(this.state.barCodeList.length > 0){
+        this.setState({enablePayment : true});
+      }
+
       this.getTaxAmount();
     });
 
-      
+
   }
 
   getTaxAmount() {
 
-    NewSaleService.getTaxAmount(this.state.netPayableAmount).then((res) => {
-      this.setState({ taxAmount: res.data.result });
-      if (this.state.barCodeList.length > 0) {
-        const grandNet = this.state.netPayableAmount + this.state.taxAmount;
-        this.setState({
-          grandNetAmount: grandNet,
-          grandReceivedAmount: grandNet,
-        });
-        // this.state.grandNetAmount  =
-        // this.state.grandReceivedAmount = this.state.netPayableAmount + this.state.taxAmount;
-        if (this.state.cashAmount > this.state.grandNetAmount) {
-          const returnCash = this.state.cashAmount - this.state.grandNetAmount;
-          this.setState({ returnCash: returnCash });
-        } else {
-          this.state.cashAmount = 0;
-          this.state.returnCash = 0;
-          //  this.state.grandNetAmount = 0;
-          this.state.grandReceivedAmount = 0;
-          this.setState({ isPayment: true });
-          //  toast.info("Please enter sufficient amount");
-        }
+    const taxDetails = JSON.parse(sessionStorage.getItem("HsnDetails"));
+    let slabCheck = false;
+    taxDetails.forEach(taxData => {
+      console.log(taxData);
+      if (this.state.netPayableAmount >= taxData[0].priceFrom && this.state.netPayableAmount <= taxData[0].priceTo) {
+        slabCheck = true;
+        this.setState({ stateGST: taxData[0].taxVo.sgst, centralGST: taxData[0].taxVo.cgst });
       }
+
     });
+
+
+
+    if (!slabCheck) {
+      this.setState({ stateGST: 70, centralGST: 70 });
+      console.log("Checking the slab")
+    }
+    const grandTotal = this.state.netPayableAmount + this.state.centralGST + this.state.centralGST;
+    this.setState({ grandNetAmount: grandTotal });
+
+    // NewSaleService.getTaxAmount(this.state.netPayableAmount).then((res) => {
+    //   this.setState({ taxAmount: res.data.result });
+    //   if (this.state.barCodeList.length > 0) {
+    //     const grandNet = this.state.netPayableAmount + this.state.taxAmount;
+    //     this.setState({
+    //       grandNetAmount: grandNet,
+    //       grandReceivedAmount: grandNet,
+    //     });
+    //     // this.state.grandNetAmount  =
+    //     // this.state.grandReceivedAmount = this.state.netPayableAmount + this.state.taxAmount;
+    //     if (this.state.cashAmount > this.state.grandNetAmount) {
+    //       const returnCash = this.state.cashAmount - this.state.grandNetAmount;
+    //       this.setState({ returnCash: returnCash });
+    //     } else {
+    //       this.state.cashAmount = 0;
+    //       this.state.returnCash = 0;
+    //       //  this.state.grandNetAmount = 0;
+    //       this.state.grandReceivedAmount = 0;
+    //       this.setState({ isPayment: true });
+    //       //  toast.info("Please enter sufficient amount");
+    //     }
+    //   }
+    // });
   }
 
   getMobileDetails = (e) => {
@@ -453,7 +648,7 @@ export default class NewSale extends Component {
 
   showDiscount() {
     this.state.totalManualDisc = 0;
-    this.setState({ isBillingDisc: true }, () => {
+    this.setState({ isBillingDisc: true, returnCash: 0 }, () => {
       this.getDiscountReasons();
     });
 
@@ -461,11 +656,11 @@ export default class NewSale extends Component {
   }
 
   hideDiscount() {
-    this.setState({ isBillingDisc: false });
+    this.setState({ isBillingDisc: false, manualDisc: 0, returnCash: 0, selectedDisc: {} });
   }
   showCalculator() {
-   
-    this.setState({ isCalculator: true});
+
+    this.setState({ isCalculator: true });
   }
 
   hideCal() {
@@ -476,21 +671,25 @@ export default class NewSale extends Component {
     this.setState({ dropValue: e.label });
   }
 
-  saveDiscount() {
-    console.log(this.state.totalPromoDisc);
-    this.state.netPayableAmount = 0;
-    const totalDisc =
-      this.state.totalPromoDisc + parseInt(this.state.manualDisc);
-    if (totalDisc < this.state.grossAmount) {
-      const netPayableAmount = this.state.grossAmount - totalDisc;
-      this.state.netPayableAmount = netPayableAmount;
-      //  this.setState({netPayableAmount: netPayableAmount});
-      this.getTaxAmount();
-    }
-    const promDisc =  parseInt(this.state.manualDisc) + this.state.totalPromoDisc;
-    this.setState({ showDiscReason: true, promoDiscount: promDisc });
+saveDiscount() {
+    if (Object.keys(this.state.selectedDisc).length !== 0 && this.state.manualDisc !== 0 && this.state.discApprovedBy !== '') {
+      this.state.netPayableAmount = 0;
+      const totalDisc =
+        this.state.totalPromoDisc + parseInt(this.state.manualDisc);
+      if (totalDisc < this.state.grandNetAmount) {
+        const netPayableAmount = this.state.grandNetAmount - totalDisc;
+        this.state.netPayableAmount = netPayableAmount;
+        //  this.setState({netPayableAmount: netPayableAmount});
+        this.getTaxAmount();
+      }
+      const promDisc = parseInt(this.state.manualDisc) + this.state.totalPromoDisc;
+      this.setState({ showDiscReason: true, promoDiscount: promDisc });
 
-    this.hideDiscount();
+      this.hideDiscount();
+    } else {
+      toast.info("Please Enter all fields")
+    }
+
   }
 
   getDiscountReasons() {
@@ -516,29 +715,44 @@ export default class NewSale extends Component {
   }
 
   getReturnAmount = () => {
-    console.log(this.state.barCodeList);
-    if (this.state.barCodeList.length > 0) {
+    console.log(this.state.grandNetAmount);
+    if (this.state.barCodeList.length > 0 || this.state.barCodeRetailList.length > 0) {
       this.setState({ isPayment: false });
     }
-    this.state.grandNetAmount =
-      this.state.netPayableAmount + this.state.taxAmount;
+    // this.state.grandNetAmount =
+    //   this.state.netPayableAmount + this.state.taxAmount;
     this.state.grandReceivedAmount =
       this.state.netPayableAmount + this.state.taxAmount;
     const collectedCash = parseInt(this.state.cashAmount);
-    
+
     if (collectedCash > this.state.grandNetAmount) {
       this.state.returnCash = collectedCash - this.state.grandNetAmount;
-    } else if (collectedCash == this.state.grandNetAmount) {
+      this.state.returnCash = Math.round(this.state.returnCash);
+    //  this.hideCashModal();
+    } else if (collectedCash == Math.round(this.state.grandNetAmount)) {
+     // this.state.grandNetAmount = 0;
       this.setState({ isPayment: false });
+    
+    } else if (collectedCash < this.state.grandNetAmount) {
+     // this.state.grandNetAmount = this.state.grandNetAmount - collectedCash;
+   //   toast.info("Please enter sufficient amount");
     } else {
       this.state.cashAmount = 0;
       this.state.returnCash = 0;
       this.state.grandNetAmount = 0;
       this.state.grandReceivedAmount = 0;
       this.setState({ isPayment: true });
-      toast.info("Please enter sufficient amount");
+     // toast.info("Please enter sufficient amount");
     }
-    this.hideCashModal();
+
+    if(this.state.returnCash >= 1) {
+      this.hideCashModal();
+    } else {
+      toast.error("Please collect suffient amount");
+    }
+
+    
+  //  this.hideCashModal();
   };
 
   removeDuplicates(array, key) {
@@ -561,55 +775,57 @@ export default class NewSale extends Component {
   }
 
   createInvoice() {
-    this.setState({netCardPayment: this.state.netPayableAmount })
+    this.setState({ netCardPayment: this.state.grandNetAmount })
     sessionStorage.removeItem("recentSale");
-   
+    const storeId = sessionStorage.getItem("storeId");
     let obj;
-    if(this.state.isTextile) {
-       obj = {
+    if (this.state.isTextile) {
+      obj = {
 
         "natureOfSale": "InStore",
-  
+
         "domainId": 1,
-  
-        "storeId": null,
-  
+
+        "storeId": parseInt(storeId),
+
         "grossAmount": this.state.grossAmount,
-  
+
         "totalPromoDisc": this.state.totalPromoDisc,
-  
+
         "totalManualDisc": parseInt(this.state.manualDisc),
-  
+
         "taxAmount": this.state.taxAmount,
-  
+
         "discApprovedBy": this.state.discApprovedBy,
-  
+
         "discType": this.state.discType,
-  
+
         "approvedBy": null,
-  
-        "netPayableAmount": this.state.netPayableAmount,
-  
+
+        "netPayableAmount": this.state.grandNetAmount,
+
         "offlineNumber": null,
-  
+
         "userId": this.state.userId,
-  
+        "sgst": this.state.centralGST,
+        "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
         "lineItemsReVo": null,
         "paymentAmountType": [{
           "paymentType": "Cash",
-          "paymentAmount": this.state.cashAmount
+          "paymentAmount": this.state.grandNetAmount
+
         }]
-  
+
       }
 
-      if(this.state.isCard) {
+      if (this.state.isCard) {
         delete obj.paymentAmountType
       }
 
       NewSaleService.saveSale(obj).then((res) => {
         if (res) {
-          this.setState({ isBillingDetails: false, dsNumber: "", finalList: []});
+          this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
           this.setState({
             customerName: " ",
             gender: " ",
@@ -618,24 +834,26 @@ export default class NewSale extends Component {
             address: " ",
             manualDisc: "",
             customerEmail: "",
-            netPayableAmount:0.0,
-        barCodeList:[],
-        grossAmount:0.0,
-        promoDiscount:0.0,
-      
-        taxAmount:0.0,
-        grandNetAmount:0.0,
-
-        isPayment:true
+            netPayableAmount: 0.0,
+            barCodeList: [],
+            grossAmount: 0.0,
+            promoDiscount: 0.0,
+            cashAmount: 0,
+            taxAmount: 0.0,
+            grandNetAmount: 0.0,
+            returnCash: 0,
+            stateGST: 0,
+            centralGST: 0,
+            isPayment: true
 
           });
           this.setState({ showDiscReason: false, isPayment: true });
           this.setState({ showTable: false });
           sessionStorage.setItem("recentSale", res.data.result);
           toast.success(res.data.result);
-          this.setState({newSaleId: res.data.result});
-         // this.pay()
-          if(this.state.isCard) {
+          this.setState({ newSaleId: res.data.result });
+          // this.pay()
+          if (this.state.isCard) {
             this.pay()
           }
         } else {
@@ -643,71 +861,73 @@ export default class NewSale extends Component {
         }
       });
 
-    } else if(this.state.isRetail) {
-      let lineItems=[];
-      this.state.retailBarCodeList.forEach((barCode,index) => {
+    } else if (this.state.isRetail) {
+      let lineItems = [];
+      this.state.retailBarCodeList.forEach((barCode, index) => {
         const obj = {
           "barCode": barCode.barcodeId,
           "domainId": 2,
           "itemPrice": barCode.listPrice,
-          "netValue":  barCode.listPrice,
+          "netValue": barCode.listPrice,
           "quantity": 1
-        } 
+        }
         lineItems.push(obj);
       });
       CreateDeliveryService.getLineItem(lineItems, 2).then(res => {
-        if(res) {
+        if (res) {
           let lineItemsList = [];
           let dataResult = JSON.parse(res.data.result);
-          dataResult.forEach(element=> {
-              const obj = {
-                "lineItemId": element
-              }
-              lineItemsList.push(obj);
-            });
-          
-          
-       
-  
-          this.setState({lineItemsList: lineItemsList}, () => {
+          dataResult.forEach(element => {
+            const obj = {
+              "lineItemId": element
+            }
+            lineItemsList.push(obj);
+          });
 
-            
-      obj = {
 
-        "natureOfSale": "InStore",
-  
-        "domainId": 2,
-  
-        "storeId": null,
-  
-        "grossAmount": this.state.grossAmount,
-  
-        "totalPromoDisc": this.state.totalPromoDisc,
-  
-        "totalManualDisc": parseInt(this.state.manualDisc),
-  
-        "taxAmount": this.state.taxAmount,
-  
-        "discApprovedBy": this.state.discApprovedBy,
-  
-        "discType": this.state.discType,
-  
-        "approvedBy": null,
-  
-        "netPayableAmount": this.state.netPayableAmount,
-  
-        "offlineNumber": null,
-  
-        "userId": null,
-  
-        "dlSlip": null,
-        "lineItemsReVo": this.state.lineItemsList,
-        "paymentAmountType": [{
-          "paymentType": "Cash",
-          "paymentAmount": this.state.cashAmount
-        }]
-  
-      }
+
+
+          this.setState({ lineItemsList: lineItemsList }, () => {
+
+
+            obj = {
+
+              "natureOfSale": "InStore",
+
+              "domainId": 2,
+
+              "storeId": parseInt(storeId),
+
+              "grossAmount": this.state.grossAmount,
+
+              "totalPromoDisc": this.state.totalPromoDisc,
+
+              "totalManualDisc": parseInt(this.state.manualDisc),
+
+              "taxAmount": this.state.taxAmount,
+
+              "discApprovedBy": this.state.discApprovedBy,
+
+              "discType": this.state.discType,
+
+              "approvedBy": null,
+
+              "netPayableAmount": this.state.netPayableAmount,
+
+              "offlineNumber": null,
+
+              "userId": this.state.userId,
+
+              "dlSlip": null,
+              "lineItemsReVo": this.state.lineItemsList,
+              "sgst": this.state.centralGST,
+              "cgst": this.state.centralGST,
+              "paymentAmountType": [{
+                "paymentType": "Cash",
+                "paymentAmount": this.state.cashAmount
+              }]
+
+            }
 
 
             NewSaleService.saveSale(obj).then((res) => {
@@ -724,14 +944,20 @@ export default class NewSale extends Component {
                   dsNumber: "",
                   barcode: "",
                   showTable: false,
-                  barCodeRetailList: []
+                  cashAmount: 0,
+                  stateGST: 0,
+                  centralGST: 0,
+                  barCodeRetailList: [],
+                  returnCash: 0,
+                  grandNetAmount: 0
+
                 });
                 this.setState({ showDiscReason: false, isPayment: true });
                 sessionStorage.setItem("recentSale", res.data.result);
                 toast.success(res.data.result);
-                this.setState({newSaleId: res.data.result});
-              
-                if(this.state.isCard) {
+                this.setState({ newSaleId: res.data.result });
+
+                if (this.state.isCard) {
                   this.pay();
                 }
               } else {
@@ -745,9 +971,9 @@ export default class NewSale extends Component {
     }
 
 
- 
 
-    
+
+
   }
 
   tagCustomer() {
@@ -760,29 +986,30 @@ export default class NewSale extends Component {
       "roleId": "",
       "storeId": ""
     }
-    CreateDeliveryService.getUserByMobile("+91"+this.state.mobilenumber).then(res => {
+    CreateDeliveryService.getUserByMobile("+91" + this.state.mobilenumber).then(res => {
       console.log(res);
       if (res) {
         const mobileData = res.data.result;
-        this.setState({ userId: res.data.result.userId,customerFullName: res.data.result.userName
-         });
-         
-    this.state.mobileData = {
-      address: this.state.address,
-      altMobileNo: "",
-      dob: this.state.dob,
-      gender: mobileData.gender,
-      gstNumber: this.state.gstNumber,
-      mobileNumber: mobileData.phoneNumber,
-      name: mobileData.userName,
-      email: this.state.customerEmail,
-    };
+        this.setState({
+          userId: res.data.result.userId, customerFullName: res.data.result.userName
+        });
 
-    this.setState({
-      isBillingDetails: true,
-      customerMobilenumber:  mobileData.phoneNumber,
-    });
-  
+        this.state.mobileData = {
+          address: this.state.address,
+          altMobileNo: "",
+          dob: this.state.dob,
+          gender: mobileData.gender,
+          gstNumber: this.state.gstNumber,
+          mobileNumber: mobileData.phoneNumber,
+          name: mobileData.userName,
+          email: this.state.customerEmail,
+        };
+
+        this.setState({
+          isBillingDetails: true,
+          customerMobilenumber: mobileData.phoneNumber,
+        });
+
       }
     });
 
@@ -832,7 +1059,7 @@ export default class NewSale extends Component {
 
 
     return this.state.showTable && (
-      <div>
+      <div className="p-l-0">
         {
           this.state.isTextile && (
             <div className="table-responsive">
@@ -842,9 +1069,9 @@ export default class NewSale extends Component {
                     <th className="col-1">S.NO</th>
                     <th className="col-3">Item</th>
                     <th className="col-2">Qty</th>
-                    <th className="col-2">Gross Amount</th>
+                    <th className="col-2">MRP</th>
                     <th className="col-2">Discount</th>
-                    <th className="col-2">Net Value</th>
+                    <th className="col-2">Gross Amount</th>
                   </tr>
                 </thead>
 
@@ -857,9 +1084,9 @@ export default class NewSale extends Component {
                         </td>
                         <td className="col-3"><p>#{items.barCode}</p></td>
                         <td className="col-2">{items.quantity}</td>
-                        <td className="col-2">₹ {items.netValue}</td>
-                        <td className="col-2">₹ 0</td>
                         <td className="col-2">₹ {items.itemPrice}</td>
+                        <td className="col-2">₹ 0</td>
+                        <td className="col-2">₹ {items.netValue}</td>
                       </tr>
                     );
                   })}
@@ -874,7 +1101,7 @@ export default class NewSale extends Component {
 
         {
           this.state.isRetail && (
-            <div className="table-responsive">
+            <div className="table-responsive p-l-0">
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
@@ -933,11 +1160,69 @@ export default class NewSale extends Component {
       },
     };
     return (
-      
+
       <div className="maincontent">
 
 
-<Modal
+    <Modal isOpen={this.state.isCCModel} size="lg">
+      <ModalHeader>
+        Cash & Card Payment
+      </ModalHeader>
+      <ModalBody>
+      <div className="row">
+              <div className="col-4">
+                <label>Net Payable Amount: </label>
+              </div>
+              <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-4">
+                <label>Collected Cash: </label>
+              </div>
+              <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.ccCollectedCash}
+                  onChange={(e) =>
+                    this.setState({ ccCollectedCash: e.target.value },()=>{
+                      if(this.state.ccCollectedCash < this.state.grandNetAmount) {
+                        let ccReturn = this.state.grandNetAmount - this.state.ccCollectedCash;
+                        this.setState({ccCardCash: ccReturn});
+                        
+                      }
+                    })
+                  }
+                  
+                />
+              </div>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <button className="btn-unic" onClick={this.hideCCModel}>
+              Cancel
+            </button>
+            <button
+              className="btn-unic active fs-12"
+              onClick={this.saveCCAmount}
+            >
+              Confirm
+            </button>
+          </ModalFooter>
+
+    </Modal>
+
+
+        <Modal
           isOpen={this.state.isgvModel}
           size="lg"
           onRequestHide={this.hideGVModel}
@@ -971,12 +1256,13 @@ export default class NewSale extends Component {
               className="btn btn-bdr active fs-12"
               onClick={this.saveGVNumber}
             >
-              SAVE 
+              SAVE
             </button>
           </ModalFooter>
         </Modal>
 
-      
+
+
 
 
         <Modal isOpen={this.state.isBillingDisc} size="sm">
@@ -988,6 +1274,7 @@ export default class NewSale extends Component {
               </div>
               <div className="col-12">
                 <label>Amount</label>
+                <span className="text-red font-bold">*</span>
                 <input
                   type="text"
                   name="amount"
@@ -997,17 +1284,18 @@ export default class NewSale extends Component {
                   className="form-control" />
               </div>
               <div className="col-12 mt-3">
-                <label>Discount Approved By</label>
+                <label>Discount Approved By</label> <span className="text-red font-bold">*</span>
                 <input
                   type="text"
                   name="discount"
                   value={this.state.discApprovedBy}
                   onChange={(e) => this.setState({ discApprovedBy: e.target.value })}
                   placeholder=""
+                  autoComplete="off"
                   className="form-control" />
               </div>
               <div className="col-12 mt-3">
-                <label>Reason</label>
+                <label>Reason</label> <span className="text-red font-bold">*</span>
                 <Select className="m-t-3 upper-case select_control" placeholder="Select Reason"
                   value={this.state.selectedDisc} // set selected value
                   options={this.state.discReasons} // set list of the data
@@ -1036,8 +1324,8 @@ export default class NewSale extends Component {
               <div className="col-12">
                 <h6 className="fs-14">Please provide below details</h6>
               </div>
-             
-             
+
+
 
             </div>
           </ModalBody>
@@ -1045,7 +1333,7 @@ export default class NewSale extends Component {
             <button className="btn-unic" onClick={this.hideCal}>
               Cancel
             </button>
-         
+
           </ModalFooter>
         </Modal>
         <Modal
@@ -1057,7 +1345,21 @@ export default class NewSale extends Component {
           <ModalBody>
             <div className="row">
               <div className="col-4">
-                <label>Cash Amount: </label>
+                <label>Net Payable Amount: </label>
+              </div>
+              <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-4">
+                <label>Collected Cash: </label>
               </div>
               <div className="col-8">
                 <input
@@ -1227,18 +1529,23 @@ export default class NewSale extends Component {
 
                   </div>
                 </div>
-                <div className="col-12 col-sm-8 scaling-center">
+                {/* <div className="col-12 col-sm-8 scaling-center">
                   <button className="btn-unic m-r-2 scaling-mb">Find Item</button>
                   <button className="btn-unic m-r-2 scaling-mb" onClick={this.showCalculator}>Calculator</button>
-                </div>
+                </div> */}
               </div>
               <div className="row m-0 p-0">
                 <div className="col-12 col-sm-4 scaling-center p-l-0">
-                  <h5 className="mt-1 mb-3">
+                <h5 className="mt-1 mb-3">
                     Order Details
                   </h5>
                 </div>
-                <div className="col-12 col-sm-8 scaling-center text-right p-r-0">
+            
+                {
+                    this.state.showTable && ( 
+                      
+            
+                          <div className="col-12 col-sm-8 scaling-center text-right p-r-0">
                   {/* <button className="btn-unic m-r-2">Tag Customer</button>  */}
                   <button
                     type="button"
@@ -1246,17 +1553,14 @@ export default class NewSale extends Component {
                     onClick={this.toggleModal}
                   >Tag Customer </button>
                   <button className="btn-unic m-r-2 scaling-mb" onClick={this.showDiscount} >Bill Level Discount</button>
-                  {/* <button
-                    type="button"
-                    className={
-                      "btn-unic mt-0 m-r-2 scaling-mb" + (this.state.isPayment ? " btn-disable" : "")
-                    }
-                    onClick={this.savePayment}
-                  >
-                    Save Payment
-                  </button> */}
-                  {/* <button className={"mt-0"+ (this.state.isPayment ? "btn-unic btn-disable" : "btn-unic active") }onClick={this.savePayment}>Save Payment</button> */}
                 </div>
+                        
+                      
+                  
+                    )
+                  }
+              
+              
                 <div>{this.showOrderDetails()}</div>
                 {
                   this.state.showTable && (
@@ -1274,7 +1578,7 @@ export default class NewSale extends Component {
                         </div> */}
                           <div className="col-2">
 
-                            <label>N/Rate : <span className="font-bold"> ₹ {this.state.grossAmount}</span> </label>
+                            {/* <label>N/Rate : <span className="font-bold"> ₹ {this.state.grossAmount}</span> </label> */}
                             {/* <h6 className="pt-2">{this.state.promoDisc} ₹</h6> */}
                           </div>
                           <div className="col-3">
@@ -1319,8 +1623,8 @@ export default class NewSale extends Component {
                               <td className="col-3"> {this.state.customerMobilenumber}</td>
                               <td className="col-3">
                                 <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                                  <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" />
-                                  <label className="form-check-label" htmlFor="roundedExample2">526</label>
+                                  {/* <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" /> */}
+                                  <label className="form-check-label" htmlFor="roundedExample2"> </label>
                                   {/* <div className="custom-control t_image custom-checkbox V1_checkbox-label">
                             <input className="custom-control-input" type="checkbox" id="check1" />
                             <label className="custom-control-label V1_custom-control-label p-l-1 p-t-0 fs-14"
@@ -1328,7 +1632,7 @@ export default class NewSale extends Component {
 
                                 </div>
                               </td>
-                              <td className="col-3">31 Dec 2021</td>
+                              <td className="col-3"></td>
 
                             </tr>
 
@@ -1358,17 +1662,17 @@ export default class NewSale extends Component {
                     <label>CGST</label>
                   </div>
                   <div className="col-7 text-right">
-                    <label className="font-bold">₹ {this.state.taxAmount}</label>
+                    <label className="font-bold">₹ {this.state.centralGST}</label>
                   </div>
                 </div>
-                {/* <div className="row">
+                <div className="row">
                   <div className="col-5">
                     <label>SGST</label>
                   </div>
                   <div className="col-7 text-right">
-                    <label className="font-bold">₹ 75.00</label>
+                    <label className="font-bold">₹ {this.state.centralGST}</label>
                   </div>
-                </div> */}
+                </div>
 
 
                 <div className="payment">
@@ -1381,21 +1685,53 @@ export default class NewSale extends Component {
                     </div>
                   </div>
 
+                  {
+                    this.state.returnCash !== 0 && (
+                      <div className="row">
+                        <div className="col-5 p-r-0 pt-1">
+                          <label>Return Amount</label>
+                        </div>
+                        <div className="col-7 p-l-0 pt-1 text-right">
+                          <label className="font-bold">₹ {this.state.returnCash}</label>
+                        </div>
+                      </div>
+                    )
+                  }
+
+
+
                 </div>
-                <div className="form-group apply_btn">
+                  {
+                    this.state.grandNetAmount > 0 && (
+                      <div>
+                           <div className="form-group apply_btn">
                   <button type="button" className=""> Apply</button>
                   <input type="text" className="form-control" placeholder="ENTER RT NUMBER" />
                 </div>
-                <div className="form-group apply_btn mb-2">
-                  <button type="button" className=""> Apply</button>
-                  <input type="text" className="form-control" placeholder="COUPON CODE" />
-                </div>
-                <label className="fs-18 pt-3">Payment Type</label>
+                {
+                  this.state.isCouponApplied && (
+                    <div className="form-group apply_btn mb-2">
+                    <button type="button" className="" onClick={this.onCouponCode}> Apply</button>
+                    <input type="text" className="form-control" placeholder="COUPON CODE" value={this.state.couponCode}
+                      onChange={(e) => this.setState({ couponCode: e.target.value })}
+                    />
+                  </div>
+                  )
+                }
+               
+                      </div>
+                    )
+                  }
+
+                 {
+                   this.state.enablePayment && (
+                     <div>
+                         <label className="fs-18 pt-3">Payment Type</label>
                 <div className="list row">
                   <ul>
                     <li>
                       <span>
-                        <img src={card}  onClick={this.getCardModel}/>
+                        <img src={card} onClick={this.getCardModel} />
                         <label>CARD</label>
                       </span>
 
@@ -1409,18 +1745,18 @@ export default class NewSale extends Component {
                     </li>
                     <li>
                       <span>
-                        <img src={qr} />
-                        <label>QR</label>
+                        <img src={qr} onClick={this.getCCModel} />
+                        <label>CC</label>
                       </span>
 
                     </li>
-                    <li>
+                    {/* <li>
                       <span className="">
                         <img src={upi} />
                         <label>UPI</label>
                       </span>
 
-                    </li>
+                    </li> */}
                     <li>
                       <span>
                         <img src={khata} />
@@ -1430,7 +1766,7 @@ export default class NewSale extends Component {
                     </li>
                     <li>
                       <span>
-                        <img src={khata}  onClick={this.getGvModel} />
+                        <img src={khata} onClick={this.getGvModel} />
                         <label> GV</label>
                       </span>
 
@@ -1439,9 +1775,15 @@ export default class NewSale extends Component {
 
                   </ul>
                 </div>
+                     </div>
+                   )
+                 } 
+                
+             
+              
                 <div className="mt-3">
-                  <button 
-                  className={"mt-1 w-100 "+ (this.state.isPayment ? "btn-unic btn-disable" : "btn-unic active") } onClick={this.savePayment}
+                  <button
+                    className={"mt-1 w-100 " + (this.state.isPayment ? "btn-unic btn-disable" : "btn-unic active")} onClick={this.savePayment}
                   >PROCEED TO CHECKOUT</button>
                   {/* <button className="btn-unic p-2 w-100">HOLD PAYMENT</button> */}
                 </div>

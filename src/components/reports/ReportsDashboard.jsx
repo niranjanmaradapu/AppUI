@@ -1,133 +1,351 @@
+import { Chart } from 'chart.js';
+import 'chart.js/auto';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import React, { Component } from 'react';
-import sales_graph1 from '../../assets/images/sales_report_graph1.svg';
-import sales_graph2 from '../../assets/images/sales_report_graph2.svg';
-import sales_graph3 from '../../assets/images/sales_report_graph3.svg';
-import sales_graph4 from '../../assets/images/sales_report_graph4.svg';
-import sales_graph5 from '../../assets/images/sales_report_graph5.svg';
+import { Bar, Doughnut } from "react-chartjs-2";
+import colors from "../../colors.json";
+import ListOfReportsGraphsService from '../../services/Reports/ListOfReportsGraphsService';
+
+
+Chart.register(ChartDataLabels);
+Chart.defaults.set('plugins.datalabels', {
+    color: '#000000',
+});
+Chart.defaults.font.weight = 'italic';
+Chart.defaults.font.size = 16;
+Chart.defaults.plugins.legend = false;
 
 export default class ReportsDashboard extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            invoicesGenerated: [],
+            topSales: [],
+            salesSummary: [],
+            activeInactive: [],
+            invoicesChart: {},
+            activeInactiveChart: {},
+            salesSummaryChart: {},
+            topSalesChart: {},
+            clientId: "",
+            domainId: "",
+            storeId: "",
+        };
+    }
+
+    componentWillMount() {
+
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        const storeId = sessionStorage.getItem("storeId");
+
+        if (user) {
+            this.setState({
+                clientId: user["custom:clientId1"],
+                domainId: user["custom:domianId1"],
+                storeId: storeId
+            }, () => {
+                this.getInvoicesGenerated();
+                this.getTopFiveSales();
+                this.getActiveInactivePromos();
+                this.getSaleSummary();
+            });
+
+        }
+
+
+    }
+
+    getInvoicesGenerated() {
+        ListOfReportsGraphsService.getInvoicesGenerated(this.state.storeId).then(response => {
+            if (response) {
+                this.setState({ invoicesGenerated: response.data.result },
+                    () => {
+                        console.log('Invoices Generated', response);
+                        let indexName = [];
+                        let indexCount = [];
+                        let indexColor = [];
+                        let indexHoverColor = [];
+
+                        this.state.invoicesGenerated.forEach(data => {
+                            indexName.push(data.month);
+                            indexCount.push(data.amount);
+                        });
+
+                        colors.forEach(data => {
+                            indexColor.push(data.normalColorCode);
+                            indexHoverColor.push(data.hoverColorCode);
+                        });
+                        this.setState({
+                            invoicesChart: {
+                                labels: indexName,
+                                datasets: [
+                                    {
+                                        label: "Invoices Generated",
+                                        data: indexCount,
+                                        backgroundColor: indexColor,
+                                        // hoverBackgroundColor: indexHoverColor,
+                                        hoverBorderColor: "#282828",
+                                    }
+                                ]
+                            }
+                        });
+
+                    });
+
+            }
+        });
+    }
+
+    getTopFiveSales() {
+        ListOfReportsGraphsService.getTopFiveSales().then(response => {
+            console.log('Top Five Sales', response.data);
+            if (response) {
+                this.setState({ topSales: response.data.result },
+                    () => {
+                        let indexName = [];
+                        let indexCount = [];
+                        let indexColor = [];
+                        let indexHoverColor = [];
+                        if (this.state.topSales && this.state.topSales.length > 0) {
+                            this.state.topSales.forEach(data => {
+                                indexName.push(data.storeId);
+                                indexCount.push(data.amount);
+                            });
+
+                            colors.forEach(data => {
+                                indexColor.push(data.normalColorCode);
+                                // indexHoverColor.push(data.hoverColorCode);
+                            });
+
+                            this.setState({
+                                topSalesChart: {
+                                    labels: indexName,
+                                    datasets: [
+                                        {
+                                            label: "Sales Summary",
+                                            maxBarThickness: 20,
+                                            data: indexCount,
+                                            backgroundColor: indexColor,
+                                            // hoverBackgroundColor: indexHoverColor,
+                                            hoverBorderColor: '#282828',
+                                        }
+                                    ]
+                                }
+                            });
+                        }
+                    });
+            }
+        });
+
+    }
+
+    getActiveInactivePromos() {
+        ListOfReportsGraphsService.getActiveInactive().then(response => {
+
+            if (response) {
+                console.log('Active Inactive Promos', response.data.result);
+                this.setState({ activeInactive: response.data.result },
+                    () => {
+                        let indexName = [];
+                        let indexCount = [];
+                        let indexColor = [];
+                        let indexHoverColor = [];
+
+                        this.state.activeInactive.forEach(data => {
+                            indexName.push(data.name);
+                            indexCount.push(data.count);
+                        });
+
+                        colors.forEach(data => {
+                            indexColor.push(data.normalColorCode);
+                            // indexHoverColor.push(data.hoverColorCode);
+                        });
+
+                        this.setState({
+                            activeInactiveChart: {
+                                labels: indexName,
+                                datasets: [
+                                    {
+                                        label: "Sales Summary",
+                                        data: indexCount,
+                                        backgroundColor: indexColor,
+                                        // hoverBackgroundColor: indexHoverColor,
+                                        hoverBorderColor: '#282828',
+                                    }
+                                ]
+                            }
+                        });
+                    });
+
+            }
+            console.log("hey", this.state.activeInactiveChart);
+        });
+    }
+
+    getSaleSummary() {
+        ListOfReportsGraphsService.getSaleSummary().then(response => {
+            console.log('Sales Summary', response.data);
+            if (response) {
+                this.setState({ salesSummary: response.data.result },
+                    () => {
+                        let indexName = [];
+                        let indexCount = [];
+                        let indexColor = [];
+                        let indexHoverColor = [];
+                        if(this.state.salesSummary && this.state.salesSummary.length>0){
+                            this.state.salesSummary.forEach(data => {
+
+                                indexName.push(data.name);
+                                indexCount.push(data.amount);
+                            });
+    
+
+                        }
+
+                       
+                        colors.forEach(data => {
+                            indexColor.push(data.normalColorCode);
+                            indexHoverColor.push(data.hoverColorCode);
+                        });
+
+                        this.setState({
+                            salesSummaryChart: {
+                                labels: indexName,
+                                datasets: [
+                                    {
+                                        label: "Sales Summary",
+                                        data: indexCount,
+                                        backgroundColor: indexColor,
+                                        // hoverBackgroundColor: indexHoverColor,
+                                        hoverBorderColor: '#282828',
+                                    }
+                                ]
+                            }
+                        });
+                    });
+            }
+        });
+    }
+
     render() {
         return (
             <div className="maincontent">
-            <div className="row">
-                <div className="col-sm-5 col-12 mb-3">
-                      <h5 className="fs-25">Sales Analysis</h5>
-                </div>
-                <div className="col-sm-3 col-12 mb-3">
-                    <div className="form-group">
-                        <input type="text" className="form-control" placeholder="FROM DATE" />
-                    </div>
-                </div>
-                <div className="col-sm-3 col-12 mb-3">
-                    <div className="form-group">
-                        <input type="text" className="form-control" placeholder="TO DATE" />
-                    </div>
-                </div>
-                <div className="col-sm-1 col-12 scaling-center p-l-0 mb-3">
-                  <button type="button" className="btn-unic-search active">SEARCH</button>
-                </div>
-                <div className="col-sm-8 col-12 mb-3">
-                    <div className="rect">
-                        <div className="row">
-                            <div className="col-12 scaling-center scaling-mb">
-                                <h5 className="fs-20">Sales monthly trend</h5>
-                            </div>
-                            {/* <div className="col-3">
-                                <select class="form-control">
-                                    <option>Today</option>
-                                    <option>Last One Month</option>
-                                    <option>Last 6 Months</option>
-                                    <option>Last Year</option>
-                                </select>
-                            </div> */}
-                        </div>
-                        <div className="rect-image">
-                            <img className="img-responsive" className="p-0" src={sales_graph1} />
-                        </div>
-                    </div>
-                </div>
-                <div className="col-sm-4 col-12 mb-3">
-                <div className="rect">
-                        <div className="row">
-                            <div className="col-12 scaling-center">
-                                <h5 className="fs-20 mt-2">Top 5 Sales by store</h5>
-                            </div>
-                            {/* <div className="col-3">
-                                <select class="form-control">
-                                    <option>Today</option>
-                                    <option>Last One Month</option>
-                                    <option>Last 6 Months</option>
-                                    <option>Last Year</option>
-                                </select>
-                            </div> */}
-                        </div>
-                        <div className="rect-image pb-3">
-                            <img className="img-responsive" src={sales_graph2} />
-                        </div>
-                    </div>
+                <div className="row">
+                    <div className="col-12 scaling-center">
+                        <h5 className="fs-25">Reports Dashboard</h5>
                     </div>
                     <div className="col-sm-4 col-12">
-                <div className="rect">
-                        <div className="row">
-                            <div className="col-12 scaling-center">
-                                <h5 className="fs-20">Invoices generated</h5>
+                        <div className="rect">
+                            <div className="row">
+                                <div className="col-12 scaling-center">
+                                    <h5 className="fs-20 mt-2">Invoices Generated</h5>
+                                </div>
+
                             </div>
-                            {/* <div className="col-3">
-                                <select class="form-control">
-                                    <option>Today</option>
-                                    <option>Last One Month</option>
-                                    <option>Last 6 Months</option>
-                                    <option>Last Year</option>
-                                </select>
-                            </div> */}
+                            <div className="rect-image pb-3">
+                                {Object.keys(this.state.invoicesChart).length &&
+                                    <Doughnut
+                                        data={this.state.invoicesChart}
+                                        height={400}
+                                        width={400}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                        }}
+                                    />
+                                }
+                            </div>
                         </div>
-                        <div className="rect-image">
-                            <img className="img-responsive" src={sales_graph3} />
-                        </div>
-                    </div>
                     </div>
                     <div className="col-sm-4 col-12">
-                <div className="rect">
-                        <div className="row">
-                            <div className="col-12 scaling-center">
-                                <h5 className="fs-20">Sales summary</h5>
+                        <div className="rect">
+                            <div className="row">
+                                <div className="col-12 scaling-center">
+                                    <h5 className="fs-20 mt-2">Sales Summary</h5>
+                                </div>
+
                             </div>
-                            {/* <div className="col-3">
-                                <select class="form-control">
-                                    <option>Today</option>
-                                    <option>Last One Month</option>
-                                    <option>Last 6 Months</option>
-                                    <option>Last Year</option>
-                                </select>
-                            </div> */}
+                            <div className="rect-image pb-3">
+                                {Object.keys(this.state.salesSummaryChart).length &&
+                                    <Doughnut
+                                        data={this.state.salesSummaryChart}
+                                        height={400}
+                                        width={400}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                        }}
+                                    />
+                                }
+                            </div>
                         </div>
-                        <div className="rect-image">
-                            <img className="img-responsive" src={sales_graph4} />
-                        </div>
-                    </div>
                     </div>
                     <div className="col-sm-4 col-12">
-                <div className="rect">
-                        <div className="row">
-                            <div className="col-12 scaling-center">
-                                <h5 className="fs-20">Active & Inactive promo's</h5>
+                        <div className="rect">
+                            <div className="row">
+                                <div className="col-12 scaling-center">
+                                    <h5 className="fs-20 mt-2">Top 5 Sales</h5>
+                                </div>
+
                             </div>
-                            {/* <div className="col-3">
-                                <select class="form-control">
-                                    <option>Today</option>
-                                    <option>Last One Month</option>
-                                    <option>Last 6 Months</option>
-                                    <option>Last Year</option>
-                                </select>
-                            </div> */}
-                        </div>
-                        <div className="rect-image">
-                            <img className="img-responsive" src={sales_graph5} />
+                            <div className="rect-image pb-3">
+                                {Object.keys(this.state.topSalesChart).length &&
+                                    <Bar
+                                        data={this.state.topSalesChart}
+                                        height={400}
+                                        width={400}
+                                        options={{
+                                            indexAxis: 'y',
+                                            scales: {
+                                                x: {
+                                                    grid: {
+                                                        display: false
+                                                    }
+                                                },
+                                                y: {
+                                                    grid: {
+                                                        display: false
+                                                    }
+                                                }
+                                            },
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                        }}
+                                    />
+                                }
+                            </div>
                         </div>
                     </div>
+
+                </div>
+                <div className="row">
+                    <div className="col-sm-4 col-12">
+                        <div className="rect">
+                            <div className="row">
+                                <div className="col-12 scaling-center">
+                                    <h5 className="fs-20 mt-2">Active VS Inactive Promos</h5>
+                                </div>
+
+                            </div>
+                            <div className="rect-image pb-3">
+                                {Object.keys(this.state.activeInactiveChart).length &&
+                                    <Doughnut
+                                        data={this.state.activeInactiveChart}
+                                        height={400}
+                                        width={400}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                        }}
+                                    />
+                                }
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
-        )
+        );
     }
 }

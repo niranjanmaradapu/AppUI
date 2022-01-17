@@ -36,6 +36,7 @@ class CeateDeliverySlip extends Component {
       mrpAmount: 0,
       promoDisc: 0,
       totalAmount: 0,
+      totalQuantity: 0,
       type: "",
       showTable: false,
       isCheckPromo: false,
@@ -67,14 +68,14 @@ class CeateDeliverySlip extends Component {
     this.hideModal = this.hideModal.bind(this);
     this.generateNew = this.generateNew.bind(this);
     //  this.deleteTableRow = this.deleteTableRow.bind(this);
- 
-     
+
+
   }
   getDataFromDB = async () => {
     let data = await getDataFromIndexDB();
     console.log('Data ', data);
   };
-  
+
   getDeliverySlips = (e) => {
     const storeId = sessionStorage.getItem("storeId");
     this.setState({ type: this.state.selectedType.label });
@@ -94,13 +95,7 @@ class CeateDeliverySlip extends Component {
             res.data.result.salesMan = this.state.smNumber;
             this.state.itemsList.push(res.data.result);
             if (this.state.itemsList.length > 1) {
-              // const barList = this.state.itemsList.filter((test, index, array) =>
-              //     index === array.findIndex((findTest) =>
-              //         findTest.barcode === test.barcode
-              //     )
-              // );
-              // this.setState({ itemsList: barList });
-              // this.setState({ barList: barList });
+           
 
               for (let i = 0; i < this.state.itemsList.length - 1; i++) {
                 if (
@@ -114,39 +109,34 @@ class CeateDeliverySlip extends Component {
                 }
               }
 
-              // for(let i=0; i<this.state.itemsList.length-1; i++ ) {
-
-              //     for(let j=1; j<=i; j++) {
-              //         if(this.state.itemsList[i].barcode === this.state.itemsList[j].barcode) {
-              //             toast.info("Barcode already entered");
-              //             this.state.itemsList.splice(i,1);
-              //            // break;
-              //         }
-              //     }
-
-              // }
+         
             }
-            if (this.state.itemsList.length > 1) {
-              this.state.itemsList.forEach((element) => {
-                mrp = mrp + element.listPrice;
-                this.setState({ mrpAmount: mrp });
-                promo = promo + element.discount;
-                this.setState({ promoDisc: promo });
-                total = total + element.costPrice;
-                this.setState({ totalAmount: total });
-              });
-            } else {
-              this.setState({ mrpAmount: this.state.itemsList[0].listPrice });
-              //  this.setState({ promoDisc: this.state.itemsList[0].discount });
+            // if (this.state.itemsList.length > 1) {
+            //   this.state.itemsList.forEach((element) => {
+            //     mrp = mrp + element.listPrice;
+            //     this.setState({ mrpAmount: mrp });
+            //     promo = promo + element.discount;
+            //     this.setState({ promoDisc: promo });
+            //     total = total + element.costPrice;
+            //     this.setState({ totalAmount: total });
+            //   });
+            // } else {
+            //   this.setState({ mrpAmount: this.state.itemsList[0].listPrice });
+            //   //  this.setState({ promoDisc: this.state.itemsList[0].discount });
 
-              this.setState({ promoDisc: 0 });
-              this.setState({ totalAmount: this.state.itemsList[0].costPrice });
-            }
+            //   this.setState({ promoDisc: 0 });
+            //   this.setState({ totalAmount: this.state.itemsList[0].costPrice });
+            // }
 
             this.setState({ barList: this.state.itemsList }, () => {
               this.state.barList.forEach((element) => {
-             //   element.productTextile.qty = 10;
-                element.quantity = 1;
+                if(element.quantity > 1) {
+                  console.log(element.quantity)
+                } else {
+                  element.totalMrp = element.productTextile.itemMrp;
+                  element.quantity = parseInt("1");
+                }
+              
               });
               this.calculateTotal();
             });
@@ -155,17 +145,23 @@ class CeateDeliverySlip extends Component {
             this.setState({ btnDisable: false });
             this.setState({ isDeliveryCreated: false });
 
-            console.log(this.state.barList);
           } else {
             toast.error(res.data.body);
           }
         });
+
+      
+
         this.setState({ showTable: true, isCheckPromo: true });
+
        
+
       } else {
         toast.info("Please enter Barcode / SM number");
       }
     }
+    
+    
   };
 
   remberSalesMan(e) {
@@ -184,6 +180,7 @@ class CeateDeliverySlip extends Component {
   }
 
   createDeliverySlip() {
+    const storeId = sessionStorage.getItem("storeId");
     sessionStorage.removeItem("recentDS");
     const obj = {
       qty: this.state.qunatity,
@@ -193,6 +190,8 @@ class CeateDeliverySlip extends Component {
       salesMan: this.state.smNumber,
 
       barcode: this.state.barList,
+
+      storeId: parseInt(storeId)
     };
     CreateDeliveryService.createDeliverySlip(obj, this.state.type).then(
       (res) => {
@@ -208,7 +207,7 @@ class CeateDeliverySlip extends Component {
             barList: [],
             itemsList: [],
             showTable: false
-          
+
           });
         } else {
           toast.error(res.data.body);
@@ -272,7 +271,7 @@ class CeateDeliverySlip extends Component {
           </div>
           <div className="col-12 col-sm-6 pt-1 p-r-0 pb-3 text-right scaling-center">
             <button className="btn-unic m-r-2 scaling-mb">Clear Promotion</button>
-            <button className="btn-unic m-r-2 scaling-mb">Hold Estimation Slip</button>
+            {/* <button className="btn-unic m-r-2 scaling-mb">Hold Estimation Slip</button> */}
             <button className="btn-unic m-r-2 scaling-mb active" onClick={this.generateEstimationSlip}>Generate Estimation Slip</button>
           </div>
 
@@ -291,20 +290,20 @@ class CeateDeliverySlip extends Component {
               <div className="row">
                 <div className="col-3 text-center">
                   <label>TOTAL QTY</label>
-                  <h6 className="pt-2">{this.state.barList.length}</h6>
+                  <h6 className="pt-2">{this.state.totalQuantity}</h6>
                 </div>
 
-                <div className="col-2">
+                {/* <div className="col-2">
                   <label>MRP</label>
                   <h6 className="pt-2">{this.state.mrpAmount} ₹</h6>
-                </div>
+                </div> */}
                 <div className="col-3">
                   <label>PROMO DISCOUNT</label>
                   <h6 className="pt-2">0 ₹</h6>
                 </div>
                 <div className="col-2 text-right pt-2 text-center text-red p-r-4">
                   <label className="text-red ">GRAND TOTAL</label>
-                  <h6 className="fs-16 text-red ">{this.state.totalAmount} ₹</h6>
+                  <h6 className="fs-16 text-red ">{this.state.mrpAmount} ₹</h6>
                 </div>
               </div>
             </div>
@@ -358,7 +357,9 @@ class CeateDeliverySlip extends Component {
                   </td>
                   {/* <td className="col-1"></td>
               <td className="col-1"></td> */}
-                  <td className="col-1"><input type="number" value={items.quantity}
+                  <td className="col-1"><input type="number"
+                    value={items.quantity}
+                    min="1"
                     onChange={(e) => this.checkQuantity(e, index, items)}
                     className="form-control" />
                   </td>
@@ -366,7 +367,7 @@ class CeateDeliverySlip extends Component {
                   <td className="col-1">₹{items.productTextile.itemMrp}</td>
                   <td className="col-2"></td>
                   <td className="col-1">₹ 0</td>
-                  <td className="col-1 w-100">₹ {items.productTextile.itemMrp}
+                  <td className="col-1 w-100">₹ {items.totalMrp}
                     <i className="icon-delete m-l-2"
                       onClick={(e) => {
                         console.log(index);
@@ -393,38 +394,76 @@ class CeateDeliverySlip extends Component {
 
   }
 
-
+  
   checkQuantity(e, index, item) {
     console.log(e.target.value);
-    let qty = item.quantity;
-    if(parseInt(e.target.value) <= item.productTextile.qty) {
-  //   this.setState({qty: e.target.value});
-     item.quantity = qty;
+    if (e.target.value !== "") {
+      item.quantity = e.target.value;
+      let qty = item.quantity;
+      if (parseInt(e.target.value) <= item.productTextile.qty) {
+        this.setState({ qty: e.target.value });
+
+
+        item.quantity = e.target.value;
+        let totalcostMrp = item.productTextile.itemMrp * parseInt(e.target.value);
+
+        item.totalMrp = totalcostMrp
+
+      } else {
+        toast.info("Insufficient Quantity");
+      }
     } else {
-      toast.info("Insufficient Quantity");
+      item.quantity = e.target.value;
     }
+
+    let grandTotal =0;
+    let totalqty = 0;
+    this.state.barList.forEach(bardata => {
+      grandTotal = grandTotal+ bardata.totalMrp;
+      totalqty = totalqty + parseInt(bardata.quantity)
+    });
+
+    this.setState({mrpAmount: grandTotal, totalQuantity: totalqty});
+
+
   }
 
+  // checkQuantity(e,index,item) {
+  //   this.state.barList[index].quantity = parseInt(e.target.value);
+  // }
+
+
   calculateTotal() {
-    let mrp = 0;
-    let promo = 0;
-    let total = 0;
-    console.log(this.state.itemsList.length)
-    if (this.state.itemsList.length > 0) {
-      this.state.itemsList.forEach((element) => {
-        console.log(element)
-        mrp = mrp + element.productTextile.itemMrp;
-        this.setState({ mrpAmount: mrp });
-        promo = promo + element.discount;
-        this.setState({ promoDisc: promo });
-        total = total + element.productTextile.costPrice;
-        this.setState({ totalAmount: total });
-      });
-    } else {
-      this.setState({ mrpAmount: 0 });
-      this.setState({ promoDisc: 0 });
-      this.setState({ totalAmount: 0 });
-    }
+    // let mrp = 0;
+    // let promo = 0;
+    // let total = 0;
+    // console.log(this.state.itemsList.length)
+    // if (this.state.itemsList.length > 0) {
+    //   this.state.itemsList.forEach((element) => {
+    //     console.log(element)
+    //     mrp = mrp + element.productTextile.itemMrp;
+    //     this.setState({ mrpAmount: mrp });
+    //     promo = promo + element.discount;
+    //     this.setState({ promoDisc: promo });
+    //     total = total + element.productTextile.costPrice;
+    //     this.setState({ totalAmount: total });
+    //   });
+    // } else {
+    //   this.setState({ mrpAmount: 0 });
+    //   this.setState({ promoDisc: 0 });
+    //   this.setState({ totalAmount: 0 });
+    // }
+
+    let totalAmount = 0;
+    let totalqty = 0;
+    this.state.barList.forEach(barCode => {
+      totalAmount = totalAmount + barCode.totalMrp;
+      totalqty = totalqty + parseInt(barCode.quantity);
+    });
+
+    this.setState({mrpAmount: totalAmount, totalQuantity: totalqty}
+      );
+
 
   }
 
@@ -452,65 +491,69 @@ class CeateDeliverySlip extends Component {
 
   getLineItems() {
     const user = JSON.parse(sessionStorage.getItem("user"));
-    const domainId =  user["custom:domainId1"];
+    const storeId = sessionStorage.getItem("storeId");
+    const domainId = user["custom:domainId1"];
     console.log(user["custom:domianId1"]);
     let lineItem = [];
     this.state.barList.forEach((element, index) => {
       const obj = {
         "itemPrice": element.productTextile.itemMrp,
-        "quantity": element.productTextile.qty,
+        "quantity": parseInt(element.quantity),
         "discount": element.productTextile.discount,
-        "netValue": element.productTextile.itemMrp,
+        "netValue": element.totalMrp,
         "barCode": element.barcode,
-        "domainId": 1
+        "domainId": 1,
+        "storeId": parseInt(storeId)
 
       }
-       lineItem.push(obj);
+      lineItem.push(obj);
     });
 
     CreateDeliveryService.getLineItem(lineItem, 1).then(res => {
-      if(res) {
+      if (res) {
         let lineItemsList = [];
         let dataResult = JSON.parse(res.data.result);
-        dataResult.forEach(element=> {
-            const obj = {
-              "lineItemId": element
-            }
-            lineItemsList.push(obj);
-          });
-        
-        
-     
+        dataResult.forEach(element => {
+          const obj = {
+            "lineItemId": element
+          }
+          lineItemsList.push(obj);
+        });
 
-        this.setState({lineItemsList: lineItemsList});
+
+
+
+        this.setState({ lineItemsList: lineItemsList });
       }
       console.log(this.state.lineItemsList);
     });
   }
 
   generateNew() {
-    console.log(this.state.smNumber)
+    const storeId = sessionStorage.getItem("storeId");
     const createObj = {
       "salesMan": parseInt(this.state.smNumber),
-      "lineItems": this.state.lineItemsList
+      "lineItems": this.state.lineItemsList,
+      "storeId": parseInt(storeId)
+
+    }
+
+    CreateDeliveryService.saveDelivery(createObj).then(res => {
+      if (res) {
+        toast.success(res.data.message);
+        this.setState({
+          barCode: "",
+          smNumber: "",
+          barList: [],
+          itemsList: [],
+          showTable: false
+
+        });
+
       }
+    });
 
-      CreateDeliveryService.saveDelivery(createObj).then(res=> {
-        if(res) {
-          toast.success(res.data.message);
-          this.setState({
-            barCode: "",
-            smNumber: "",
-            barList: [],
-            itemsList: [],
-            showTable: false
-          
-          });
-         
-        }
-      });
-
-      this.hideModal();
+    this.hideModal();
   }
 
 
@@ -524,19 +567,19 @@ class CeateDeliverySlip extends Component {
         {/* <h5>Estimation Slip</h5> */}
         {/* <h5> {t("EstimationSlip")}</h5> */}
         <Modal isOpen={this.state.isGenerate} size="lg">
-          <div className="headerGreen"><h5>Thank you!</h5></div>
+          <div className="headerGreen"><h5>List Of Items</h5></div>
           <ModalBody>
             <div className="row">
-              <div className="col-12 mb-2">
-                <label className="text-green fs-14">Estimated slip generated successfully</label>
-              </div>
-              <div className="col-12 mt-3">
+              {/* <div className="col-12 mb-2">
+                <label className="text-green fs-14"></label>
+              </div> */}
+              <div className="col-12">
                 <table className="table table-borderless mb-1">
                   <thead>
                     <tr className="m-0 p-0">
                       {/* <th className="col-1"> </th> */}
                       <th className="col-3">SLIP NO.</th>
-                      <th className="col-2">ITEMS</th>
+                      <th className="col-2">Qty</th>
                       <th className="col-2">mrp</th>
                       <th className="col-3">Promo Discount</th>
                       {/* <th className="col-4">Description</th> */}
@@ -554,10 +597,10 @@ class CeateDeliverySlip extends Component {
                           <td className="col-3 geeks">
                             {items.barcode}
                           </td>
-                          <td className="col-2">{items.productTextile.itemCode}</td>
+                          <td className="col-2">{items.quantity}</td>
                           <td className="col-2">₹ {items.productTextile.itemMrp}</td>
                           <td className="col-3">₹ 0</td>
-                          <td className="col-2">₹ {items.productTextile.costPrice}</td>
+                          <td className="col-2">₹ {items.totalMrp}</td>
                         </tr>
                       );
                     })}
@@ -571,7 +614,7 @@ class CeateDeliverySlip extends Component {
           </ModalBody>
           <ModalFooter>
             <button className="pt-2 btn-bdrG" onClick={this.hideModal}>
-             Back To Dashboard
+              Back To Dashboard
             </button>
             <button
               className="btn btn-bdrG active fs-12"
@@ -585,7 +628,7 @@ class CeateDeliverySlip extends Component {
           <div className="row">
             <div className="col-6 col-sm-3 sele">
               <div className="form-group">
-               
+
 
                 <Select
                   className="upper-case"
@@ -643,7 +686,7 @@ class CeateDeliverySlip extends Component {
             </div>
             <div className="col-sm-3 scaling-ptop col-6">
               <div className="form-group">
-            
+
                 <button
                   className={
                     "btn-login btn-create mt-3" +
@@ -661,14 +704,14 @@ class CeateDeliverySlip extends Component {
                   checked={this.state.isRemember}
                   onChange={this.remberSalesMan} id="remember" />
                 <label className="form-check-label" htmlFor="remember">Remember Sales Man</label>
-               
+
               </div>
             </div>
           </div>
         </div>
         <div>
           {this.renderTableDetails()}
-         </div>
+        </div>
 
         {/* <ToastContainer /> */}
       </div>

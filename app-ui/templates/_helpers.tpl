@@ -34,6 +34,7 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "app-ui.labels" -}}
+app.kubernetes.io/pod-communication: "true" 
 helm.sh/chart: {{ include "app-ui.chart" . }}
 {{ include "app-ui.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
@@ -46,7 +47,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "app-ui.selectorLabels" -}}
-app.kubernetes.io/pod-communication: true 
 app.kubernetes.io/name: {{ include "app-ui.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}

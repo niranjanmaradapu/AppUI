@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ include "app-ui.fullname" . }}
   annotations: 
-    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "4000"
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
   labels:
     {{- include "app-ui.labels" . | nindent 4 }}
 spec:

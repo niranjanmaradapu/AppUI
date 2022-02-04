@@ -7,7 +7,11 @@ class LoginService {
         return axios.get(BASE_URL+LOGIN_URL.getStores);
     }
     getAuth(obj){
-        return axios.post(BASE_URL+LOGIN_URL.getToken,obj);
+        const headers = {
+            'Content-Type': 'application/json',
+            'keepalive-time': 330000
+          }
+        return axios.post(BASE_URL+LOGIN_URL.getToken,obj,{headers: headers});
     }
     saveData(){
         return axios.post(BASE_URL+LOGIN_URL.saveData,null);

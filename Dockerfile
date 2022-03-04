@@ -1,4 +1,4 @@
-FROM node:12.18.3
+FROM node:16
 WORKDIR /app
 COPY package-lock.json  ./
 RUN npm install --production

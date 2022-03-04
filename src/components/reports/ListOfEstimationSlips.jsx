@@ -49,15 +49,14 @@ export default class ListOfEstimationSlips extends Component {
   componentWillMount() {
     const storeId = sessionStorage.getItem("storeId");
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if(domainData.label == "Textile") {
-      this.setState({domainId: 1}); 
-    } else if(domainData.label == "Retail") {
-      this.setState({domainId: 2}); 
+    if (domainData.label == "Textile") {
+      this.setState({ domainId: 1 });
+    } else if (domainData.label == "Retail") {
+      this.setState({ domainId: 2 });
     }
 
-    this.setState({storeId: storeId});
-}
-
+    this.setState({ storeId: storeId });
+  }
 
   getEstimationSlip() {
     const obj = {
@@ -67,7 +66,7 @@ export default class ListOfEstimationSlips extends Component {
       barcode: this.state.barcode ? this.state.barcode : undefined,
       dsNumber: this.state.dsNumber ? this.state.dsNumber : undefined,
       domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
-      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined
+      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
 
     ListOfEstimationSlipsService.getEstimationSlips(obj).then((res) => {
@@ -113,6 +112,7 @@ export default class ListOfEstimationSlips extends Component {
     let obj = {
       barCode: "",
       salesMan: "",
+      userId: "",
       quantity: "",
       itemPrice: "",
       grossValue: "",
@@ -123,7 +123,8 @@ export default class ListOfEstimationSlips extends Component {
     filterData[0].lineItems.map((d) => {
       obj = {
         barCode: d.barCode,
-        salesMan: filterData[0].salesMan,
+        // salesMan: filterData[0].salesMan,
+        userId: d.userId,
         quantity: d.quantity,
         itemPrice: d.itemPrice,
         grossValue: d.grossValue,
@@ -157,7 +158,7 @@ export default class ListOfEstimationSlips extends Component {
           <td className="col-1">{status}</td>
           {/* <td className="col-2">₹{mrp}</td> */}
           <td className="col-2">₹{netAmount}</td>
-          <td className="col-2">{promoDisc}</td>
+          <td className="col-1">{promoDisc}</td>
           <td className="col-2">₹{netAmount}</td>
           <td className="col-2 text-center">
             <img src={print} className="w-12 m-r-2 pb-2" />
@@ -181,6 +182,7 @@ export default class ListOfEstimationSlips extends Component {
         const {
           barCode,
           salesman,
+          userId,
           quantity,
           itemPrice,
           grossValue,
@@ -188,14 +190,14 @@ export default class ListOfEstimationSlips extends Component {
           netValue,
         } = items;
         return (
-          <tr>
-            <td>{barCode}</td>
-            <td>{salesman}</td>
-            <td>{quantity}</td>
-            <td>{netValue}</td>
-            <td>{grossValue}</td>
-            <td>{discount}</td>
-            <td>{netValue}</td>
+          <tr className="m-0 p-0">
+            <td className="col-2">{barCode}</td>
+            <td className="col-1">{userId}</td>
+            <td className="col-1">{quantity}</td>
+            <td className="col-1">{netValue}</td>
+            <td className="col-2">{grossValue}</td>
+            <td className="col-2">{discount}</td>
+            <td className="col-2">{netValue}</td>
           </tr>
         );
       });
@@ -227,18 +229,19 @@ export default class ListOfEstimationSlips extends Component {
                 </div>
               </div>
             </div>
-            <div className="table-responsive">
-              <table className="table table-borderless mb-1">
+            {/* <div className="table-responsive"> */}
+            <div className="row m-0 p-0 mb-3">
+              <table className="table table-borderless mb-1 mt-2">
                 <thead>
                   <tr className="m-0 p-0">
                     {/* <th className="col-1"> </th> */}
-                    <th className="">BARCODE</th>
-                    <th className="">SM</th>
-                    <th className="">QTY</th>
-                    <th className="">ITEM MRP</th>
-                    <th className="">GROSS AMOUNT</th>
-                    <th className="">PROMO DISCOUNT</th>
-                    <th className="">NET AMOUNT</th>
+                    <th className="col-2">BARCODE</th>
+                    <th className="col-1">SM</th>
+                    <th className="col-1">QTY</th>
+                    <th className="col-1">ITEM MRP</th>
+                    <th className="col-2">GROSS AMOUNT</th>
+                    <th className="col-2">PROMO DISCOUNT</th>
+                    <th className="col-2">NET AMOUNT</th>
                   </tr>
                 </thead>
                 {/* <tbody>
@@ -361,10 +364,10 @@ export default class ListOfEstimationSlips extends Component {
                 <th className="col-1">DS DATE</th>
                 <th className="col-1">DS STATUS</th>
                 <th className="col-2">GROSS AMOUNT</th>
-                <th className="col-2">PROMO DISC</th>
+                <th className="col-1">PROMO DISC</th>
                 <th className="col-2">NET AMOUNT</th>
 
-                <th className="col-2">ACTION</th>
+                <th className="col-2 text-center">ACTION</th>
               </tr>
             </thead>
           </table>

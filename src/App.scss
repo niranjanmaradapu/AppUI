@@ -1,6 +1,15 @@
 
 @import './assets/styles/maincss';
 @import './assets/fonticons/iconfont.css';
+
+@font-face {
+    font-family: BebasKai;
+    src: url(./assets/fonticons/BebasKai.ttf) format("opentype");
+  }
+//   @font-face {
+//     font-family: BebasKai;
+//     src: url(./assets/fonticons/ProductSans-Regular.ttf) format("opentype");
+//   }
 .btn-create{
     height: 38px !important; 
 }

@@ -50,42 +50,44 @@ export default class URMDashboard extends Component {
     getActiveUsers() {
         URMService.getActiveUsers(this.state.clientId).then(response => {
             if (response) {
-                this.setState({ activeUsersData: response.data.result },
-                    () => {
-                        console.log("ActiveUsersVSInactiveUser", this.state.activeUsersData);
-                        let indexName = [];
-                        let indexCount = [];
-                        let indexColor = [];
-                        let indexHoverColor = [];
+                if (response.data.result !== "null" && response.data.result.length > 0) {
+                    this.setState({ activeUsersData: response.data.result },
+                        () => {
+                            console.log("ActiveUsersVSInactiveUser", this.state.activeUsersData);
+                            let indexName = [];
+                            let indexCount = [];
+                            let indexColor = [];
+                            let indexHoverColor = [];
 
-                        this.state.activeUsersData.forEach(data => {
-                            indexName.push(data.name);
-                            indexCount.push(data.count);
+                            this.state.activeUsersData.forEach(data => {
+                                indexName.push(data.name);
+                                indexCount.push(data.count);
 
-                        });
+                            });
 
-                        colors.forEach(data => {
-                            indexColor.push(data.normalColorCode);
-                            // indexHoverColor.push(data.hoverColorCode);
-                        });
+                            colors.forEach(data => {
+                                indexColor.push(data.normalColorCode);
+                                // indexHoverColor.push(data.hoverColorCode);
+                            });
 
-                        this.setState({
-                            activeInactiveUsersChart: {
-                                labels: indexName,
-                                datasets: [
-                                    {
-                                        label: "Active vs Inactive Users",
-                                        data: indexCount,
-                                        backgroundColor: indexColor,
-                                        // hoverBackgroundColor: indexHoverColor,
-                                        hoverBorderColor: '#282828',
-                                        hoverBorderWidth: '3',
-                                    }
-                                ]
-                            }
-                        });
-                    }
-                );
+                            this.setState({
+                                activeInactiveUsersChart: {
+                                    labels: indexName,
+                                    datasets: [
+                                        {
+                                            label: "Active vs Inactive Users",
+                                            data: indexCount,
+                                            backgroundColor: indexColor,
+                                            // hoverBackgroundColor: indexHoverColor,
+                                            hoverBorderColor: '#282828',
+                                            hoverBorderWidth: '3',
+                                        }
+                                    ]
+                                }
+                            });
+                        }
+                    );
+                }
             }
         });
     }
@@ -93,44 +95,46 @@ export default class URMDashboard extends Component {
     getStoresVsEmployees() {
         URMService.getStoresVsEmployees(this.state.clientId).then(response => {
             if (response) {
-                this.setState({ storesData: response.data.result },
-                    () => {
-                        console.log("StoresVsEmployees", this.state.storesData);
-                        let indexName = [];
-                        let indexCount = [];
-                        let indexColor = [];
-                        let indexHoverColor = [];
+                if (response.data.result !== "null" && response.data.result.length > 0) {
+                    this.setState({ storesData: response.data.result },
+                        () => {
+                            console.log("StoresVsEmployees", this.state.storesData);
+                            let indexName = [];
+                            let indexCount = [];
+                            let indexColor = [];
+                            let indexHoverColor = [];
 
-                        this.state.storesData.forEach(data => {
-                            indexName.push(data.name);
-                            indexCount.push(data.count);
-                        });
+                            this.state.storesData.forEach(data => {
+                                indexName.push(data.name);
+                                indexCount.push(data.count);
+                            });
 
-                        colors.forEach(data => {
-                            indexColor.push(data.normalColorCode);
-                            // indexHoverColor.push(data.hoverColorCode);
-                        });
+                            colors.forEach(data => {
+                                indexColor.push(data.normalColorCode);
+                                // indexHoverColor.push(data.hoverColorCode);
+                            });
 
-                        this.setState({
-                            storesVsEmployeesChart: {
-                                labels: indexName,
-                                datasets: [{
-                                    label: "Stores Vs Pos Employees",
-                                    data: indexCount,
-                                    backgroundColor: indexColor,
-                                    // hoverBackgroundColor: indexHoverColor,
-                                    hoverBorderColor: '#282828',
-                                    hoverBorderWidth: '3',
-                                }],
-                                options: {
-                                    legend: {
-                                        display: false //This will do the task
+                            this.setState({
+                                storesVsEmployeesChart: {
+                                    labels: indexName,
+                                    datasets: [{
+                                        label: "Stores Vs Pos Employees",
+                                        data: indexCount,
+                                        backgroundColor: indexColor,
+                                        // hoverBackgroundColor: indexHoverColor,
+                                        hoverBorderColor: '#282828',
+                                        hoverBorderWidth: '3',
+                                    }],
+                                    options: {
+                                        legend: {
+                                            display: false //This will do the task
+                                        }
                                     }
                                 }
-                            }
-                        });
-                    }
-                );
+                            });
+                        }
+                    );
+                }
             }
         });
     }
@@ -139,43 +143,44 @@ export default class URMDashboard extends Component {
         URMService.getusersByRole(this.state.clientId).then(res => {
 
             if (res) {
-                this.setState({ usersData: res.data.result },
-                    () => {
-                        console.log("usersByRole", this.state.usersData);
-                        let indexName = [];
-                        let indexCount = [];
-                        let indexColor = [];
-                        let indexHoverColor = [];
+                if (res.data.result !== "null" && res.data.result.length > 0) {
+                    this.setState({ usersData: res.data.result },
+                        () => {
+                            console.log("usersByRole", this.state.usersData);
+                            let indexName = [];
+                            let indexCount = [];
+                            let indexColor = [];
+                            let indexHoverColor = [];
 
-                        this.state.usersData.forEach(data => {
-                            indexName.push(data.name);
-                            indexCount.push(data.count);
-                        });
+                            this.state.usersData.forEach(data => {
+                                indexName.push(data.name);
+                                indexCount.push(data.count);
+                            });
 
-                        colors.forEach(data => {
-                            indexColor.push(data.normalColorCode);
-                            // indexHoverColor.push(data.hoverColorCode);
-                        });
+                            colors.forEach(data => {
+                                indexColor.push(data.normalColorCode);
+                                // indexHoverColor.push(data.hoverColorCode);
+                            });
 
 
-                        this.setState({
-                            usersByRoleChart: {
-                                labels: indexName,
-                                datasets: [
-                                    {
-                                        label: "Users By Role",
-                                        data: indexCount,
-                                        backgroundColor: indexColor,
-                                        // hoverBackgroundColor: indexHoverColor,
-                                        hoverBorderColor: '#282828',
-                                        hoverBorderWidth: '3',
-                                    },
-                                ]
-                            }
-                        });
-                    }
-                );
-
+                            this.setState({
+                                usersByRoleChart: {
+                                    labels: indexName,
+                                    datasets: [
+                                        {
+                                            label: "Users By Role",
+                                            data: indexCount,
+                                            backgroundColor: indexColor,
+                                            // hoverBackgroundColor: indexHoverColor,
+                                            hoverBorderColor: '#282828',
+                                            hoverBorderWidth: '3',
+                                        },
+                                    ]
+                                }
+                            });
+                        }
+                    );
+                }
             }
         });
     }

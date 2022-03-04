@@ -48,7 +48,7 @@ axios.interceptors.response.use(
       }
    },
    (err) => {
-      toast.error((err.response.data && err.response.data.message)?err.response.data.message:"Something went Wrong");
+      toast.error(( err.response &&  err.response.data && err.response.data.message)?err.response.data.message:"Something went Wrong");
       document.body.classList.remove('loading-indicator');
       return Promise.reject(err);
    }

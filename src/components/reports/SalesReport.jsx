@@ -32,23 +32,17 @@ export default class SalesReport extends Component {
     this.validation = this.validation.bind(this);
   }
 
-  
   componentWillMount() {
     const storeId = sessionStorage.getItem("storeId");
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if(domainData.label == "Textile") {
-      this.setState({domainId: 1}); 
-    } else if(domainData.label == "Retail") {
-      this.setState({domainId: 2}); 
+    if (domainData.label == "Textile") {
+      this.setState({ domainId: 1 });
+    } else if (domainData.label == "Retail") {
+      this.setState({ domainId: 2 });
     }
 
-    this.setState({storeId: storeId})
-
-
-
-   
-   
-}
+    this.setState({ storeId: storeId });
+  }
 
   getSaleBills() {
     const obj = {
@@ -63,7 +57,7 @@ export default class SalesReport extends Component {
         : undefined,
       empId: this.state.empId ? this.state.empId : undefined,
       domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
-      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined
+      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
     ListOfSaleBillsService.getSaleBills(obj).then((res) => {
       console.log(res.data.result);
@@ -105,19 +99,33 @@ export default class SalesReport extends Component {
         barCode: d.barCode,
         section: d.section,
         netValue: d.netValue,
-        hsnCode: d.hsnDetailsVo.hsnCode,
+        // hsnCode: d.hsnDetailsVo.hsnCode,
+        hsnCode: d.hsnCode,
         quantity: d.quantity,
-        taxLabel: d.hsnDetailsVo.taxVo.taxLabel,
-        taxableAmount: d.hsnDetailsVo.taxVo.taxableAmount,
-        cgst: d.hsnDetailsVo.taxVo.cgst,
-        sgst: d.hsnDetailsVo.taxVo.sgst,
-        igst: d.hsnDetailsVo.taxVo.igst,
+        // taxLabel: d.hsnDetailsVo.taxVo.taxLabel,
+        // taxableAmount: d.hsnDetailsVo.taxVo.taxableAmount,
+        // cgst: d.hsnDetailsVo.taxVo.cgst,
+        // sgst: d.hsnDetailsVo.taxVo.sgst,
+        // igst: d.hsnDetailsVo.taxVo.igst,
+        taxableAmount: d.taxableAmount,
+        cgst: d.cgst,
+        sgst: d.sgst,
+        igst: d.igst,
       };
       detailsArry.push(obj);
     });
 
     this.setState({
-      mobileNumber: filterData[0].mobileNumber,
+      // mobileNumber:
+      //   filterData[0].mobileNumber.length > 10
+      //     ? filterData[0].mobileNumber.substring(7, 17)
+      //     : filterData[0].mobileNumber,
+
+      mobileNumber:
+        filterData[0].mobileNumber.length > 10
+          ? filterData[0].mobileNumber.substring(3, 14)
+          : filterData[0].mobileNumber,
+
       customerName: filterData[0].customerName,
       createdDate: filterData[0].createdDate,
       invoiceNumber: filterData[0].invoiceNumber,
@@ -188,19 +196,20 @@ export default class SalesReport extends Component {
         } = items;
         return (
           <tr key={index}>
-            <td>{barCode}</td>
-            <td>{section}</td>
-            <td>{empId}</td>
-            <td>{hsnCode}</td>
-            <td>{quantity}</td>
-            <td>{itemPrice}</td>
-            <td>{discount}</td>
-            <td>{taxLabel}</td>
-            <td>{taxableAmount}</td>
-            <td>{cgst}</td>
-            <td>{sgst}</td>
-            <td>{igst}</td>
-            <td>{netValue}</td>
+            <td width="10%">{barCode}</td>
+            <td width="10%">{section}</td>
+            {/* <td width="10%">{section}</td> */}
+            <td width="5%">{empId}</td>
+            <td width="10%">{hsnCode}</td>
+            <td width="5%">{quantity}</td>
+            <td width="5%">{itemPrice}</td>
+            <td width="5%">{discount}</td>
+            <td width="5%">{taxLabel}</td>
+            <td width="10%">{taxableAmount}</td>
+            <td width="10%">{cgst}</td>
+            <td width="10%">{sgst}</td>
+            <td width="5%">{igst}</td>
+            <td width="10%">{netValue}</td>
           </tr>
         );
       });
@@ -272,22 +281,23 @@ export default class SalesReport extends Component {
               </div>
             </div>
             <div className="table-responsive">
+              {/* <div className="row m-0 p-0 mb-3"> */}
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
-                    <th className="">Barcode</th>
-                    <th className="">Section</th>
-                    <th className="">EMP ID</th>
-                    <th className="">HSN Code</th>
-                    <th className="">QTY</th>
-                    <th className="">mrp</th>
-                    <th className="">Disc</th>
-                    <th className="">GST%</th>
-                    <th className="">Taxable Amount</th>
-                    <th className="">CGST</th>
-                    <th className="">SGST</th>
-                    <th className="">IGST</th>
-                    <th className="">Net Amount</th>
+                    <th width="10%">Barcode</th>
+                    <th width="10%">Section</th>
+                    <th width="5%">EMPID</th>
+                    <th width="10%">HSN Code</th>
+                    <th width="5%">QTY</th>
+                    <th width="5%">mrp</th>
+                    <th width="5%">Disc</th>
+                    <th width="5%">GST%</th>
+                    <th width="10%">Tax Amount</th>
+                    <th width="10%">CGST</th>
+                    <th width="10%">SGST</th>
+                    <th width="5%">IGST</th>
+                    <th width="10%">Net Amount</th>
                   </tr>
                 </thead>
                 {/* <tbody>
@@ -326,6 +336,7 @@ export default class SalesReport extends Component {
         <div className="row">
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
+            <label>From Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -337,6 +348,7 @@ export default class SalesReport extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
+            <label>To Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -348,21 +360,24 @@ export default class SalesReport extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
+            <label>Bill Status</label>
               <select
                 className="form-control"
                 value={this.state.billStatus}
                 onChange={(e) => this.setState({ billStatus: e.target.value })}
               >
                 <option>BILLPOSITION</option>
-                <option>New</option>
-                <option>Pending</option>
-                <option>Cancelled</option>
+                {/* <option>New</option>
+                <option>Pending</option> */}
+
                 <option>success</option>
+                <option>Cancelled</option>
               </select>
             </div>
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
+            <label>Invoice / Bill No</label>
               <input
                 type="text"
                 className="form-control"
@@ -389,6 +404,7 @@ export default class SalesReport extends Component {
                 minLength="10"
                 onChange={this.validation}
               /> */}
+               <label>Mobile</label>
               <input
                 type="text"
                 className="form-control"
@@ -407,6 +423,7 @@ export default class SalesReport extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
+            <label>EMP ID</label>
               <input
                 type="text"
                 className="form-control"
@@ -427,11 +444,11 @@ export default class SalesReport extends Component {
             </div>
           </div>
         </div>
-        <h5 className="pl-4 mt-3 scaling-center scaling-mb">
+        <h5 className="pl-4 mt-3 scaling-center fs-18 scaling-mb">
           New Sales Report
         </h5>
         <div className="row m-0 p-0 mb-3">
-          <div className="table-responsive">
+          <div className="table-responsive p-0">
             <table className="table table-borderless mb-1 mt-2">
               <thead>
                 <tr className="m-0 p-0">

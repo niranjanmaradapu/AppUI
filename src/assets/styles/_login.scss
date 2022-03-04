@@ -2,6 +2,7 @@ bpdy{
   overflow: hidden;
   overflow-x: hidden;
 }
+
 h1{
   color: red;
 }
@@ -12,6 +13,28 @@ h1{
   width: 100%;
   // height:768px;
   &-left{
+    & .easytxt{
+    & span{
+      color:$white;
+      // font-weight:bold;
+      font-family: bebaskai;
+      font-size: 40px;
+      padding-top:10px;
+      position:relative;
+      top:7px;
+      b{
+          display: block;
+          color:$white;
+          font-size: 18px;
+          // font-family: ProductSans-Regular;
+          font-weight: 400;
+          position: absolute;
+          top:92%;
+          left:2%;
+      }
+    }
+  
+  }
     & .pic{
       padding-top: 3%;
       padding-left: 7%;

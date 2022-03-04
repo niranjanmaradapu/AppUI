@@ -241,6 +241,7 @@ export default class ListOfDeliverySlips extends Component {
       <div className="maincontent">
         <div className="row">
           <div className="col-12 col-sm-3 mt-2">
+          <label>From Date</label>
             <div className="form-group">
               <input
                 type="date"
@@ -253,6 +254,7 @@ export default class ListOfDeliverySlips extends Component {
           </div>
           <div className="col-12 col-sm-3 mt-2">
             <div className="form-group">
+            <label>To Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -265,6 +267,7 @@ export default class ListOfDeliverySlips extends Component {
 
           <div className="col-12 col-sm-3 mt-2">
             <div className="form-group">
+            <label>Store</label>
               <select
                 className="form-control"
                 value={this.state.storeId}
@@ -291,7 +294,7 @@ export default class ListOfDeliverySlips extends Component {
             </div>
           </div>
 
-          <div className="col-12 col-sm-3 scaling-center scaling-mb mt-2">
+          <div className="col-12 col-sm-3 scaling-center scaling-mb mt-2 pt-4">
             <div className="form-group">
               <button
                 className="btn-unic-search active"
@@ -304,7 +307,7 @@ export default class ListOfDeliverySlips extends Component {
         </div>
         <div className="row m-0 p-0 mt-3">
           <div className="col-12 col-sm-6 scaling-mb scaling-center p-l-0">
-            <h5 className="mt-2">
+            <h5 className="mt-2 fs-18">
               Sales Summary
               {/* <span className="text-red fs-14">(20 Sep 2021</span>{" "}
               <span className="fs-14">To</span>{" "}
@@ -318,7 +321,7 @@ export default class ListOfDeliverySlips extends Component {
           </div>
         </div>
         <div className="row m-0 p-0 mb-3">
-          <div className="table-responsive">
+          <div className="table-responsive p-0">
             <table className="table table-borderless mb-1 mt-2">
               <thead>
                 <tr className="m-0 p-0">

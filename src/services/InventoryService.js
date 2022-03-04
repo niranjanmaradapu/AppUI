@@ -97,6 +97,16 @@ class InventoryService {
         }
     }
 
+    saveBulkData(inventoryjson, domain, storeId) {
+
+        const param = '?storeId='+ storeId;
+        if (domain && domain.label === "Retail") {
+            return axios.post(BASE_URL+INVENTORY_URLS.savebulkRetail + param,inventoryjson);
+            }else{
+                return axios.post(BASE_URL+INVENTORY_URLS.savebulkTextile + param,inventoryjson);
+            }
+    }
+
     // saveCustomer(list) {
     //     return axios.post(BASE_URL+GENERATE_RETURN_SLIPS_URL.saveCustomer, list);
     // }

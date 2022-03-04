@@ -19,6 +19,7 @@ import Select from "react-select";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { withTranslation } from 'react-i18next';
 import { saveDataInIndexDB, getDataFromIndexDB } from '../../utility.js';
+import NewSaleService from "../../services/NewSaleService";
 class CeateDeliverySlip extends Component {
   constructor(props) {
     super(props);
@@ -71,6 +72,14 @@ class CeateDeliverySlip extends Component {
 
 
   }
+
+  
+  componentWillMount() {
+    const storeId = sessionStorage.getItem("storeId");
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    this.setState({ storeId: storeId, domainId: user["custom:clientId1"] });
+  }
+
   getDataFromDB = async () => {
     let data = await getDataFromIndexDB();
     console.log('Data ', data);
@@ -133,7 +142,7 @@ class CeateDeliverySlip extends Component {
                 if(element.quantity > 1) {
                   console.log(element.quantity)
                 } else {
-                  element.totalMrp = element.productTextile.itemMrp;
+                  element.totalMrp = element.itemMrp;
                   element.quantity = parseInt("1");
                 }
               
@@ -198,7 +207,7 @@ class CeateDeliverySlip extends Component {
         console.log(res);
         if (res.data.statusCode === "OK") {
           this.setState({ dsNumber: res.data.body.number });
-
+          this.setState({ isCheckPromo: false });
           toast.success(res.data.body.message);
           sessionStorage.setItem("recentDS", res.data.body.message);
           this.setState({
@@ -219,6 +228,64 @@ class CeateDeliverySlip extends Component {
     this.setState({ isCheckPromo: false });
     this.setState({ isDeliveryCreated: true });
     console.log("check promo clicked");
+    const obj = [
+      {
+          "attr_10": "string",
+          "attr_11": "string",
+          "attr_12": "string",
+          "attr_13": "string",
+          "attr_14": "string",
+          "attr_15": "string",
+          "attr_16": "string",
+          "attr_17": "string",
+          "attr_18": "string",
+          "attr_19": "string",
+          "attr_20": "string",
+          "attr_7": "string",
+          "attr_8": "string",
+          "attr_9": "string",
+          "barcode": "string",
+          "barcodeTextileId": 0,
+          "batchNo": "string",
+          "calculatedDiscountsVo": {},
+          "category": 0,
+          "colour": "string",
+          "division": 0,
+          "productTextile": {
+              "attr_22": "string",
+              "attr_23": "string",
+              "attr_24": "string",
+              "attr_25": "string",
+              "barcodeTextileId": 0,
+              "costPrice": 0,
+              "createForLocation": 0,
+              "domainId": 0,
+              "empId": "string",
+              "hsnMasterId": 0,
+              "itemCode": "string",
+              "itemMrp": 100,
+              "itemRsp": 200,
+              "itemSku": "string",
+              "originalBarcode": "string",
+              "parentBarcode": "string",
+              "productTextileId": 0,
+              "promoLabel": "string",
+              "qty": 1,
+              "status": "DISABLE",
+              "storeId": 0,
+              "uom": "string",
+              "value": 0,
+              "valueAdditionCp": 0
+          },
+          "section": 0,
+          "subSection": 0
+      }
+  ]
+  
+  
+    NewSaleService.getCheckPromoAmount(this.state.storeId, this.state.domainId, obj).then(response => {
+
+    });
   }
 
   // generateEstimationSlip(){
@@ -270,7 +337,7 @@ class CeateDeliverySlip extends Component {
             </h5>
           </div>
           <div className="col-12 col-sm-6 pt-1 p-r-0 pb-3 text-right scaling-center">
-            <button className="btn-unic m-r-2 scaling-mb">Clear Promotion</button>
+            {/* <button className="btn-unic m-r-2 scaling-mb">Clear Promotion</button> */}
             {/* <button className="btn-unic m-r-2 scaling-mb">Hold Estimation Slip</button> */}
             <button className="btn-unic m-r-2 scaling-mb active" onClick={this.generateEstimationSlip}>Generate Estimation Slip</button>
           </div>
@@ -349,7 +416,7 @@ class CeateDeliverySlip extends Component {
                         <img src={dress1} />
                       </div>
                       <div className="td_align ">
-                        <label>{items.productTextile.itemCode}</label>
+                        {/* <label>{items.productTextile.itemCode}</label> */}
                         <label>{items.barcode}</label>
                       </div>
 
@@ -364,7 +431,7 @@ class CeateDeliverySlip extends Component {
                     className="form-control" />
                   </td>
                   <td className="col-1">{items.salesMan}</td>
-                  <td className="col-1">₹{items.productTextile.itemMrp}</td>
+                  <td className="col-1">₹{items.itemMrp}</td>
                   <td className="col-2"></td>
                   <td className="col-1">₹ 0</td>
                   <td className="col-1 w-100">₹ {items.totalMrp}
@@ -400,12 +467,12 @@ class CeateDeliverySlip extends Component {
     if (e.target.value !== "") {
       item.quantity = e.target.value;
       let qty = item.quantity;
-      if (parseInt(e.target.value) <= item.productTextile.qty) {
+      if (parseInt(e.target.value) <= item.qty) {
         this.setState({ qty: e.target.value });
 
 
         item.quantity = e.target.value;
-        let totalcostMrp = item.productTextile.itemMrp * parseInt(e.target.value);
+        let totalcostMrp = item.itemMrp * parseInt(e.target.value);
 
         item.totalMrp = totalcostMrp
 
@@ -492,18 +559,26 @@ class CeateDeliverySlip extends Component {
   getLineItems() {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const storeId = sessionStorage.getItem("storeId");
-    const domainId = user["custom:domainId1"];
-    console.log(user["custom:domianId1"]);
     let lineItem = [];
     this.state.barList.forEach((element, index) => {
+     
       const obj = {
-        "itemPrice": element.productTextile.itemMrp,
+        "itemPrice": element.itemMrp,
         "quantity": parseInt(element.quantity),
-        "discount": element.productTextile.discount,
+        "discount": element?.discount,
         "netValue": element.totalMrp,
         "barCode": element.barcode,
         "domainId": 1,
-        "storeId": parseInt(storeId)
+        "storeId": parseInt(storeId),
+        "section": element.section,
+        "subSection": element.subSection,
+        "division": element.division,
+        "userId": element.salesMan,
+        "hsnCode": null,
+        "actualValue": element.itemMrp,
+        "taxValue": null,
+        "cgst": null,
+        "sgst": null
 
       }
       lineItem.push(obj);
@@ -598,7 +673,7 @@ class CeateDeliverySlip extends Component {
                             {items.barcode}
                           </td>
                           <td className="col-2">{items.quantity}</td>
-                          <td className="col-2">₹ {items.productTextile.itemMrp}</td>
+                          <td className="col-2">₹ {items.itemMrp}</td>
                           <td className="col-3">₹ 0</td>
                           <td className="col-2">₹ {items.totalMrp}</td>
                         </tr>
@@ -687,14 +762,15 @@ class CeateDeliverySlip extends Component {
             <div className="col-sm-3 scaling-ptop col-6">
               <div className="form-group">
 
+              {/* onClick={this.checkPromo} */}
                 <button
                   className={
                     "btn-login btn-create mt-3" +
                     (!this.state.isCheckPromo ? " btn-disable" : "")
                   }
-                  onClick={this.checkPromo}
+                 
                 >
-                  Check Promo Discount{" "}
+                  Check Promo Discount
                 </button>
               </div>
             </div>

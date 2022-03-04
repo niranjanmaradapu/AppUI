@@ -59,7 +59,7 @@ export default class NewSale extends Component {
       gender: "",
       customerEmail: "",
       couponCode: "",
-      ccCollectedCash:"",
+      ccCollectedCash: "",
       dob: "",
       customerGST: "",
       address: "",
@@ -76,16 +76,8 @@ export default class NewSale extends Component {
       discApprovedBy: "",
       showTable: false,
       dsNumberList: [],
-      // customerDetails: {
-      //     mobilenumber: '',
-      //     customerName: '',
-      //     gender: '',
-      //     customerEmail: '',
-      //     dob: '',
-      //     customerGST: '',
-      //     address: ''
-      // },
-      // isOpen: false,
+      isCredit: false,
+      paymentType: [],
       mobileData: {
         address: "",
         altMobileNo: "",
@@ -127,8 +119,14 @@ export default class NewSale extends Component {
       isCouponApplied: true,
       enablePayment: false,
       isCCModel: false,
-      isCCPay: false
-      
+      isCCPay: false,
+      isCreditModel: false,
+      isCreditConfirm: false,
+      isUPIModel: false,
+      upiMobilenumber: "",
+      balanceCreditAmount: "",
+      isreturnCreditCash: false,
+
       // open: false,
     };
 
@@ -151,6 +149,13 @@ export default class NewSale extends Component {
     this.getCCModel = this.getCCModel.bind(this);
     this.hideCCModel = this.hideCCModel.bind(this);
     this.saveCCAmount = this.saveCCAmount.bind(this);
+    this.getCreditModel = this.getCreditModel.bind(this);
+    this.hideCreditModel = this.hideCreditModel.bind(this);
+    this.confirmCreditModel = this.confirmCreditModel.bind(this);
+    this.getUPIModel = this.getUPIModel.bind(this);
+    this.hideUPIModel = this.hideUPIModel.bind(this);
+    this.getUPILink = this.getUPILink.bind(this);
+
     //this.handler = this.handler.bind(this);
   }
 
@@ -233,6 +238,10 @@ export default class NewSale extends Component {
       isCash: true,
       cashAmount: 0,
       returnCash: 0
+    }, () => {
+      if (this.state.isreturnCreditCash) {
+        this.setState({ grandNetAmount: this.state.balanceCreditAmount })
+      }
     });
     this.setState({
       isCard: false,
@@ -243,15 +252,94 @@ export default class NewSale extends Component {
   };
 
   getCCModel() {
-    this.setState({isCCModel: true});
+    this.setState({ isCCModel: true },
+      () => {
+        if (this.state.isreturnCreditCash) {
+          this.setState({ grandNetAmount: this.state.balanceCreditAmount })
+        }
+      });
+  }
+
+
+  getUPIModel() {
+    this.setState({ isUPIModel: true });
+  }
+
+  hideUPIModel() {
+    this.setState({ isUPIModel: false });
+  }
+
+  getUPILink() {
+    console.log(this.state.upiMobilenumber);
+    this.savePayment();
+    //     var instance = new Razorpay({ key_id: 'YOUR_KEY_ID', key_secret: 'YOUR_SECRET' })
+
+    // instance.paymentLink.create({
+    //   upi_link: true,
+    //   amount: 500,
+    //   currency: "INR",
+    //   accept_partial: true,
+    //   first_min_partial_amount: 100,
+    //   description: "For XYZ purpose",
+    //   customer: {
+    //     name: "Gaurav Kumar",
+    //     email: "gaurav.kumar@example.com",
+    //     contact: 919999999999
+    //   },
+    //   notify: {
+    //     sms: true,
+    //     email: true
+    //   },
+    //   reminder_enable: true,
+    //   notes: {
+    //     policy_name: "Jeevan Bima"
+    //   }
+    // })
+  }
+
+  getCreditModel() {
+    this.setState({ isCreditModel: true });
+
+  }
+
+  hideCreditModel() {
+    this.setState({ isCreditModel: false });
+  }
+
+  confirmCreditModel() {
+
+    if (this.state.creditAmount < this.state.grandNetAmount) {
+      const amount = this.state.grandNetAmount - this.state.creditAmount;
+      this.setState({ isPayment: true, isreturnCreditCash: true, balanceCreditAmount: amount }, () => {
+        const obj = {
+
+          "paymentType": "PKTADVANCE",
+          "paymentAmount": this.state.creditAmount
+        }
+
+        this.state.paymentType.push(obj);
+      })
+    } else {
+      this.setState({ isPayment: false })
+      const obj = {
+
+        "paymentType": "PKTADVANCE",
+        "paymentAmount": this.state.grandNetAmount
+      }
+
+      this.state.paymentType.push(obj);
+    }
+
+    this.hideCreditModel();
+
   }
 
   hideCCModel() {
-    this.setState({isCCModel: false});
+    this.setState({ isCCModel: false });
   }
 
   saveCCAmount() {
-    
+
     this.state.discType = this.state.dropValue;
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
@@ -291,19 +379,19 @@ export default class NewSale extends Component {
         "lineItemsReVo": null,
         "paymentAmountType": [
           {
-          "paymentType": "Cash",
-          "paymentAmount": this.state.ccCollectedCash
-        },
-        {
-          "paymentType": "Card",
-          "paymentAmount": this.state.ccCardCash
-        }
+            "paymentType": "Cash",
+            "paymentAmount": this.state.ccCollectedCash
+          },
+          {
+            "paymentType": "Card",
+            "paymentAmount": this.state.ccCardCash
+          }
 
-      ]
+        ]
 
       }
 
-     
+
 
       NewSaleService.saveSale(obj).then((res) => {
         if (res) {
@@ -338,9 +426,9 @@ export default class NewSale extends Component {
           toast.success(res.data.result);
           this.setState({ newSaleId: res.data.result });
           // this.pay()
-        
-            this.pay()
-          
+
+          this.pay()
+
         } else {
           toast.error(res.data.result);
         }
@@ -371,7 +459,14 @@ export default class NewSale extends Component {
   getCardModel = () => {
     this.setState({
       isCard: true,
-    });
+    },
+      () => {
+        if (this.state.isreturnCreditCash) {
+          this.setState({ grandNetAmount: this.state.balanceCreditAmount })
+        }
+      });
+
+
     this.savePayment();
     // this.setState({
     //   isCardSelected: true,
@@ -386,7 +481,7 @@ export default class NewSale extends Component {
           grandTotal = grandTotal - res.data.result.value;
         }
         this.setState({ grandNetAmount: grandTotal }, () => {
-          this.setState({isCouponApplied: false});
+          this.setState({ isCouponApplied: false });
         });
       } else {
         toast.error(res.data.result);
@@ -400,49 +495,120 @@ export default class NewSale extends Component {
     });
     const value = displayRazorpay(this.state.cardAmount)
   };
+
   pay = () => {
-    console.log(this.state.isCCPay);
-    const cardAmount = this.state.isCCPay ? Math.round(this.state.ccCardCash) : Math.round(this.state.netCardPayment)
-    NewSaleService.payment(cardAmount, this.state.newSaleId).then((res) => {
-      this.setState({ isPayment: false });
-      const data = JSON.parse(res.data.result);
-      const options = {
-        // process.env.RAZORPAY_KEY_ID
-        key: "rzp_test_z8jVsg0bBgLQer",
-        currency: data.currency,
-        amount: data.amount,
-        name: "OTSI",
-        description: "Transaction",
-        image: ecommerce,
-        order_id: data.id,
-        handler: function (response) {
+    if (this.state.isUPIModel) {
 
-          console.log(response);
-
-          // return response;
-          // alert("PAYMENT ID ::" + response.razorpay_payment_id);
-          // this.setState({paymentOrderId:  response.razorpay_order_id });
-         // const result = await axios.post("http://localhost:5000/payment/success", data);
-          toast.success("Payment Done Successfully");
-
-
-          // let payResult =  this.postPaymentData(response.razorpay_order_id);
-          let status = true
-          const param = '?razorPayId='+  response.razorpay_order_id +'&payStatus='+status; 
-        const result =  axios.post(BASE_URL+NEW_SALE_URL.saveSale+param, {});
-          // alert("ORDER ID :: " + response.razorpay_order_id);
-
+      const obj = {
+        "amount": 200,
+        "currency": "INR",
+        "accept_partial": true,
+        "first_min_partial_amount": 200,
+        "expire_by": 1691097057,
+        "reference_id": "pkstore111oo6",
+        "description": "Payment for policy no #23456",
+        "customer": {
+          "name": "p Kumar",
+          "contact": "+916305857148",
+          "email": "prasannakumar3333@gmail.com"
         },
-        prefill: {
-          name: "Kadali",
-          email: "kadali@gmail.com",
-          contact: "9999999999",
+        "notify": {
+          "sms": true,
+          "email": true
         },
+        "reminder_enable": true,
+        "notes": {
+          "policy_name": "Jeevan Bima"
+        },
+        "callback_url": "https://example-callback-url.com/",
+        "callback_method": "get"
+      }
+
+
+      let axiosConfig = {
+        mode:"no-cors",
+        headers: {
+          'Authorization': 'Basic cnpwX3Rlc3RfREJ4TVhKWkhReFljbWM6VHhnV0xjZkZabU9MTGZzQjJOOUdDMEVi',
+          "Access-Control-Allow-Origin": "*",
+          'Content-Type': 'application/json'
+        }
       };
-      const paymentObject = new window.Razorpay(options);
-      paymentObject.open();
-       this.setState({isCCPay: false});
-    });
+
+      const uninterceptedAxiosInstance = axios.create();
+      uninterceptedAxiosInstance.post('https://api.razorpay.com/v1/payment_links', obj,axiosConfig).then(response => {
+        console.log(response);
+      });
+
+
+
+      // NewSaleService.payment(this.state.grandNetAmount, this.state.newSaleId).then((res) => {
+      //   this.setState({ isUPIModel: false });
+      //   const data = JSON.parse(res.data.result);
+      //   if (res.data.result) {   
+     //   }
+        // var instance = new Razorpay({ key_id: data.id, key_secret: 'rzp_test_z8jVsg0bBgLQer' })
+        // instance.paymentLink.create({
+        //   upi_link: true,
+        //   amount: this.state.grandNetAmount,
+        //   currency: "INR",
+        //   accept_partial: true,
+        //   first_min_partial_amount: 100,
+        //   description: "For XYZ purpose",
+        //   customer: {
+        //     name: "Neelu",
+        //     email: "Neelu@gmail.com",
+        //     contact: this.state.upiMobilenumber
+        //   },
+        //   notify: {
+        //     sms: true,
+        //     email: true
+        //   },
+        //   reminder_enable: true,
+        //   notes: {
+        //     policy_name: "Jeevan Bima"
+        //   }
+        // });
+      // });
+
+    } else {
+
+
+      const cardAmount = this.state.isCCPay ? Math.round(this.state.ccCardCash) : Math.round(this.state.netCardPayment)
+      NewSaleService.payment(cardAmount, this.state.newSaleId).then((res) => {
+        this.setState({ isPayment: false });
+        const data = JSON.parse(res.data.result);
+        const options = {
+          // process.env.RAZORPAY_KEY_ID
+          key: "rzp_test_z8jVsg0bBgLQer",
+          currency: data.currency,
+          amount: data.amount,
+          name: "OTSI",
+          description: "Transaction",
+          image: ecommerce,
+          order_id: data.id,
+          handler: function (response) {
+            toast.success("Payment Done Successfully");
+
+
+            let status = true
+            const param = '?razorPayId=' + response.razorpay_order_id + '&payStatus=' + status;
+            const result = axios.post(BASE_URL + NEW_SALE_URL.saveSale + param, {});
+
+
+          },
+          prefill: {
+            name: "Kadali",
+            email: "kadali@gmail.com",
+            contact: "9999999999",
+          },
+        };
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.open();
+        this.setState({ isCCPay: false });
+      });
+
+    }
+
   };
 
   postPaymentData(paymentOrderId) {
@@ -565,12 +731,13 @@ export default class NewSale extends Component {
 
       this.setState({
         netPayableAmount: total,
+
         totalPromoDisc: discount,
         grossAmount: costPrice,
       });
 
-      if(this.state.barCodeList.length > 0){
-        this.setState({enablePayment : true});
+      if (this.state.barCodeList.length > 0) {
+        this.setState({ enablePayment: true });
       }
 
       this.getTaxAmount();
@@ -580,14 +747,19 @@ export default class NewSale extends Component {
   }
 
   getTaxAmount() {
-
     const taxDetails = JSON.parse(sessionStorage.getItem("HsnDetails"));
     let slabCheck = false;
     taxDetails.forEach(taxData => {
-      console.log(taxData);
       if (this.state.netPayableAmount >= taxData[0].priceFrom && this.state.netPayableAmount <= taxData[0].priceTo) {
+        const taxPer = taxData[0].taxVo.taxLabel.split(' ')[1].split('%')[0];
+        const tax = parseInt(taxPer) / 100;
+
+        const totalTax = this.state.netPayableAmount * tax
+
+        const central = totalTax / 2;
+        this.setState({ centralGST: Math.ceil(central) });
         slabCheck = true;
-        this.setState({ stateGST: taxData[0].taxVo.sgst, centralGST: taxData[0].taxVo.cgst });
+
       }
 
     });
@@ -601,35 +773,14 @@ export default class NewSale extends Component {
     const grandTotal = this.state.netPayableAmount + this.state.centralGST + this.state.centralGST;
     this.setState({ grandNetAmount: grandTotal });
 
-    // NewSaleService.getTaxAmount(this.state.netPayableAmount).then((res) => {
-    //   this.setState({ taxAmount: res.data.result });
-    //   if (this.state.barCodeList.length > 0) {
-    //     const grandNet = this.state.netPayableAmount + this.state.taxAmount;
-    //     this.setState({
-    //       grandNetAmount: grandNet,
-    //       grandReceivedAmount: grandNet,
-    //     });
-    //     // this.state.grandNetAmount  =
-    //     // this.state.grandReceivedAmount = this.state.netPayableAmount + this.state.taxAmount;
-    //     if (this.state.cashAmount > this.state.grandNetAmount) {
-    //       const returnCash = this.state.cashAmount - this.state.grandNetAmount;
-    //       this.setState({ returnCash: returnCash });
-    //     } else {
-    //       this.state.cashAmount = 0;
-    //       this.state.returnCash = 0;
-    //       //  this.state.grandNetAmount = 0;
-    //       this.state.grandReceivedAmount = 0;
-    //       this.setState({ isPayment: true });
-    //       //  toast.info("Please enter sufficient amount");
-    //     }
-    //   }
-    // });
+
   }
 
   getMobileDetails = (e) => {
     if (e.key === "Enter") {
       NewSaleService.getMobileData(this.state.mobilenumber).then((res) => {
-        if (res.data.result) {
+        console.log(res);
+        if (res && res.data.isSuccess === "true" && res.data.result) {
           this.state.mobileData = res.data.result;
           this.setState({
             customerName: res.data.result.name,
@@ -639,8 +790,9 @@ export default class NewSale extends Component {
             customerGST: res.data.result.gstNumber,
             address: res.data.result.address,
           });
-        } else {
-          toast.error("No Data Found");
+
+
+
         }
       });
     }
@@ -652,7 +804,7 @@ export default class NewSale extends Component {
       this.getDiscountReasons();
     });
 
-    // manualDisc: "",discApprovedBy:"", selectedDisc:{}
+
   }
 
   hideDiscount() {
@@ -671,24 +823,30 @@ export default class NewSale extends Component {
     this.setState({ dropValue: e.label });
   }
 
-saveDiscount() {
-    if (Object.keys(this.state.selectedDisc).length !== 0 && this.state.manualDisc !== 0 && this.state.discApprovedBy !== '') {
-      this.state.netPayableAmount = 0;
-      const totalDisc =
-        this.state.totalPromoDisc + parseInt(this.state.manualDisc);
-      if (totalDisc < this.state.grandNetAmount) {
-        const netPayableAmount = this.state.grandNetAmount - totalDisc;
-        this.state.netPayableAmount = netPayableAmount;
-        //  this.setState({netPayableAmount: netPayableAmount});
-        this.getTaxAmount();
-      }
-      const promDisc = parseInt(this.state.manualDisc) + this.state.totalPromoDisc;
-      this.setState({ showDiscReason: true, promoDiscount: promDisc });
+  saveDiscount() {
+    if(this.state.manualDisc <= this.state.grandNetAmount) {
 
-      this.hideDiscount();
+      if (Object.keys(this.state.selectedDisc).length !== 0 && this.state.manualDisc !== 0 && this.state.discApprovedBy !== '') {
+        this.state.netPayableAmount = 0;
+        const totalDisc =
+          this.state.totalPromoDisc + parseInt(this.state.manualDisc);
+        if (totalDisc < this.state.grandNetAmount) {
+          const netPayableAmount = this.state.grandNetAmount - totalDisc;
+          this.state.netPayableAmount = netPayableAmount;
+  
+          this.getTaxAmount();
+        }
+        const promDisc = parseInt(this.state.manualDisc) + this.state.totalPromoDisc;
+        this.setState({ showDiscReason: true, promoDiscount: promDisc });
+  
+        this.hideDiscount();
+      } else {
+        toast.info("Please Enter all fields")
+      }
     } else {
-      toast.info("Please Enter all fields")
+      toast.error("Please enter sufficient amount");
     }
+   
 
   }
 
@@ -728,31 +886,40 @@ saveDiscount() {
     if (collectedCash > this.state.grandNetAmount) {
       this.state.returnCash = collectedCash - this.state.grandNetAmount;
       this.state.returnCash = Math.round(this.state.returnCash);
-    //  this.hideCashModal();
+      //  this.hideCashModal();
     } else if (collectedCash == Math.round(this.state.grandNetAmount)) {
-     // this.state.grandNetAmount = 0;
+      // this.state.grandNetAmount = 0;
       this.setState({ isPayment: false });
-    
+
     } else if (collectedCash < this.state.grandNetAmount) {
-     // this.state.grandNetAmount = this.state.grandNetAmount - collectedCash;
-   //   toast.info("Please enter sufficient amount");
+      // this.state.grandNetAmount = this.state.grandNetAmount - collectedCash;
+      //   toast.info("Please enter sufficient amount");
     } else {
       this.state.cashAmount = 0;
       this.state.returnCash = 0;
       this.state.grandNetAmount = 0;
       this.state.grandReceivedAmount = 0;
       this.setState({ isPayment: true });
-     // toast.info("Please enter sufficient amount");
+      // toast.info("Please enter sufficient amount");
     }
 
-    if(this.state.returnCash >= 1) {
+    if (this.state.returnCash >= 1) {
       this.hideCashModal();
     } else {
       toast.error("Please collect suffient amount");
     }
 
-    
-  //  this.hideCashModal();
+    const obj = {
+
+      "paymentType": "Cash",
+      "paymentAmount": this.state.grandNetAmount
+    }
+
+    this.state.paymentType.push(obj);
+
+
+
+    //  this.hideCashModal();
   };
 
   removeDuplicates(array, key) {
@@ -807,15 +974,12 @@ saveDiscount() {
         "offlineNumber": null,
 
         "userId": this.state.userId,
+
         "sgst": this.state.centralGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
         "lineItemsReVo": null,
-        "paymentAmountType": [{
-          "paymentType": "Cash",
-          "paymentAmount": this.state.grandNetAmount
-
-        }]
+        "paymentAmountType": this.state.paymentType
 
       }
 
@@ -853,7 +1017,7 @@ saveDiscount() {
           toast.success(res.data.result);
           this.setState({ newSaleId: res.data.result });
           // this.pay()
-          if (this.state.isCard) {
+          if (this.state.isCard || this.state.isUPIModel) {
             this.pay()
           }
         } else {
@@ -922,10 +1086,16 @@ saveDiscount() {
               "lineItemsReVo": this.state.lineItemsList,
               "sgst": this.state.centralGST,
               "cgst": this.state.centralGST,
-              "paymentAmountType": [{
-                "paymentType": "Cash",
-                "paymentAmount": this.state.cashAmount
-              }]
+              "paymentAmountType": [
+                {
+                  "paymentType": "Cash",
+                  "paymentAmount": this.state.cashAmount
+                },
+                {
+                  "paymentType": "PKTADVANCE",
+                  "paymentAmount": "2200"
+                }
+              ]
 
             }
 
@@ -977,6 +1147,8 @@ saveDiscount() {
   }
 
   tagCustomer() {
+
+    const selectedMobile = JSON.parse(JSON.stringify(this.state.mobilenumber));
     const obj = {
       "id": "",
       "phoneNo": "+91" + this.state.mobilenumber,
@@ -986,12 +1158,15 @@ saveDiscount() {
       "roleId": "",
       "storeId": ""
     }
+
     CreateDeliveryService.getUserByMobile("+91" + this.state.mobilenumber).then(res => {
-      console.log(res);
+
+
       if (res) {
         const mobileData = res.data.result;
         this.setState({
-          userId: res.data.result.userId, customerFullName: res.data.result.userName
+          userId: res.data.result.userId,
+          customerFullName: res.data.result.userName
         });
 
         this.state.mobileData = {
@@ -1010,11 +1185,21 @@ saveDiscount() {
           customerMobilenumber: mobileData.phoneNumber,
         });
 
+        NewSaleService.getCreditNotes(selectedMobile, res.data.result.userId).then(response => {
+          if (response) {
+            console.log(response);
+            if (response.data.result && response.data.result.length > 0) {
+              this.setState({ isCredit: true, creditAmount: response.data.result[0].actualAmount });
+            }
+          }
+        });
+
+      } else {
+
       }
     });
 
 
-    // this.state.customerMobilenumber = ;
     this.hideModal();
   }
 
@@ -1164,12 +1349,67 @@ saveDiscount() {
       <div className="maincontent">
 
 
-    <Modal isOpen={this.state.isCCModel} size="lg">
-      <ModalHeader>
-        Cash & Card Payment
-      </ModalHeader>
-      <ModalBody>
-      <div className="row">
+        <Modal isOpen={this.state.isUPIModel} size="lg">
+          <ModalHeader>
+            UPI
+          </ModalHeader>
+          <ModalBody>
+            <div className="row">
+              <div className="col-4">
+                <label>Net Payable Amount: </label>
+              </div>
+              <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-4">
+                <label>Mobile Number: </label>
+              </div>
+              <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  minLength="10"
+                  maxlength="10"
+                  value={this.state.upiMobilenumber}
+                  autoComplete="off"
+                  onChange={(e) =>
+                    this.setState({ upiMobilenumber: e.target.value })
+                  }
+
+                />
+              </div>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <button className="btn-unic" onClick={this.hideUPIModel}>
+              Cancel
+            </button>
+            <button
+              className="btn-unic active fs-12"
+              onClick={this.getUPILink}
+            >
+              Confirm
+            </button>
+          </ModalFooter>
+
+        </Modal>
+
+
+        <Modal isOpen={this.state.isCCModel} size="lg">
+          <ModalHeader>
+            Cash & Card Payment
+          </ModalHeader>
+          <ModalBody>
+            <div className="row">
               <div className="col-4">
                 <label>Net Payable Amount: </label>
               </div>
@@ -1194,15 +1434,15 @@ saveDiscount() {
                   className="form-control"
                   value={this.state.ccCollectedCash}
                   onChange={(e) =>
-                    this.setState({ ccCollectedCash: e.target.value },()=>{
-                      if(this.state.ccCollectedCash < this.state.grandNetAmount) {
+                    this.setState({ ccCollectedCash: e.target.value }, () => {
+                      if (this.state.ccCollectedCash < this.state.grandNetAmount) {
                         let ccReturn = this.state.grandNetAmount - this.state.ccCollectedCash;
-                        this.setState({ccCardCash: ccReturn});
-                        
+                        this.setState({ ccCardCash: ccReturn });
+
                       }
                     })
                   }
-                  
+
                 />
               </div>
             </div>
@@ -1219,7 +1459,60 @@ saveDiscount() {
             </button>
           </ModalFooter>
 
-    </Modal>
+        </Modal>
+
+
+        <Modal isOpen={this.state.isCreditModel} size="lg">
+          <ModalHeader>
+            Credit Payment
+          </ModalHeader>
+          <ModalBody>
+            <div className="row">
+              <div className="col-4">
+                <label>Credit Amount: </label>
+              </div>
+              <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.creditAmount}
+                  disabled
+                />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-4">
+                <label> Cash: </label>
+              </div>
+              <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+
+                />
+              </div>
+            </div>
+
+          </ModalBody>
+          <ModalFooter>
+            <button className="btn-unic" onClick={this.hideCreditModel}>
+              Cancel
+            </button>
+            <button
+              className="btn-unic active fs-12"
+              // className={"fs-12" + (this.state.isCreditConfirm ? "btn-unic btn-disable" : "btn-unic active")}
+              onClick={this.confirmCreditModel}
+            >
+              Confirm
+            </button>
+          </ModalFooter>
+
+        </Modal>
+
+
 
 
         <Modal
@@ -1387,51 +1680,10 @@ saveDiscount() {
             </button>
           </ModalFooter>
         </Modal>
-        {/* <Modal
-          isOpen={this.state.isCard}
-          size="lg"
-          onRequestHide={this.hideCardModal}
-        >
-          <ModalHeader>Card Payment</ModalHeader>
-          <ModalBody>
 
-            <div className="row">
-              <div className="col-4">
-                <label>Amount: </label>
-              </div>
-              <div className="col-8">
-                <input
-                  type="text"
-                  name="cash"
-                  className="form-control"
-                  value={this.state.cardAmount}
-                  onChange={(e) =>
-                    this.setState({ cardAmount: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <br></br>
-          </ModalBody>
-          <ModalFooter>
-            <button className="pt-2 btn-bdr" onClick={this.hideCardModal}>
-              CANCEL
-            </button>
-            <button
-              className="btn btn-bdr active fs-12"
-              onClick={() => {
-                this.hideCardModal();
-                this.pay();
-              }}
-            >
-              PAY
-            </button>
-          </ModalFooter>
-        </Modal> */}
         <Modal isOpen={this.state.openn} size="sm">
           <ModalHeader>
-            {/* <ModalClose onClick={this.hideModal}/> */}
-            {/* <ModalTitle>Modal title</ModalTitle> */}
+
             <h5>Tag customer</h5>
           </ModalHeader>
           <ModalBody>
@@ -1481,7 +1733,7 @@ saveDiscount() {
 
         <div className="row">
           <div className="col-6 pt-2">
-            {/* <h5>Create Sales Invoice</h5> */}
+
           </div>
           <div className="col-6 text-right pb-2">
 
@@ -1502,7 +1754,7 @@ saveDiscount() {
                             value={this.state.dsNumber}
                             onChange={(e) => this.setState({ dsNumber: e.target.value })}
 
-                            placeholder="Enter DsNumber" />
+                            placeholder="Enter ES Number" />
                           <button type="button" className="scan" onClick={this.getDeliverySlipDetails}>
                             <img src={scan} /> SCAN
                           </button>
@@ -1529,38 +1781,35 @@ saveDiscount() {
 
                   </div>
                 </div>
-                {/* <div className="col-12 col-sm-8 scaling-center">
-                  <button className="btn-unic m-r-2 scaling-mb">Find Item</button>
-                  <button className="btn-unic m-r-2 scaling-mb" onClick={this.showCalculator}>Calculator</button>
-                </div> */}
+
               </div>
               <div className="row m-0 p-0">
                 <div className="col-12 col-sm-4 scaling-center p-l-0">
-                <h5 className="mt-1 mb-3">
+                  <h5 className="mt-1 mb-3">
                     Order Details
                   </h5>
                 </div>
-            
+
                 {
-                    this.state.showTable && ( 
-                      
-            
-                          <div className="col-12 col-sm-8 scaling-center text-right p-r-0">
-                  {/* <button className="btn-unic m-r-2">Tag Customer</button>  */}
-                  <button
-                    type="button"
-                    className="btn-unic m-r-2 active scaling-mb"
-                    onClick={this.toggleModal}
-                  >Tag Customer </button>
-                  <button className="btn-unic m-r-2 scaling-mb" onClick={this.showDiscount} >Bill Level Discount</button>
-                </div>
-                        
-                      
-                  
-                    )
-                  }
-              
-              
+                  this.state.showTable && (
+
+
+                    <div className="col-12 col-sm-8 scaling-center text-right p-r-0">
+
+                      <button
+                        type="button"
+                        className="btn-unic m-r-2 active scaling-mb"
+                        onClick={this.toggleModal}
+                      >Tag Customer </button>
+                      <button className="btn-unic m-r-2 scaling-mb" onClick={this.showDiscount} >Bill Level Discount</button>
+                    </div>
+
+
+
+                  )
+                }
+
+
                 <div>{this.showOrderDetails()}</div>
                 {
                   this.state.showTable && (
@@ -1570,26 +1819,23 @@ saveDiscount() {
                         <div className="row">
                           <div className="col-2 text-center">
                             <label>Items : <span className="font-bold"> {this.state.barCodeList.length}</span></label>
-                            {/* <h6 className="pt-2">02</h6> */}
+
                           </div>
 
-                          {/* <div className="col-2">
-                          <label>Qty : <span className="font-bold"> 01</span></label>
-                        </div> */}
+
                           <div className="col-2">
 
-                            {/* <label>N/Rate : <span className="font-bold"> ₹ {this.state.grossAmount}</span> </label> */}
-                            {/* <h6 className="pt-2">{this.state.promoDisc} ₹</h6> */}
+
                           </div>
                           <div className="col-3">
                             <label>Discount : <span className="font-bold"> ₹
                               {this.state.promoDiscount}
                             </span> </label>
-                            {/* <h6 className="pt-2">{this.state.promoDisc} ₹</h6> */}
+
                           </div>
                           <div className="col-2">
                             <label>Total : <span className="font-bold"> ₹ {this.state.netPayableAmount}</span> </label>
-                            {/* <h6 className="pt-2">{this.state.promoDisc} ₹</h6> */}
+
                           </div>
 
                         </div>
@@ -1608,7 +1854,7 @@ saveDiscount() {
                               <th className="col-3">NAME</th>
                               <th className="col-3">MOBILE NUMBER</th>
                               <th className="col-3">LOYALTY POINTS</th>
-                              <th className="col-3">EXPAIRY DATE</th>
+                              <th className="col-3">EXPIRY DATE</th>
 
                             </tr>
                           </thead>
@@ -1625,10 +1871,7 @@ saveDiscount() {
                                 <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
                                   {/* <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" /> */}
                                   <label className="form-check-label" htmlFor="roundedExample2"> </label>
-                                  {/* <div className="custom-control t_image custom-checkbox V1_checkbox-label">
-                            <input className="custom-control-input" type="checkbox" id="check1" />
-                            <label className="custom-control-label V1_custom-control-label p-l-1 p-t-0 fs-14"
-                              htmlFor="check1">526</label> */}
+
 
                                 </div>
                               </td>
@@ -1685,6 +1928,22 @@ saveDiscount() {
                     </div>
                   </div>
 
+
+
+                  {
+                    this.state.isreturnCreditCash && (
+                      <div className="row">
+                        <div className="col-5 p-r-0 pt-1">
+                          <label>Balance Amount</label>
+                        </div>
+                        <div className="col-7 p-l-0 pt-1 text-right">
+                          <label className="font-bold">₹ {this.state.balanceCreditAmount}</label>
+                        </div>
+                      </div>
+                    )
+                  }
+
+
                   {
                     this.state.returnCash !== 0 && (
                       <div className="row">
@@ -1701,86 +1960,98 @@ saveDiscount() {
 
 
                 </div>
-                  {
-                    this.state.grandNetAmount > 0 && (
-                      <div>
-                           <div className="form-group apply_btn">
-                  <button type="button" className=""> Apply</button>
-                  <input type="text" className="form-control" placeholder="ENTER RT NUMBER" />
-                </div>
                 {
-                  this.state.isCouponApplied && (
-                    <div className="form-group apply_btn mb-2">
-                    <button type="button" className="" onClick={this.onCouponCode}> Apply</button>
-                    <input type="text" className="form-control" placeholder="COUPON CODE" value={this.state.couponCode}
-                      onChange={(e) => this.setState({ couponCode: e.target.value })}
-                    />
-                  </div>
+                  this.state.grandNetAmount > 0 && (
+                    <div>
+                      <div className="form-group apply_btn">
+                        <button type="button" className=""> Apply</button>
+                        <input type="text" className="form-control" placeholder="ENTER RT NUMBER" />
+                      </div>
+                      {
+                        this.state.isCouponApplied && (
+                          <div className="form-group apply_btn mb-2">
+                            <button type="button" className="" onClick={this.onCouponCode}> Apply</button>
+                            <input type="text" className="form-control" placeholder="COUPON CODE" value={this.state.couponCode}
+                              onChange={(e) => this.setState({ couponCode: e.target.value })}
+                            />
+                          </div>
+                        )
+                      }
+
+                    </div>
                   )
                 }
-               
+
+                {
+                  this.state.enablePayment && (
+                    <div>
+                      <label className="fs-18 pt-3">Payment Type</label>
+                      <div className="list row">
+                        <ul>
+                          <li>
+                            <span>
+                              <img src={card} onClick={this.getCardModel} />
+                              <label>CARD</label>
+                            </span>
+
+                          </li>
+                          <li>
+                            <span>
+                              <img src={cash} onClick={this.getCashModel} />
+                              <label>CASH</label>
+                            </span>
+
+                          </li>
+                          <li>
+                            <span className="">
+                              <img src={upi} onClick={this.getUPIModel} />
+                              <label>UPI</label>
+                            </span>
+
+                          </li>
+                          <li>
+                            <span>
+                              <img src={qr} onClick={this.getCCModel} />
+                              <label>CC</label>
+                            </span>
+
+                          </li>
+                          {
+                            this.state.isCredit && (
+                              <li>
+                                <span className="">
+                                  <img src={upi} onClick={this.getCreditModel} />
+                                  <label>CREDIT</label>
+                                </span>
+
+                              </li>
+                            )
+                          }
+
+                          <li>
+                            <span>
+                              <img src={khata} />
+                              <label>KHATA</label>
+                            </span>
+
+                          </li>
+                          <li>
+                            <span>
+                              <img src={khata} onClick={this.getGvModel} />
+                              <label> GV</label>
+                            </span>
+
+                          </li>
+
+
+                        </ul>
                       </div>
-                    )
-                  }
-
-                 {
-                   this.state.enablePayment && (
-                     <div>
-                         <label className="fs-18 pt-3">Payment Type</label>
-                <div className="list row">
-                  <ul>
-                    <li>
-                      <span>
-                        <img src={card} onClick={this.getCardModel} />
-                        <label>CARD</label>
-                      </span>
-
-                    </li>
-                    <li>
-                      <span>
-                        <img src={cash} onClick={this.getCashModel} />
-                        <label>CASH</label>
-                      </span>
-
-                    </li>
-                    <li>
-                      <span>
-                        <img src={qr} onClick={this.getCCModel} />
-                        <label>CC</label>
-                      </span>
-
-                    </li>
-                    {/* <li>
-                      <span className="">
-                        <img src={upi} />
-                        <label>UPI</label>
-                      </span>
-
-                    </li> */}
-                    <li>
-                      <span>
-                        <img src={khata} />
-                        <label>KHATA</label>
-                      </span>
-
-                    </li>
-                    <li>
-                      <span>
-                        <img src={khata} onClick={this.getGvModel} />
-                        <label> GV</label>
-                      </span>
-
-                    </li>
+                    </div>
+                  )
+                }
 
 
-                  </ul>
-                </div>
-                     </div>
-                   )
-                 } 
-                
-             
-              
+
                 <div className="mt-3">
                   <button
                     className={"mt-1 w-100 " + (this.state.isPayment ? "btn-unic btn-disable" : "btn-unic active")} onClick={this.savePayment}

@@ -66,16 +66,31 @@ export default class ListOfPromotions extends Component {
 
   componentWillMount() {
     const user = JSON.parse(sessionStorage.getItem("user"));
+    const storeId = sessionStorage.getItem("storeId");
+    this.setState({ storeId: storeId });
     console.log("user", user);
+    const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
+    if (domainData.label == "Textile") {
+      this.setState({ domaindataId: 1 });
+    } else if (domainData.label == "Retail") {
+      this.setState({ domaindataId: 2 });
+    }
     if (user["custom:isSuperAdmin"] === "true") {
       this.state.domainDetails = JSON.parse(
         sessionStorage.getItem("selectedDomain")
       );
 
-      console.log(
-        ">>>>>>>domain",
-        JSON.parse(sessionStorage.getItem("selectedDomain"))
-      );
+      // const user = JSON.parse(sessionStorage.getItem("user"));
+      // console.log("user", user);
+      // if (user["custom:isSuperAdmin"] === "true") {
+      //   this.state.domainDetails = JSON.parse(
+      //     sessionStorage.getItem("selectedDomain")
+      //   );
+
+      //   console.log(
+      //     ">>>>>>>domain",
+      //     JSON.parse(sessionStorage.getItem("selectedDomain"))
+      //   );
       let testData = [];
       testData.push(JSON.parse(sessionStorage.getItem("selectedDomain")));
 
@@ -137,8 +152,9 @@ export default class ListOfPromotions extends Component {
     return (
       <div className="maincontent">
         <div className="row">
-          <div className="col-6 col-sm-3 mt-2 mb-2">
+          <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
+            <label>From Date</label>
               {/* <input
                 type="date"
                 className="form-control"
@@ -166,8 +182,9 @@ export default class ListOfPromotions extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-3 mt-2 mb-2">
+          <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
+            <label>End Date</label>
               <input
                 type="date"
                 name="trip-start"
@@ -177,8 +194,9 @@ export default class ListOfPromotions extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-3 mt-2 mb-2">
+          <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
+            <label>Promo ID</label>
               <input
                 type="number"
                 className="form-control"
@@ -189,8 +207,9 @@ export default class ListOfPromotions extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-3 mt-2 mb-2">
+          <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
+            <label>Store</label>
               <select
                 className="form-control"
                 value={this.state.storeId}
@@ -222,13 +241,13 @@ export default class ListOfPromotions extends Component {
               /> */}
             </div>
           </div>
-          <div className="col-6 col-sm-3 scaling-mb mt-2">
+          <div className="col-6 col-sm-4 pt-4 scaling-mb mt-2">
             <div className="form-group" onClick={this.getPromotions}>
               <button className="btn-unic-search active">SEARCH </button>
             </div>
           </div>
         </div>
-        <h5 className="pl-4 mt-3 scaling-center scaling-mb">
+        <h5 className="pl-4 mt-3 fs-18 scaling-center scaling-mb">
           List Of Promotions
         </h5>
         <div className="row m-0 p-0 mb-3">

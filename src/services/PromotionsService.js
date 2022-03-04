@@ -77,8 +77,9 @@ getValuesFromBarcodeTextileColumns(columnType) {
     const enumName = `?enumName=${columnType}`;
     return axios.get(BASE_URL+PROMOTIONS_URL.getValuesFromBarcodeTextileColumns+enumName);
 }
-getAllColumns() {
-    return axios.get(BASE_URL+PROMOTIONS_URL.getAllColumns);
+getAllColumns(Id) {
+    const domainId = `?domainId=${Id}`;
+    return axios.get(BASE_URL+PROMOTIONS_URL.getAllColumns+domainId);
 }
 }
 

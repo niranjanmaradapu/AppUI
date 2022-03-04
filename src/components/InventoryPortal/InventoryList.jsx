@@ -180,38 +180,7 @@ export default class InventoryList extends Component {
                     onChange={(e) => this.setState({ barcodeId: e.target.value })} onKeyPress={this.getbarcodeDetails} />
                 </div>
               </div>
-              {/* <div className="col-4">
-                <div className="form-group">
-                  <label>Name</label>
-                  <input type="text" className="form-control" placeholder="" />
-                </div>
-              </div>
-              <div className="col-4">
-                <div className="form-group">
-                  <label>Description</label>
-                  <input type="text" className="form-control" placeholder="" />
-                </div>
-              </div>
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>UOM</label>
-                  <select className="form-control">
-                    <option>Select UOM</option>
-                  </select>
-                </div>
-              </div>
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>Cost Price</label>
-                    <input type="text" className="form-control" placeholder="₹ 00" />
-                </div>
-              </div>
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>List Price</label>
-                    <input type="text" className="form-control" placeholder="₹ 00" />
-                </div>
-              </div> */}
+           
               <div className="col-sm-4 col-12 mt-3">
                 <div className="form-group">
                   <label>In Stock</label>
@@ -221,20 +190,7 @@ export default class InventoryList extends Component {
                 </div>
               </div>
 
-              {/* <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>Status Type</label>
-                  <select className="form-control">
-                    <option>Select Status</option>
-                  </select>
-                </div>
-              </div>
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>Stock date</label>
-                  <input type="date" className="form-control" placeholder="" />
-                </div>
-              </div> */}
+             
 
             </div>
           </ModalBody>

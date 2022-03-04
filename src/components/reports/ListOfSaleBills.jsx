@@ -313,6 +313,7 @@ export default class ListOfSaleBills extends Component {
         <div className="row">
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
+            <label>From Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -325,6 +326,7 @@ export default class ListOfSaleBills extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
+            <label>To Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -337,6 +339,7 @@ export default class ListOfSaleBills extends Component {
 
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
+            <label>Return Slip No</label>
               <input
                 type="text"
                 className="form-control"
@@ -348,6 +351,7 @@ export default class ListOfSaleBills extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
+            <label>Barecode</label>
               <input
                 type="text"
                 className="form-control"
@@ -359,6 +363,7 @@ export default class ListOfSaleBills extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
+            <label>EMP ID</label>
               <input
                 type="text"
                 className="form-control"
@@ -369,7 +374,7 @@ export default class ListOfSaleBills extends Component {
             </div>
           </div>
           <div className="col-12 col-sm-2  scaling-center scaling-mb mt-2">
-            <div className="form-group">
+            <div className="form-group pt-4">
               <button
                 className="btn-unic-search active"
                 onClick={this.getReturnSlips}
@@ -379,11 +384,11 @@ export default class ListOfSaleBills extends Component {
             </div>
           </div>
         </div>
-        <h5 className="pl-4 mt-3 scaling-center scaling-mb">
+        <h5 className="pl-4 mt-3 fs-18 scaling-center scaling-mb">
           Goods Return Slips
         </h5>
         <div className="row m-0 p-0 mb-3">
-          <div className="table-responsive">
+          <div className="table-responsive p-0">
             <table className="table table-borderless mb-1 mt-2">
               <thead>
                 <tr className="m-0 p-0">

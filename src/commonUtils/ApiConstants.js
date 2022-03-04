@@ -11,8 +11,14 @@ export const LOGIN_URL = {
 export const MAIN_DASHBOARD = {
     getTodaysSale: "/new-sale/reports/gettodaysSale",
     getMonthlySale: "/new-sale/reports/getMonthlySale",
-    getLastVsThisMonthSale: "/new-sale/reports/getMonthlySale",
-    getTopFiveSalesRepresentative: "/new-sale/reports/getTopFiveSalesByRepresentative"
+    getLastVsThisMonthSale: "/new-sale/reports/getcurrentMonthSalevsLastMonth",
+    getTopFiveSalesRepresentative: "/new-sale/reports/getTopFiveSalesByRepresentative",
+    getSalesByCategory: "/new-sale/reports/getSalesByCategory"
+};
+
+export const ACCOUNTS_DASHBOARD = {
+    debitNotesByStores: "/hsn-details/reports/debitNotesByStores",
+    usedBalancedAmounts: "/hsn-details/reports/usedAndBalancedAmountByStores",
 };
 
 export const CREATE_DELIVERY_SLIP_URL = {
@@ -40,9 +46,11 @@ export const NEW_SALE_URL = {
     getMobileData: "/new-sale/newsale/getcustomerdetailsbymobilenuber",
     getNetAmount: "/new-sale/newsale/getHsnDetails",
     getDiscountReasons: "/new-sale/newsale/discTypes",
+    getCreditNotes: "/hsn-details/credit-debit-notes/getCreditNotes",
     saveSale: "/new-sale/newsale/sale",
     getCoupons: "/new-sale/newsale/getGv",
-    getHsnDetails: "/hsn-details/hsnDetails/getHsnDetails"
+    getHsnDetails: "/hsn-details/hsnDetails/getHsnDetails",
+    getCheckPromo: "/connection-pool/promo/checkPromtionTextile"
 };
 
 export const CREATE_CUSTOMER_URL = {
@@ -66,6 +74,7 @@ export const INVENTORY_URLS = {
     getAllBarcodesList: "/inventory/inventoryRetail/getAllBarcodes",
     getRetailBarcodeDetails: "/inventory/inventoryRetail/getBarcodeId",
     deleteRetailBarcode: "/inventory/inventoryRetail/deleteBarcode",
+    savebulkRetail: "/inventory/inventoryRetail/saveProductList",
 
     // Textile
 
@@ -74,14 +83,14 @@ export const INVENTORY_URLS = {
     getTextileBarcodeDetails: "/inventory/inventoryTextile/getBarcodeTextile",
     deleteTextileBarcode: "/inventory/inventoryTextile/deleteBarcode_Textile",
     getAllBarcodesListTextile: "/inventory/inventoryTextile/getAllBarcodeTextiles",
-    getAllDivisions: "/catalog-categories/catalog/ListOfDivisions",
-    getAllSections: "/catalog-categories/catalog/getcategoriesByid",
-    getAllCategories: "/catalog-categories/catalog/ListOfAllCategories",
+    getAllDivisions: "/inventory/catalog/ListOfDivisions",
+    getAllSections: "/inventory/catalog/getcategoriesByid",
+    getAllCategories: "/inventory/catalog/ListOfAllCategories",
     getAllHsnList: "/hsn-details/hsnDetails/getHsnDetails",
     getStoreNamesByIds: '/user-management/store/storeList',
-
     getReBarcodeTextileBarcodeDetails: '/inventory/inventoryTextile/getAllAdjustments',
-    getEmpNameByEmpId: "/user-management/user/getUser "
+    getEmpNameByEmpId: "/user-management/user/getUser",
+    savebulkTextile: "/inventory/inventoryTextile/saveProductTextileList"
 
 };
 
@@ -126,8 +135,6 @@ export const ESTIMATIONSLIP_LIST_URL = {
 export const RETURNSLIPS_LIST_URL = {
     returnslipsList: "/customer/customer/getListOfReturnSlips",
     returnslipDetials: "/customer/customer/getReturnSlipsDetails",
-
-
 };
 
 
@@ -144,7 +151,8 @@ export const REPORTS_GRAPHS = {
 
 
 export const BARCODE_LIST_URL = {
-    listOfBarcodes: "/inventory/inventoryTextile/getAllBarcodeTextiles",
+    // listOfBarcodes: "/inventory/inventoryTextile/getAllBarcodeTextiles",
+    listOfBarcodes: "/inventory/inventoryTextile/getBarcodeTextileReports",
     updateBarcode: "/inventory/inventoryTextile/updateBarcode_Textile",
     getStoresClientDomainId: "/user-management/store/getClientDomianStores"
 
@@ -216,4 +224,10 @@ export const PROMOTIONS_URL = {
     getValuesFromProductTextileColumns: "/inventory/inventoryTextile/getValuesFromProductTextileColumns",
     getValuesFromBarcodeTextileColumns: "/inventory/inventoryTextile/getValuesFromBarcodeTextileColumns",
     getAllColumns: "/inventory/inventoryTextile/getAllColumns"
+};
+
+export const ACCOUNTING_PORTAL = {
+    saveCredit: "/hsn-details/credit-debit-notes/saveCreditDebitNotes",
+    getCreditNotes: "/hsn-details/credit-debit-notes/getAllCreditNotes",
+    getDebitNotes: "/hsn-details/credit-debit-notes/getAllDebitNotes"
 };

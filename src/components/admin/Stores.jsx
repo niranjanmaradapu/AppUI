@@ -124,6 +124,9 @@ export default class Stores extends Component {
 
                     }
                     this.state.stateList.splice(0,0,obj);
+                    this.setState({
+                        stateName: this.state.isEdit ? this.state.stateName : this.state.stateList[0].stateCode
+                    });
 
                 });
             }
@@ -138,13 +141,18 @@ export default class Stores extends Component {
         console.log(stateCode);
         URMService.getDistricts(stateCode).then(res => {
             if (res) {
-                this.setState({ districtList: res.data.result, district: this.state.isEdit ? this.state.district : res.data.result[0].districtId }, () => {
+                this.setState({ districtList: res.data.result, 
+                   }, () => {
                     const obj = {
                         districtId: "Select",
                         districtName: "Select"
 
                     }
                     this.state.districtList.splice(0,0,obj);
+
+                    this.setState({searchDistrict: this.state.districtList[0].districtName,
+                        district: this.state.isEdit ? this.state.district : this.state.districtList[0].districtId
+                    });
                 });
             }
 
@@ -157,14 +165,13 @@ export default class Stores extends Component {
             }
         });
 
-        this.getGSTNumber();
+      // this.getGSTNumber();
     }
 
     getGSTNumber() {
     
         const stateCode = this.state.isSearch ? this.state.searchState : this.state.stateName;
         URMService.getGSTDetails(stateCode, this.state.clientId).then(res => {
-            console.log(res)
             if (res) {
                 this.setState({gstNumber: res.data.result.gstNumber},()=>{
                     if(this.state.gstNumber) {
@@ -182,7 +189,7 @@ export default class Stores extends Component {
     getAllStores() {
         if(this.state.isSearch){
             this.state.searchState = "";
-            this.state.searchCity = "";
+            this.state.searchStoreId = "";
             this.state.searchDistrict = "";
             this.state.districtList = [];
         }
@@ -203,15 +210,16 @@ export default class Stores extends Component {
         this.setState({isSearch: true});
         const searchStore = {
             "stateId": this.state.searchState,
-            "cityId": this.state.searchCity,
-            "districtId": this.state.searchDistrict,
-            "storeName": null
+            "cityId": null,
+            "districtId": this.state.searchDistrict === "Select" ?  "" : this.state.searchDistrict ,
+            "storeName": this.state.searchStoreId
         }
 
         URMService.getStoresBySearch(searchStore).then(res => {
             if (res) {
                 this.setState({ storesList: res.data.result, isStore: true });
             } else {
+                this.setState({ storesList: [], isStore: false }); 
             }
 
         });
@@ -238,7 +246,7 @@ export default class Stores extends Component {
                     "createdBy": this.state.userName,
                     "createdDate": "",
                     "stateCode": this.state.stateName,
-                    "gstNumber": this.state.gstNumber,
+                    "gstNumber": parseInt(this.state.gstNumber),
                     "clientId":this.state.clientId
 
                 }
@@ -517,7 +525,8 @@ export default class Stores extends Component {
 
                                         <select className="form-control" value={this.state.stateName}
                                             onChange={(e) => this.setState({ stateName: e.target.value, isGstNumber:false, gstNumber:"" }, () => {
-                                                this.getDistricts()
+                                                this.getDistricts();
+                                                this.getGSTNumber();
                                             })}>
 
                                             {statesList}
@@ -682,7 +691,7 @@ export default class Stores extends Component {
 
 
                 <div className="row">
-                    <div className="col-sm-3 col-12 mt-2">
+                    <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
                             <select className="form-control" value={this.state.searchState}
                                 onChange={(e) => this.setState({ searchState: e.target.value, isSearch: true }, ()=>{
@@ -693,7 +702,7 @@ export default class Stores extends Component {
                             </select >
                         </div>
                     </div>
-                    <div className="col-sm-3 col-12 mt-2">
+                    <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
                             <select className="form-control" value={this.state.searchDistrict}
                                 onChange={(e) => this.setState({ searchDistrict: e.target.value })}>
@@ -702,16 +711,16 @@ export default class Stores extends Component {
                             </select >
                         </div>
                     </div>
-                    <div className="col-sm-3 col-12 mt-2">
+                    <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
                             <input type="text" className="form-control"
-                                placeholder="City" value={this.state.searchCity}
-                                onChange={(e) => this.setState({ searchCity: e.target.value })} />
+                                placeholder="Store Name" value={this.state.searchStoreId}
+                                onChange={(e) => this.setState({ searchStoreId: e.target.value })} />
                         </div>
                     </div>
-                    <div className="col-sm-3 col-12 scaling-center scaling-mb mt-2 p-l-0">
-                        <button className="btn-unic-search active m-r-1" onClick={this.searchStore}>Search </button>
-                        <button className="btn-unic-search active m-r-1" onClick={this.getAllStores}>Clear </button>
+                    <div className="col-sm-6 col-12 scaling-center scaling-mb mt-2 p-l-0">
+                        <button className="btn-unic-search active m-r-2" onClick={this.searchStore}>SEARCH </button>
+                        <button className="btn-unic-search active m-r-2" onClick={this.getAllStores}>Clear </button>
                         <button className="btn-unic-search active" onClick={this.showStores}><i className="icon-retail mr-1"></i>  Add Store </button>
                     </div>
                     <div>

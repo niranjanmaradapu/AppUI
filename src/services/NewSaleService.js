@@ -15,6 +15,11 @@ class NewSaleService {
         return axios.get(BASE_URL+GENERATE_RETURN_SLIPS_URL.getMobileData+'/'+mobileNumber);
     }
 
+    getCreditNotes(mobileNumber, customerId) {
+         const param = '?mobileNumber='+ mobileNumber+ '&customerId=' + customerId;
+    return axios.get(BASE_URL+NEW_SALE_URL.getCreditNotes+param);
+    }
+
     getTaxAmount(netAmount) {
         const param = '/'+ netAmount;
         return axios.get(BASE_URL+NEW_SALE_URL.getNetAmount+param);   
@@ -53,6 +58,11 @@ class NewSaleService {
     postPaymentData(paymentOrderId, status) {
         const param = '?razorPayId='+ paymentOrderId +'&payStatus'+ status; 
         return axios.post(BASE_URL+NEW_SALE_URL.saveSale+param, {});
+    }
+
+    getCheckPromoAmount(storeId, domainId, reqObj) {
+        const param = '?storeId='+ storeId +'&domainId'+ domainId; 
+        return axios.post(BASE_URL+NEW_SALE_URL.getCheckPromo+param, reqObj);
     }
 
   

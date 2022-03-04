@@ -374,20 +374,10 @@ class Header extends Component {
     this.state.user = user["cognito:username"];
     if(domainName === "config_user") {
       let header;
-       this.state.headertype = "URM Portal";
+       this.state.headertype = "Accounting Portal";
        console.log(this.state.headertype);
        eventBus.dispatch("subHeader", { message: this.state.headertype });
           header = [
-            {
-              name: "URM Portal",
-              id:'1',
-              path: "/users",
-              parentImage: "icon-r_brand fs-30 i_icon",
-              children: [
-                { childName: "Users", childImage: "deliveryslip", childPath: "/users" },
-                { childName: "Roles", childImage: "sale", childPath: "/roles" },
-              ],
-            },
             {
               name: "Accounting Portal",
               id:'2',
@@ -397,7 +387,18 @@ class Header extends Component {
                 { childName: "Domain", childImage: "deliveryslip", childPath: "/domain" },
                 { childName: "Stores", childImage: "deliveryslip", childPath: "/stores" },
                ],
+            },
+            {
+              name: "URM Portal",
+              id:'1',
+              path: "/users",
+              parentImage: "icon-r_brand fs-30 i_icon",
+              children: [
+                { childName: "Users", childImage: "deliveryslip", childPath: "/users" },
+                { childName: "Roles", childImage: "sale", childPath: "/roles" },
+              ],
             }
+           
     
           ];
           const dropData = [
@@ -507,7 +508,7 @@ class Header extends Component {
   this.setState({ selectedOption: domainName });
 
   if(domainName === "config_user") {
-   
+  
      eventBus.dispatch("subHeader", { message: this.state.headertype });
   }
  

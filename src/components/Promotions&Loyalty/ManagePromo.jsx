@@ -84,9 +84,7 @@ export default class ManagePromo extends Component {
           { value: 'By_Store', label: 'By Store' },
           { value: 'By_Promotion', label: 'By Promotion' }
         ],
-        storePromoNames: [
-          { value: 'Mens Buy2@200', label: 'Mens Buy2@200' }
-        ],
+        storePromoNames: [],
         // clonning 
         closeClone: false,
         promoId: '',
@@ -115,7 +113,9 @@ export default class ManagePromo extends Component {
         item: '',
         itemLabels: [
           { value: 'ItemRSP', label: 'Item RSP' },
-          { value: 'ItemMRP', label: 'Item MRP' },
+          { value: 'ItemMRP', label: 'Item MRP' }
+        ],
+        fixedAmoutItemLabels: [
           { value: 'EachItem', label: 'Each Item' },
           { value: 'AllItems', label: 'All Items' }
         ],
@@ -224,14 +224,17 @@ export default class ManagePromo extends Component {
   }
   addPromoToStore() {
     const { storeStartDate, storeEndDate, storePromoName, storePromoType, storeName} = this.state;
-    const obj = {};
-    obj.id = storeName.value;
-    obj.name = storeName.label;
-    obj.location = storeName.location;
+   const storeNames =  storeName.map((item) => {
+      const obj = {};
+      obj.id = item.value;
+      obj.name = item.label;
+      obj.location = item.location;
+      return obj;
+    });
     const requestObj = {
         promoType: storePromoType,
         promotionName: storePromoName,
-        storeVo: obj,
+        storeVo: storeNames,
         startDate: storeStartDate,
         endDate: storeEndDate
     }
@@ -401,8 +404,7 @@ export default class ManagePromo extends Component {
       selectedPoolValue: '',
       promoBenfitId: '',
       numOfItemsFromGetPool: '',
-      numOfItemsFromBuyPool: '',
-
+      numOfItemsFromBuyPool: ''
     });
   }
 
@@ -412,12 +414,17 @@ export default class ManagePromo extends Component {
   addBenfit() {
     let index = this.state.benfitIndex;
     let updatedBenfitObjs = [];  
+    let promoSlabVo = {};
     const { benfitVoArray, editedBenfit, promoApplyType, benfitType, discountOn, discountType, item, benfitObj, buyPoolValue, getPoolValue, numOfItemsFromGetPool, numOfItemsFromBuyPool, selectedPoolValue, toSlabValue, fromSlabValue} = this.state;
     let obj = {
       benfitType: benfitType,
       discountType: discountType,
       discount: discountOn,
-      percentageDiscountOn: item
+      percentageDiscountOn: item,
+      promoSlabVo: {
+        fromSlab: null,
+        toSlab: null
+    }
     }
     if(benfitType === 'XunitsFromBuyPool') {
        obj = {...obj, numOfItemsFromBuyPool, itemValue: buyPoolValue}
@@ -435,7 +442,8 @@ export default class ManagePromo extends Component {
     if (promoApplyType === 'QuantitySlab' || promoApplyType === 'ValueSlab') {
         this.state.slabValues.map((item, ind) => {
           if(index == ind) {
-            obj = { ...obj, toSlab: item.toSlab, fromSlab: item.fromSlab };
+            promoSlabVo = { toSlab: item.toSlab, fromSlab: item.fromSlab }
+            obj = { ...obj,  promoSlabVo};
           }
         });
     }
@@ -448,7 +456,6 @@ export default class ManagePromo extends Component {
     obj = {...obj, benfitId: editedBenfit.benfitId };
     updatedBenfitObjs = benfitVoArray.map(b => b.benfitId !== obj.benfitId ? b : obj);
    }
-
     this.setState({
       benfitsPayload: [...this.state.benfitsPayload, obj],
       isAddBenefits: false,
@@ -740,9 +747,9 @@ export default class ManagePromo extends Component {
     }
     const slabValueRes = benfitVo.map((item) => {
       const obj = {};
-      if(item.toSlab !== 0 && item.fromSlab !== 0) {
-        obj.toSlab = item.toSlab;
-        obj.fromSlab = item.fromSlab;
+      if(item.promoSlabVo) {
+        obj.toSlab = item.promoSlabVo.toSlab;
+        obj.fromSlab = item.promoSlabVo.fromSlab;
         return obj;
       }
     });
@@ -777,8 +784,8 @@ export default class ManagePromo extends Component {
     });
   }
   savePromotion() {
-    const user = JSON.parse(sessionStorage.getItem("user"));
-    const createdBy = user['cognito:groups'][0];
+    const user = JSON.parse(sessionStorage.getItem("user"));    
+    const createdBy = user['custom:userId'];
     const { selectedPools,
       applicability,
       description,
@@ -816,8 +823,8 @@ export default class ManagePromo extends Component {
         priority: null,
         domainId: clientId,
         promoApplyType: promoApplyType,
-        promotionName: promoName,
-        promoType: promoType
+        promotionName: promoName
+      //  promoType: promoType
     }
     if(this.state.isPromoEdit) {
       const { promoId, selectedPools} = this.state;
@@ -838,14 +845,13 @@ export default class ManagePromo extends Component {
         isTaxExtra: isTaxExtra,
         poolVo: result,
         printNameOnBill: printNameOnBill,
-        priority: null,
+        // priority: null,
         domainId: clientId,
         promoApplyType: promoApplyType,
         promotionName: promoName,
         promoType: promoType,
         benfitVo: updatedBenfitVos
     }
-    console.log('================obj===================', obj);
     PromotionsService.updatePromotion(obj).then((res) => {
       if(res.data.isSuccess === 'true') {
         toast.success(res.data.message);
@@ -870,7 +876,6 @@ export default class ManagePromo extends Component {
   });
 
     } else {
-      console.log('=================obj======================', obj);
       PromotionsService.addPromo(obj).then((res) => {
         if(res.data.isSuccess === 'true') {
           toast.success(res.data.message);
@@ -1064,15 +1069,23 @@ export default class ManagePromo extends Component {
               </div> }
               <div className="col-6 mt-3">
                 <div className="form-group">
-                  <label>Each Item</label>
-                  <select value={this.state.item} onChange={(e) => this.handleItemValue(e)} className="form-control">
-                    <option>Each Item</option>
+                  <label></label>
+                  {(this.state.discountType === 'PercentageDiscountOn' || this.state.discountType === 'RupeesDiscountOn') ? <select value={this.state.item} onChange={(e) => this.handleItemValue(e)} className="form-control">
+                    {/* <option>Each Item</option> */}
                         {   
                           this.state.itemLabels &&
                           this.state.itemLabels.map((item, i) => 
                           (<option key={i} value={item.value}>{item.label}</option>))
                         }
-                  </select>
+                  </select> : 
+                  <select value={this.state.item} onChange={(e) => this.handleItemValue(e)} className="form-control">
+                  {/* <option>Each Item</option> */}
+                      {   
+                        this.state.fixedAmoutItemLabels &&
+                        this.state.fixedAmoutItemLabels.map((item, i) => 
+                        (<option key={i} value={item.value}>{item.label}</option>))
+                      }
+                </select>}
                 </div>
               </div>
              </div> 
@@ -1136,28 +1149,19 @@ export default class ManagePromo extends Component {
               </div>
               <div className="col-3">
                 <div className="form-group">
-                  <label>Applicability</label>
-                  <select value={this.state.applicability} onChange={(e) => this.handelApplicability(e)} className="form-control">
-                    <option>Select</option>
-                       { 
-                          this.state.applicabilies &&
-                          this.state.applicabilies.map((item, i) => 
-                          (<option key={i} value={item.value}>{item.label}</option>))
-                        }
-                  </select>
                 </div>
               </div>
               <div className="col-3 mt-3">
                 <div className="form-group">
-                  <label>Promotion Type</label>
-                  <select value={this.state.promoType} onChange={(e) => this.handelPromoType(e)} className="form-control">
-                    <option>Select</option>
+                  <label>Applicability</label>
+                    <select value={this.state.applicability} onChange={(e) => this.handelApplicability(e)} className="form-control">
+                      <option>Select</option>
                         { 
-                          this.state.promotypes &&
-                          this.state.promotypes.map((item, i) => 
-                          (<option key={i} value={item.value}>{item.label}</option>))
-                        }
-                  </select>
+                            this.state.applicabilies &&
+                            this.state.applicabilies.map((item, i) => 
+                            (<option key={i} value={item.value}>{item.label}</option>))
+                          }
+                    </select>
                 </div>
               </div>
               <div className="col-3 mt-3">
@@ -1184,37 +1188,7 @@ export default class ManagePromo extends Component {
                           (<option key={i} value={item.value}>{item.label}</option>))
                         }
                   </select>
-                </div>
-                
-                {/* <div className="form-check m-r-3">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="flexRadioDefault"
-                    id="flexRadioDefault1"
-                    checked
-                  />
-                  <label
-                    className="form-check-label"
-                    htmlFor="flexRadioDefault1"
-                  >
-                    YES
-                  </label>
-                </div> */}
-                {/* <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="radio"
-                    name="flexRadioDefault"
-                    id="flexRadioDefault12"
-                  />
-                  <label
-                    className="form-check-label"
-                    htmlFor="flexRadioDefault12"
-                  >
-                    NO
-                  </label>
-                </div> */}
+                </div>                
               </div>
               { (this.state.promoApplyType === '' || this.state.promoApplyType === 'FixedQuantity' || this.state.promoApplyType === 'AnyQuantity') ? <React.Fragment>
               <div className="col-12 mt-4">
@@ -1295,8 +1269,8 @@ export default class ManagePromo extends Component {
                            this.state.slabValues.map((item, index) => {
                             return (
                               <tr key={index}>
-                                <td className="col-1">{item.fromSlab}</td>
-                                <td className="col-2">{item.toSlab}</td>
+                                <td className="col-3">{item.fromSlab}</td>
+                                <td className="col-3">{item.toSlab}</td>
                                 <td className="col-1">
                                 {this.state.isPromoEdit === true ? <button className="btn-nobdr text-green p-t-3" type="button" onClick={() => this.getEditBenfitByIndex(index)}>BENFIT</button> : 
                                     <button className="btn-nobdr text-red p-t-3" type="button" onClick={() => this.addBenefitsList(index)}>BENFIT</button> }
@@ -1378,34 +1352,23 @@ export default class ManagePromo extends Component {
               <div className="col-6">
                 <div className="form-group">
                   <label>Promotion Name</label>
-                  <input type="text" value={this.state.storePromoName}  onChange={(e) => this.handleStorePromoName(e)} className="form-control" />
-                  {/* <select value={this.state.storePromoName} onChange={(e) => this.handleStorePromoName(e)} className="form-control">
-                    <option>Select Code</option>
-                    { 
-                      this.state.storePromoNames &&
-                      this.state.storePromoNames.map((item, i) => 
-                      (<option key={i} value={item.value}>{item.label}</option>))
-                    }
-                  </select> */}
-                </div>
-              </div>
-              <div className="col-6 mt-3">
-                <div className="form-group">
-                  <label>Store</label>
-                  <Select
-                      // isMulti
-                      onChange={this.onStoreNameChange}
-                      options={this.state.storesList}
-                      value={this.state.storeName}
-                    />
-                  {/* <select value={this.state.storeName} onChange={(e) => this.handleStoreName(e)} className="form-control">
-                    <option>Select</option>
-                    { 
-                      this.state.storesList &&
-                      this.state.storesList.map((item, i) => 
-                      (<option key={i} value={item}>{item.label}</option>))
-                    }
-                  </select> */}
+                  {this.state.storePromoType === 'By_Promotion' &&  this.state.storePromoType !== '' ? 
+                  <select value={this.state.storePromoName} onChange={(e) => this.handleStorePromoName(e)} className="form-control">
+                  <option>Select Promotion</option>
+                  { 
+                    this.state.promotionNames &&
+                    this.state.promotionNames.map((item, i) => 
+                    (<option key={i} value={item.promotionName}>{item.promotionName}</option>))
+                  }
+                </select> : 
+                <Select
+                    isMulti
+                    onChange={this.onSearchStoreNameChange}
+                    options={this.state.listOfPromos}
+                    value={this.state.searchStoreName}
+                />
+                  }
+                  {/* <input type="text" value={this.state.storePromoName}  onChange={(e) => this.handleStorePromoName(e)} className="form-control" /> */}    
                 </div>
               </div>
               <div className="col-6 mt-3">
@@ -1418,6 +1381,34 @@ export default class ManagePromo extends Component {
                 <div className="form-group">
                   <label>End Date</label>
                   <input type="date" value={this.state.storeEndDate} onChange={(e) => this.handleStoreEndDate(e)} className="form-control" />
+                </div>
+              </div>
+              <div className="col-6 mt-3">
+                <div className="form-group">
+                  <label>Store</label>
+                  {this.state.storePromoType === 'By_Promotion' && this.state.storePromoType !== '' ?
+                    <Select
+                      isMulti
+                      onChange={this.onStoreNameChange}
+                      options={this.state.storesList}
+                      value={this.state.storeName}
+                   /> 
+                  :  
+                    <Select
+                      // isMulti
+                      onChange={this.onStoreNameChange}
+                      options={this.state.storesList}
+                      value={this.state.storeName}
+                    />                    
+                  }
+                  {/* <select value={this.state.storeName} onChange={(e) => this.handleStoreName(e)} className="form-control">
+                    <option>Select</option>
+                    { 
+                      this.state.storesList &&
+                      this.state.storesList.map((item, i) => 
+                      (<option key={i} value={item}>{item.label}</option>))
+                    }
+                  </select> */}
                 </div>
               </div>
             </div>
@@ -1552,6 +1543,7 @@ export default class ManagePromo extends Component {
                 (<option key={i} value={item.value}>{item.label}</option>))
               }                
               </select> */}
+               <label>Store Name</label>
               <Select
                 // isMulti
                 onChange={this.onSearchStoreNameChange}
@@ -1563,7 +1555,8 @@ export default class ManagePromo extends Component {
 
           <div className="col-sm-2 col-6 mt-2">
             <div className="form-group mb-3">
-              <select value={this.state.promotionName} onChange={ (e) => this.haandlePromoname(e)}className="form-control">
+            <label>Promotion Name</label>
+              <select value={this.state.promotionName} onChange={ (e) => this.haandlePromoname(e)} className="form-control">
                 <option>Select Promotion</option>
                 { 
                   this.state.promotionNames &&
@@ -1575,6 +1568,7 @@ export default class ManagePromo extends Component {
           </div>
           <div className="col-sm-2 col-6 mt-2">
             <div className="form-group mb-3">
+                <label>Start Date</label>
               <input type="text" className="form-control"
                   value={this.state.startDate}
                   onChange={ (e) => this.haandleStartdate(e)}
@@ -1583,6 +1577,7 @@ export default class ManagePromo extends Component {
           </div>
           <div className="col-sm-2 col-6 mt-2">
             <div className="form-group mb-3">
+            <label>End Date</label>
             <input type="text" className="form-control"  
                 value={this.state.endDate}
                 onChange={(e) => this.haandleEnddate(e)}
@@ -1591,6 +1586,7 @@ export default class ManagePromo extends Component {
           </div>
           <div className="col-sm-2 col-6 mt-2">
             <div className="form-group mb-3">
+            <label>Status</label>
             <select value={this.state.promoStatus} onChange={(e) =>  this.handlePromoStatus(e)} className="form-control">
                 <option>Select Status</option>
                 { 
@@ -1601,7 +1597,7 @@ export default class ManagePromo extends Component {
               </select>
             </div>
           </div>
-          <div className="col-sm-2 col-6 mt-2">
+          <div className="col-sm-2 col-6 mt-2 pt-4">
           <button className="btn-unic-redbdr" onClick={this.searchPromo}>SEARCH</button>
           </div>
           <div className="col-sm-4 col-12 pl-0 mb-3 scaling-center scaling-mb">

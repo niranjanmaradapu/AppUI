@@ -87,22 +87,24 @@ export default class ListOfReturnSlips extends Component {
         qty: "",
         itemMrp: "",
       };
+
       let a = [];
       data.map((d) => {
         const storeName = this.state.storeList.filter((item) => {
-          console.log("storeid", d.productTextile.storeId);
-          return d.productTextile.storeId == item.id;
+          console.log("storeid", d.storeId);
+          return d.storeId == item.id;
         });
         obj = {
           barcode: d.barcode,
-          storeId: d.productTextile.storeId,
-          empId: d.productTextile.empId,
-          qty: d.productTextile.qty,
-          itemMrp: d.productTextile.itemMrp,
+          storeId: d.storeId,
+          empId: d.empId,
+          qty: d.qty,
+          itemMrp: d.itemMrp,
           storeName: storeName[0]?.name,
         };
         a.push(obj);
       });
+
       console.log("bcList", a);
       this.setState({
         // barcodeData: a,
@@ -138,16 +140,31 @@ export default class ListOfReturnSlips extends Component {
   }
   componentDidMount() {
     const user = JSON.parse(sessionStorage.getItem("user"));
+    const storeId = sessionStorage.getItem("storeId");
+    this.setState({ storeId: storeId });
     console.log("user", user);
+    const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
+    if (domainData.label == "Textile") {
+      this.setState({ domaindataId: 1 });
+    } else if (domainData.label == "Retail") {
+      this.setState({ domaindataId: 2 });
+    }
     if (user["custom:isSuperAdmin"] === "true") {
       this.state.domainDetails = JSON.parse(
         sessionStorage.getItem("selectedDomain")
       );
 
-      console.log(
-        ">>>>>>>doma",
-        JSON.parse(sessionStorage.getItem("selectedDomain"))
-      );
+      // const user = JSON.parse(sessionStorage.getItem("user"));
+      // console.log("user", user);
+      // if (user["custom:isSuperAdmin"] === "true") {
+      //   this.state.domainDetails = JSON.parse(
+      //     sessionStorage.getItem("selectedDomain")
+      //   );
+
+      //   console.log(
+      //     ">>>>>>>doma",
+      //     JSON.parse(sessionStorage.getItem("selectedDomain"))
+      //   );
       let testData = [];
       testData.push(JSON.parse(sessionStorage.getItem("selectedDomain")));
       console.log(">>>>>>parse", testData);
@@ -218,7 +235,7 @@ export default class ListOfReturnSlips extends Component {
           <td className="col-2">{empId}</td>
           <td className="col-1">{qty}</td>
           <td className="col-2">₹ {itemMrp}</td>
-          <td className="col-2 text-center">
+          <td className="col-2 ">
             {/* <img src={edit} className="w-12 m-r-2 pb-2" /> */}
             <img
               src={view}
@@ -249,10 +266,10 @@ export default class ListOfReturnSlips extends Component {
       const { barcode, itemMrp, storeName, qty } = this.state.popupData;
       return (
         <tr>
-          <td>{barcode}</td>
-          <td>{itemMrp}</td>
-          <td>{storeName}</td>
-          <td>{qty}</td>
+          <td className="col-2">{barcode}</td>
+          <td className="col-2">{itemMrp}</td>
+          <td className="col-2">{storeName}</td>
+          <td className="col-2">{qty}</td>
         </tr>
       );
     }
@@ -268,10 +285,10 @@ export default class ListOfReturnSlips extends Component {
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
-                    <th className="">BARCODE</th>
-                    <th className="">MRP</th>
-                    <th className="">STORE</th>
-                    <th className="">QTY</th>
+                    <th className="col-2">BARCODE</th>
+                    <th className="col-2">MRP</th>
+                    <th className="col-2">STORE</th>
+                    <th className="col-2">QTY</th>
                   </tr>
                 </thead>
                 {/* <tbody>
@@ -309,8 +326,9 @@ export default class ListOfReturnSlips extends Component {
         </Modal>
 
         <div className="row">
-          <div className="col-6 col-sm-3 mt-2 mb-2">
+          <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
+              <label>From Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -320,8 +338,9 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-3 mt-2 mb-2">
+          <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
+              <label>To Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -331,8 +350,9 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-3 mt-2 mb-2">
+          <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
+              <label>Barcode</label>
               <input
                 type="text"
                 className="form-control"
@@ -345,8 +365,9 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-3 mt-2 mb-2">
+          <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
+              <label>Store</label>
               <select
                 className="form-control"
                 value={this.state.storeId}
@@ -374,8 +395,9 @@ export default class ListOfReturnSlips extends Component {
               </select>
             </div>
           </div>
-          <div className="col-6 col-sm-3 mt-2">
+          <div className="col-6 col-sm-2 mt-2">
             <div className="form-group">
+              <label>EMP ID</label>
               <input
                 type="text"
                 className="form-control"
@@ -385,8 +407,9 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-3 mt-2">
+          <div className="col-6 col-sm-2 mt-2">
             <div className="form-group">
+              <label>Barcode MRP LessThan </label>
               <input
                 type="text"
                 className="form-control"
@@ -399,8 +422,9 @@ export default class ListOfReturnSlips extends Component {
             </div>
           </div>
 
-          <div className="col-6 col-sm-3 mt-2">
+          <div className="col-6 col-sm-2 mt-2">
             <div className="form-group">
+              <label>Barcode MRP GraterThan </label>
               <input
                 type="text"
                 className="form-control"
@@ -412,7 +436,7 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-3 scaling-mb mt-2">
+          <div className="col-6 col-sm-2 scaling-mb mt-2 pt-4">
             <div className="form-group">
               <button
                 className="btn-unic-search active"
@@ -423,7 +447,7 @@ export default class ListOfReturnSlips extends Component {
             </div>
           </div>
         </div>
-        <h5 className="pl-4 mt-3 scaling-center scaling-mb">
+        <h5 className="pl-4 mt-3  fs-18 scaling-center scaling-mb">
           List Of Barcodes
         </h5>
         <div className="row m-0 p-0 mb-3">
@@ -435,7 +459,7 @@ export default class ListOfReturnSlips extends Component {
                   <th className="col-2">Barcode</th>
                   <th className="col-2">Barcode Store</th>
                   <th className="col-2">EMP ID</th>
-                  <th className="col-2">QTY</th>
+                  <th className="col-1">QTY</th>
                   <th className="col-2">BARCODE MRP</th>
                   <th className="col-2">VIEW</th>
                 </tr>

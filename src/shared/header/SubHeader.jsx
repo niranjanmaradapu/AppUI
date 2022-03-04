@@ -294,16 +294,6 @@ class SubHeader extends Component {
       ],
       moduleConfigheader : [
         {
-          parentName: "URM Portal",
-          id:'1',
-          path: "/users",
-          parentImage: "icon-r_brand fs-30 i_icon",
-          children: [
-            { name: "Users", childImage: "deliveryslip", childPath: "/users" },
-            { name: "Roles", childImage: "sale", childPath: "/roles" },
-          ],
-        },
-        {
           parentName: "Accounting Portal",
           id:'2',
           path: "/domain",
@@ -312,7 +302,18 @@ class SubHeader extends Component {
             { name: "Domain", childImage: "deliveryslip", childPath: "/domain" },
             { name: "Stores", childImage: "deliveryslip", childPath: "/stores" },
            ],
+        },
+        {
+          parentName: "URM Portal",
+          id:'1',
+          path: "/users",
+          parentImage: "icon-r_brand fs-30 i_icon",
+          children: [
+            { name: "Users", childImage: "deliveryslip", childPath: "/users" },
+            { name: "Roles", childImage: "sale", childPath: "/roles" },
+          ],
         }
+     
 
       ],
     }
@@ -336,7 +337,7 @@ class SubHeader extends Component {
       console.log(this.state.message);
       if(!this.state.message) {
           if(domainName === "config_user") { 
-       this.setState({ message: "URM Portal" }, () => { this.setHeaders(); })
+       this.setState({ message: "Accounting Portal" }, () => { this.setHeaders(); })
       }
       }
 }
@@ -376,7 +377,6 @@ setHeaders() {
         });
         subList = this.removeDuplicates(subList,"id");
          this.setState({buttonsList:subList}, ()=>{
-           console.log(this.state.buttonsList)
           this.setState({selectedChildName: this.state.buttonsList.length  > 0 ? this.state.buttonsList[0].name: ""});
         });
 
@@ -385,7 +385,7 @@ setHeaders() {
     }
   }
 
- // console.log(this.state.buttonsList);
+  // console.log(this.state.buttonsList);
 
  
 

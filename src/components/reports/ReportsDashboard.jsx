@@ -31,6 +31,7 @@ export default class ReportsDashboard extends Component {
             clientId: "",
             domainId: "",
             storeId: "",
+            storeNames: [],
         };
     }
 
@@ -57,42 +58,44 @@ export default class ReportsDashboard extends Component {
     }
 
     getInvoicesGenerated() {
+        console.log(this.state.storeId);
         ListOfReportsGraphsService.getInvoicesGenerated(this.state.storeId).then(response => {
             if (response) {
-                this.setState({ invoicesGenerated: response.data.result },
-                    () => {
-                        console.log('Invoices Generated', response);
-                        let indexName = [];
-                        let indexCount = [];
-                        let indexColor = [];
-                        let indexHoverColor = [];
+                if (response.data.result !== "null" && response.data.result.length > 0) {
+                    this.setState({ invoicesGenerated: response.data.result },
+                        () => {
+                            console.log('Invoices Generated', response);
+                            let indexName = [];
+                            let indexCount = [];
+                            let indexColor = [];
+                            let indexHoverColor = [];
 
-                        this.state.invoicesGenerated.forEach(data => {
-                            indexName.push(data.month);
-                            indexCount.push(data.amount);
+                            this.state.invoicesGenerated.forEach(data => {
+                                indexName.push(data.month);
+                                indexCount.push(data.amount);
+                            });
+
+                            colors.forEach(data => {
+                                indexColor.push(data.normalColorCode);
+                                indexHoverColor.push(data.hoverColorCode);
+                            });
+                            this.setState({
+                                invoicesChart: {
+                                    labels: indexName,
+                                    datasets: [
+                                        {
+                                            label: "Invoices Generated",
+                                            data: indexCount,
+                                            backgroundColor: indexColor,
+                                            // hoverBackgroundColor: indexHoverColor,
+                                            hoverBorderColor: "#282828",
+                                        }
+                                    ]
+                                }
+                            });
+
                         });
-
-                        colors.forEach(data => {
-                            indexColor.push(data.normalColorCode);
-                            indexHoverColor.push(data.hoverColorCode);
-                        });
-                        this.setState({
-                            invoicesChart: {
-                                labels: indexName,
-                                datasets: [
-                                    {
-                                        label: "Invoices Generated",
-                                        data: indexCount,
-                                        backgroundColor: indexColor,
-                                        // hoverBackgroundColor: indexHoverColor,
-                                        hoverBorderColor: "#282828",
-                                    }
-                                ]
-                            }
-                        });
-
-                    });
-
+                }
             }
         });
     }
@@ -101,16 +104,66 @@ export default class ReportsDashboard extends Component {
         ListOfReportsGraphsService.getTopFiveSales().then(response => {
             console.log('Top Five Sales', response.data);
             if (response) {
-                this.setState({ topSales: response.data.result },
-                    () => {
-                        let indexName = [];
-                        let indexCount = [];
-                        let indexColor = [];
-                        let indexHoverColor = [];
-                        if (this.state.topSales && this.state.topSales.length > 0) {
-                            this.state.topSales.forEach(data => {
-                                indexName.push(data.storeId);
-                                indexCount.push(data.amount);
+                if (response.data.result !== "null" && response.data.result.length > 0) {
+                    this.setState({ topSales: response.data.result },
+                        () => {
+                            let indexName = [];
+                            let indexCount = [];
+                            let indexColor = [];
+
+
+                            if (this.state.topSales && this.state.topSales.length > 0) {
+                                this.state.topSales.forEach(data => {
+                                    indexName.push(data.name);
+                                    indexCount.push(data.amount);
+                                });
+
+                                colors.forEach(data => {
+                                    indexColor.push(data.normalColorCode);
+                                    // indexHoverColor.push(data.hoverColorCode);
+                                });
+
+
+                                this.setState({
+                                    topSalesChart: {
+                                        labels: indexName,
+                                        datasets: [
+                                            {
+                                                label: "Sales Summary",
+                                                maxBarThickness: 20,
+                                                data: indexCount,
+                                                backgroundColor: indexColor,
+                                                // hoverBackgroundColor: indexHoverColor,
+                                                hoverBorderColor: '#282828',
+                                            }
+                                        ]
+                                    }
+                                });
+                            }
+
+                        });
+                }
+            }
+        });
+        console.log("Top", this.state.topSalesChart);
+    }
+
+    getActiveInactivePromos() {
+        ListOfReportsGraphsService.getActiveInactive().then(response => {
+
+            if (response) {
+                if (response.data.result !== "null" && response.data.result.length > 0) {
+                    console.log('Active Inactive Promos', response.data.result);
+                    this.setState({ activeInactive: response.data.result },
+                        () => {
+                            let indexName = [];
+                            let indexCount = [];
+                            let indexColor = [];
+                            let indexHoverColor = [];
+
+                            this.state.activeInactive.forEach(data => {
+                                indexName.push(data.name);
+                                indexCount.push(data.count);
                             });
 
                             colors.forEach(data => {
@@ -119,12 +172,11 @@ export default class ReportsDashboard extends Component {
                             });
 
                             this.setState({
-                                topSalesChart: {
+                                activeInactiveChart: {
                                     labels: indexName,
                                     datasets: [
                                         {
                                             label: "Sales Summary",
-                                            maxBarThickness: 20,
                                             data: indexCount,
                                             backgroundColor: indexColor,
                                             // hoverBackgroundColor: indexHoverColor,
@@ -133,51 +185,8 @@ export default class ReportsDashboard extends Component {
                                     ]
                                 }
                             });
-                        }
-                    });
-            }
-        });
-
-    }
-
-    getActiveInactivePromos() {
-        ListOfReportsGraphsService.getActiveInactive().then(response => {
-
-            if (response) {
-                console.log('Active Inactive Promos', response.data.result);
-                this.setState({ activeInactive: response.data.result },
-                    () => {
-                        let indexName = [];
-                        let indexCount = [];
-                        let indexColor = [];
-                        let indexHoverColor = [];
-
-                        this.state.activeInactive.forEach(data => {
-                            indexName.push(data.name);
-                            indexCount.push(data.count);
                         });
-
-                        colors.forEach(data => {
-                            indexColor.push(data.normalColorCode);
-                            // indexHoverColor.push(data.hoverColorCode);
-                        });
-
-                        this.setState({
-                            activeInactiveChart: {
-                                labels: indexName,
-                                datasets: [
-                                    {
-                                        label: "Sales Summary",
-                                        data: indexCount,
-                                        backgroundColor: indexColor,
-                                        // hoverBackgroundColor: indexHoverColor,
-                                        hoverBorderColor: '#282828',
-                                    }
-                                ]
-                            }
-                        });
-                    });
-
+                }
             }
             console.log("hey", this.state.activeInactiveChart);
         });
@@ -187,43 +196,45 @@ export default class ReportsDashboard extends Component {
         ListOfReportsGraphsService.getSaleSummary().then(response => {
             console.log('Sales Summary', response.data);
             if (response) {
-                this.setState({ salesSummary: response.data.result },
-                    () => {
-                        let indexName = [];
-                        let indexCount = [];
-                        let indexColor = [];
-                        let indexHoverColor = [];
-                        if(this.state.salesSummary && this.state.salesSummary.length>0){
-                            this.state.salesSummary.forEach(data => {
+                if (response.data.result !== "null" && response.data.result.length > 0) {
+                    this.setState({ salesSummary: response.data.result },
+                        () => {
+                            let indexName = [];
+                            let indexCount = [];
+                            let indexColor = [];
+                            let indexHoverColor = [];
+                            if (this.state.salesSummary && this.state.salesSummary.length > 0) {
+                                this.state.salesSummary.forEach(data => {
 
-                                indexName.push(data.name);
-                                indexCount.push(data.amount);
-                            });
-    
+                                    indexName.push(data.name);
+                                    indexCount.push(data.amount);
+                                });
 
-                        }
 
-                       
-                        colors.forEach(data => {
-                            indexColor.push(data.normalColorCode);
-                            indexHoverColor.push(data.hoverColorCode);
-                        });
-
-                        this.setState({
-                            salesSummaryChart: {
-                                labels: indexName,
-                                datasets: [
-                                    {
-                                        label: "Sales Summary",
-                                        data: indexCount,
-                                        backgroundColor: indexColor,
-                                        // hoverBackgroundColor: indexHoverColor,
-                                        hoverBorderColor: '#282828',
-                                    }
-                                ]
                             }
+
+
+                            colors.forEach(data => {
+                                indexColor.push(data.normalColorCode);
+                                indexHoverColor.push(data.hoverColorCode);
+                            });
+
+                            this.setState({
+                                salesSummaryChart: {
+                                    labels: indexName,
+                                    datasets: [
+                                        {
+                                            label: "Sales Summary",
+                                            data: indexCount,
+                                            backgroundColor: indexColor,
+                                            // hoverBackgroundColor: indexHoverColor,
+                                            hoverBorderColor: '#282828',
+                                        }
+                                    ]
+                                }
+                            });
                         });
-                    });
+                }
             }
         });
     }

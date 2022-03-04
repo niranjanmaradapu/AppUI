@@ -23,6 +23,11 @@ class MainDashboardService {
         return axios.get(BASE_URL + MAIN_DASHBOARD.getTopFiveSalesRepresentative + param);
     }
 
+    getSalesByCategory(storeId, domainId) {
+        const param = '?storeId=' + storeId + '&domainId=' + domainId;
+        return axios.get(BASE_URL + MAIN_DASHBOARD.getSalesByCategory + param);
+    }
+
 }
 
 export default new MainDashboardService();

@@ -97,6 +97,8 @@ export default class Layout extends Component {
                     <div className="header">
                         <div className="w-100">
                             <Header user={this.state.userData} headerTitle={this.state.headerTitle} parentCallback={this.handleHeaderCallback} />
+
+                    
                         </div>
                         <div className="w-100">
                             <SubHeader parentCallback={this.handleHeaderCallback} />

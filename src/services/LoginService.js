@@ -7,11 +7,12 @@ class LoginService {
         return axios.get(BASE_URL+LOGIN_URL.getStores);
     }
     getAuth(obj){
-        const headers = {
-            'Content-Type': 'application/json',
-            'keepalive-time': 330000
-          }
-        return axios.post(BASE_URL+LOGIN_URL.getToken,obj,{headers: headers});
+         return axios.post(BASE_URL+LOGIN_URL.getToken,obj);
+        // const headers = {
+        //     'Content-Type':'application/json',
+        //     'keepalive-time':330000
+        // }
+        // return axios.post(BASE_URL+LOGIN_URL.getToken,obj,{headers: headers});
     }
     saveData(){
         return axios.post(BASE_URL+LOGIN_URL.saveData,null);
@@ -26,7 +27,7 @@ class LoginService {
     }
 
     getConfirmationCode(userName) {
-        const param = '/'+ userName; 
+        const param = '?userName='+ userName; 
         return axios.get(BASE_URL+LOGIN_URL.sendVerificationCode+param); 
     }
 

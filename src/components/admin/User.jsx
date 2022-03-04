@@ -45,12 +45,8 @@ export default class User extends Component {
             errors: {},
             adminRole: "",
             userType:""
-
-
         }
-
         this.setState({usersList: []})
-
         this.showCreateUser = this.showCreateUser.bind(this);
         this.hideCreateUser = this.hideCreateUser.bind(this);
         this.createUser = this.createUser.bind(this);
@@ -87,19 +83,19 @@ export default class User extends Component {
 
     validation(e){
 
-        this.setState({
-                        [e.target.id]: e.target.value, mobileNumber:  e.target.value
-                        });
+        // this.setState({
+        //                 [e.target.id]: e.target.value, mobileNumber:  e.target.value
+        //                 });
       
-    //   //  const regex = /^[0-9\b]+$/;
-    //     const value = e.target.value;
-    //     if (value === '' || regex.test(value)) {
-    //         this.setState({
-    //             [e.target.id]: e.target.value, mobileNumber:  e.target.value
-    //             });
-    //     } else {
-    //         // toast.error("pls enter numbers")
-    //     }
+        const regex = /^[0-9\b]+$/;
+        const value = e.target.value;
+        if (value === '' || regex.test(value)) {
+            this.setState({
+                [e.target.id]: e.target.value, mobileNumber:  e.target.value
+                });
+        } else {
+            // toast.error("pls enter numbers")
+        }
        
           
        }
@@ -147,13 +143,16 @@ export default class User extends Component {
             "active":this.state.userType === "Active" ? "True" : "False",
             "inActive":this.state.userType === "InActive" ? "True" : "False",
             "roleName": this.state.searchRole ? this.state.searchRole : null,
-            "storeName": this.state.searchStore ? this.state.searchStore : null
+            "storeName": this.state.searchStore ? this.state.searchStore : null,
+            "clientDomainId": this.state.clientId
             }
 
             URMService.getUserBySearch(obj).then(res => {
                 console.log(res);
                 if(res) {
                     this.setState({usersList: res.data.result, isUser: true});
+                } else {
+                    this.setState({usersList: [], isUser: false});
                 }
             })
     }
@@ -178,7 +177,6 @@ export default class User extends Component {
                          }
                         this.state.rolesData.splice(0,0,obj);
                          this.setState({rolesList: this.state.rolesData})
-                         console.log(this.state.rolesList);
 
                      });
 
@@ -247,7 +245,8 @@ export default class User extends Component {
             "active":"False",
             "inActive": "False",
             "roleName": "",
-            "storeName": ""
+            "storeName": "",
+            "clientDomainId": this.state.clientId,
             }
         URMService.getUserBySearch(obj).then(res=> {
             console.log(res);
@@ -258,7 +257,7 @@ export default class User extends Component {
                     name: userDetails.userName,
                     dob:  items.dob,
                     gender: userDetails.gender,
-                    mobileNumber: userDetails.phoneNumber,
+                    mobileNumber: userDetails.phoneNumber.substring(3,13),
                     email: items.email,
                     address: items.address,
                     isAdmin: items.superAdmin,
@@ -483,7 +482,7 @@ export default class User extends Component {
         return this.state.isUser && (
             <div>
                 <div className="col-sm-12 col-12 scaling-center scaling-mb mt-3">
-                    <h5>List Of Users</h5>
+                    <h5 className='fs-18'>List Of Users</h5>
                 </div>
                 <div className="table-responsive p-0">
                 <table className="table table-borderless mb-1 mt-2">
@@ -869,13 +868,15 @@ export default class User extends Component {
 
 
                                         <Multiselect
-                                        className="form-control m-t-5 p-3 fs-14"
-                                            options={this.state.storesList} // Options to display in the dropdown
+                                        className= {
+                                            this.state.isSuperAdmin ? "" : "form-control m-t-5 p-3 fs-14"
+                                        }
+                                            options={this.state.storesList} // className="form-control m-t-5 p-3 fs-14"  Options to display in the dropdown
                                             selectedValues={this.state.storeName} // Preselected value to persist in dropdown
                                             onSelect={this.onSelect} // Function will trigger on select event
                                             onRemove={this.onRemove}
-                                            disabled={this.state.isSuperAdmin}
                                             placeholder="Select Store" 
+                                            disable={this.state.isSuperAdmin}
                                             displayValue="name" // Property name to display in the dropdown options
                                         />
 
@@ -915,8 +916,9 @@ export default class User extends Component {
                     </ModalFooter>
                 </Modal>
                 <div className="row">
-                    <div className="col-12 col-sm-3 mt-2">
+                    <div className="col-12 col-sm-2 mt-2">
                         <div className="form-group">
+                        <label>User Type</label>
                             <select className="form-control"  onChange={(e) => this.setState({ userType: e.target.value })}>
                                 <option>Select User Type</option>
                                 <option>Active</option>
@@ -924,21 +926,23 @@ export default class User extends Component {
                             </select>
                         </div>
                     </div>
-                    <div className="col-12 col-sm-3 mt-2">
+                    <div className="col-12 col-sm-2 mt-2">
                         <div className="form-group">
+                        <label>Role</label>
                         <input type="text" className="form-control" placeholder="Role" value={this.state.searchRole}
                                 onChange={(e) => this.setState({ searchRole: e.target.value })} />
                         </div>
                     </div>
-                    <div className="col-12 col-sm-3 mt-2">
+                    <div className="col-12 col-sm-2 mt-2">
                         <div className="form-group">
+                        <label>Store/Branch</label>
                         <input type="text" className="form-control" placeholder="Store/Branch" value={this.state.searchStore}
                                 onChange={(e) => this.setState({ searchStore: e.target.value })} />
                         </div>
                     </div>
-                    <div className="col-12 scaling-center scaling-mb col-sm-3 mt-2 p-l-0">
-                        <button className="btn-unic-search active m-r-1" onClick={this.searchUser}>Search </button>
-                        <button className="btn-unic-search active m-r-1" onClick={this.getUsers}>Clear </button>
+                    <div className="col-12 scaling-center scaling-mb col-sm-6 pt-4 mt-2 p-l-0">
+                        <button className="btn-unic-search active m-r-2" onClick={this.searchUser}>SEARCH </button>
+                        <button className="btn-unic-search active m-r-2" onClick={this.getUsers}>Clear </button>
                         <button className="btn-unic-search active" onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button>
                     </div>
 

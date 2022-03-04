@@ -132,7 +132,7 @@ export default class CreateTaxMaster extends Component {
               <td className="col-1">6%</td>
               <td className="col-1">0</td>
               <td className="col-2">0</td>
-              <td className="col-2">
+              <td className="col-2 t-form">
                 <select className="form-control">
                   <option>Set Default</option>
                 </select>
@@ -147,7 +147,7 @@ export default class CreateTaxMaster extends Component {
               <td className="col-1">6.5%</td>
               <td className="col-1">2.5%</td>
               <td className="col-2">2.5%</td>
-              <td className="col-2">
+              <td className="col-2 t-form">
                 <select className="form-control">
                   <option>Set Default</option>
                 </select>

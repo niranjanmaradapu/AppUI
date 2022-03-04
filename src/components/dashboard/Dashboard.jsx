@@ -1,11 +1,20 @@
+import { Chart } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import React, { Component } from 'react';
+import { Bar, Doughnut } from 'react-chartjs-2';
 import c_portal_white from '../../assets/images/c_portal_white.svg';
 import last_month_sale from '../../assets/images/last_month_sale.svg';
 import monthly_sale from '../../assets/images/monthly_sale.svg';
-import graph from '../../assets/images/sales_graph.svg';
-import graph_new from '../../assets/images/sales_graph_2.svg';
+import colors from '../../colors.json';
 import MainDashboardService from '../../services/MainDashboardService';
 
+Chart.register(ChartDataLabels);
+Chart.defaults.set('plugins.datalabels', {
+    color: '#000000',
+});
+Chart.defaults.font.weight = 'italic';
+Chart.defaults.font.size = 16;
+Chart.defaults.plugins.legend = false;
 
 export default class Dashboard extends Component {
 
@@ -54,8 +63,11 @@ export default class Dashboard extends Component {
             monthlySale: null,
             todaysSale: null,
             lastVsThisSales: null,
+            topSales: [],
+            salesCategory: [],
+            topSalesChart: {},
+            salesCategoryChart: {},
         };
-
     };
 
     componentWillMount() {
@@ -63,7 +75,7 @@ export default class Dashboard extends Component {
         const user = JSON.parse(sessionStorage.getItem('user'));
         const storeId = sessionStorage.getItem("storeId");
         const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-        
+
         // if (domainData.label == "Textile") {
         //     this.setState({ domainId: 1 });
         // } else if (domainData.label == "Retail") {
@@ -79,6 +91,7 @@ export default class Dashboard extends Component {
                 this.getMonthlySale();
                 this.getLastVsPresent();
                 this.getTopSalesRepresentative();
+                this.getSalesByCategory();
             });
         }
     }
@@ -87,7 +100,9 @@ export default class Dashboard extends Component {
         MainDashboardService.getTodaySale(this.state.storeId, this.state.domainId).then(response => {
             console.log("Todays Sale", response.data.result.amount);
             if (response) {
-                this.setState({ todaysSale: response.data.result.amount });
+                if (response.data.result !== "null") {
+                    this.setState({ todaysSale: response.data.result.amount });
+                }
             }
 
         });
@@ -97,7 +112,9 @@ export default class Dashboard extends Component {
         MainDashboardService.getMonthlySale(this.state.storeId, this.state.domainId).then(response => {
             console.log("Monthly Sale", response.data.result.amount);
             if (response) {
-                this.setState({ monthlySale: response.data.result.amount });
+                if (response.data.result !== "null") {
+                    this.setState({ monthlySale: response.data.result.amount });
+                }
             }
         });
     }
@@ -106,14 +123,97 @@ export default class Dashboard extends Component {
         MainDashboardService.getLastVsThisMonthSale(this.state.storeId, this.state.domainId).then(response => {
             console.log("Last VS this Month", response.data);
             if (response) {
-                this.setState({ lastVsThisSales: response.data.result.amount });
+                if (response.data.result !== "null") {
+                    this.setState({ lastVsThisSales: response.data.result.percentValue });
+                }
             }
         });
     }
 
     getTopSalesRepresentative() {
         MainDashboardService.getTopFiveSalesRepresentatives(this.state.storeId, this.state.domainId).then(response => {
-            console.log("Top 5 Sales Representative", response.data);
+            if (response) {
+                console.log("Top 5 Sales Representative", response.data.result);
+                if (response.data.result !== "null" && response.data.result.length > 0) {
+                    this.setState({ topSales: response.data.result },
+                        () => {
+                            let indexName = [];
+                            let indexCount = [];
+                            let indexColor = [];
+                            let indexHoverColor = [];
+
+                            this.state.topSales.forEach(data => {
+                                indexName.push(data.name);
+                                indexCount.push(data.amount);
+                            });
+
+                            colors.forEach(data => {
+                                indexColor.push(data.normalColorCode);
+                                indexHoverColor.push(data.hoverColorCode);
+                            });
+
+                            this.setState({
+                                topSalesChart: {
+                                    labels: indexName,
+                                    datasets: [
+                                        {
+                                            label: "Top 5 Sales",
+                                            data: indexCount,
+                                            backgroundColor: indexColor,
+                                            hoverBorderColor: "#282828",
+                                            maxBarThickness: 40,
+                                        }
+                                    ]
+                                }
+                            });
+                        });
+                }
+                console.log("Top Sales", this.state.topSalesChart);
+
+            }
+        });
+    }
+
+    getSalesByCategory() {
+        MainDashboardService.getSalesByCategory(this.state.storeId, this.state.domainId).then(response => {
+            if (response) {
+                if (response.data.result !== "null" && response.data.result.length > 0) {
+                    console.log("sales by category", response.data);
+                    this.setState({ salesCategory: response.data.result },
+                        () => {
+                            let indexName = [];
+                            let indexCount = [];
+                            let indexColor = [];
+                            let indexHoverColor = [];
+
+                            this.state.salesCategory.forEach(data => {
+                                indexName.push(data.categeoryType);
+                                indexCount.push(data.amount);
+                            });
+
+                            colors.forEach(data => {
+                                indexColor.push(data.normalColorCode);
+                                indexHoverColor.push(data.hoverColorCode);
+                            });
+
+                            this.setState({
+                                salesCategoryChart: {
+                                    labels: indexName,
+                                    datasets: [
+                                        {
+                                            label: "Sales By Category",
+                                            data: indexCount,
+                                            backgroundColor: indexColor,
+                                            hoverBorderColor: "#282828",
+                                            maxBarThickness: 40,
+                                        }
+                                    ]
+                                }
+                            });
+
+                        });
+                }
+            }
         });
     }
 
@@ -156,7 +256,7 @@ export default class Dashboard extends Component {
                             </div>
                             <div className="rect-gradient1-right">
                                 <label>This month sales v/s Last month</label>
-                                <h5>+ {this.state.lastVsThisSales}</h5>
+                                <h5>{this.state.lastVsThisSales} %</h5>
                             </div>
                         </div>
                     </div>
@@ -176,7 +276,17 @@ export default class Dashboard extends Component {
                                 </div>
                             </div>
                             <div className="rect-image">
-                                <img src={graph} />
+                                {Object.keys(this.state.salesCategoryChart).length &&
+                                    <Doughnut
+                                        data={this.state.salesCategoryChart}
+                                        height={400}
+                                        width={400}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                        }}
+                                    />
+                                }
                             </div>
                         </div>
                     </div>
@@ -196,7 +306,17 @@ export default class Dashboard extends Component {
                                 </div>
                             </div>
                             <div className="rect-image">
-                                <img src={graph_new} />
+                                {Object.keys(this.state.topSalesChart).length &&
+                                    <Bar
+                                        data={this.state.topSalesChart}
+                                        height={400}
+                                        width={400}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                        }}
+                                    />
+                                }
                             </div>
                         </div>
                     </div>

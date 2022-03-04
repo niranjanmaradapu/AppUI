@@ -83,7 +83,9 @@ export default class Roles extends Component {
 
         URMService.getRolesBySearch(searchRole).then(res => {
             if (res) {
-                this.setState({ rolesList: res.data.result, isRole: true })
+                this.setState({ rolesList: res.data.result, isRole: true });
+            } else {
+                this.setState({ rolesList: [], isRole: false })
             }
         });
     }
@@ -223,15 +225,14 @@ export default class Roles extends Component {
             if (res) {
                 this.setState({ productsList: res.data.result });
                 this.state.productsList.forEach((element, index) => {
-                    if(element.subPrivillages && element.subPrivillages.length > 0){
+                    if (element.subPrivillages && element.subPrivillages.length > 0) {
                         element.subPrivillages.forEach((child, index) => {
                             child.checked = false;
                         });
                     }
-                    
+
                 });
 
-                console.log(this.state.productsList);
                 this.getSelectedPrivileges(this.state.parentsList, this.state.childList);
             }
         });
@@ -239,28 +240,8 @@ export default class Roles extends Component {
     }
 
     createRole() {
-        // this.state.PrivilegesList.forEach((ele,index) =>{
-        //     ele.isCheck = false;
-        // });
         this.setState({ showRole: true });
         this.getPrivilegesByDomainId();
-        // if(this.state.parentsList.length > 0) {
-        //     this.getSelectedPrivileges(this.state.parentsList, this.state.childList);
-        // } else {
-        //     this.getPrivilegesByDomainId();
-        // }
-
-        // URMService.getAllPrivileges().then(res => {
-        //     if (res) {
-        //        // this.setState({ productsList: res.data.result });
-
-        //         //   this.setState({productsList:   { ...products [0] }, productTreeList: products});
-
-
-
-        //     }
-
-        // });
     }
 
     hide() {
@@ -269,7 +250,6 @@ export default class Roles extends Component {
 
     setPrivileges(e, value, selectedNode, selectedChild) {
         selectedChild.checked = e.target.checked;
-
         if (e.target.checked) {
             const obj = {
                 id: selectedNode.id,
@@ -281,31 +261,45 @@ export default class Roles extends Component {
 
 
         } else {
-            let index = this.state.parentsList.findIndex(ele => ele.name === selectedNode.name);
-            this.state.parentsList.splice(index, 1);
+            
+                // Removing childs
+                let index1 = this.state.childList.findIndex(ele => ele.name === selectedChild.name);
+                this.state.childList.splice(index1, 1);
 
-            // Removing childs
-            let index1 = this.state.childList.findIndex(ele => ele.name === selectedChild.name);
-            this.state.childList.splice(index1, 1);
+                let isParent = false;
+                if(this.state.parentsList.length > 0 && this.state.childList.length > 0) {
+                    this.state.childList.forEach(child =>{
+                        if(child.parentPrivillageId === selectedNode.id) {
+                            isParent = true;
+                        }
+                    });
+                }
+
+                if(!isParent) {
+                    let index = this.state.parentsList.findIndex(ele => ele.name === selectedNode.name);
+                    this.state.parentsList.splice(index, 1);
+                }
+
+               
+
+            
+
 
         }
 
         const parentsList = this.removeDuplicates(this.state.parentsList, "name");
         this.setState({ parentsList: parentsList });
         this.setState({ childList: this.state.childList });
-
-        //   this.setState({ parentsList: this.state.parentsList })
         this.setState({ PrivilegesList: this.state.PrivilegesList });
 
-        //   this.getSelectedPrivileges(this.state.parentsList, this.state.childList);
-
+       // console.log("privilegesList",this.state.productsList, "parentsList", parentsList, "childsList", this.state.childList );
     }
 
     getSelectedPrivileges(parentsList, childList) {
+      //  console.log("parentsEdit", parentsList);
         if (parentsList && parentsList.length > 0) {
-            console.log(this.state.domainList);
             this.state.productsList.forEach((product, index) => {
-                if(product.subPrivillages && product.subPrivillages.length > 0) {
+                if (product.subPrivillages && product.subPrivillages.length > 0) {
                     product.subPrivillages.forEach(subPrivilage => {
                         childList.forEach((child, index) => {
                             if (subPrivilage.id === child.id) {
@@ -314,52 +308,14 @@ export default class Roles extends Component {
                         });
                     });
                 }
-               
-
             });
         }
 
-        //     let productsList =[];
-        //     parentsList.forEach((parent,index) => {
-        //         let subPrivileges = [];
-        //         childList.forEach((child,index) => {
-        //             let updateSubPrivilege;
-        //             if(parent.id === child.parentPrivillageId) {
-        //                 child.checked = true;
-        //                 subPrivileges.push(child);
-        //                // childList.splice(child, index);
-        //             }
+        this.setState({ productsList: this.state.productsList });
 
-        //             updateSubPrivilege = this.removeDuplicates(subPrivileges, "name");
-        //             console.log(updateSubPrivilege);
-
-        //         });
-
-        //         const obj = {
-        //             "createdBy": parent.createdBy,
-        //             "createdDate": parent.createdDate,
-        //             "description": parent.description,
-        //             "domian": parent.domian,
-        //             "id": parent.id,
-        //             "lastModifyedDate": parent.lastModifyedDate,
-        //             "name": parent.name,
-        //             "parentImage": parent.parentImage,
-        //             "path": parent.path,
-        //             "subPrivillages": subPrivileges
-        //         }
-        //         productsList.push(obj);
-
-
-
-        //     });
-
-          this.setState({productsList: this.state.productsList });
-        //   this.state.productsList = productsList;
-           console.log(this.state.productsList);
     }
 
     getPrivilegesList() {
-        console.log(this.state.productsList);
         return this.state.productsList.length > 0 && this.state.productsList.map((node, i) => {
             const parentName = node.name;
             const label = <span className="node">{parentName}</span>
@@ -368,11 +324,11 @@ export default class Roles extends Component {
                     key={parentName + "|" + i}
                     nodeLabel={label}
                     defaultCollapse={false}
-                    
-                    
+
+
                 >
                     {
-                      node.subPrivillages &&  node.subPrivillages.length > 0 &&  node.subPrivillages.map((child) => {
+                        node.subPrivillages && node.subPrivillages.length > 0 && node.subPrivillages.map((child) => {
                             return (
 
                                 <div>
@@ -388,11 +344,6 @@ export default class Roles extends Component {
                                                 </div>
                                             )
                                         }
-                                        {/* <input type="checkbox" className="form-check-input filled-in mt-1" id="remember{{index}}"
-                                            name="child{{i}}"  checked={child.checked}
-                                            onChange={(e) => this.setPrivileges(e, i, node, child)} />
-                                        <label className="form-check-label" htmlFor="remember">  {child.name}</label> */}
-
                                     </div>
                                 </div>
                             );
@@ -440,11 +391,7 @@ export default class Roles extends Component {
                 </table>
                 <table className="table table-borderless gfg mb-0">
                     <tbody>
-                        {/* <tr className="">
-                            <td className="col-3 geeks">Super Admin</td>
-                            <td className="col-5">He can access only billing</td>
-                            
-                        </tr> */}
+
                         {this.getAddedRoles()}
                     </tbody>
                 </table>
@@ -453,7 +400,6 @@ export default class Roles extends Component {
     }
 
     editRole(items) {
-        console.log(items);
         this.setState({
             showModal: true,
             roleName: items.roleName,
@@ -468,17 +414,6 @@ export default class Roles extends Component {
             this.getPrivilegesByDomainId();
         });
 
-        // items.parentPrivilages.forEach((parent,index) => {
-        //     let subPrivileges = [];
-        //     items.subPrivilages.forEach((child,index) => {
-        //         if(parent.id === child.parentPrivillageId) {
-        //             subPrivileges.push(child);
-        //             items.subPrivilages.splice(child, index);
-        //         }
-        //         console.log("subPrivlege",subPrivileges);
-        //     });
-        // });
-
 
 
     }
@@ -487,9 +422,7 @@ export default class Roles extends Component {
         return this.state.rolesList.map((items, index) => {
             const { roleName, createdBy, createdDate, discription, usersCount } = items;
             return (
-                // <tr className="">
-                //     <td className="col-3 geeks">{privilege}</td>
-                // </tr>
+
                 <tr className="">
                     <td className="col-1 geeks">{index + 1}</td>
                     <td className="col-2">{roleName}</td>
@@ -511,7 +444,7 @@ export default class Roles extends Component {
         return this.state.isRole && (
             <div>
                 <div className="col-12 mb-1 mt-3 scaling-center scaling-mb">
-                    <h5>Roles List</h5>
+                    <h5 className='fs-18'>Roles List</h5>
                 </div>
                 <div className="table-responsive p-0">
                     <table className="table table-borderless mb-0">
@@ -622,20 +555,7 @@ export default class Roles extends Component {
 
                                 <div className="col-12 col-sm-4 mt-4">
                                     <div className="form-group">
-                                        {/* <input type="checkbox" className="form-check-input filled-in mt-1" id="admin" name="superadmin" value={this.state.isAdmin} 
-                                       onChange={(e) => this.setState({ isAdmin: e.target.checked, isSuperAdmin: e.target.checked },()=>{
-                                           if(this.state.isAdmin) {
-                                               this.setState({domain:""}, ()=>{
-                                                this.getPrivilegesByDomainId();
-                                               });
-                                           } else {
-                                            this.setState({domain: this.state.domainList[0].clientDomainaId}, ()=>{
-                                                this.getPrivilegesByDomainId();
-                                               });
-                                           }
-                                          
-                                       })}/> */}
-                                        {/* <label className="form-check-label p-l-2" htmlFor="remember">Is Super Admin</label> */}
+
                                     </div>
                                 </div>
 
@@ -679,27 +599,30 @@ export default class Roles extends Component {
                 </Modal>
 
                 <div className="row">
-                    <div className="col-sm-3 col-12 mt-2">
+                    <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
+                        <label>Role</label>
                             <input type="text" className="form-control" placeholder="Role" value={this.state.searchRole}
                                 onChange={(e) => this.setState({ searchRole: e.target.value })} />
                         </div>
                     </div>
-                    <div className="col-sm-3 col-12 mt-2">
+                    <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
+                        <label>Created By</label>
                             <input type="text" className="form-control" placeholder="Created By" value={this.state.searchCreatedby}
                                 onChange={(e) => this.setState({ searchCreatedby: e.target.value })} />
                         </div>
                     </div>
-                    <div className="col-sm-3 col-12 mt-2">
+                    <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
-                            <input type="text" className="form-control" placeholder="Created Date" value={this.state.searchCreatedDate}
+                        <label>Created Date</label>
+                            <input type="date" className="form-control" placeholder="Created Date" value={this.state.searchCreatedDate}
                                 onChange={(e) => this.setState({ searchCreatedDate: e.target.value })} />
                         </div>
                     </div>
-                    <div className="col-sm-3 col-12 scaling-center scaling-mb mt-2 p-l-0 p-r-0">
-                        <button className="btn-unic-search active m-r-1" onClick={this.searchRoles}>Search </button>
-                        <button className="btn-unic-search active m-r-1" onClick={this.getAllRoles}>Clear </button>
+                    <div className="col-sm-6 pt-4 col-12 scaling-center scaling-mb mt-2 p-l-0 p-r-0">
+                        <button className="btn-unic-search active m-r-2" onClick={this.searchRoles}>SEARCH </button>
+                        <button className="btn-unic-search active m-r-2" onClick={this.getAllRoles}>Clear </button>
                         <button className="btn-unic-search active" onClick={this.showRoles}><i className="icon-create_customer"></i> Create Role </button>
                     </div>
 

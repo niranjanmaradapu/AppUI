@@ -1,9 +1,13 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import LoginService from "../../services/LoginService";
-import Logo from "../../assets/images/retail_logo.svg";
+// import Logo from "../../assets/images/retail_logo.svg";
+
+import Logo from "../../assets/images/R_logo.svg";
+// import { LogoNew } from "../../assets/images/R_logo.svg";
 import textile from "../../assets/images/textile.svg";
 import electrical from "../../assets/images/electrical.svg";
+import electronics from "../../assets/images/electrical_electronics.svg";
 import sanitary from "../../assets/images/sanitary.svg";
 import retailIcon from "../../assets/images/logo_icon.svg";
 import Retail from "../../assets/images/login_bg.svg";
@@ -60,6 +64,7 @@ class Login extends Component {
     this.forgotPassword = this.forgotPassword.bind(this);
     this.saveForgotPassword = this.saveForgotPassword.bind(this);
     this.getConfirmationCode = this.getConfirmationCode.bind(this);
+    this.getStoreDetails = this.getStoreDetails.bind(this);
   }
 
   componentWillMount() {
@@ -111,7 +116,7 @@ class Login extends Component {
               this.getModel();
             } else if (role["cognito:groups"][0] === "config_user") {
               sessionStorage.setItem("domainName", role["cognito:groups"][0]);
-              this.props.history.push("/users");
+              this.props.history.push("/domain");
             } else {
               sessionStorage.setItem("domainName", role["cognito:groups"][0]);
               this.getStores();
@@ -161,7 +166,7 @@ class Login extends Component {
       }
     });
 
-    //  this.props.history.push("/users");
+    //  this.props.history.push("/domain");
   };
 
   getStores() {
@@ -183,13 +188,15 @@ class Login extends Component {
           });
           this.setState({ storesName: store }, () => {
             sessionStorage.setItem("storeId", this.state.storesName[0].storeId);
+            sessionStorage.setItem("selectedstoreData", JSON.stringify(this.state.storesName[0]));
           });
     
           if (store && store.length > 1) {
             this.setState({ isStores: true });
           } else {
             sessionStorage.setItem("storeId", this.state.storesName[0].storeId);
-            this.getDashboard();
+            sessionStorage.setItem("selectedstoreData", JSON.stringify(this.state.storesName[0]));
+            this.props.history.push("/dashboard");
           }
         }
       })
@@ -209,12 +216,14 @@ class Login extends Component {
 
       this.setState({ storesName: store }, () => {
         sessionStorage.setItem("storeId", this.state.storesName[0]?.storeId);
+        sessionStorage.setItem("selectedstoreData", JSON.stringify(this.state.storesName[0]));
       });
 
       if (store && store.length > 1) {
         this.setState({ isStores: true });
       } else {
         sessionStorage.setItem("storeId", this.state.storesName[0]?.storeId);
+        sessionStorage.setItem("selectedstoreData", JSON.stringify(this.state.storesName[0]));
         this.getDashboard();
       }
 
@@ -231,7 +240,7 @@ class Login extends Component {
       } else if (role["cognito:groups"][0] === "config_user") {
         sessionStorage.setItem("domainName", role["cognito:groups"][0]);
         // sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
-        this.props.history.push("/users");
+        this.props.history.push("/domain");
       } else {
         sessionStorage.setItem("domainName", role["cognito:groups"][0]);
         //  sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
@@ -312,7 +321,7 @@ class Login extends Component {
       } else if (ele.domaiName === "Retail") {
         ele.src = sanitary;
       } else if (ele.domaiName === "Electronics") {
-        ele.src = electrical;
+        ele.src = electronics;
       } else if (ele.domaiName === "MultiDomain") {
         ele.src = adminImg;
       }
@@ -349,7 +358,7 @@ class Login extends Component {
     // } else if (domainName === "Electronics") {
     //   this.props.history.push("electronics");
     // } else if (domainName === "Admin") {
-    //   this.props.history.push("/users");
+    //   this.props.history.push("/domain");
     // } else if (domainName === "MultiDomain") {
     //   this.props.history.push("/retail");
     // }
@@ -503,58 +512,63 @@ class Login extends Component {
   registerClient() {
     const formValid = this.handleValidation();
     if (formValid) {
-      const obj = {
-        name: this.state.registerName,
-        organizationName: this.state.registerOrganisation,
-        address: this.state.registerAddress,
-        mobile: "+91".concat(this.state.registerMobile),
-        email: this.state.registerEmail,
-      };
-
-      LoginService.registerUser(obj).then((res) => {
-        if (res) {
-          const clientId = res.data.result.split(":");
-          const clientObj = {
-            email: this.state.registerEmail,
-            phoneNumber: "+91".concat(this.state.registerMobile),
-            birthDate: "",
-            gender: "",
-            name: this.state.registerName,
-            username: this.state.registerName.concat("_config_user"),
-            tempPassword: "Otsi@1234",
-            parentId: "",
-            domianId: "",
-            address: "",
-            role: {
+      if(this.state.registerMobile.length === 10) {
+        const obj = {
+          name: this.state.registerName,
+          organizationName: this.state.registerOrganisation,
+          address: this.state.registerAddress,
+          mobile: "+91".concat(this.state.registerMobile),
+          email: this.state.registerEmail,
+        };
+  
+        LoginService.registerUser(obj).then((res) => {
+          if (res) {
+            const clientId = res.data.result.split(":");
+            const clientObj = {
+              email: this.state.registerEmail,
+              phoneNumber: "+91".concat(this.state.registerMobile),
+              birthDate: "",
+              gender: "",
+              name: this.state.registerName,
+              username: this.state.registerName.concat("_config_user"),
+              tempPassword: "Otsi@1234",
+              parentId: "",
+              domianId: "",
+              address: "",
+              role: {
+                roleName: "config_user",
+              },
               roleName: "config_user",
-            },
-            roleName: "config_user",
-            stores: [],
-            clientId: clientId[1],
-            isConfigUser: "true",
-            clientDomain: [],
-            isSuperAdmin: "false",
-            createdBy: "NA",
-          };
-
-          URMService.saveUser(clientObj).then((response) => {
-            console.log(response);
-            if (response) {
-              toast.success(
-                "Username and Password are sent to  respective mailId"
-              );
-              this.setState({
-                registerName: "",
-                registerEmail: "",
-                registerOrganisation: "",
-                registerMobile: "",
-                registerAddress: "",
-              });
-              this.hideRegister();
-            }
-          });
-        }
-      });
+              stores: [],
+              clientId: clientId[1],
+              isConfigUser: "true",
+              clientDomain: [],
+              isSuperAdmin: "false",
+              createdBy: "NA",
+            };
+  
+            URMService.saveUser(clientObj).then((response) => {
+              console.log(response);
+              if (response) {
+                toast.success(
+                  "Username and Password are sent to  respective mailId"
+                );
+                this.setState({
+                  registerName: "",
+                  registerEmail: "",
+                  registerOrganisation: "",
+                  registerMobile: "",
+                  registerAddress: "",
+                });
+                this.hideRegister();
+              }
+            });
+          }
+        });
+      } else {
+        toast.error("Please Enter Valid Mobile Number")
+      }
+    
     } else {
       toast.info("Please Enter all mandatory fields");
     }
@@ -600,6 +614,7 @@ class Login extends Component {
   // }
 
   validation(e) {
+    console.log(e.target.value)
     const regex = /^[0-9\b]+$/;
     const value = e.target.value;
     if (value === "" || regex.test(value)) {
@@ -608,6 +623,7 @@ class Login extends Component {
         registerMobile: e.target.value,
       });
     } else {
+      this.setState({registerMobile: ""});
       // toast.error("pls enter numbers")
     }
   }
@@ -624,6 +640,14 @@ class Login extends Component {
     } else {
       // toast.error("pls enter numbers")
     }
+  }
+
+  getStoreDetails() {
+    this.state.storesName.forEach(element => {
+      if(element.storeId === parseInt(this.state.storeId)) {
+        sessionStorage.setItem("selectedstoreData", JSON.stringify(element));
+      }
+    });
   }
 
 
@@ -654,6 +678,7 @@ class Login extends Component {
                 onChange={(e) => {
                   this.setState({ storeId: e.target.value }, () => {
                     sessionStorage.setItem("storeId", this.state.storeId)
+                    this.getStoreDetails();
                   })
                 }}>
 
@@ -715,7 +740,12 @@ class Login extends Component {
           <div className="row m-0 p-0">
             <div className="col-sm-6 col-xs-12">
               <div className="login-left">
-                <img className="pic" src={Logo} />
+                <div className="easytxt">
+                <img className="pic" src={Logo}/><span class="">EASY RETAIL
+              <b>In-Store & Online</b>
+                </span>
+               
+                </div>
                 <div className="login-left-radio">
                   <input
                     type="radio"
@@ -823,7 +853,7 @@ class Login extends Component {
                       {t("LOGIN")}
                     </button>
                     <p
-                      className="text-center cursor pt-3 mt-2 fs-14"
+                      className="text-center cursor pt-3  fs-14"
                       htmlFor="remember"
                       onClick={this.forgotPassword}
                     >
@@ -831,7 +861,7 @@ class Login extends Component {
                     </p>
 
                     <p
-                      className="text-center cursor pt-3 mt-2 fs-14"
+                      className="text-center cursor pt-3 fs-14"
                       htmlFor="remember"
                       onClick={this.showRegister}
                     >
@@ -848,12 +878,12 @@ class Login extends Component {
             {this.state.isForgot && (
               <div className="col-sm-6 col-xs-12 p-0 m-0">
                 <div className="login-right">
-                  <div className="login-right-form select_control">
+                  <div className="login-right-form select_control p-5">
                     <h5 className="">
                       {" "}
                       Verification Code <br />{" "}
                     </h5>
-                    <div className="form-group m-t-2">
+                    <div className="form-group mt-4">
                       <input
                         type="text"
                         className="mt-3 mb-3 form-control"
@@ -1061,7 +1091,13 @@ class Login extends Component {
 
                       <div className="col-12">
                         <label>Address</label>
-                        <input
+                        <textarea rows="3" cols="5" className="form-control"
+                          value={this.state.registerAddress}
+                          onChange={(e) =>
+                            this.setState({ registerAddress: e.target.value })
+                          }
+                          autoComplete="off"></textarea>
+                        {/* <input
                           type="text"
                           name="name"
                           className="form-control"
@@ -1070,7 +1106,7 @@ class Login extends Component {
                             this.setState({ registerAddress: e.target.value })
                           }
                           autoComplete="off"
-                        />
+                        /> */}
                       </div>
 
                       <div class="col d-flex">

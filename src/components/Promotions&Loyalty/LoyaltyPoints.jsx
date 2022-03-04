@@ -256,11 +256,13 @@ export default class LoyaltyPoints extends Component {
             <div className="row">
               <div className="col-sm-3 col-12">
                 <div className="form-group mt-2 mb-3">
+                  <label>Invoice</label>
                    <input value={this.state.invoiceNumber} placeholder="Invoice Number" onChange={(e) => this.handleInvoiceNumber(e)} type="text" className="form-control" />
                 </div>
               </div>
               <div className="col-sm-3 col-12">
                 <div className="form-group mt-2 mb-3">
+                <label>Mobile</label>
                     <input value={this.state.mobileNumer} placeholder="Mobile Number" onChange={(e) => this.handleMobileNumer(e)} type="text" className="form-control" />
                 </div>
               </div>
@@ -274,7 +276,7 @@ export default class LoyaltyPoints extends Component {
                  </select>
                 </div>
               </div> */}
-              <div className="col-sm-3 col-12 scaling-mb scaling-center">
+              <div className="col-sm-3 col-12 scaling-mb scaling-center pt-4">
                 <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchLoyaltyPoints}>SEARCH</button>
                 <button className="btn-unic-redbdr mt-2" onClick={this.addLoyalityPoints}>Add Loyalty Points</button>
               </div>

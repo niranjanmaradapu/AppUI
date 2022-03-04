@@ -61,7 +61,7 @@ class NewSaleService {
     }
 
     getCheckPromoAmount(storeId, domainId, reqObj) {
-        const param = '?storeId='+ storeId +'&domainId'+ domainId; 
+        const param = '?storeId='+ storeId +'&domainId='+ domainId; 
         return axios.post(BASE_URL+NEW_SALE_URL.getCheckPromo+param, reqObj);
     }
 

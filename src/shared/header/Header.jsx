@@ -396,6 +396,7 @@ class Header extends Component {
               children: [
                 { childName: "Users", childImage: "deliveryslip", childPath: "/users" },
                 { childName: "Roles", childImage: "sale", childPath: "/roles" },
+                { childName: "Back Office", childImage: "sale", childPath: "/backOffice" },
               ],
             }
            

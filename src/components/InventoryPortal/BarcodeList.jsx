@@ -298,7 +298,7 @@ export default class BarcodeList extends Component {
   getAllSections(id) {
     this.setState({ sectionsList: [] });
     InventoryService.getAllSections(id).then((res) => {
-      if (res.data && res.data.isSuccess === "true") {
+      if (res.data) {
         res.data.result.forEach((ele, index) => {
           const obj = {
             id: ele.id,
@@ -312,6 +312,7 @@ export default class BarcodeList extends Component {
       } else {
         this.setState({ sectionsList: [] });
       }
+      console.log(this.state.sectionsList);
     });
 
   }
@@ -319,7 +320,7 @@ export default class BarcodeList extends Component {
   getAllSubsections(id) {
     this.setState({ subSectionsList: [] });
     InventoryService.getAllSections(id).then((res) => {
-      if (res.data && res.data.isSuccess === "true") {
+      if (res.data) {
         res.data.result.forEach((ele, index) => {
           const obj = {
             id: ele.id,
@@ -339,7 +340,7 @@ export default class BarcodeList extends Component {
   getAllCategories() {
     this.setState({ categoriesList: [] });
     InventoryService.getAllCategories().then((res) => {
-      if (res.data && res.data.isSuccess === "true") {
+      if (res.data) {
         res.data.result.forEach((ele, index) => {
           const obj = {
             id: ele.id,
@@ -978,7 +979,8 @@ export default class BarcodeList extends Component {
                     <label>Colour
                       <span className="text-red font-bold">*</span>
                     </label>
-                    <input type="text" className="form-control" placeholder="" value={this.state.colour} disabled={this.state.isEdit}
+                    <input type="text" className="form-control" placeholder="" 
+                    value={this.state.colour} disabled={this.state.isEdit}
                       onChange={(e) =>
                         this.setState({ colour: e.target.value })} />
                     {(this.state.commonFieldsErr && !this.state.colour) ? this.errorDiv('colourErr') : null}

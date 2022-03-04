@@ -39,6 +39,7 @@ import ReportsDashboard from '../../components/reports/ReportsDashboard';
 import URMDashboard from '../../components/admin/URMDashboard';
 import ListOfEstimationSlips from '../../components/reports/ListOfEstimationSlips';
 import Rebarcoding from '../../components/InventoryPortal/Rebarcoding';
+import BackOffice from '../../components/admin/BackOffice';
 
 
 
@@ -287,6 +288,11 @@ export default class Layout extends Component {
                                     path='/rebarcoding'
                                     exact={true}
                                     component={Rebarcoding}
+                                />
+                                <PrivateRoute
+                                    path='/backOffice'
+                                    exact={true}
+                                    component={BackOffice}
                                 />
                             </Switch>
                         </div>

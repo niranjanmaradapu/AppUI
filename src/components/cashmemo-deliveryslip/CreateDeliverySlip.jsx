@@ -228,62 +228,20 @@ class CeateDeliverySlip extends Component {
     this.setState({ isCheckPromo: false });
     this.setState({ isDeliveryCreated: true });
     console.log("check promo clicked");
-    const obj = [
-      {
-          "attr_10": "string",
-          "attr_11": "string",
-          "attr_12": "string",
-          "attr_13": "string",
-          "attr_14": "string",
-          "attr_15": "string",
-          "attr_16": "string",
-          "attr_17": "string",
-          "attr_18": "string",
-          "attr_19": "string",
-          "attr_20": "string",
-          "attr_7": "string",
-          "attr_8": "string",
-          "attr_9": "string",
-          "barcode": "string",
-          "barcodeTextileId": 0,
-          "batchNo": "string",
-          "calculatedDiscountsVo": {},
-          "category": 0,
-          "colour": "string",
-          "division": 0,
-          "productTextile": {
-              "attr_22": "string",
-              "attr_23": "string",
-              "attr_24": "string",
-              "attr_25": "string",
-              "barcodeTextileId": 0,
-              "costPrice": 0,
-              "createForLocation": 0,
-              "domainId": 0,
-              "empId": "string",
-              "hsnMasterId": 0,
-              "itemCode": "string",
-              "itemMrp": 100,
-              "itemRsp": 200,
-              "itemSku": "string",
-              "originalBarcode": "string",
-              "parentBarcode": "string",
-              "productTextileId": 0,
-              "promoLabel": "string",
-              "qty": 1,
-              "status": "DISABLE",
-              "storeId": 0,
-              "uom": "string",
-              "value": 0,
-              "valueAdditionCp": 0
-          },
-          "section": 0,
-          "subSection": 0
+    
+  
+  
+    NewSaleService.getCheckPromoAmount(this.state.storeId, this.state.domainId, this.state.barList).then(response => {
+      if(response) {
+        this.state.barList.forEach((element,index) => {
+          response.data.result.forEach(ele =>{
+            if(ele.calculatedDiscountsVo) {
+              
+            }
+
+          });
+        });
       }
-  ]
-  
-  
-    NewSaleService.getCheckPromoAmount(this.state.storeId, this.state.domainId, obj).then(response => {
 
     });
   }
@@ -433,7 +391,7 @@ class CeateDeliverySlip extends Component {
                   <td className="col-1">{items.salesMan}</td>
                   <td className="col-1">₹{items.itemMrp}</td>
                   <td className="col-2"></td>
-                  <td className="col-1">₹ 0</td>
+                  <td className="col-1">₹ {items?.itemDiscount}</td>
                   <td className="col-1 w-100">₹ {items.totalMrp}
                     <i className="icon-delete m-l-2"
                       onClick={(e) => {
@@ -768,7 +726,7 @@ class CeateDeliverySlip extends Component {
                     "btn-login btn-create mt-3" +
                     (!this.state.isCheckPromo ? " btn-disable" : "")
                   }
-                 
+                  onClick={this.checkPromo}
                 >
                   Check Promo Discount
                 </button>

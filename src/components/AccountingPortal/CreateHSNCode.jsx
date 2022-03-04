@@ -1,29 +1,150 @@
 import React, { Component } from 'react';
 import edit from '../../assets/images/edit.svg';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-
+import AccountingPortalService from '../../services/AccountingPortal/AccountingPortalService';
+import { toast } from 'react-toastify';
 export default class CreateHSNCode extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
       isaddHSNCode: false,
+      HsnCodeList:[],
+      allTaxList:[],
+      descrptionList:[],
+      taxsAppliesOnList:[],
+      hsnCode:"",
+      descprition:"",
+      taxAppliesOn:"",
+      taxId:"",
+      priceFrom:"",
+      priceTo:""
+
     };
 
     this.addHSNCode = this.addHSNCode.bind(this);
     this.closeHSNCode = this.closeHSNCode.bind(this);
+    this.getDescriptionData = this.getDescriptionData.bind(this);
+    this.getTaxAppliesOn = this.getTaxAppliesOn.bind(this);
+    this.getAllTaxes = this.getAllTaxes.bind(this);
+    this.saveHSNCode = this.saveHSNCode.bind(this);
+    this.getAllHsnCodes = this.getAllHsnCodes.bind(this);
+  }
+  componentWillMount() {
+  this. getAllHsnCodes();
   }
 
-
   addHSNCode() {
+    this.getDescriptionData();
+    this.getTaxAppliesOn();
+    this.getAllTaxes();
     this.setState({ isaddHSNCode: true });
   }
 
   closeHSNCode() {
     this.setState({ isaddHSNCode: false });
   }
+  getAllHsnCodes(){
+    AccountingPortalService.getAllHsnCodes().then(response => {
+      if (response) {
+        this.setState({ HsnCodeList: response.data.result });
+        console.log(this.state.HsnCodeList);
+      }
+    }); 
+  }
+  saveHSNCode(){
+    const obj={
+ "hsnCode": this.state.hsnCode,         
+ "description": this.state.descprition,         
+ "taxAppliesOn": this.state.taxAppliesOn,         
+ "taxVo": {              
+    "id": parseInt(this.state.taxId)                 
+        },          
+"slabVos": [             
+{            
+"priceFrom":parseInt(this.state.priceFrom) , 
+                    
+"priceTo": parseInt(this.state.priceTo)  ,
+                    
+"taxVo": {                  
+   "id":  parseInt(this.state.taxId)                 
+      }              
+ }],       
+ "slabBased": true
+  }
+  console.log(obj)
+    AccountingPortalService.saveHsnCode(obj).then(response => {
+      toast.success(response.data.message);
+      this.closeHSNCode()
+      this.getAllHsnCodes()
+    });
+  }
+  getAllTaxes(){
+    AccountingPortalService.getAllMasterTax().then(response => {
+      if (response) {
+        this.setState({ allTaxList: response.data.result });
+        console.log(this.state.allTaxList);
+      }
+    });
+  }
+  getDescriptionData(){
+    AccountingPortalService.getDescrition().then(response => {
+      if (response) {
+        this.setState({ descrptionList: response.data.result });
+        console.log(this.state.descrptionList);
+      }
+    });
+  }
+getTaxAppliesOn(){
+  
+  AccountingPortalService.getTaxAppliesOn().then(response => {
+    if (response) {
+      this.setState({ taxsAppliesOnList: response.data.result });
+      console.log(this.state.taxsAppliesOnList);
+    }
+  });
+}
+handleSelectChangeDesc = (e) => {
+   let obj;
+  obj = e.target.value;
+   this.setState({ descprition: obj });
+}
 
+handleSelectChangeTaxList = (e) => {
+  let obj;
+ obj = e.target.value;
+  this.setState({ taxAppliesOn: obj });
+}
+handleSelectChangeAllTax = (e) => {
+  let obj;
+ obj = e.target.value;
+  this.setState({ taxId: obj });
+}
   render() {
+    const description = this.state.descrptionList;
+    let descDataList = description.length > 0
+        && description.map((item, i) => {
+            return (
+               
+                <option key={i} value={item.name}>{item.name}</option>
+            )
+        }, this);
+        const taxApplies = this.state.taxsAppliesOnList;
+        let taxAppliesList = taxApplies.length > 0
+            && taxApplies.map((items, k) => {
+                return (
+                   
+                    <option key={k} value={items.name}>{items.name}</option>
+                )
+            }, this);
+            const allTaxApplies = this.state.allTaxList;
+            let allTaxList = allTaxApplies.length > 0
+                && allTaxApplies.map((items, k) => {
+                    return (
+                       
+                        <option key={k} value={items.id}>{items.taxLabel}</option>
+                    )
+                }, this);
     return (
       <div className="maincontent">
         <Modal isOpen={this.state.isaddHSNCode} size="lg">
@@ -36,53 +157,85 @@ export default class CreateHSNCode extends Component {
                 <div className="col-4">
                 <div className="form-group">
                   <label>HSN Code</label>
-                  <input type="text" className="form-control" placeholder="" />
+                  <input type="text" className="form-control" placeholder="" value={this.state.hsnCode}
+                    onChange={(e) => {
+                      this.setState({
+                        hsnCode: e.target.value,
+
+                      });
+                    }} />
                 </div>
                 </div>
                 <div className="col-4">
                 <div className="form-group">
-                  <label>Tax Applicable</label>
-                  <select className="form-control">
-                    <option>Select</option>
-                  </select>
+                  <label>Description</label>
+                  <select className="form-control" onChange={this.handleSelectChangeDesc}>
+
+{descDataList}
+</select >
                 </div>
                 </div>
                 <div className="col-4">
                 <div className="form-group">
-                  <label>Tax %</label>
-                  <select className="form-control">
-                    <option>Select</option>
-                    <option>2.5 %</option>
-                    <option>5 %</option>
-                    <option>12 %</option>
-                    <option>18 %</option>
-                  </select>
+                  <label>Tax Applies ON</label>
+                
+                  <select className="form-control" onChange={this.handleSelectChangeTaxList}>
+
+{taxAppliesList}
+</select >
+                
                 </div>
                 </div>
-                <div className="col-4 mt-3">
+             
+                {/* <div className="col-4 mt-3">
                 <div className="form-group">
                   <label>Slab</label>
                   <select className="form-control">
                     <option>Select Slab</option>
                   </select>
                 </div>
-                </div>
+                </div> */}
                 <div className="col-4 mt-3">
                 <div className="form-group">
-                  <label>TAX ID</label>
-                  <input type="text" className="form-control" placeholder="" />
+                  <label>TAX Label</label>
+                  <select className="form-control" onChange={this.handleSelectChangeAllTax}>
+
+{allTaxList}
+</select >
+                
+                  {/* <select className="form-control">
+                    <option>Select Slab</option>
+                    <option>Select 1</option>
+                    <option>Select 2</option>
+                  </select> */}
                 </div>
                 </div>
                 <div className="col-4 mt-3">
                 <div className="form-group">
                   <label>From Price</label>
-                  <input type="text" className="form-control" placeholder="₹" />
+                  <input type="text" className="form-control" placeholder="₹"
+                  value={this.state.priceFrom}
+                  onChange={(e) => {
+                    this.setState({
+                      priceFrom: e.target.value,
+
+                    });
+                  }}
+                   />
                 </div>
                 </div>
                 <div className="col-4 mt-3">
                 <div className="form-group">
                   <label>To Price</label>
-                  <input type="text" className="form-control" placeholder="₹" />
+                  <input type="text" className="form-control" placeholder="₹"
+                  value={this.state.priceTo}
+                  onChange={(e) => {
+                    this.setState({
+                      priceTo: e.target.value,
+
+                    });
+                  }}
+                  />
                 </div>
                 </div>
                 </div>
@@ -93,7 +246,7 @@ export default class CreateHSNCode extends Component {
             </button>
             <button
               className="btn-unic active fs-12"
-              onClick={this.closeHSNCode}
+              onClick={this.saveHSNCode}
             >
               Save
             </button>
@@ -131,33 +284,7 @@ export default class CreateHSNCode extends Component {
                 <img src={edit} className="w-12 pb-2" />
                 <i className="icon-delete m-l-2 fs-16"></i></td>
             </tr>
-            <tr>
-              <td className="col-3 underline geeks">HSN0012</td>
-              <td className="col-3">Goods</td>
-              <td className="col-2">Gross Amount</td>
-              <td className="col-2">NO</td>
-              <td className="col-2 text-center">
-                <img src={edit} className="w-12 pb-2" />
-                <i className="icon-delete m-l-2 fs-16"></i></td>
-            </tr>
-            <tr>
-              <td className="col-3 underline geeks">HSN0013</td>
-              <td className="col-3">Goods</td>
-              <td className="col-2">Gross Amount</td>
-              <td className="col-2">YES</td>
-              <td className="col-2 text-center">
-                <img src={edit} className="w-12 pb-2" />
-                <i className="icon-delete m-l-2 fs-16"></i></td>
-            </tr>
-            <tr>
-              <td className="col-3 underline geeks">HSN0014</td>
-              <td className="col-3">Goods</td>
-              <td className="col-2">Net Amount</td>
-              <td className="col-2">NO</td>
-              <td className="col-2 text-center">
-                <img src={edit} className="w-12 pb-2" />
-                <i className="icon-delete m-l-2 fs-16"></i></td>
-            </tr>
+           
 
           </tbody>
         </table>

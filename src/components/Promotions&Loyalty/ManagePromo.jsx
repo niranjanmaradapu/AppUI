@@ -367,29 +367,30 @@ export default class ManagePromo extends Component {
     });
     const poolObj =    { value: obj.poolId, label: obj.poolName };
     const editedBenfit = {
-      benfitId: obj.benfitId,
-      benfitType: obj.benfitType,
-      discountType: obj.discountType,
-      discountOn: obj.discount,
-      item: obj.percentageDiscountOn,
+      benfitId: obj.benfitVo.benfitId,
+      benfitType: obj.benfitVo.benfitType,
+      discountType: obj.benfitVo.discountType,
+      discountOn: obj.benfitVo.discount,
+      item: obj.benfitVo.percentageDiscountOn,
       getPoolValue: obj.itemValue,
       selectedPoolValue: poolObj,
-      promoBenfitId: obj.benfitId,
-      numOfItemsFromGetPool: obj.numOfItemsFromGetPool,
-      numOfItemsFromBuyPool: obj.numOfItemsFromBuyPool
+      promoBenfitId: obj.benfitVo.benfitId,
+      numOfItemsFromGetPool: obj.benfitVo.numOfItemsFromGetPool,
+      numOfItemsFromBuyPool: obj.benfitVo.numOfItemsFromBuyPool
     };
     this.setState({
       isAddBenefits: true,
-      benfitType: obj.benfitType,
-      discountType: obj.discountType,
-      discountOn: obj.discount,
-      item: obj.percentageDiscountOn,
-      getPoolValue: obj.itemValue,
+      benfitType: obj.benfitVo.benfitType,
+      discountType: obj.benfitVo.discountType,
+      discountOn: obj.benfitVo.discount,
+      item: obj.benfitVo.percentageDiscountOn,
+      getPoolValue: obj.benfitVo.itemValue,
       selectedPoolValue: poolObj,
-      promoBenfitId: obj.benfitId,
-      numOfItemsFromGetPool: obj.numOfItemsFromGetPool,
-      numOfItemsFromBuyPool: obj.numOfItemsFromBuyPool,
-      editedBenfit: editedBenfit  
+      promoBenfitId: obj.benfitVo.benfitId,
+      numOfItemsFromGetPool: obj.benfitVo.numOfItemsFromGetPool,
+      numOfItemsFromBuyPool: obj.benfitVo.numOfItemsFromBuyPool,
+      editedBenfit: obj,
+      benfitIndex: index
     });
   }
   addBenefitsList(index) {
@@ -414,17 +415,12 @@ export default class ManagePromo extends Component {
   addBenfit() {
     let index = this.state.benfitIndex;
     let updatedBenfitObjs = [];  
-    let promoSlabVo = {};
     const { benfitVoArray, editedBenfit, promoApplyType, benfitType, discountOn, discountType, item, benfitObj, buyPoolValue, getPoolValue, numOfItemsFromGetPool, numOfItemsFromBuyPool, selectedPoolValue, toSlabValue, fromSlabValue} = this.state;
     let obj = {
       benfitType: benfitType,
       discountType: discountType,
       discount: discountOn,
-      percentageDiscountOn: item,
-      promoSlabVo: {
-        fromSlab: null,
-        toSlab: null
-    }
+      percentageDiscountOn: item
     }
     if(benfitType === 'XunitsFromBuyPool') {
        obj = {...obj, numOfItemsFromBuyPool, itemValue: buyPoolValue}
@@ -436,25 +432,34 @@ export default class ManagePromo extends Component {
       }
        obj = {...obj, numOfItemsFromGetPool, itemValue: getPoolValue,poolId: resultObj.poolId, poolName: resultObj.poolName}
     }
-    if(toSlabValue && fromSlabValue) {
-       obj = {...obj, toSlabValue, fromSlabValue}
-    }
     if (promoApplyType === 'QuantitySlab' || promoApplyType === 'ValueSlab') {
         this.state.slabValues.map((item, ind) => {
           if(index == ind) {
-            promoSlabVo = { toSlab: item.toSlab, fromSlab: item.fromSlab }
-            obj = { ...obj,  promoSlabVo};
+            if(this.state.isPromoEdit) {
+              obj.benfitId = editedBenfit.benfitVo.benfitId;
+              obj = { benfitVo: obj, toSlab: item.toSlab, fromSlab: item.fromSlab, id: editedBenfit.id, updatedat: null  }
+            } else {
+              delete obj['benfitId'];
+              obj = { benfitVo: obj, toSlab: item.toSlab, fromSlab: item.fromSlab }
+            }
           }
         });
-    }
-    
-    if(promoApplyType === 'FixedQuantity' || promoApplyType === 'AnyQuantity') {
+    }else if(promoApplyType === 'FixedQuantity' || promoApplyType === 'AnyQuantity') {
         delete obj['toSlab'];
         delete obj['fromSlab'];
+        if(!this.state.isPromoEdit) {
+          delete obj['benfitId'];
+        } else {
+          obj.benfitId = editedBenfit.benfitId;
+        }
     }
-   if(this.state.isPromoEdit) {
-    obj = {...obj, benfitId: editedBenfit.benfitId };
-    updatedBenfitObjs = benfitVoArray.map(b => b.benfitId !== obj.benfitId ? b : obj);
+   if(this.state.isPromoEdit) {     
+    obj = {...obj, /* benfitId: editedBenfit.benfitId */};
+    if(benfitVoArray.length > 0) {
+        updatedBenfitObjs = benfitVoArray.map(b => b.id !== obj.id ? b : obj);
+    } else {
+      updatedBenfitObjs = [obj];
+    }
    }
     this.setState({
       benfitsPayload: [...this.state.benfitsPayload, obj],
@@ -462,7 +467,7 @@ export default class ManagePromo extends Component {
       benfitIndex: '',
       updatedBenfitVos: updatedBenfitObjs
     });
-    obj = {};
+    // obj = {};
   }
   promotionUpdate() {
     this.setState({ promotionUpdate: true });
@@ -723,36 +728,52 @@ export default class ManagePromo extends Component {
   editPramotion = (item) => () => {
     const { listOfPromos } = this.state;
     const promo =  listOfPromos.find(promo => promo.promoId === item.promoId);
+    console.log('++++++++++++promo++++++++', promo);
     const data = promo.poolVo;
     let benfitVo = [];
     let benfitObj = '';
-    if(promo.benfitVo.length == 1) {
-      benfitObj = promo.benfitVo[0];
-      benfitVo = promo.benfitVo;        
-      const poolObj =    { value: benfitObj.poolId, label: benfitObj.poolName };
+    if(promo.promotionSlabVo.length > 0) {
+     // benfitObj = promo.benfitVo[0];
+      benfitVo = promo.promotionSlabVo;        
+      const slabValueRes = benfitVo.map((item) => {
+        const obj = {};
+          obj.toSlab = item.toSlab;
+          obj.fromSlab = item.fromSlab;
+          return obj;
+      });
       this.setState({
-          benfitType: benfitObj.benfitType,
-          discountType: benfitObj.discountType,
-          discountOn: benfitObj.discount,
-          item: benfitObj.percentageDiscountOn,
-          getPoolValue: benfitObj.itemValue,
-          buyPoolValue: benfitObj.itemValue,
-          selectedPoolValue: poolObj,
-          promoBenfitId: benfitObj.benfitId,
-          numOfItemsFromGetPool: benfitObj.numOfItemsFromGetPool,
-          numOfItemsFromBuyPool: benfitObj.numOfItemsFromBuyPool
+        slabValues: slabValueRes,
+        benfitVoArray: benfitVo
+        //   benfitType: benfitObj.benfitType,
+        //   discountType: benfitObj.discountType,
+        //   discountOn: benfitObj.discount,
+        //   item: benfitObj.percentageDiscountOn,
+        //   getPoolValue: benfitObj.itemValue,
+        //   buyPoolValue: benfitObj.itemValue,
+        //   promoApplyType: benfitObj.promoApplyType,
+        //  // selectedPoolValue: poolObj,
+        //   promoBenfitId: benfitObj.benfitId,
+        //   numOfItemsFromGetPool: benfitObj.numOfItemsFromGetPool,
+        //   numOfItemsFromBuyPool: benfitObj.numOfItemsFromBuyPool
       });
     } else {
-      benfitVo = promo.benfitVo;
-    }
-    const slabValueRes = benfitVo.map((item) => {
-      const obj = {};
-      if(item.promoSlabVo) {
-        obj.toSlab = item.promoSlabVo.toSlab;
-        obj.fromSlab = item.promoSlabVo.fromSlab;
-        return obj;
-      }
-    });
+      benfitVo = promo.benfitVo[0];
+      const poolObj =    { value: benfitVo.poolId, label: benfitVo.poolName };
+      this.setState({
+          editedBenfit: benfitVo,
+          benfitType: benfitVo.benfitType,
+          discountType: benfitVo.discountType,
+          discountOn: benfitVo.discount,
+          item: benfitVo.percentageDiscountOn,
+          getPoolValue: benfitVo.itemValue,
+          buyPoolValue: benfitVo.itemValue,
+          promoApplyType: benfitVo.promoApplyType,
+          selectedPoolValue: poolObj,
+          promoBenfitId: benfitVo.benfitId,
+          numOfItemsFromGetPool: benfitVo.numOfItemsFromGetPool,
+          numOfItemsFromBuyPool: benfitVo.numOfItemsFromBuyPool
+      });
+    }    
     const result = data.map((item) => {
       const obj = {};
         obj.value = item.poolId;
@@ -778,9 +799,7 @@ export default class ManagePromo extends Component {
         domainId: promo.clientId,
         promoApplyType: promo.promoApplyType,
         promoName: promo.promotionName,
-        promoType: promo.promoType,
-        benfitVoArray: benfitVo,
-        slabValues: slabValueRes
+        promoType: promo.promoType
     });
   }
   savePromotion() {
@@ -807,10 +826,9 @@ export default class ManagePromo extends Component {
           obj.poolName = item.label;
         return obj;         
       });
-
     const obj = {
         applicability: applicability,
-        benfitVo: benfitObj,
+        benfitVo: (promoApplyType === 'QuantitySlab' || promoApplyType === 'ValueSlab') ? [] : benfitsPayload,
         buyItemsFromPool: buyAny,
         description: description,
         createdBy: createdBy,
@@ -818,7 +836,7 @@ export default class ManagePromo extends Component {
         isForEdit: false,
         isTaxExtra: isTaxExtra,
         poolVo: result,
-        benfitVo: benfitsPayload,
+        promotionSlabVo:( promoApplyType === 'FixedQuantity' || promoApplyType === 'AnyQuantity') ? [] : benfitsPayload,
         printNameOnBill: printNameOnBill,
         priority: null,
         domainId: clientId,
@@ -850,31 +868,32 @@ export default class ManagePromo extends Component {
         promoApplyType: promoApplyType,
         promotionName: promoName,
         promoType: promoType,
-        benfitVo: updatedBenfitVos
+        benfitVo: (promoApplyType === 'QuantitySlab' || promoApplyType === 'ValueSlab') ? [] : updatedBenfitVos,
+        promotionSlabVo:( promoApplyType === 'FixedQuantity' || promoApplyType === 'AnyQuantity') ? [] : updatedBenfitVos,
+        // benfitVo: updatedBenfitVos
     }
-    PromotionsService.updatePromotion(obj).then((res) => {
-      if(res.data.isSuccess === 'true') {
-        toast.success(res.data.message);
-        this.setState({
-          selectedPools: [],
-          applicability: '',
-          description: '',
-          printNameOnBill: '',
-          promoName: '',
-          promoApplyType: '',
-          isTaxExtra: '',
-          promoType: '',
-          clientId: '',
-          isAddPromo: false,
-          isForEdit: false,
-          benfitsPayload: [], 
-        });
-        this.getPromoList();
-      } else {
-        toast.success(res.data.message);
-      }
-  });
-
+      PromotionsService.updatePromotion(obj).then((res) => {
+        if(res.data.isSuccess === 'true') {
+          toast.success(res.data.message);
+          this.setState({
+            selectedPools: [],
+            applicability: '',
+            description: '',
+            printNameOnBill: '',
+            promoName: '',
+            promoApplyType: '',
+            isTaxExtra: '',
+            promoType: '',
+            clientId: '',
+            isAddPromo: false,
+            isForEdit: false,
+            benfitsPayload: [], 
+          });
+          this.getPromoList();
+        } else {
+          toast.success(res.data.message);
+        }
+    });
     } else {
       PromotionsService.addPromo(obj).then((res) => {
         if(res.data.isSuccess === 'true') {
@@ -1266,7 +1285,7 @@ export default class ManagePromo extends Component {
                       </thead>
                       <tbody>
                         {
-                           this.state.slabValues.map((item, index) => {
+                           this.state.slabValues && this.state.slabValues.map((item, index) => {
                             return (
                               <tr key={index}>
                                 <td className="col-3">{item.fromSlab}</td>

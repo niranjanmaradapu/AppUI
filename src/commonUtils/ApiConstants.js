@@ -229,5 +229,12 @@ export const PROMOTIONS_URL = {
 export const ACCOUNTING_PORTAL = {
     saveCredit: "/hsn-details/credit-debit-notes/saveCreditDebitNotes",
     getCreditNotes: "/hsn-details/credit-debit-notes/getAllCreditNotes",
-    getDebitNotes: "/hsn-details/credit-debit-notes/getAllDebitNotes"
+    getDebitNotes: "/hsn-details/credit-debit-notes/getAllDebitNotes",
+    saveMasterTax:"/hsn-details/tax/addnewtax",
+    getAllTaxes:"/hsn-details/tax/getTaxDetails",
+    getAllHsnCodesData:"/hsn-details//hsnDetails/getHsnDetails",
+    getDescritionData:"/hsn-details/hsnDetails/getEnums/description",
+    getTaxAppliesOnData:"/hsn-details/hsnDetails/getEnums/taxAppliesOn",
+    saveHsnCode:"/hsn-details/hsnDetails/saveHsn",
+
 };

@@ -335,6 +335,12 @@ const App = () => {
                                     component={Layout}
                                 />
 
+<PrivateRoute
+                                    path='/backOffice'
+                                    exact={true}
+                                    component={Layout}
+                                />
+
 
        </Switch>
        </Router>

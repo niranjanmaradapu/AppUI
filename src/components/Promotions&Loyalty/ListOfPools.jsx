@@ -76,6 +76,20 @@ export default class ListOfPools extends Component {
         }
 
     ],
+    updatedColumns: [
+      { value: 'CostPrice', label: 'Cost_Price' },
+      { value: 'Section', label: 'Section' },
+      { value: 'SubSection', label: 'Sub_Section' },
+      { value: 'Dcode', label: 'Dcode' },
+      { value: 'Mrp', label: 'Mrp' },      
+      { value: 'BarcodeCreatedOn', label: 'Barcode_Created_On' },
+      { value: 'Style Code', label: 'Style_Code' },
+      { value: 'SubSectionId', label: 'SubSectionId' },
+      { value: 'Uom', label: 'Uom' },
+      { value: 'BatchNo', label: 'Batch_No' },
+      { value: 'DiscountType', label: 'Discount Type' },
+      { value: 'Division', label: 'Division' }
+    ],
     options: [
       { value: 'Equals', label: 'Equals' },
       { value: 'NotEquals', label: 'Not Equals' },
@@ -112,7 +126,8 @@ export default class ListOfPools extends Component {
     addedIncludedPoolRules: [],
     addedExcludedPoolRules: [],
     ruleNumber: 0,
-    isPoolRuleUpdated: false
+    isPoolRuleUpdated: false,
+    editedRuleNumber: ''
     };
 
     this.addPool = this.addPool.bind(this);
@@ -226,44 +241,36 @@ export default class ListOfPools extends Component {
        });
   }
   addPoolDetails() {
-    const { addedIncludedPoolRules, addedExcludedPoolRules} = this.state;
+    const { addedIncludedPoolRules, addedExcludedPoolRules, activeTab, ruleNumber, isUpdatable} = this.state;
+    let poolConditions = [];
     const user = JSON.parse(sessionStorage.getItem("user"));    
     const createdBy = user['custom:userId'];
     delete this.state.addNewRule['valueList']
-    const finalAddedRules = [addedIncludedPoolRules, addedExcludedPoolRules];
-    const poolRules = finalAddedRules.map(item => {
-      delete item.valueList;
-      delete item.ruleNumber; 
-      return item.rules;
-    });
-    let conditionArray = [];
-    poolRules.forEach((rule) => {
-       rule.forEach((condition) => conditionArray.push(condition)) 
-    });
-    const obj = {
-      isActive: true,
-      isForEdit: false,
-      poolName: this.state.poolName,
-      poolType: this.state.poolType,
-      createdBy: createdBy,
-      domainId: this.state.clientId,
-      pool_RuleVo: conditionArray
-    }
     if(this.state.isUpdatable) {
       const { poolId, updatedRuleVO, addedExcludedPoolRules, addedIncludedPoolRules } = this.state;
       const updatedPoolRules = [...addedExcludedPoolRules, ...addedIncludedPoolRules];
       let updatedConditionArray = [];
-      poolRules.forEach((rule) => {
-        rule.forEach((condition) => updatedConditionArray.push(condition)) 
+      updatedPoolRules.forEach((rule) => {
+        rule.rules.forEach((itm) => {
+          if(itm.isForEdit) {
+            itm.isForEdit = true;
+          } else {
+            itm.isForEdit = true;
+          }
+          updatedConditionArray.push(itm)
+        }); 
       });
-      delete obj.ruleVo;
-      // delete obj.createdBy;
-      delete obj.isForEdit;
       const updateObj = {
-                  ...obj,
-                  ruleVo: updatedConditionArray.map(item => item.isForEdit = true),
+                  isActive: true,
                   isForEdit: true,
-                  poolId
+                  poolName: this.state.poolName,
+                  poolType: this.state.poolType,
+                  createdBy: createdBy,
+                  domainId: this.state.clientId,
+                   pool_RuleVo: this.groupByMultiplePropertiesEdit(updatedConditionArray),
+                  // ruleVo: updatedConditionArray.map(item => item.isForEdit = true),
+                  isForEdit: true,
+                  poolId: poolId
                 };
         PromotionsService.modifyPool(updateObj).then((res) => {
           if (res.data.isSuccess === 'true') {
@@ -283,6 +290,28 @@ export default class ListOfPools extends Component {
           }
       });
     } else {
+    const finalAddedRules = [addedIncludedPoolRules, addedExcludedPoolRules];
+    this.groupByMultipleProperties(finalAddedRules);
+    finalAddedRules.forEach(item => {
+      item.forEach((itm) => {
+        delete itm.valueList;
+        delete itm.ruleNumber;
+        poolConditions.push(itm.rules);
+      }); 
+    });
+    let conditionArray = [];
+    poolConditions.forEach((rule) => {
+       rule.forEach((condition) => conditionArray.push(condition)) 
+    });
+    const obj = {
+      isActive: true,
+      isForEdit: false,
+      poolName: this.state.poolName,
+      poolType: this.state.poolType,
+      createdBy: createdBy,
+      domainId: this.state.clientId,
+      pool_RuleVo: this.groupByMultipleProperties(conditionArray)
+    }
       PromotionsService.addPool(obj).then((res) => {
           if (res.data.isSuccess === 'true') {
               toast.success(res.data.message);
@@ -341,48 +370,49 @@ export default class ListOfPools extends Component {
   handleRoleChange = (idx, e) => {
     let addNewRule = this.state.addNewRule;
     addNewRule[idx][e.target.name] = e.target.value;
-    let columnType = addNewRule[idx][e.target.name];
-    this.setState({ addNewRule, columnType:  e.target.name}, () => {
+    this.setState({ addNewRule });
+    // let columnType = addNewRule[idx][e.target.name];
+    // this.setState({ addNewRule, columnType:  e.target.name}, () => {
   
-     if(columnType  === 'uom') {
-        PromotionsService.getValuesFromProductTextileColumns(columnType).then((res) => {
-          if (res.data.isSuccess === 'true') {
-            const columnNames = res.data['result'].map((item) => {
-              const obj = {};
-                obj.label = item;
-                obj.value = item;
-                return obj;
-            });
-            this.state.addNewRule[idx].valueList = columnNames;
-            this.setState({
-              addNewRule,
-              columnValues: columnNames
-            });
-          } else {
-            toast.error(res.data.message);
-          }
-        });
-     } else if(columnType  === 'batch_no' || columnType  === 'category' || columnType  === 'colour' || columnType  === 'division' || columnType  === 'sub_section' ||  columnType  === 'section') {
-      PromotionsService.getValuesFromBarcodeTextileColumns(columnType).then((res) => {
-        if (res.data.isSuccess === 'true') {
-          const columnNames = res.data['result'].map((item) => {
-            const obj = {};
-              obj.label = item;
-              obj.value = item;
-              return obj;
-          });
-          this.state.addNewRule[idx].valueList = columnNames;
-          this.setState({
-            addNewRule,
-            columnValues: columnNames
-          });
-        } else {
-          toast.error(res.data.message);
-        }
-      });
-     }
+    //  if(columnType  === 'uom') {
+    //     PromotionsService.getValuesFromProductTextileColumns(columnType).then((res) => {
+    //       if (res.data.isSuccess === 'true') {
+    //         const columnNames = res.data['result'].map((item) => {
+    //           const obj = {};
+    //             obj.label = item;
+    //             obj.value = item;
+    //             return obj;
+    //         });
+    //         this.state.addNewRule[idx].valueList = columnNames;
+    //         this.setState({
+    //           addNewRule,
+    //           columnValues: columnNames
+    //         });
+    //       } else {
+    //         toast.error(res.data.message);
+    //       }
+    //     });
+    //  } else if(columnType  === 'batch_no' || columnType  === 'category' || columnType  === 'colour' || columnType  === 'division' || columnType  === 'sub_section' ||  columnType  === 'section') {
+    //   PromotionsService.getValuesFromBarcodeTextileColumns(columnType).then((res) => {
+    //     if (res.data.isSuccess === 'true') {
+    //       const columnNames = res.data['result'].map((item) => {
+    //         const obj = {};
+    //           obj.label = item;
+    //           obj.value = item;
+    //           return obj;
+    //       });
+    //       this.state.addNewRule[idx].valueList = columnNames;
+    //       this.setState({
+    //         addNewRule,
+    //         columnValues: columnNames
+    //       });
+    //     } else {
+    //       toast.error(res.data.message);
+    //     }
+    //   });
+    //  }
 
-    });
+    // });
   };
   // handleRemovePool = (item) => () => {
   //   this.setState({
@@ -403,12 +433,22 @@ export default class ListOfPools extends Component {
       selectedItem: item
     });
   }
+  conditionsList = (ruleList) => {
+    let conditionsList = [];
+    ruleList.forEach((itm) => {
+      return itm.conditionVos.map((item) => {
+        const obj =  { columnName: item.columnName, operatorSymbol: item.operatorSymbol, givenValue: item.givenValues.toString(), id: item.id, ruleId: itm.id, ruleType: itm.ruleType, ruleNumber: itm.ruleNumber}
+        return conditionsList.push(obj);
+      });
+    });
+    return conditionsList;
+  }
   modifyPool(item) {
     const { listOfPools } = this.state;
     const user = JSON.parse(sessionStorage.getItem("user"));
     const createdBy = user['cognito:groups'][0];
     const pool =  listOfPools.find(pool => pool.poolId === item.poolId);
-    const ruleList = pool.pool_RuleVo; 
+    const conditionsList = this.conditionsList(pool.pool_RuleVo);
     this.setState({
         // getting max rule num
         // ruleNumber: Math.max(...ruleList.map(item => item.ruleNumber)),
@@ -417,9 +457,9 @@ export default class ListOfPools extends Component {
          poolId: pool.poolId,
          poolName: pool.poolName,
          poolType: pool.poolType,
-         addNewRule: pool.pool_RuleVo,
-         addedIncludedPoolRules: this.groupByRuleNumber(pool.pool_RuleVo.filter(item =>  item.ruleType === 'Included')),
-         addedExcludedPoolRules: this.groupByRuleNumber(pool.pool_RuleVo.filter(item =>  item.ruleType === 'Excluded'))
+         addNewRule: conditionsList,
+         addedIncludedPoolRules: this.groupByRuleNumber(conditionsList.filter(item =>  item.ruleType === 'Include')),
+         addedExcludedPoolRules: this.groupByRuleNumber(conditionsList.filter(item =>  item.ruleType === 'Exclude'))
       // updatedRuleVO: pool.ruleVo
     });
   }
@@ -447,6 +487,7 @@ export default class ListOfPools extends Component {
       isUpdatable: false,
       poolName: '',
       poolType: '',
+      ruleNumber: '',
       addNewRule: [],
       updatedRuleVO: [],
       // addedExcludedPoolRules: [],
@@ -522,10 +563,11 @@ export default class ListOfPools extends Component {
           });
         });
         this.setState({
+          editedRuleNumber: item,
           isAddRule: true,
           isPoolRuleUpdated: true,
-          addedIncludedPoolRules: this.groupByRuleNumber(includeConditions.filter(item =>  item.ruleType === 'Included')),
-          addNewRule: includeConditions.filter(itm => itm.ruleType === 'Included' && itm.ruleNumber == item)
+          addedIncludedPoolRules: this.groupByRuleNumber(includeConditions.filter(item =>  item.ruleType === 'Include')),
+          addNewRule: includeConditions.filter(itm => itm.ruleType === 'Include' && itm.ruleNumber == item)
         });
       } else {
         let excludeConditions = [];
@@ -538,8 +580,8 @@ export default class ListOfPools extends Component {
         this.setState({
           isAddRule: true,
           isPoolRuleUpdated: true,
-          addedExcludedPoolRules: this.groupByRuleNumber(excludeConditions.filter(item =>  item.ruleType === 'Excluded')),
-          addNewRule: excludeConditions.filter(itm => itm.ruleType === 'Excluded' && itm.ruleNumber == item)
+          addedExcludedPoolRules: this.groupByRuleNumber(excludeConditions.filter(item =>  item.ruleType === 'Exclude')),
+          addNewRule: excludeConditions.filter(itm => itm.ruleType === 'Exclude' && itm.ruleNumber == item)
         });
       }      
     }
@@ -566,12 +608,40 @@ export default class ListOfPools extends Component {
     });
     return groups;
   }
+  groupByMultipleProperties = (array) => {
+    let hash = Object.create(null);
+    let grouped = [];
+    array.forEach(function (o) {
+    var key = ['ruleNumber', 'ruleType', 'isForEdit'].map(function (k) { return o[k]; });//.join('|');
+
+    if (!hash[key]) {
+    hash[key] = { ruleNumber: o.ruleNumber, ruleType: o.ruleType, isForEdit: o.isForEdit, conditionVos : [] };
+    grouped.push(hash[key]);
+    }
+    ['used'].forEach(function (k) { hash[key]['conditionVos'].push({ columnName : o['columnName'], givenValues : [o['givenValue']], operatorSymbol: o['operatorSymbol']}) });
+    });
+    return grouped;
+  }
+  groupByMultiplePropertiesEdit = (array) => {
+    let hash = Object.create(null);
+    let grouped = [];
+    array.forEach(function (o) {
+    var key = ['ruleNumber', 'ruleType', 'isForEdit'].map(function (k) { return o[k]; });//.join('|');
+
+    if (!hash[key]) {
+    hash[key] = { ruleNumber: o.ruleNumber, ruleType: o.ruleType, isForEdit: o.isForEdit, id: o.ruleId, conditionVos : [] };
+    grouped.push(hash[key]);
+    }
+    ['used'].forEach(function (k) { hash[key]['conditionVos'].push({ columnName : o['columnName'], givenValues : [o['givenValue']], operatorSymbol: o['operatorSymbol'], id: o['id']}) });
+    });
+    return grouped;
+  }
   addRule = () => {
-    const { addNewRule, activeTab, addedExcludedPoolRules, addedIncludedPoolRules, isUpdatable, isPoolRuleUpdated } = this.state;
+    const { addNewRule, editedRuleNumber, activeTab, addedExcludedPoolRules, addedIncludedPoolRules, isUpdatable, isPoolRuleUpdated } = this.state;
     if(isUpdatable) {
           // if pool condition edit
           const addedNewRules = addNewRule.map((item) => {
-            item.ruleNumber = this.state.ruleNumber;
+            // item.ruleNumber = this.state.ruleNumber;
             if(isUpdatable) {
               item.isForEdit = true;
             } else {
@@ -581,6 +651,7 @@ export default class ListOfPools extends Component {
           });
         if(activeTab === 'INCLUDED') {
           let includeConditions = [];
+          let arr = [];
           addedIncludedPoolRules.forEach(item => {
             delete item.ruleNumber;
             item.rules.forEach(itm => {
@@ -589,7 +660,7 @@ export default class ListOfPools extends Component {
           });
           this.setState({
             isAddRule: false,
-            addedIncludedPoolRules: this.groupByRuleNumber(includeConditions.map(obj => addedNewRules.find(o => o.id === obj.id) || obj)),
+            addedIncludedPoolRules: this.groupByRuleNumber(includeConditions),
             addNewRule: []
           });
         } else {
@@ -601,7 +672,8 @@ export default class ListOfPools extends Component {
             });
             this.setState({
               isAddRule: false,
-              addedExcludedPoolRules: this.groupByRuleNumber(updateExConditions.map(obj => addedNewRules.find(o => o.id === obj.id) || obj)),
+              addedIncludedPoolRules: this.groupByRuleNumber(updateExConditions),
+              // addedExcludedPoolRules: this.groupByRuleNumber(updateExConditions.map(obj => addedNewRules.find(o => o.id === obj.id) || obj)),
               addNewRule: []
             });
         }
@@ -611,14 +683,14 @@ export default class ListOfPools extends Component {
           if(isUpdatable) {
             item.isForEdit = true;
           } else {
-            item.isForEdit = false;
+             item.isForEdit = false;
           }
           return item;
         });
       if(activeTab === 'INCLUDED') {      
         // const includeRules = [...addedIncludedPoolRules, ...addedNewRules];
         const finalIncludedRules = addedNewRules.map((item) => { 
-          item.ruleType = 'Included';
+          item.ruleType = 'Include';
           return item; 
         });
         const groupedRules = this.groupByRuleNumber(finalIncludedRules);
@@ -632,7 +704,7 @@ export default class ListOfPools extends Component {
       } else {
         // const excludeRules = [...addedExcludedPoolRules, ...addedNewRules];
         const finalExcludedRules = addedNewRules.map((item) => { 
-          item.ruleType = 'Excluded';
+          item.ruleType = 'Exclude';
           return item; 
         });
         const groupedRules = this.groupByRuleNumber(finalExcludedRules);
@@ -866,9 +938,9 @@ Tabs = () => {
                               className="form-control">
                               <option>Select Name</option>
                               {
-                                  this.state.columns &&
-                                  this.state.columns.map((item, i) => 
-                                  (<option key={i} value={item.value}>{item.label}</option>))
+                                  this.state.updatedColumns &&
+                                  this.state.updatedColumns.map((item, i) => 
+                                  (<option key={i} value={item.value}>{item.label.toUpperCase()}</option>))
                                 }
                             </select>
                           </td>
@@ -900,18 +972,26 @@ Tabs = () => {
                                 options={this.state.columnValues}
                                 value={this.state.givenValue}
                           />
-                            : <select 
-                            value={this.state.addNewRule[idx].givenValue} 
-                            onChange={ e => this.handleTextChange(idx, e)}                          
-                            name="givenValue"
-                            className="form-control">
-                              <option>Select Column Values</option>
-                              {
-                                this.state.addNewRule[idx].valueList &&
-                                this.state.addNewRule[idx].valueList.map((item, i) => 
-                                (<option key={i} value={item.value}>{item.label}</option>))
-                              }
-                          </select>} </td> }
+                          //   : <select 
+                          //   value={this.state.addNewRule[idx].givenValue} 
+                          //   onChange={ e => this.handleTextChange(idx, e)}                          
+                          //   name="givenValue"
+                          //   className="form-control">
+                          //     <option>Select Column Values</option>
+                          //     {
+                          //       this.state.addNewRule[idx].valueList &&
+                          //       this.state.addNewRule[idx].valueList.map((item, i) => 
+                          //       (<option key={i} value={item.value}>{item.label}</option>))
+                          //     }
+                          // </select>
+                          : <input
+                              type="text"
+                              name="givenValue"
+                              value={this.state.addNewRule[idx].givenValue}
+                              onChange={e => this.handleTextChange(idx, e)}
+                              className="form-control"
+                            />
+                            } </td> }
                           {
                             this.state.addNewRule.length > 1 && 
                             <td className="col-1 text-center">

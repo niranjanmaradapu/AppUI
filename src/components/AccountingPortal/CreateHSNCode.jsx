@@ -18,7 +18,9 @@ export default class CreateHSNCode extends Component {
       taxAppliesOn:"",
       taxId:"",
       priceFrom:"",
-      priceTo:""
+      priceTo:"",
+      slabBased:""
+     
 
     };
 
@@ -68,15 +70,18 @@ export default class CreateHSNCode extends Component {
                     
 "taxVo": {                  
    "id":  parseInt(this.state.taxId)                 
-      }              
+      }             
  }],       
  "slabBased": true
+
   }
   console.log(obj)
     AccountingPortalService.saveHsnCode(obj).then(response => {
+      if (response) {
       toast.success(response.data.message);
       this.closeHSNCode()
       this.getAllHsnCodes()
+      }
     });
   }
   getAllTaxes(){
@@ -272,20 +277,20 @@ handleSelectChangeAllTax = (e) => {
               <th className="col-2"></th>
             </tr>
           </thead>
-        </table>
-        <table className="table table-borderless gfg mb-0">
           <tbody>
+          {this.state.HsnCodeList.map((items, index) => {
+                  return (
             <tr>
-              <td className="col-3 underline geeks">HSN0011</td>
-              <td className="col-3">Goods</td>
-              <td className="col-2">Net Amount</td>
-              <td className="col-2">YES</td>
+              <td className="col-3 underline geeks">{items.hsnCode}</td>
+              <td className="col-3">{items.description}</td>
+              <td className="col-2">{items.taxAppliesOn}</td>
+              <td className="col-2">{items.slabBased}</td>
               <td className="col-2 text-center">
                 <img src={edit} className="w-12 pb-2" />
                 <i className="icon-delete m-l-2 fs-16"></i></td>
             </tr>
-           
-
+                        );
+                      })}
           </tbody>
         </table>
         </div>

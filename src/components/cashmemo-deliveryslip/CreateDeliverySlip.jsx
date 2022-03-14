@@ -73,11 +73,55 @@ class CeateDeliverySlip extends Component {
 
   }
 
-  
+
   componentWillMount() {
     const storeId = sessionStorage.getItem("storeId");
     const user = JSON.parse(sessionStorage.getItem('user'));
     this.setState({ storeId: storeId, domainId: user["custom:clientId1"] });
+    this.getHsnDetails();
+  }
+
+  getHsnDetails() {
+    NewSaleService.getHsnDetails().then(response => {
+      if (response) {
+        const details = response.data.result;
+        let slabVos = [];
+        details.forEach(detail => {
+          if (detail.slabVos)
+            slabVos.push(detail.slabVos);
+        });
+
+        sessionStorage.setItem("HsnDetails", JSON.stringify(slabVos));
+      }
+    });
+  }
+
+  getTaxAmount(lineItem) {
+    const taxDetails = JSON.parse(sessionStorage.getItem("HsnDetails"));
+    let slabCheck = false;
+    let totalTax = 0;
+    taxDetails.forEach(taxData => {
+      if (lineItem.netValue >= taxData[0].priceFrom && lineItem.netValue <= taxData[0].priceTo) {
+        const taxPer = taxData[0].taxVo.taxLabel.split(' ')[1].split('%')[0];
+        const tax = parseInt(taxPer) / 100;
+        totalTax = lineItem.netValue * tax
+        const central = totalTax / 2;
+        // this.setState({ centralGST: Math.ceil(central) });
+        lineItem.cgst = Math.ceil(central);
+        lineItem.sgst = Math.ceil(central);
+        lineItem.taxValue = totalTax;
+        slabCheck = true;
+      }
+    });
+
+
+
+    if (!slabCheck) {
+      lineItem.cgst = 6;
+      lineItem.sgst = 6;
+      lineItem.taxValue = totalTax;
+    }
+
   }
 
   getDataFromDB = async () => {
@@ -92,19 +136,20 @@ class CeateDeliverySlip extends Component {
     let promo = 0;
     let total = 0;
     if (e.key === "Enter") {
+
+      this.setState({ copysmNumber: JSON.parse(JSON.stringify(this.state.smNumber)) });
       if (this.state.barCode && this.state.smNumber) {
         CreateDeliveryService.getBarCodeList(
-          this.state.barCode,
+          this.state.barCode.trim(),
           this.state.smNumber,
           storeId
         ).then((res) => {
 
-          console.log(res);
           if (res.data) {
-            res.data.result.salesMan = this.state.smNumber;
+            res.data.result.salesMan = this.state.copysmNumber;
             this.state.itemsList.push(res.data.result);
             if (this.state.itemsList.length > 1) {
-           
+
 
               for (let i = 0; i < this.state.itemsList.length - 1; i++) {
                 if (
@@ -118,34 +163,22 @@ class CeateDeliverySlip extends Component {
                 }
               }
 
-         
-            }
-            // if (this.state.itemsList.length > 1) {
-            //   this.state.itemsList.forEach((element) => {
-            //     mrp = mrp + element.listPrice;
-            //     this.setState({ mrpAmount: mrp });
-            //     promo = promo + element.discount;
-            //     this.setState({ promoDisc: promo });
-            //     total = total + element.costPrice;
-            //     this.setState({ totalAmount: total });
-            //   });
-            // } else {
-            //   this.setState({ mrpAmount: this.state.itemsList[0].listPrice });
-            //   //  this.setState({ promoDisc: this.state.itemsList[0].discount });
 
-            //   this.setState({ promoDisc: 0 });
-            //   this.setState({ totalAmount: this.state.itemsList[0].costPrice });
-            // }
+            }
+
 
             this.setState({ barList: this.state.itemsList }, () => {
               this.state.barList.forEach((element) => {
-                if(element.quantity > 1) {
-                  console.log(element.quantity)
+                element.itemDiscount = 0;
+                element.cgst = 0;
+                element.sgst = 0;
+                element.taxValue = 0;
+                if (element.quantity > 1) {
                 } else {
                   element.totalMrp = element.itemMrp;
                   element.quantity = parseInt("1");
                 }
-              
+
               });
               this.calculateTotal();
             });
@@ -159,18 +192,20 @@ class CeateDeliverySlip extends Component {
           }
         });
 
-      
+
 
         this.setState({ showTable: true, isCheckPromo: true });
+        if (!this.state.isRemember) {
+          this.setState({ smNumber: "" });
+        }
 
-       
 
       } else {
         toast.info("Please enter Barcode / SM number");
       }
     }
-    
-    
+
+
   };
 
   remberSalesMan(e) {
@@ -184,7 +219,7 @@ class CeateDeliverySlip extends Component {
       }
     } else {
       // this.setState({isSMDisable: false});
-      this.setState({ isRemember: false });
+      this.setState({ isRemember: false, smNumber: "" });
     }
   }
 
@@ -204,7 +239,6 @@ class CeateDeliverySlip extends Component {
     };
     CreateDeliveryService.createDeliverySlip(obj, this.state.type).then(
       (res) => {
-        console.log(res);
         if (res.data.statusCode === "OK") {
           this.setState({ dsNumber: res.data.body.number });
           this.setState({ isCheckPromo: false });
@@ -227,20 +261,30 @@ class CeateDeliverySlip extends Component {
   checkPromo() {
     this.setState({ isCheckPromo: false });
     this.setState({ isDeliveryCreated: true });
-    console.log("check promo clicked");
-    
-  
-  
     NewSaleService.getCheckPromoAmount(this.state.storeId, this.state.domainId, this.state.barList).then(response => {
-      if(response) {
-        this.state.barList.forEach((element,index) => {
-          response.data.result.forEach(ele =>{
-            if(ele.calculatedDiscountsVo) {
-              
+      console.log(response.data.result.calculatedDiscountsVo);
+      if (response && response.data && response.data.result[0].calculatedDiscountsVo) {
+        this.setState({ promoDiscount: response.data.result  });
+        this.state.barList.forEach(barCodeData => {
+          this.state.promoDiscount.forEach(promo => {
+            if (barCodeData.barcode === promo.barcode) {
+              if (promo.calculatedDiscountsVo.discountAvailable) {
+                barCodeData.itemDiscount = parseInt(promo.calculatedDiscountsVo.calculatedDiscount);
+                barCodeData.totalMrp = barCodeData.totalMrp - barCodeData.itemDiscount;
+              }
+            } else {
+              barCodeData.itemDiscount = "No discount"
             }
-
           });
         });
+
+
+
+        this.setState({ barList: this.state.barList });
+        this.calculateTotal();
+
+      } else {
+        toast.error("No Promo applicable")
       }
 
     });
@@ -324,7 +368,7 @@ class CeateDeliverySlip extends Component {
                 </div> */}
                 <div className="col-3">
                   <label>PROMO DISCOUNT</label>
-                  <h6 className="pt-2">0 ₹</h6>
+                  <h6 className="pt-2">{this.state.promoDisc} ₹</h6>
                 </div>
                 <div className="col-2 text-right pt-2 text-center text-red p-r-4">
                   <label className="text-red ">GRAND TOTAL</label>
@@ -385,17 +429,17 @@ class CeateDeliverySlip extends Component {
                   <td className="col-1"><input type="number"
                     value={items.quantity}
                     min="1"
+                    max={items.qty}
                     onChange={(e) => this.checkQuantity(e, index, items)}
                     className="form-control" />
                   </td>
                   <td className="col-1">{items.salesMan}</td>
                   <td className="col-1">₹{items.itemMrp}</td>
                   <td className="col-2"></td>
-                  <td className="col-1">₹ {items?.itemDiscount}</td>
+                  <td className="col-1"> {items?.itemDiscount}</td>
                   <td className="col-1 w-100">₹ {items.totalMrp}
                     <i className="icon-delete m-l-2"
                       onClick={(e) => {
-                        console.log(index);
                         this.state.itemsList.splice(index, 1);
                         this.setState({ barList: this.state.itemsList });
                         this.calculateTotal();
@@ -419,9 +463,8 @@ class CeateDeliverySlip extends Component {
 
   }
 
-  
+
   checkQuantity(e, index, item) {
-    console.log(e.target.value);
     if (e.target.value !== "") {
       item.quantity = e.target.value;
       let qty = item.quantity;
@@ -441,14 +484,16 @@ class CeateDeliverySlip extends Component {
       item.quantity = e.target.value;
     }
 
-    let grandTotal =0;
+    let grandTotal = 0;
     let totalqty = 0;
+    let promoDiscount = 0;
     this.state.barList.forEach(bardata => {
-      grandTotal = grandTotal+ bardata.totalMrp;
+      grandTotal = grandTotal + bardata.totalMrp;
+      promoDiscount = promoDiscount + bardata?.itemDiscount;
       totalqty = totalqty + parseInt(bardata.quantity)
     });
 
-    this.setState({mrpAmount: grandTotal, totalQuantity: totalqty});
+    this.setState({ mrpAmount: grandTotal, totalQuantity: totalqty, promoDisc: promoDiscount });
 
 
   }
@@ -459,44 +504,25 @@ class CeateDeliverySlip extends Component {
 
 
   calculateTotal() {
-    // let mrp = 0;
-    // let promo = 0;
-    // let total = 0;
-    // console.log(this.state.itemsList.length)
-    // if (this.state.itemsList.length > 0) {
-    //   this.state.itemsList.forEach((element) => {
-    //     console.log(element)
-    //     mrp = mrp + element.productTextile.itemMrp;
-    //     this.setState({ mrpAmount: mrp });
-    //     promo = promo + element.discount;
-    //     this.setState({ promoDisc: promo });
-    //     total = total + element.productTextile.costPrice;
-    //     this.setState({ totalAmount: total });
-    //   });
-    // } else {
-    //   this.setState({ mrpAmount: 0 });
-    //   this.setState({ promoDisc: 0 });
-    //   this.setState({ totalAmount: 0 });
-    // }
+
 
     let totalAmount = 0;
     let totalqty = 0;
+    let promoDiscount = 0;
     this.state.barList.forEach(barCode => {
+
       totalAmount = totalAmount + barCode.totalMrp;
+      promoDiscount = promoDiscount + (isNaN(barCode.itemDiscount) ? 0 : (parseInt(barCode.itemDiscount)));
       totalqty = totalqty + parseInt(barCode.quantity);
     });
 
-    this.setState({mrpAmount: totalAmount, totalQuantity: totalqty}
-      );
+    this.setState({ mrpAmount: totalAmount, totalQuantity: totalqty, promoDisc: promoDiscount });
+
 
 
   }
 
-  //  deleteTableRow(e,index) {
-  //      console.log("Delete", index);
-  //    //  this.state.itemsList.splice(index, 1);
-  //  //   this.setState({barList: this.state.itemsList})
-  //  }
+
 
   handleChange = (e) => {
     this.setState({ dropValue: e.label });
@@ -519,7 +545,7 @@ class CeateDeliverySlip extends Component {
     const storeId = sessionStorage.getItem("storeId");
     let lineItem = [];
     this.state.barList.forEach((element, index) => {
-     
+
       const obj = {
         "itemPrice": element.itemMrp,
         "quantity": parseInt(element.quantity),
@@ -531,14 +557,16 @@ class CeateDeliverySlip extends Component {
         "section": element.section,
         "subSection": element.subSection,
         "division": element.division,
-        "userId": element.salesMan,
-        "hsnCode": null,
+        "userId": parseInt(element.salesMan),
+        "hsnCode": element.hsnCode,
         "actualValue": element.itemMrp,
         "taxValue": null,
         "cgst": null,
-        "sgst": null
+        "sgst": null,
+        "discount": (isNaN(element.itemDiscount) ? 0 : (parseInt(element.itemDiscount)))
 
       }
+      this.getTaxAmount(obj);
       lineItem.push(obj);
     });
 
@@ -558,7 +586,6 @@ class CeateDeliverySlip extends Component {
 
         this.setState({ lineItemsList: lineItemsList });
       }
-      console.log(this.state.lineItemsList);
     });
   }
 
@@ -632,7 +659,7 @@ class CeateDeliverySlip extends Component {
                           </td>
                           <td className="col-2">{items.quantity}</td>
                           <td className="col-2">₹ {items.itemMrp}</td>
-                          <td className="col-3">₹ 0</td>
+                          <td className="col-3">{items.itemDiscount}</td>
                           <td className="col-2">₹ {items.totalMrp}</td>
                         </tr>
                       );
@@ -720,7 +747,7 @@ class CeateDeliverySlip extends Component {
             <div className="col-sm-3 scaling-ptop col-6">
               <div className="form-group">
 
-              {/* onClick={this.checkPromo} */}
+                {/* onClick={this.checkPromo} */}
                 <button
                   className={
                     "btn-login btn-create mt-3" +

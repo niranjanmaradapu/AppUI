@@ -58,6 +58,59 @@ export default class TagCustomer extends Component {
     this.getGiftVochersList();
   }
 
+  handleValidation() {
+    let errors = {};
+    let formIsValid = true;
+
+    //Name
+    if (!this.state.gvNumber) {
+        formIsValid = false;
+        errors["gvNumber"] = "Enter GV Number";
+    }
+
+   
+
+
+    // Mobile
+    if (!this.state.fromDate) {
+        formIsValid = false;
+        errors["fromDate"] = "Enter From Date";
+    }
+
+    // if (typeof this.state.mobileNumber !== "undefined") {
+    //     if (!this.state.mobileNumber.match(/^[0-9\b]+$/)) {
+    //         formIsValid = false;
+    //         errors["mobileNumber"] = "Please Enter Valid Mobile Number";
+    //     }
+    // }
+
+    //email 
+    if (!this.state.toDate) {
+        formIsValid = false;
+        errors["toDate"] = "Enter To Date";
+    }
+
+    if (!this.state.amount) {
+      formIsValid = false;
+      errors["amount"] = "Enter amount";
+  }
+
+    // if (typeof this.state.email !== "undefined") {
+
+    //     if (!this.state.email.match(/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{4,})$/i)) {
+    //         formIsValid = false;
+    //         errors["email"] = "Please Enter Valid Email";
+    //     }
+
+    // }
+
+
+    this.setState({ errors: errors });
+    return formIsValid;
+
+}
+
+
   getGiftVochersList() {
     CreateDeliveryService.getGiftVochersList().then(res => {
       if (res) {
@@ -198,6 +251,8 @@ export default class TagCustomer extends Component {
   }
 
   addGiftVoucher() {
+    const formValid = this.handleValidation();
+         if (formValid) {
     const user = JSON.parse(sessionStorage.getItem('user'));
     const obj = {
       "gvNumber": this.state.gvNumber,
@@ -221,6 +276,9 @@ export default class TagCustomer extends Component {
 
       }
     });
+  } else {
+    toast.error("Please enter mandatory fields");
+  }
   }
 
   render() {
@@ -237,6 +295,9 @@ export default class TagCustomer extends Component {
                     this.setState({ gvNumber: e.target.value })
                   }
                 />
+                 <div>
+                      <span style={{ color: "red" }}>{this.state.errors["gvNumber"]}</span>
+                    </div>
               </div>
               <div className="form-group mb-3">
                 <input type="search" className="form-control"
@@ -258,6 +319,9 @@ export default class TagCustomer extends Component {
 
                   )}
                   autoComplete="off" />
+                   <div>
+                      <span style={{ color: "red" }}>{this.state.errors["fromDate"]}</span>
+                    </div>
               </div>
               <div className="form-group mb-3">
                 <input type="date" className="form-control" placeholder="Enter ToDate"
@@ -269,6 +333,9 @@ export default class TagCustomer extends Component {
                     this.setState({ selectedToDate: proposedToDate })
                   })}
                   autoComplete="off" />
+                   <div>
+                      <span style={{ color: "red" }}>{this.state.errors["toDate"]}</span>
+                    </div>
               </div>
               <div className="form-group mb-3">
                 <input type="text" className="form-control"
@@ -276,6 +343,9 @@ export default class TagCustomer extends Component {
                   value={this.state.amount}
                   onChange={(e) => this.setState({ amount: e.target.value })}
                 />
+                 <div>
+                      <span style={{ color: "red" }}>{this.state.errors["amount"]}</span>
+                    </div>
               </div>
               {/* <div className="form-group mb-3">
                       <input type="text" className="form-control"

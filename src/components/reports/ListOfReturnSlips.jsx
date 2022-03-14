@@ -11,6 +11,8 @@ export default class ListOfReturnSlips extends Component {
     this.state = {
       fromDate: "",
       toDate: "",
+      // startRecordNumber: 0,
+      // numberOfRecords: 5,
       barcodeTextileId: "",
       barcode: "",
       store: "",
@@ -55,6 +57,8 @@ export default class ListOfReturnSlips extends Component {
     const obj = {
       fromDate: this.state.fromDate ? this.state.fromDate : undefined,
       toDate: this.state.toDate ? this.state.toDate : undefined,
+      // startRecordNumber: 0,
+      // numberOfRecords: 5,
       barcodeTextileId: this.state.barcodeTextileId
         ? parseInt(this.state.barcodeTextileId)
         : undefined,

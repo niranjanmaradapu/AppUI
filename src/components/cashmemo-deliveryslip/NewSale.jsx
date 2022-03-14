@@ -95,6 +95,7 @@ export default class NewSale extends Component {
       netPayableAmount: 0,
       netCardPayment: 0,
       promoDiscount: 0,
+      isBillingDiscount: false,
       retailBarCodeList: [],
       barCodeRetailList: [],
       genderList: [
@@ -126,6 +127,7 @@ export default class NewSale extends Component {
       upiMobilenumber: "",
       balanceCreditAmount: "",
       isreturnCreditCash: false,
+      upiAmount:0,
 
       // open: false,
     };
@@ -500,43 +502,27 @@ export default class NewSale extends Component {
     if (this.state.isUPIModel) {
 
       const obj = {
-        "amount": 200,
-        "currency": "INR",
-        "accept_partial": true,
-        "first_min_partial_amount": 200,
-        "expire_by": 1691097057,
-        "reference_id": "pkstore111oo6",
-        "description": "Payment for policy no #23456",
-        "customer": {
-          "name": "p Kumar",
-          "contact": "+916305857148",
-          "email": "prasannakumar3333@gmail.com"
-        },
-        "notify": {
-          "sms": true,
-          "email": true
-        },
-        "reminder_enable": true,
-        "notes": {
-          "policy_name": "Jeevan Bima"
-        },
-        "callback_url": "https://example-callback-url.com/",
-        "callback_method": "get"
+        "amount": this.state.upiAmount,
+         "reference_id": this.state.newSaleId,
+        "contact": this.state.upiMobilenumber,
       }
 
 
-      let axiosConfig = {
-        mode:"no-cors",
-        headers: {
-          'Authorization': 'Basic cnpwX3Rlc3RfREJ4TVhKWkhReFljbWM6VHhnV0xjZkZabU9MTGZzQjJOOUdDMEVi',
-          "Access-Control-Allow-Origin": "*",
-          'Content-Type': 'application/json'
-        }
-      };
+      // let axiosConfig = {
+      //   mode: "no-cors",
+      //   headers: {
+      //     'Authorization': 'Basic cnpwX3Rlc3RfREJ4TVhKWkhReFljbWM6VHhnV0xjZkZabU9MTGZzQjJOOUdDMEVi',
+      //     "Access-Control-Allow-Origin": "*",
+      //     'Content-Type': 'application/json'
+      //   }
+      // };
 
       const uninterceptedAxiosInstance = axios.create();
-      uninterceptedAxiosInstance.post('https://api.razorpay.com/v1/payment_links', obj,axiosConfig).then(response => {
+      uninterceptedAxiosInstance.post('http://localhost:1337/razorpay', obj).then(response => {
         console.log(response);
+        if(response.data) {
+          this.setState({isUPIModel: false});
+        }
       });
 
 
@@ -545,29 +531,29 @@ export default class NewSale extends Component {
       //   this.setState({ isUPIModel: false });
       //   const data = JSON.parse(res.data.result);
       //   if (res.data.result) {   
-     //   }
-        // var instance = new Razorpay({ key_id: data.id, key_secret: 'rzp_test_z8jVsg0bBgLQer' })
-        // instance.paymentLink.create({
-        //   upi_link: true,
-        //   amount: this.state.grandNetAmount,
-        //   currency: "INR",
-        //   accept_partial: true,
-        //   first_min_partial_amount: 100,
-        //   description: "For XYZ purpose",
-        //   customer: {
-        //     name: "Neelu",
-        //     email: "Neelu@gmail.com",
-        //     contact: this.state.upiMobilenumber
-        //   },
-        //   notify: {
-        //     sms: true,
-        //     email: true
-        //   },
-        //   reminder_enable: true,
-        //   notes: {
-        //     policy_name: "Jeevan Bima"
-        //   }
-        // });
+      //   }
+      // var instance = new Razorpay({ key_id: data.id, key_secret: 'rzp_test_z8jVsg0bBgLQer' })
+      // instance.paymentLink.create({
+      //   upi_link: true,
+      //   amount: this.state.grandNetAmount,
+      //   currency: "INR",
+      //   accept_partial: true,
+      //   first_min_partial_amount: 100,
+      //   description: "For XYZ purpose",
+      //   customer: {
+      //     name: "Neelu",
+      //     email: "Neelu@gmail.com",
+      //     contact: this.state.upiMobilenumber
+      //   },
+      //   notify: {
+      //     sms: true,
+      //     email: true
+      //   },
+      //   reminder_enable: true,
+      //   notes: {
+      //     policy_name: "Jeevan Bima"
+      //   }
+      // });
       // });
 
     } else {
@@ -693,7 +679,7 @@ export default class NewSale extends Component {
     }
     this.state.dsNumberList.push(obj);
 
-    NewSaleService.getDeliverySlipDetails(this.state.dsNumber).then((res) => {
+    NewSaleService.getDeliverySlipDetails(this.state.dsNumber.trim()).then((res) => {
       this.setState({ showTable: true });
       this.state.dlslips.push(res.data.result);
       if (this.state.dlslips.length > 1) {
@@ -800,7 +786,7 @@ export default class NewSale extends Component {
 
   showDiscount() {
     this.state.totalManualDisc = 0;
-    this.setState({ isBillingDisc: true, returnCash: 0 }, () => {
+    this.setState({ isBillingDisc: true, isBillLevel: false, returnCash: 0 }, () => {
       this.getDiscountReasons();
     });
 
@@ -808,7 +794,7 @@ export default class NewSale extends Component {
   }
 
   hideDiscount() {
-    this.setState({ isBillingDisc: false, manualDisc: 0, returnCash: 0, selectedDisc: {} });
+    this.setState({ isBillingDisc: false,  returnCash: 0, selectedDisc: {} });
   }
   showCalculator() {
 
@@ -824,29 +810,32 @@ export default class NewSale extends Component {
   }
 
   saveDiscount() {
-    if(this.state.manualDisc <= this.state.grandNetAmount) {
+    console.log(this.state.manualDisc);
+    if (this.state.manualDisc <= this.state.grandNetAmount) {
 
       if (Object.keys(this.state.selectedDisc).length !== 0 && this.state.manualDisc !== 0 && this.state.discApprovedBy !== '') {
-        this.state.netPayableAmount = 0;
+        // this.state.netPayableAmount = 0;
         const totalDisc =
           this.state.totalPromoDisc + parseInt(this.state.manualDisc);
         if (totalDisc < this.state.grandNetAmount) {
           const netPayableAmount = this.state.grandNetAmount - totalDisc;
-          this.state.netPayableAmount = netPayableAmount;
-  
-          this.getTaxAmount();
+          this.state.grandNetAmount = netPayableAmount;
+
+         // this.getTaxAmount();
         }
         const promDisc = parseInt(this.state.manualDisc) + this.state.totalPromoDisc;
-        this.setState({ showDiscReason: true, promoDiscount: promDisc });
-  
+        this.setState({ showDiscReason: true, promoDiscount: promDisc, isBillingDiscount: true, isBillLevel: true });
+
         this.hideDiscount();
       } else {
-        toast.info("Please Enter all fields")
+        toast.info("Please Enter all fields");
+        this.setState({isBillLevel: false})
       }
     } else {
       toast.error("Please enter sufficient amount");
+      this.setState({isBillLevel: false})
     }
-   
+
 
   }
 
@@ -868,17 +857,27 @@ export default class NewSale extends Component {
     });
   }
 
-  handleChange(event) {
-    this.setState({ mobilenumber: event.target.value });
+  handleChange(e) {
+    const regex = /^[0-9\b]+$/;
+    const value = e.target.value;
+    if (value === "" || regex.test(value)) {
+      this.setState({
+        [e.target.id]: e.target.value,
+        mobilenumber: e.target.value,
+      });
+    } else {
+      this.setState({ registerMobile: "" });
+      // toast.error("pls enter numbers")
+    }
+    // this.setState({ mobilenumber: event.target.value });
   }
 
   getReturnAmount = () => {
-    console.log(this.state.grandNetAmount);
+
     if (this.state.barCodeList.length > 0 || this.state.barCodeRetailList.length > 0) {
       this.setState({ isPayment: false });
     }
-    // this.state.grandNetAmount =
-    //   this.state.netPayableAmount + this.state.taxAmount;
+
     this.state.grandReceivedAmount =
       this.state.netPayableAmount + this.state.taxAmount;
     const collectedCash = parseInt(this.state.cashAmount);
@@ -886,24 +885,18 @@ export default class NewSale extends Component {
     if (collectedCash > this.state.grandNetAmount) {
       this.state.returnCash = collectedCash - this.state.grandNetAmount;
       this.state.returnCash = Math.round(this.state.returnCash);
-      //  this.hideCashModal();
     } else if (collectedCash == Math.round(this.state.grandNetAmount)) {
-      // this.state.grandNetAmount = 0;
       this.setState({ isPayment: false });
 
-    } else if (collectedCash < this.state.grandNetAmount) {
-      // this.state.grandNetAmount = this.state.grandNetAmount - collectedCash;
-      //   toast.info("Please enter sufficient amount");
     } else {
       this.state.cashAmount = 0;
       this.state.returnCash = 0;
       this.state.grandNetAmount = 0;
       this.state.grandReceivedAmount = 0;
       this.setState({ isPayment: true });
-      // toast.info("Please enter sufficient amount");
     }
-
-    if (this.state.returnCash >= 1) {
+    console.log(this.state.returnCash);
+    if (this.state.returnCash >= 1 || this.state.returnCash === 0) {
       this.hideCashModal();
     } else {
       toast.error("Please collect suffient amount");
@@ -989,7 +982,7 @@ export default class NewSale extends Component {
 
       NewSaleService.saveSale(obj).then((res) => {
         if (res) {
-          this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
+          this.setState({ isBillingDetails: false, dsNumber: "",upiAmount: this.state.grandNetAmount, finalList: [] });
           this.setState({
             customerName: " ",
             gender: " ",
@@ -1147,6 +1140,9 @@ export default class NewSale extends Component {
   }
 
   tagCustomer() {
+
+
+
 
     const selectedMobile = JSON.parse(JSON.stringify(this.state.mobilenumber));
     const obj = {
@@ -1708,10 +1704,10 @@ export default class NewSale extends Component {
 
               <div className="col-12">
                 <div className="d-flex mt-3 pointer">
-                  <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                  {/* <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
                     <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" />
                     <label className="form-check-label" htmlFor="roundedExample2">Confirming me to receive promotional messages.</label>
-                  </div>
+                  </div> */}
 
                 </div>
               </div>
@@ -1801,7 +1797,9 @@ export default class NewSale extends Component {
                         className="btn-unic m-r-2 active scaling-mb"
                         onClick={this.toggleModal}
                       >Tag Customer </button>
-                      <button className="btn-unic m-r-2 scaling-mb" onClick={this.showDiscount} >Bill Level Discount</button>
+                      <button
+                        className={" m-r-2 scaling-mb " + (this.state.isBillLevel ? "btn-unic btn-disable" : "btn-unic active")}
+                        onClick={this.showDiscount} >Bill Level Discount</button>
                     </div>
 
 
@@ -1916,6 +1914,19 @@ export default class NewSale extends Component {
                     <label className="font-bold">₹ {this.state.centralGST}</label>
                   </div>
                 </div>
+
+                {
+                  this.state.isBillingDiscount && (
+                    <div className="row">
+                    <div className="col-5">
+                      <label>Billing Discount</label>
+                    </div>
+                    <div className="col-7 text-right">
+                      <label className="font-bold">₹ {this.state.manualDisc}</label>
+                    </div>
+                  </div>
+                  )
+                }
 
 
                 <div className="payment">

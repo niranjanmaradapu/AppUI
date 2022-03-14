@@ -312,6 +312,17 @@ class SubHeader extends Component {
             { name: "Users", childImage: "deliveryslip", childPath: "/users" },
             { name: "Roles", childImage: "sale", childPath: "/roles" },
           ],
+        },
+        {
+          parentName: "Back Office",
+          id:'3',
+          path: "/backOffice",
+          parentImage: "icon-r_brand fs-30 i_icon",
+          children: [
+            { name: "State & Districts", childImage: "sale", childPath: "/backOffice" },
+            { name: "Tax Master", childImage: "deliveryslip", childPath: "/taxMaster" },
+            { name: "HSN Codes", childImage: "sale", childPath: "/hsnDetails" },
+          ],
         }
      
 
@@ -351,6 +362,7 @@ setHeaders() {
       if(ele.parentName == this.state.message) {
           this.setState({buttonsList: ele.children}, ()=>{
             this.setState({selectedChildName: this.state.buttonsList[0].name});
+            this.props.history.push(this.state.buttonsList[0].childPath);
           });
       }
   });
@@ -360,6 +372,7 @@ setHeaders() {
     if(res) {
       this.setState({buttonsList: res.data.result}, ()=>{
         this.setState({selectedChildName: this.state.buttonsList[0].name});
+        this.props.history.push(this.state.buttonsList[0].childPath);
       });
     }
   });
@@ -378,6 +391,7 @@ setHeaders() {
         subList = this.removeDuplicates(subList,"id");
          this.setState({buttonsList:subList}, ()=>{
           this.setState({selectedChildName: this.state.buttonsList.length  > 0 ? this.state.buttonsList[0].name: ""});
+          this.props.history.push(this.state.buttonsList[0].childPath);
         });
 
         }
@@ -385,7 +399,7 @@ setHeaders() {
     }
   }
 
-  // console.log(this.state.buttonsList);
+   
 
  
 
@@ -401,6 +415,7 @@ return array.filter(obj=>!lookup.has(obj[key])&&lookup.add(obj[key]));
 
 
   handleNavigationChange(index, childPath, childName) {
+    console.log(childPath);
     this.setState({ selectedChildName: childName });
     this.props.history.push(childPath);
   }

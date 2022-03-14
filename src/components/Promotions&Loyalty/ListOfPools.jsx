@@ -188,9 +188,9 @@ export default class ListOfPools extends Component {
      URMService.getDomainsList(user["custom:clientId1"]).then((res) => {
          if(res) {
            if(selectedDomain.label === 'Textile') {
-             this.setState({ clientId:  res.data.result[1].domain[0].id }, () => this.getPoolList());
+             this.setState({ clientId:  1 /* res.data.result[1].domain[0].id */}, () => this.getPoolList());
            } else {
-             this.setState({ clientId:  res.data.result[0].domain[0].id }, () => this.getPoolList());
+             this.setState({ clientId: 2 /* res.data.result[0].domain[0].id */ }, () => this.getPoolList());
            }            
          }       
      });
@@ -742,12 +742,12 @@ FirstTab = () => {
   return (
     <div className="FirstTab">
       <div className="table-responsive p-0">
-          <table className="table table-borderless mb-1 mt-2">
+          <table className="table table-borderless mb-1 mt-3">
             <tbody>
               {this.state.addedIncludedPoolRules.length > 0 && this.state.addedIncludedPoolRules.map((item, index) => {
                 return (
                     <div>
-                        <tr key={index}> 
+                        <tr className='mt-4' key={index}> 
                           <td className="col-6"><h6>Condition - {item.ruleNumber}</h6></td>
                           <td><img onClick={() => this.editPoolRule(item.ruleNumber, index)} src={edit} className="w-12 pb-2" /> </td>
                           <td> <i onClick= {() => this.handleRemoveSpecificRule(index)} className="icon-delete m-l-2 fs-16"></i></td>
@@ -837,7 +837,7 @@ Tabs = () => {
   return (
     <div className="Tabs">
       {/* Tab nav */}
-      <ul className="nav">
+      <ul className="nav mt-4">
         <li
         className={this.state.activeTab === "INCLUDED" ? "active" : ""}
         onClick={this.handleInclude}
@@ -930,7 +930,7 @@ Tabs = () => {
                   <tbody>
                       {this.state.addNewRule.map((item, idx) => (
                         <tr id="addr0" key={idx}>
-                          <td>
+                          <td className='t-form'>
                           <select 
                               value={this.state.addNewRule[idx].columnName} 
                               onChange={e => this.handleRoleChange(idx, e)} 
@@ -944,7 +944,7 @@ Tabs = () => {
                                 }
                             </select>
                           </td>
-                          <td>
+                          <td className='t-form'>
                             <select 
                               value={this.state.addNewRule[idx].operatorSymbol} 
                               onChange={ e => this.handleRoleChange(idx, e)}                          
@@ -959,14 +959,15 @@ Tabs = () => {
                             </select>
                           </td>
                           
-                          {(this.state.addNewRule[idx].columnName === 'cost_price'  || this.state.addNewRule[idx].columnName === 'item_mrp' || this.state.addNewRule[idx].columnName === 'original_barcode_created_at') ? <td> <input
+                          {(this.state.addNewRule[idx].columnName === 'cost_price'  || this.state.addNewRule[idx].columnName === 'item_mrp' || this.state.addNewRule[idx].columnName === 'original_barcode_created_at') ? 
+                          <td className='t-form'> <input
                               type="text"
                               name="givenValue"
                               value={this.state.addNewRule[idx].givenValue}
                               onChange={e => this.handleTextChange(idx, e)}
                               className="form-control"
                             /> </td> :  
-                            <td> {(this.state.addNewRule[idx].operatorSymbol === 'In' ) ? <Select
+                            <td className='t-form'> {(this.state.addNewRule[idx].operatorSymbol === 'In' ) ? <Select
                                 isMulti
                                 onChange={this.onColumnValueChange}
                                 options={this.state.columnValues}
@@ -1049,7 +1050,7 @@ Tabs = () => {
                 </div>
                 <div className="col-4 outlet">
                 
-                    <button type="button" className="btn-unic-redbdr" onClick={this.handleAddRow}>Add Pool Rule</button>
+                    <button type="button" className="btn-unic-redbdr mt-4" onClick={this.handleAddRow}>Add Pool Rule</button>
                 
                 </div>
                 <div className="App">

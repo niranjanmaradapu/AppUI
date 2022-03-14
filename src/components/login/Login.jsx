@@ -477,6 +477,13 @@ class Login extends Component {
       errors["registerName"] = "Enter name";
     }
 
+    // Organisation
+    if (!this.state.registerOrganisation) {
+      formIsValid = false;
+      errors["registerOrganisation"] = "Enter register Organisation";
+    }
+
+
     // Mobile
     if (!this.state.registerMobile) {
       formIsValid = false;
@@ -1051,6 +1058,9 @@ class Login extends Component {
                           }
                           autoComplete="off"
                         />
+                         <div>
+                                                            <span style={{ color: "red" }}>{this.state.errors["registerOrganisation"]}</span>
+                                                        </div>
                       </div>
 
                       <div className="col-6">

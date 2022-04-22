@@ -40,6 +40,8 @@ import URMDashboard from '../../components/admin/URMDashboard';
 import ListOfEstimationSlips from '../../components/reports/ListOfEstimationSlips';
 import Rebarcoding from '../../components/InventoryPortal/Rebarcoding';
 import BackOffice from '../../components/admin/BackOffice';
+import TaxMaster from '../../components/BackOfficePortal/TaxMaster';
+import HsnDetails from '../../components/BackOfficePortal/HsnDetails';
 
 
 
@@ -293,6 +295,16 @@ export default class Layout extends Component {
                                     path='/backOffice'
                                     exact={true}
                                     component={BackOffice}
+                                />
+                                 <PrivateRoute
+                                    path='/taxMaster'
+                                    exact={true}
+                                    component={TaxMaster}
+                                />
+                                 <PrivateRoute
+                                    path='/hsnDetails'
+                                    exact={true}
+                                    component={HsnDetails}
                                 />
                             </Switch>
                         </div>

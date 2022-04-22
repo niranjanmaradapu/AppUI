@@ -112,8 +112,8 @@ export default class ManagePromo extends Component {
         ],
         item: '',
         itemLabels: [
-          { value: 'ItemRSP', label: 'Item RSP' },
-          { value: 'ItemMRP', label: 'Item MRP' }
+          { value: 'ItemMRP', label: 'Item MRP' },
+          // { value: 'ItemRSP', label: 'Item RSP' }
         ],
         fixedAmoutItemLabels: [
           { value: 'EachItem', label: 'Each Item' },
@@ -143,7 +143,8 @@ export default class ManagePromo extends Component {
         benfitsPayload: [],
         benfitVoArray: [],
         editedBenfit: {},
-        updatedBenfitVos: []
+        updatedBenfitVos: [],
+        storePromoList: []
     };
 
     this.addPromo = this.addPromo.bind(this);
@@ -191,52 +192,69 @@ export default class ManagePromo extends Component {
   }
   getDomainsList() {    
      const user = JSON.parse(sessionStorage.getItem('user'));
-     const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));   
-      URMService.getDomainsList(user["custom:clientId1"]).then((res) => {
-          if(res) {
-            if(selectedDomain.label === 'Textile') {
-              this.setState({ clientDomainaId: res.data.result[1].clientDomainaId, 
-                              clientId:  res.data.result[1].domain[0].id
-                            });
-              this.getAllStoresList();
-            } else {
-              this.setState({ clientDomainaId: res.data.result[0].clientDomainaId, 
-                              clientId:  res.data.result[0].domain[0].id 
-                            });
-              this.getAllStoresList();
-            }            
-          }       
-      });
+     const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));  
+     if(selectedDomain.label === 'Textile') {
+      this.setState({ clientDomainaId: user["custom:clientId1"], 
+                      clientId: 1 // res.data.result[1].domain[0].id
+                    }, () =>  this.getAllStoresList());
+    } else {
+      this.setState({ clientDomainaId: user["custom:clientId1"], 
+                      clientId: 2 // res.data.result[0].domain[0].id 
+                    }, () =>  this.getAllStoresList());
+       } 
+
+      // URMService.getDomainsList(user["custom:clientId1"]).then((res) => {
+      //   console.log("++++++++++++", res);
+      //     if(res) {
+      //       if(selectedDomain.label === 'Textile') {
+      //         this.setState({ clientDomainaId: res.data.result[1].clientDomainaId, 
+      //                         clientId: 1 // res.data.result[1].domain[0].id
+      //                       });
+      //         this.getAllStoresList();
+      //       } else {
+      //         this.setState({ clientDomainaId: res.data.result[0].clientDomainaId, 
+      //                         clientId: 2 // res.data.result[0].domain[0].id 
+      //                       });
+      //         this.getAllStoresList();
+      //       }            
+      //     }       
+      // });
     }
     getAllStoresList() {
-      URMService.getStoresByDomainId(this.state.clientDomainaId).then((res) =>{               
-        const result = res.data.result.map((item) => {
-          const obj = {};
-            obj.value = item.id;
-            obj.label = item.name;
-            obj.location = item.address
-          return obj;         
-        });
+      const user = JSON.parse(sessionStorage.getItem('user'));
+      URMService.getStoresByDomainId(user["custom:domianId1"]).then((res) => { 
           if(res) {
+            const result = res.data.result.map((item) => {
+              const obj = {};
+                obj.value = item.id;
+                obj.label = item.name;
+                obj.location = item.address
+              return obj;         
+            });
             this.setState({storesList: result});
           }
       }); 
   }
   addPromoToStore() {
     const { storeStartDate, storeEndDate, storePromoName, storePromoType, storeName} = this.state;
-   const storeNames =  storeName.map((item) => {
+    const user = JSON.parse(sessionStorage.getItem("user"));    
+    const createdBy = user['custom:userId'];
+  // const storeNames =  storeName.map((item) => {
       const obj = {};
-      obj.id = item.value;
-      obj.name = item.label;
-      obj.location = item.location;
-      return obj;
-    });
+      obj.id = storeName.value;
+      obj.name = storeName.label;
+      obj.location = storeName.location;
+     //  return obj;
+   //  });
     const requestObj = {
-        promoType: storePromoType,
+        // promoType: storePromoType,
         promotionName: storePromoName,
-        storeVo: storeNames,
-        startDate: storeStartDate,
-        endDate: storeEndDate
+        storeVo: obj,
+        promotionEndDate: storeEndDate,
+        promotionStartDate: storeStartDate,
+        priority: null,
+        createdBy: createdBy,
+        isActive: true
     }
     PromotionsService.addPromoToStore(requestObj).then((res) => {
       if(res.data.isSuccess === 'true') {
@@ -420,7 +438,7 @@ export default class ManagePromo extends Component {
       benfitType: benfitType,
       discountType: discountType,
       discount: discountOn,
-      percentageDiscountOn: item
+      discountSubType: item
     }
     if(benfitType === 'XunitsFromBuyPool') {
        obj = {...obj, numOfItemsFromBuyPool, itemValue: buyPoolValue}
@@ -495,7 +513,14 @@ export default class ManagePromo extends Component {
         const active = res.data.result['promovo'].filter(item => item.isActive == true).length;
         const inactive = res.data.result['promovo'].filter(item => item.isActive == false).length;
         const finalResult = elements.filter((item) => item.promotionName !== null);
-        this.setState({ 
+        const promoNamesList = res.data.result['promovo'].map((item) => {
+          const obj = {};
+          obj.value = item.promoId;
+          obj.label = item.promotionName;
+          return obj;
+        });
+        this.setState({
+          storePromoList: promoNamesList,
           listOfPromos: res.data.result['promovo'],
           promotionNames: finalResult,
           totalPromos: totalPromos,
@@ -692,6 +717,9 @@ export default class ManagePromo extends Component {
       searchStoreName: selectedSore
     });
   }
+  onSearchStorePromoNameChange = selectedPromotions =>{
+    
+  }
   oncloneStoreNameChange = selectedstore => {
     this.setState({
       cloneStoreName : selectedstore
@@ -728,7 +756,6 @@ export default class ManagePromo extends Component {
   editPramotion = (item) => () => {
     const { listOfPromos } = this.state;
     const promo =  listOfPromos.find(promo => promo.promoId === item.promoId);
-    console.log('++++++++++++promo++++++++', promo);
     const data = promo.poolVo;
     let benfitVo = [];
     let benfitObj = '';
@@ -762,9 +789,10 @@ export default class ManagePromo extends Component {
       this.setState({
           editedBenfit: benfitVo,
           benfitType: benfitVo.benfitType,
+         // item: benfitVo.discountSubType,
           discountType: benfitVo.discountType,
           discountOn: benfitVo.discount,
-          item: benfitVo.percentageDiscountOn,
+          item: benfitVo.discountSubType,
           getPoolValue: benfitVo.itemValue,
           buyPoolValue: benfitVo.itemValue,
           promoApplyType: benfitVo.promoApplyType,
@@ -1090,7 +1118,7 @@ export default class ManagePromo extends Component {
                 <div className="form-group">
                   <label></label>
                   {(this.state.discountType === 'PercentageDiscountOn' || this.state.discountType === 'RupeesDiscountOn') ? <select value={this.state.item} onChange={(e) => this.handleItemValue(e)} className="form-control">
-                    {/* <option>Each Item</option> */}
+                    <option>Select Discount Subtype</option>
                         {   
                           this.state.itemLabels &&
                           this.state.itemLabels.map((item, i) => 
@@ -1098,7 +1126,7 @@ export default class ManagePromo extends Component {
                         }
                   </select> : 
                   <select value={this.state.item} onChange={(e) => this.handleItemValue(e)} className="form-control">
-                  {/* <option>Each Item</option> */}
+                  <option>Select Discount Subtype</option>
                       {   
                         this.state.fixedAmoutItemLabels &&
                         this.state.fixedAmoutItemLabels.map((item, i) => 
@@ -1380,12 +1408,20 @@ export default class ManagePromo extends Component {
                     (<option key={i} value={item.promotionName}>{item.promotionName}</option>))
                   }
                 </select> : 
-                <Select
-                    isMulti
-                    onChange={this.onSearchStoreNameChange}
-                    options={this.state.listOfPromos}
-                    value={this.state.searchStoreName}
-                />
+                // <Select
+                //     isMulti
+                //     onChange={this.onSearchStorePromoNameChange}
+                //     options={this.state.storePromoList}
+                //     value={this.state.searchStoreName}
+                // />
+                <select value={this.state.storePromoName} onChange={(e) => this.handleStorePromoName(e)} className="form-control">
+                  <option>Select Promotion</option>
+                  { 
+                    this.state.promotionNames &&
+                    this.state.promotionNames.map((item, i) => 
+                    (<option key={i} value={item.promotionName}>{item.promotionName}</option>))
+                  }
+                </select>
                   }
                   {/* <input type="text" value={this.state.storePromoName}  onChange={(e) => this.handleStorePromoName(e)} className="form-control" /> */}    
                 </div>
@@ -1407,7 +1443,7 @@ export default class ManagePromo extends Component {
                   <label>Store</label>
                   {this.state.storePromoType === 'By_Promotion' && this.state.storePromoType !== '' ?
                     <Select
-                      isMulti
+                      // isMulti
                       onChange={this.onStoreNameChange}
                       options={this.state.storesList}
                       value={this.state.storeName}
@@ -1666,8 +1702,8 @@ export default class ManagePromo extends Component {
                   <td className="col-1 underline geeks"> <input type="checkbox" onChange={(e) => this.handleChange(e, item)}/> <span className="pt-0 mt-0">{item.promoId}</span> </td>
                   <td className="col-2">{item.promotionName}</td>
                   <td className="col-2">{item.description}</td>
-                  <td className="col-2">{item.startDate}</td>
-                  <td className="col-2">{item.endDate}</td>
+                  <td className="col-2">{item.promotionStartDate}</td>
+                  <td className="col-2">{item.promotionEndDate}</td>
                   <td className="col-1">
                     {item.isActive ? 
                       <button className="btn-active">Active</button> : 

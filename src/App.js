@@ -341,6 +341,18 @@ const App = () => {
                                     component={Layout}
                                 />
 
+<PrivateRoute
+                                    path='/taxMaster'
+                                    exact={true}
+                                    component={Layout}
+                                />
+
+<PrivateRoute
+                                    path='/hsnDetails'
+                                    exact={true}
+                                    component={Layout}
+                                />
+
 
        </Switch>
        </Router>

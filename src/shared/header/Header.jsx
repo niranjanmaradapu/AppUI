@@ -366,7 +366,7 @@ class Header extends Component {
   componentWillMount() {
 
     const selectedDomain = sessionStorage.getItem("selectedDomain");
-    console.log(selectedDomain);
+    
 
 
     const domainName = sessionStorage.getItem("domainName");
@@ -375,7 +375,7 @@ class Header extends Component {
     if(domainName === "config_user") {
       let header;
        this.state.headertype = "Accounting Portal";
-       console.log(this.state.headertype);
+      
        eventBus.dispatch("subHeader", { message: this.state.headertype });
           header = [
             {
@@ -398,7 +398,19 @@ class Header extends Component {
                 { childName: "Roles", childImage: "sale", childPath: "/roles" },
                 { childName: "Back Office", childImage: "sale", childPath: "/backOffice" },
               ],
+            },
+            {
+              name: "Back Office",
+              id:'3',
+              path: "/backOffice",
+              parentImage: "icon-r_brand fs-30 i_icon",
+              children: [
+                { childName: "State & Districts", childImage: "sale", childPath: "/backOffice" },
+                { childName: "Tax Master", childImage: "deliveryslip", childPath: "/taxMaster" },
+                { childName: "HSN Codes", childImage: "sale", childPath: "/hsnDetails" },
+              ],
             }
+          
            
     
           ];
@@ -528,7 +540,7 @@ class Header extends Component {
   }
 
   handleChange = e => {
-    // setSelectedOption(e);
+   
    
     sessionStorage.setItem("selectedDomain", JSON.stringify(e));
     if (e.label === 'Logout') {
@@ -537,27 +549,22 @@ class Header extends Component {
         sessionStorage.clear();
       window.location.reload();
     } else {
-      //  sessionStorage.setItem('domainName',JSON.stringify(e));
+     
       if (e.label === 'Textile') {
-       // this.props.history.push("createdeliveryslip");
-       // window.location.reload();
+       
        this.setState({domainId : 1}, () => {
         this.setAdminHeader();
       });
       this.state.headertype = "Dashboard";
       this.setAdminHeader();
       } else if (e.label === 'Retail') {
-  //      this.props.history.push("retail");
-        // header = this.state.moduleRetailNames;
+ 
         this.setState({domainId : 2}, () => {
           this.setAdminHeader();
         });
         this.state.headertype = "Retail";
       
-    //   window.location.reload();
-        // this.state.headertype = "Retail";
-        // this.setAdminHeader();
-     //   header = this.state.moduleRetailNames;
+   
       } else if (e.label === 'Electronics') {
         this.props.history.push("electronics");
         window.location.reload();
@@ -575,14 +582,7 @@ class Header extends Component {
 
   setAdminHeader() {
     
-  //  this.setState({headertype: "URM Portal"});
-
-  // const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
-  // let header = this.state.copyModules;
-  // if (selectedDomain && selectedDomain.label === "Retail") {
-  //   header = this.state.moduleRetailNames;
-  // }
-  // this.setState({ moduleNames: header },  () => { this.getChilds(); });
+ 
   const user = JSON.parse(sessionStorage.getItem("user"));
   if(this.state.user !== "config_user" && user["custom:isSuperAdmin"] === "true") { 
 
@@ -624,31 +624,7 @@ class Header extends Component {
     }
   }
 
-  // componentWillMount(){
-  //     this.state.user = sessionStorage.getItem('domainName');
-  //     if(this.state.user !== "config_user") {
-  //       this.state.domainsList = JSON.parse(sessionStorage.getItem('domainList'));
-  //       const obj = {
-  //         createdDate: "",
-  //         createdUser: "",
-  //         description: "",
-  //         domain: "Logout"
-  //        }
-  //        this.state.domainsList.push(obj);
-  //     }  else {
-  //       const obj = {
-  //         createdDate: "",
-  //         createdUser: "",
-  //         description: "",
-  //         domain: "Logout"
-  //        }
-  //        this.state.domainsList.push(obj);
-  //     }    
-
-
-
-  // }
-
+  
 
   handleSelectChange = (e) => {
     console.log(e.target.value);
@@ -656,6 +632,7 @@ class Header extends Component {
     let parentPath;
     this.setState({headertype: e.target.value});
     eventBus.dispatch("subHeader", { message: e.target.value });
+    console.log(this.state.moduleNames);
     this.state.moduleNames.forEach(ele => {
       if (ele.id == e.target.value) {
         if(ele.path) {
@@ -669,23 +646,22 @@ class Header extends Component {
        if(domainName === "config_user") {
         eventBus.dispatch("subHeader", { message: ele.name });
        }
-    //   
-         // parentPath = ele.subPrivillages[0].childPath;
+    
         
       } 
       
       
 
     });
-    // this.props.history.push(parentPath);
-    // console.log(parentPath);
-      if(parentPath) {
-        this.props.history.push(parentPath);
-      } else {
-        this.props.history.push("/dashboard");
-      }
+   
+   
+      // if(parentPath) {
+      //   this.props.history.push(parentPath);
+      // } else {
+      //   this.props.history.push("/dashboard");
+      // }
 
-   // this.props.history.push("/dashboard");
+   
 
   }
 

@@ -38,7 +38,10 @@ export const CREATE_DELIVERY_SLIP_URL = {
     getCustomerMobile: "/user-management/user/customer/mobileNo",
     getGiftVochers: "/new-sale/newsale/getlistofgv",
     saveGiftVoucher: "/new-sale/newsale/saveGv",
-    changeGvFlag: "/new-sale/newsale/changeflaggv"
+    changeGvFlag: "/new-sale/newsale/changeflaggv",
+    getDayCloserSlips:"/new-sale/newsale/getPendingDeliverySlips",
+    dayCloserPendingDeliverySlips:"/new-sale/newsale/closePendingDeliverySlips"
+
 };
 
 export const NEW_SALE_URL = {
@@ -50,7 +53,8 @@ export const NEW_SALE_URL = {
     saveSale: "/new-sale/newsale/sale",
     getCoupons: "/new-sale/newsale/getGv",
     getHsnDetails: "/hsn-details/hsnDetails/getHsnDetails",
-    getCheckPromo: "/connection-pool/promo/checkPromtionTextile"
+    getCheckPromo: "/connection-pool/promo/checkPromtionTextile",
+    getinvoiceLevelCheckProm:"/connection-pool/promo/invoiceLevelCheckPromtionTextile"
 };
 
 export const CREATE_CUSTOMER_URL = {
@@ -90,7 +94,8 @@ export const INVENTORY_URLS = {
     getStoreNamesByIds: '/user-management/store/storeList',
     getReBarcodeTextileBarcodeDetails: '/inventory/inventoryTextile/getAllAdjustments',
     getEmpNameByEmpId: "/user-management/user/getUser",
-    savebulkTextile: "/inventory/inventoryTextile/saveProductTextileList"
+    savebulkTextile: "/inventory/inventoryTextile/saveProductTextileList",
+    addBulkTextile: "/inventoryTextile/add-bulk-products"
 
 };
 
@@ -209,7 +214,7 @@ export const PROMOTIONS_URL = {
     searchPool: "/connection-pool/pool/poolSearching",
     getPromoList: "/connection-pool/promo/getpromolist",
     deletePromo: "/connection-pool/promo/deletepromo",
-    searchPromotion: "/connection-pool/promo/searchPromotion",
+    searchPromotion: "/connection-pool/promo/storeLevelPromotionsSearching",
     addPromo: "/connection-pool/promo/addpromo",
     updatePromotion: "/connection-pool/promo/editpromo",
     addPromoToStore: "/connection-pool/promo/addPromoToStore",
@@ -222,8 +227,11 @@ export const PROMOTIONS_URL = {
     searchLoyaltyPoints: "/new-sale/newsale/searchLoyaltyPoints",
     addBenfit: "/connection-pool/promo/addbenfit",
     getValuesFromProductTextileColumns: "/inventory/inventoryTextile/getValuesFromProductTextileColumns",
-    getValuesFromBarcodeTextileColumns: "/inventory/inventoryTextile/getValuesFromBarcodeTextileColumns",
-    getAllColumns: "/inventory/inventoryTextile/getAllColumns"
+    // getValuesFromBarcodeTextileColumns: "/inventory/inventoryTextile/getValuesFromBarcodeTextileColumns",
+    getAllColumns: "/connection-pool/promo/allcolumnnames",
+    getAllStorePromos: "/connection-pool/promo/getAllStorePromos",
+    promotionsSearching: "/connection-pool/promo/promotionsSearching",
+    anyMatchingData: "/connection-pool/promo/anyMatchingData"
 };
 
 export const ACCOUNTING_PORTAL = {
@@ -231,10 +239,13 @@ export const ACCOUNTING_PORTAL = {
     getCreditNotes: "/hsn-details/credit-debit-notes/getAllCreditNotes",
     getDebitNotes: "/hsn-details/credit-debit-notes/getAllDebitNotes",
     saveMasterTax:"/hsn-details/tax/addnewtax",
+    updatetax: "/hsn-details/tax/updatetax",
+    deleteTax: "/hsn-details/tax/deleteTax",
     getAllTaxes:"/hsn-details/tax/getTaxDetails",
     getAllHsnCodesData:"/hsn-details//hsnDetails/getHsnDetails",
     getDescritionData:"/hsn-details/hsnDetails/getEnums/description",
     getTaxAppliesOnData:"/hsn-details/hsnDetails/getEnums/taxAppliesOn",
     saveHsnCode:"/hsn-details/hsnDetails/saveHsn",
-
+    deleteHsn: "/hsn-details/hsnDetails/deleteHsn",
+    updateHsn: "/hsn-details/hsnDetails/updateHsn"
 };

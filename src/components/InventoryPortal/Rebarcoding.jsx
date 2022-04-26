@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
-import print from '../../assets/images/print.svg';
-import view from '../../assets/images/view.svg';
+import React, { Component } from "react";
+import print from "../../assets/images/print.svg";
+import view from "../../assets/images/view.svg";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
-import InventoryService from '../../services/InventoryService';
-import URMService from '../../services/URM/URMService';
-import { toast } from 'react-toastify';
-import { number } from 'prop-types';
-import { stringify } from 'querystring';
+import InventoryService from "../../services/InventoryService";
+import URMService from "../../services/URM/URMService";
+import { toast } from "react-toastify";
+import { number } from "prop-types";
+import { stringify } from "querystring";
+import ReactPageNation from "../../commonUtils/Pagination";
 
 export default class Rebarcoding extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -31,12 +31,13 @@ export default class Rebarcoding extends Component {
       domain: "",
       storeId: "",
       status: "",
-      productValidity: '',
+      productValidity: "",
       fromDate: "",
       toDate: "",
       barcodeSearchId: "",
       selectedStoreId: "",
       barcodesList: [],
+      pageNumber: 0,
       domainDetails: {},
       isEdit: false,
       domainId: "",
@@ -62,9 +63,10 @@ export default class Rebarcoding extends Component {
       textileFieldsErr: false,
       errors: {},
       statusTypeList: [
-        { "id": 1, "label": "YES", "value": "YES" },
-        { "id": 0, "label": "NO", "value": "NO" }],
-    }
+        { id: 1, label: "YES", value: "YES" },
+        { id: 0, label: "NO", value: "NO" },
+      ],
+    };
     this.addBarcode = this.addBarcode.bind(this);
     this.getAllBarcodes = this.getAllBarcodes.bind(this);
     this.openEditBarcode = this.openEditBarcode.bind(this);
@@ -74,9 +76,6 @@ export default class Rebarcoding extends Component {
     this.setEmployeeNames = this.setEmployeeNames.bind(this);
     this.storeNameMap = this.storeNameMap.bind(this);
   }
-
-
-
 
   closeBarcode() {
     this.setState({ isAddBarcode: false });
@@ -90,61 +89,100 @@ export default class Rebarcoding extends Component {
   }
 
   componentWillMount() {
-    this.state.domainDetails = JSON.parse(sessionStorage.getItem('selectedDomain'));
+    this.state.domainDetails = JSON.parse(
+      sessionStorage.getItem("selectedDomain")
+    );
     this.setState({ domainDetails: this.state.domainDetails });
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    this.setState({selectedStoreId:JSON.parse(sessionStorage.getItem('storeId'))});
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    this.setState({
+      selectedStoreId: JSON.parse(sessionStorage.getItem("storeId")),
+    });
     if (user["custom:isSuperAdmin"] === "true") {
-      this.setState({
-        clientId: user["custom:clientId1"],
-      }, () => {
-        this.getAllBarcodes(); this.getAllStoresList(); this.getAllUoms();
-        this.getAllDivisions(); this.getHsnDetails(); this.getAllCategories();
-      });
+      this.setState(
+        {
+          clientId: user["custom:clientId1"],
+        },
+        () => {
+          this.getAllBarcodes();
+          this.getAllStoresList();
+          this.getAllUoms();
+          this.getAllDivisions();
+          this.getHsnDetails();
+          this.getAllCategories();
+        }
+      );
     } else {
-      this.setState({
-        clientId: user["custom:clientId1"],
-        // domainId: user["custom:domianId1"]
-      }, () => { this.getAllStoresList(); this.getAllBarcodes(); this.getAllUoms();; this.getAllDivisions(); this.getHsnDetails(); this.getAllCategories(); });
+      this.setState(
+        {
+          clientId: user["custom:clientId1"],
+          // domainId: user["custom:domianId1"]
+        },
+        () => {
+          this.getAllStoresList();
+          this.getAllBarcodes();
+          this.getAllUoms();
+          this.getAllDivisions();
+          this.getHsnDetails();
+          this.getAllCategories();
+        }
+      );
     }
   }
 
-
-  getAllBarcodes() {
+  getAllBarcodes(pageNumber) {
     let saveJson = {};
-    if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
+    if (
+      this.state.domainDetails &&
+      this.state.domainDetails.label === "Retail"
+    ) {
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,
-        currentBarcodeId: this.state.barcodeSearchId
-      }
+        currentBarcodeId: this.state.barcodeSearchId,
+      };
     } else {
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,
         currentBarcodeId: this.state.barcodeSearchId,
-        storeId: this.state.selectedStoreId
-      }
+        storeId: this.state.selectedStoreId,
+      };
     }
 
-    InventoryService.getReBarcodeDetails(saveJson, this.state.domainDetails).then((res) => {
-      if (res.data && res.data.isSuccess === "true") {
-        this.state.barcodesList = res.data.result;
-        this.setState({ barcodesList: this.state.barcodesList });
-        // this.setEmployeeNames();
-      } else {
-        this.setState({ barcodesList: [] });
-      }
-    }).catch(error => {
-      if (error.response && error.response.data.isSuccess === "false") {
-        this.setState({ barcodesList: [] });
-      }
-    });
+    InventoryService.getReBarcodeDetails(
+      saveJson,
+      this.state.domainDetails,
+      pageNumber
+    )
+      .then((res) => {
+        if (res.data && res.data.isSuccess === "true") {
+          this.state.barcodesList = res.data.result;
+          this.setState({ barcodesList: this.state.barcodesList });
+          // this.setEmployeeNames();
+        } else {
+          this.setState({ barcodesList: [] });
+        }
+      })
+      .catch((error) => {
+        if (error.response && error.response.data.isSuccess === "false") {
+          this.setState({ barcodesList: [] });
+        }
+      });
+  }
+
+  changePage(pageNumber) {
+    console.log(">>>page", pageNumber);
+    let pageNo = pageNumber + 1;
+    this.setState({ pageNumber: pageNo });
+    this.getAllBarcodes(pageNumber);
   }
 
   setEmployeeNames() {
     this.state.barcodesList.forEach((ele, index) => {
-      if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
+      if (
+        this.state.domainDetails &&
+        this.state.domainDetails.label === "Retail"
+      ) {
         if (ele.createdBy) {
           this.state.sortedStoreIds.push(JSON.stringify(ele.createdBy));
         }
@@ -165,18 +203,18 @@ export default class Rebarcoding extends Component {
 
   getStoreNamesById() {
     let obj = {};
-    this.setState({ sortedStoreIds: [] })
+    this.setState({ sortedStoreIds: [] });
     if (this.state.storeIds && this.state.storeIds.length > 0) {
       InventoryService.getEmpNamesByIds(this.state.storeIds).then((res) => {
         if (res && res.data && res.data.result && res.data.result.length > 0) {
           res.data.result.forEach((ele, index) => {
             obj = {
               id: ele.id,
-              value: ele.name
-            }
+              value: ele.name,
+            };
             this.state.sortedStoreIds.push(obj);
           });
-          this.setState({ sortedStoreIds: this.state.sortedStoreIds })
+          this.setState({ sortedStoreIds: this.state.sortedStoreIds });
           this.storeNameMap();
         }
       });
@@ -187,13 +225,17 @@ export default class Rebarcoding extends Component {
     if (this.state.barcodesList && this.state.barcodesList.length > 0) {
       this.state.barcodesList.forEach((ele, index) => {
         this.state.sortedStoreIds.forEach((ele1, index1) => {
-          if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
+          if (
+            this.state.domainDetails &&
+            this.state.domainDetails.label === "Retail"
+          ) {
             if (ele.storeId === ele1.id) {
               this.state.barcodesList[index].storeName = ele1.value;
               // this.setState({ barcodesList: this.state.barcodesList });
             }
           } else if (ele.productTextile.storeId === ele1.id) {
-            this.state.barcodesList[index].productTextile.storeName = ele1.value;
+            this.state.barcodesList[index].productTextile.storeName =
+              ele1.value;
             // this.setState({ barcodesList: this.state.barcodesList });
           }
         });
@@ -202,20 +244,18 @@ export default class Rebarcoding extends Component {
     }
   }
 
-
   getAllUoms() {
     InventoryService.getUOMs().then((res) => {
       res.data.result.forEach((ele, index) => {
         const obj = {
           id: ele.id,
           value: ele.uomName,
-          label: ele.uomName
-        }
-        this.state.uomsList.push(obj)
+          label: ele.uomName,
+        };
+        this.state.uomsList.push(obj);
       });
     });
   }
-
 
   getHsnDetails() {
     InventoryService.getAllHsnList().then((res) => {
@@ -223,10 +263,12 @@ export default class Rebarcoding extends Component {
         const obj = {
           id: ele.id,
           value: ele.hsnCode,
-          label: ele.hsnCode
-        }
-        this.state.hsnList.push(obj)
+          label: ele.hsnCode,
+        };
+        this.state.hsnList.push(obj);
       });
+
+      this.setState({ hsnList: this.state.hsnList });
     });
   }
 
@@ -236,140 +278,162 @@ export default class Rebarcoding extends Component {
         const obj = {
           id: ele.id,
           value: ele.name,
-          label: ele.name
-        }
-        this.state.divisionsList.push(obj)
+          label: ele.name,
+        };
+        this.state.divisionsList.push(obj);
       });
       this.setState({ divisionsList: this.state.divisionsList });
     });
   }
 
+  // getAllSections(id) {
+  //   this.setState({ sectionsList: [] });
+  //   InventoryService.getAllSections(id).then((res) => {
+  //     if (res.data && res.data.isSuccess === "true") {
+  //       res.data.result.forEach((ele, index) => {
+  //         const obj = {
+  //           id: ele.id,
+  //           value: ele.name,
+  //           label: ele.name,
+  //         };
+  //         this.state.sectionsList.push(obj);
+  //       });
+  //       this.setState({ sectionsList: this.state.sectionsList });
+  //     } else {
+  //       this.setState({ sectionsList: [] });
+  //     }
+  //   });
+  // }
+
   getAllSections(id) {
-    this.setState({ sectionsList: [] });
     InventoryService.getAllSections(id).then((res) => {
-      if (res.data && res.data.isSuccess === "true") {
-        res.data.result.forEach((ele, index) => {
-          const obj = {
-            id: ele.id,
-            value: ele.name,
-            label: ele.name
-          }
-          this.state.sectionsList.push(obj)
-
-        });
-        this.setState({ sectionsList: this.state.sectionsList });
-      } else {
-        this.setState({ sectionsList: [] });
-      }
+      res.data.result.forEach((ele, index) => {
+        const obj = {
+          id: ele.id,
+          value: ele.name,
+          label: ele.name,
+        };
+        this.state.sectionsList.push(obj);
+      });
+      this.setState({ sectionsList: this.state.sectionsList });
     });
-
   }
 
   getAllSubsections(id) {
-    this.setState({ subSectionsList: [] });
     InventoryService.getAllSections(id).then((res) => {
-      if (res.data && res.data.isSuccess === "true") {
-        res.data.result.forEach((ele, index) => {
-          const obj = {
-            id: ele.id,
-            value: ele.name,
-            label: ele.name
-          }
-          this.state.subSectionsList.push(obj);
-
-        });
-        this.setState({ subSectionsList: this.state.subSectionsList });
-      } else {
-        this.setState({ subSectionsList: [] });
-      }
+      res.data.result.forEach((ele, index) => {
+        const obj = {
+          id: ele.id,
+          value: ele.name,
+          label: ele.name,
+        };
+        this.state.subSectionsList.push(obj);
+      });
+      this.setState({ subSectionsList: this.state.subSectionsList });
     });
   }
 
   getAllCategories() {
-    this.setState({ categoriesList: [] });
     InventoryService.getAllCategories().then((res) => {
-      if (res.data && res.data.isSuccess === "true") {
-        res.data.result.forEach((ele, index) => {
-          const obj = {
-            id: ele.id,
-            value: ele.name,
-            label: ele.name
-          }
-          this.state.categoriesList.push(obj);
-
-        });
-        this.setState({ categoriesList: this.state.categoriesList });
-      } else {
-        this.setState({ categoriesList: [] });
-      }
+      res.data.result.forEach((ele, index) => {
+        const obj = {
+          id: ele.id,
+          value: ele.name,
+          label: ele.name,
+        };
+        this.state.categoriesList.push(obj);
+      });
+      this.setState({ categoriesList: this.state.categoriesList });
     });
   }
 
   getAllStoresList() {
-    URMService.getStoresByDomainId(this.state.domainDetails.value).then((res) => {
-      if (res) {
-        res.data.result.forEach((ele, index) => {
-          const obj = {
-            id: ele.id,
-            value: ele.name,
-            label: ele.name
-          }
-          this.state.storesList.push(obj)
-        });
+    URMService.getStoresByDomainId(this.state.domainDetails.value).then(
+      (res) => {
+        if (res) {
+          res.data.result.forEach((ele, index) => {
+            const obj = {
+              id: ele.id,
+              value: ele.name,
+              label: ele.name,
+            };
+            this.state.storesList.push(obj);
+          });
+        }
+        this.setState({ storesList: this.state.storesList });
       }
-      this.setState({ storesList: this.state.storesList });
-    });
+    );
   }
 
   getDomainsList() {
     URMService.getDomainsList(this.state.clientId).then((res) => {
       if (res) {
-        this.setState({ domainsList: res.data.result, domainId: res.data.result[0].clientDomainaId });
+        this.setState({
+          domainsList: res.data.result,
+          domainId: res.data.result[0].clientDomainaId,
+        });
         this.getAllStoresList();
       }
     });
   }
 
   getbarcodeDetails(barcodeId) {
-    InventoryService.getBarcodeDetails(barcodeId, this.state.domainDetails,this.state.selectedStoreId).then((res) => {
+    InventoryService.getBarcodeDetails(
+      barcodeId,
+      this.state.domainDetails,
+      this.state.selectedStoreId
+    ).then((res) => {
       const barcode = res.data.result;
       if (res && res.data.isSuccess === "true") {
-        if (this.state.domainDetails && this.state.domainDetails.label === "Retail") {
+        if (
+          this.state.domainDetails &&
+          this.state.domainDetails.label === "Retail"
+        ) {
           this.setState({
-            status: barcode.status, stockValue: barcode.stockValue ? barcode.stockValue : "",
+            status: barcode.status,
+            stockValue: barcode.stockValue ? barcode.stockValue : "",
             qty: barcode.qty ? barcode.qty : 0,
             barcodeId: barcode.barcodeId,
             name: barcode.name,
             colour: barcode.colour,
-            costPrice: barcode.costPrice, listPrice: barcode.listPrice, productValidity: barcode.productValidity,
-            storeId: barcode.storeId, empId: barcode.empId, uom: barcode.uom,
+            costPrice: barcode.costPrice,
+            listPrice: barcode.listPrice,
+            productValidity: barcode.productValidity,
+            storeId: barcode.storeId,
+            empId: barcode.empId,
+            uom: barcode.uom,
             productItemId: barcode.productItemId,
             hsnCode: barcode.hsnCode,
-            batchNo: barcode.batchNo
-
-          })
+            batchNo: barcode.batchNo,
+          });
         } else {
           this.setState({
-            status: barcode.status, stockValue: barcode.stockValue ? barcode.stockValue : "",
-            qty: barcode.productTextile.qty ? barcode.productTextile.qty : 0,
+            status: barcode.status,
+            stockValue: barcode.stockValue ? barcode.stockValue : "",
+            // qty: barcode.productTextile.qty ? barcode.productTextile.qty : 0,
+            qty: barcode.qty ? barcode.qty : 0,
             barcodeId: barcode.barcodeId,
-            productTextileId: barcode.productTextile.productTextileId,
+            productTextileId: barcode.productTextileId,
             barcodeTextileId: barcode.barcodeTextileId,
-            costPrice: barcode.productTextile.costPrice,
-            storeId: barcode.productTextile.storeId, empId: barcode.productTextile.empId, uom: barcode.productTextile.uom,
+            costPrice: barcode.costPrice,
+            storeId: barcode.storeId,
+            empId: barcode.empId,
+            uom: barcode.uom,
             division: barcode.division,
             section: barcode.section,
-            listPrice: barcode.productTextile.itemMrp,
+            listPrice: barcode.itemMrp,
             subSection: barcode.subSection,
             category: barcode.category,
             batchNo: barcode.batchNo,
             colour: barcode.colour,
-            hsnCode: barcode.productTextile.hsnMasterId
-          })
+            // hsnCode: barcode.hsnMasterId,
+            hsnCode: barcode.hsnCode,
+            name: barcode.name,
+          });
         }
         this.setDropdowns(true);
       } else {
-        toast.error(res.data.message)
+        toast.error(res.data.message);
       }
     });
   }
@@ -380,8 +444,6 @@ export default class Rebarcoding extends Component {
       this.getAllSubsections(this.state.section);
     }
   }
-
-
 
   addBarcode() {
     let domainInfo = this.state.domainDetails;
@@ -401,34 +463,48 @@ export default class Rebarcoding extends Component {
         name: this.state.name,
         hsnCode: this.state.hsnCode,
         batchNo: this.state.batchNo,
-        colour: this.state.colour
-
-      }
+        colour: this.state.colour,
+      };
     } else {
       saveJson = {
         division: parseInt(this.state.division),
         section: parseInt(this.state.section),
         subSection: parseInt(this.state.subSection),
         category: parseInt(this.state.category),
+        name: this.state.name,
         batchNo: this.state.batchNo,
         colour: this.state.colour,
-        productTextile: {
-          qty: this.state.qty,
-          costPrice: this.state.costPrice,
-          itemMrp: this.state.listPrice,
-          storeId: this.state.storeId,
-          empId: this.state.empId,
-          uom: this.state.uom,
-          hsnMasterId: parseInt(this.state.hsnCode)
-        }
-      }
+        // productTextile: {
+        //   qty: this.state.qty,
+        //   costPrice: this.state.costPrice,
+        //   itemMrp: this.state.listPrice,
+        //   storeId: this.state.storeId,
+        //   empId: this.state.empId,
+        //   uom: this.state.uom,
+        //   // hsnMasterId: parseInt(this.state.hsnCode),
+        //   hsnCode: parseInt(this.state.hsnCode),
+        // },
+        qty: this.state.qty,
+        costPrice: this.state.costPrice,
+        itemMrp: this.state.listPrice,
+        storeId: this.state.storeId,
+        empId: this.state.empId,
+        uom: this.state.uom,
+        domainDataId: parseInt(this.state.domainDetails.value),
+        // hsnMasterId: parseInt(this.state.hsnCode),
+        hsnCode: parseInt(this.state.hsnCode),
+      };
     }
 
-    InventoryService.addBarcode(saveJson, this.state.domainDetails, this.state.isEdit).then((res) => {
+    InventoryService.addBarcode(
+      saveJson,
+      this.state.domainDetails,
+      this.state.isEdit
+    ).then((res) => {
       if (res.data && res.data.isSuccess === "true") {
         toast.success(res.data.result);
         this.setState({ isAddBarcode: false });
-        this.props.history.push('/barcodeList');
+        this.props.history.push("/barcodeList");
         this.getAllBarcodes();
         this.stateReset();
       } else {
@@ -439,10 +515,28 @@ export default class Rebarcoding extends Component {
 
   stateReset() {
     this.setState({
-      status: "", stockValue: "", costPrice: "", productValidity: "",
-      storeId: "", empId: "", uom: "", domainId: "", name: "", listPrice: "",
-      division: "", section: "", subSection: "", category: "", batchNo: "", hsnCode: "",
-      colour: "", qty: null, retailFieldsErr: false, textileFieldsErr: false, commonFieldsErr: false, sortedStoreIds: []
+      status: "",
+      stockValue: "",
+      costPrice: "",
+      productValidity: "",
+      storeId: "",
+      empId: "",
+      uom: "",
+      domainId: "",
+      name: "",
+      listPrice: "",
+      division: "",
+      section: "",
+      subSection: "",
+      category: "",
+      batchNo: "",
+      hsnCode: "",
+      colour: "",
+      qty: null,
+      retailFieldsErr: false,
+      textileFieldsErr: false,
+      commonFieldsErr: false,
+      sortedStoreIds: [],
     });
   }
 
@@ -457,14 +551,13 @@ export default class Rebarcoding extends Component {
         <th className="col-1">VALUE</th>
         <th className="col-2">View / Delete</th> */}
       </tr>
-
-    )
+    );
   }
-
 
   barcodesListTable() {
     return this.state.barcodesList.map((items, index) => {
-      const { barcodeId, listPrice, storeId, storeName, stockValue, value } = items
+      const { barcodeId, listPrice, storeId, storeName, stockValue, value } =
+        items;
       return (
         <tr key={index}>
           {/* 
@@ -478,7 +571,7 @@ export default class Rebarcoding extends Component {
             <i className="icon-delete m-l-2 fs-16" onClick={() => this.deleteBarcode(barcodeId)}></i>
           </td> */}
         </tr>
-      )
+      );
     });
   }
 
@@ -489,31 +582,34 @@ export default class Rebarcoding extends Component {
         <th className="col-2">PARENT BARCODE ID</th>
         <th className="col-2">CHILD BARCODE ID</th>
         <th className="col-2">EMPLOYEE ID</th>
-        <th className="col-2">APPROVED BY</th>
+        {/* <th className="col-2">APPROVED BY</th> */}
         <th className="col-2">DATE</th>
         <th className="col-2 text-center">Actions</th>
       </tr>
-
-    )
+    );
   }
 
   barcodesListTableTextile() {
-    return this.state.barcodesList.map((items, index) => {
-      const { currentBarcodeId, toBeBarcodeId, createdBy, fromDate } = items
+    return this.state.barcodesList?.content?.map((items, index) => {
+      const { currentBarcodeId, toBeBarcodeId, createdBy, fromDate } = items;
       return (
         <tr key={index}>
-          <td className="col-2 underline">{toBeBarcodeId}</td>
-          <td className="col-2 underline">{currentBarcodeId}</td>
+          <td className="col-2 ">{toBeBarcodeId}</td>
+          <td className="col-2 ">{currentBarcodeId}</td>
           <td className="col-2">{createdBy}</td>
-          <td className="col-2">-</td>
+          {/* <td className="col-2">-</td> */}
           <td className="col-2">{fromDate}</td>
           <td className="col-2 text-center">
             <img src={print} className="w-12 pb-2 m-r-2" />
-            <img src={view} className="w-12 pb-2" onClick={() => this.openEditBarcode(currentBarcodeId)} />
+            <img
+              src={view}
+              className="w-12 pb-2"
+              onClick={() => this.openEditBarcode(currentBarcodeId)}
+            />
             {/* <i className="icon-edit m-l-2 fs-16" onClick={() => this.deleteBarcode(barcodeTextileId)}></i> */}
           </td>
         </tr>
-      )
+      );
     });
   }
 
@@ -522,12 +618,20 @@ export default class Rebarcoding extends Component {
     return (
       <div className="col-sm-4 col-12 mt-3">
         <div className="form-group">
-          <label>Status Type
-          <span className="text-red font-bold">*</span>
+          <label>
+            Status Type
+            <span className="text-red font-bold">*</span>
           </label>
-          <select className="form-control" placeholder="Select Store" value={this.state.status} disabled={true}>
-            <option value='' disabled>Select</option>
-            {this.state.statusTypeList.map(item => (
+          <select
+            className="form-control"
+            placeholder="Select Store"
+            value={this.state.status}
+            disabled={true}
+          >
+            <option value="" disabled>
+              Select
+            </option>
+            {this.state.statusTypeList.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.value}
               </option>
@@ -535,68 +639,88 @@ export default class Rebarcoding extends Component {
           </select>
         </div>
       </div>
-    )
+    );
   }
-
-
 
   stockDate() {
     return (
       <div className="col-sm-4 col-12 mt-3">
         <div className="form-group">
-          <label>Stock date
-          <span className="text-red font-bold">*</span>
+          <label>
+            Stock date
+            <span className="text-red font-bold">*</span>
           </label>
-          <input type="date" className="form-control" placeholder="" value={this.state.productValidity} disabled={true}
+          <input
+            type="date"
+            className="form-control"
+            placeholder=""
+            value={this.state.productValidity}
+            disabled={true}
           />
         </div>
       </div>
-    )
+    );
   }
-
 
   stockDiv() {
     return (
       <div className="col-sm-4 col-12 mt-3">
         <div className="form-group">
-          <label>QTY
-          <span className="text-red font-bold">*</span>
+          <label>
+            QTY
+            <span className="text-red font-bold">*</span>
           </label>
-          <input type="number" className="form-control" placeholder="" value={this.state.stockValue} disabled={true}
+          <input
+            type="number"
+            className="form-control"
+            placeholder=""
+            value={this.state.stockValue}
+            disabled={true}
           />
         </div>
       </div>
-    )
+    );
   }
 
   qtyDiv() {
     return (
       <div className="col-sm-4 col-12 mt-3">
         <div className="form-group">
-          <label>QTY
-          <span className="text-red font-bold">*</span>
+          <label>
+            QTY
+            <span className="text-red font-bold">*</span>
           </label>
-          <input type="number" className="form-control" placeholder="" value={this.state.qty} disabled={true}
+          <input
+            type="number"
+            className="form-control"
+            placeholder=""
+            value={this.state.qty}
+            disabled={true}
           />
         </div>
       </div>
-    )
+    );
   }
 
   nameDiv() {
     return (
       <div className="col-sm-4 col-12 mt-3">
         <div className="form-group">
-          <label>Name
-          <span className="text-red font-bold">*</span>
+          <label>
+            Name
+            <span className="text-red font-bold">*</span>
           </label>
-          <input type="text" className="form-control" placeholder="" value={this.state.name} disabled={true}
+          <input
+            type="text"
+            className="form-control"
+            placeholder=""
+            value={this.state.name}
+            disabled={true}
           />
         </div>
       </div>
-    )
+    );
   }
-
 
   categoriesDiv() {
     const { options, id, value } = this.state;
@@ -604,12 +728,20 @@ export default class Rebarcoding extends Component {
       <div className="row">
         <div className="col-sm-4 col-12">
           <div className="form-group">
-            <label>Division
-        <span className="text-red font-bold">*</span>
+            <label>
+              Division
+              <span className="text-red font-bold">*</span>
             </label>
-            <select className="form-control" placeholder="Select Division" value={this.state.division} disabled={true}>
-              <option value='' disabled>Select</option>
-              {this.state.divisionsList.map(item => (
+            <select
+              className="form-control"
+              placeholder="Select Division"
+              value={this.state.division}
+              disabled={true}
+            >
+              <option value="" disabled>
+                Select
+              </option>
+              {this.state.divisionsList.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.value}
                 </option>
@@ -619,15 +751,21 @@ export default class Rebarcoding extends Component {
         </div>
         <div className="col-sm-4 col-12">
           <div className="form-group">
-            <label>Section
-        <span className="text-red font-bold">*</span>
+            <label>
+              Section
+              <span className="text-red font-bold">*</span>
             </label>
-            <select className="form-control" placeholder="Select Section" value={this.state.section} disabled={true}>
-              <option value='' disabled>Select</option>
-              {this.state.sectionsList.map(item => (
-
+            <select
+              className="form-control"
+              placeholder="Select Section"
+              value={this.state.section}
+              disabled={true}
+            >
+              <option value="" disabled>
+                Select
+              </option>
+              {this.state.sectionsList.map((item) => (
                 <option key={item.id} value={item.id}>
-
                   {item.value}
                 </option>
               ))}
@@ -636,12 +774,20 @@ export default class Rebarcoding extends Component {
         </div>
         <div className="col-sm-4 col-12">
           <div className="form-group">
-            <label>Sub Section
-        <span className="text-red font-bold">*</span>
+            <label>
+              Sub Section
+              <span className="text-red font-bold">*</span>
             </label>
-            <select className="form-control" placeholder="Select Sub Section" value={this.state.subSection} disabled={true}>
-              <option value='' disabled>Select</option>
-              {this.state.subSectionsList.map(item => (
+            <select
+              className="form-control"
+              placeholder="Select Sub Section"
+              value={this.state.subSection}
+              disabled={true}
+            >
+              <option value="" disabled>
+                Select
+              </option>
+              {this.state.subSectionsList.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.value}
                 </option>
@@ -652,12 +798,20 @@ export default class Rebarcoding extends Component {
 
         <div className="col-sm-4 col-12 mt-3">
           <div className="form-group">
-            <label>Category
-        <span className="text-red font-bold">*</span>
+            <label>
+              Category
+              <span className="text-red font-bold">*</span>
             </label>
-            <select className="form-control" placeholder="Select Category" value={this.state.category} disabled={true}>
-              <option value='' disabled>Select</option>
-              {this.state.categoriesList.map(item => (
+            <select
+              className="form-control"
+              placeholder="Select Category"
+              value={this.state.category}
+              disabled={true}
+            >
+              <option value="" disabled>
+                Select
+              </option>
+              {this.state.categoriesList.map((item) => (
                 <option key={item.id} value={item.id}>
                   {item.value}
                 </option>
@@ -665,8 +819,24 @@ export default class Rebarcoding extends Component {
             </select>
           </div>
         </div>
+
+        <div className="col-sm-4 col-12 mt-3">
+          <div className="form-group">
+            <label>
+              Name
+              <span className="text-red font-bold">*</span>
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder=""
+              value={this.state.name}
+              disabled={true}
+            />
+          </div>
+        </div>
       </div>
-    )
+    );
   }
 
   render() {
@@ -674,7 +844,9 @@ export default class Rebarcoding extends Component {
     return (
       <div className="">
         <Modal isOpen={this.state.isAddBarcode} size="lg">
-          <ModalHeader><h5>Re-Barcode</h5></ModalHeader>
+          <ModalHeader>
+            <h5>Re-Barcode</h5>
+          </ModalHeader>
           <ModalBody>
             <div className="p-3">
               <div className="col-12 scaling-center scaling-mb">
@@ -693,15 +865,27 @@ export default class Rebarcoding extends Component {
                 </div>
               </div> */}
 
-              {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? null : this.categoriesDiv()}
-              {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.nameDiv() : null}
+              {this.state.domainDetails &&
+              this.state.domainDetails.label === "Retail"
+                ? null
+                : this.categoriesDiv()}
+              {this.state.domainDetails &&
+              this.state.domainDetails.label === "Retail"
+                ? this.nameDiv()
+                : null}
               <div class="row">
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
-                    <label>Colour
-                  <span className="text-red font-bold">*</span>
+                    <label>
+                      Colour
+                      <span className="text-red font-bold">*</span>
                     </label>
-                    <input type="text" className="form-control" placeholder="" value={this.state.colour} disabled={true}
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder=""
+                      value={this.state.colour}
+                      disabled={true}
                     />
                   </div>
                 </div>
@@ -716,40 +900,65 @@ export default class Rebarcoding extends Component {
 
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
-                    <label>Batch No
-                  <span className="text-red font-bold">*</span>
+                    <label>
+                      Batch No
+                      <span className="text-red font-bold">*</span>
                     </label>
-                    <input type="text" className="form-control" placeholder="" value={this.state.batchNo} disabled={true}
-                    />
-
-                  </div>
-                </div>
-                <div className="col-sm-4 col-12 mt-3">
-                  <div className="form-group">
-                    <label>Cost Price
-                  <span className="text-red font-bold">*</span>
-                    </label>
-                    <input type="number" className="form-control" placeholder="₹ 00" value={this.state.costPrice} disabled={true}
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder=""
+                      value={this.state.batchNo}
+                      disabled={true}
                     />
                   </div>
                 </div>
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
-                    <label>List Price
-                  <span className="text-red font-bold">*</span>
+                    <label>
+                      Cost Price
+                      <span className="text-red font-bold">*</span>
                     </label>
-                    <input type="number" className="form-control" placeholder="₹ 00" value={this.state.listPrice} disabled={true}
+                    <input
+                      type="number"
+                      className="form-control"
+                      placeholder="₹ 00"
+                      value={this.state.costPrice}
+                      disabled={true}
                     />
                   </div>
                 </div>
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
-                    <label>UOM
-                  <span className="text-red font-bold">*</span>
+                    <label>
+                      List Price
+                      <span className="text-red font-bold">*</span>
                     </label>
-                    <select className="form-control" placeholder="Select Store" value={this.state.uom} disabled={true}>
-                      <option value='' disabled>Select</option>
-                      {this.state.uomsList.map(item => (
+                    <input
+                      type="number"
+                      className="form-control"
+                      placeholder="₹ 00"
+                      value={this.state.listPrice}
+                      disabled={true}
+                    />
+                  </div>
+                </div>
+                <div className="col-sm-4 col-12 mt-3">
+                  <div className="form-group">
+                    <label>
+                      UOM
+                      <span className="text-red font-bold">*</span>
+                    </label>
+                    <select
+                      className="form-control"
+                      placeholder="Select Store"
+                      value={this.state.uom}
+                      disabled={true}
+                    >
+                      <option value="" disabled>
+                        Select
+                      </option>
+                      {this.state.uomsList.map((item) => (
                         <option key={item.value} value={item.value}>
                           {item.value}
                         </option>
@@ -767,13 +976,21 @@ export default class Rebarcoding extends Component {
                 </div>
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
-                    <label>HSN Code
-                  <span className="text-red font-bold">*</span>
+                    <label>
+                      HSN Code
+                      <span className="text-red font-bold">*</span>
                     </label>
-                    <select className="form-control" placeholder="Select Store" value={this.state.hsnCode} disabled={true}>
-                      <option value='' disabled>Select</option>
-                      {this.state.hsnList.map(item => (
-                        <option key={item.id} value={item.id}>
+                    <select
+                      className="form-control"
+                      placeholder="Select Store"
+                      value={this.state.hsnCode}
+                      disabled={true}
+                    >
+                      <option value="" disabled>
+                        Select
+                      </option>
+                      {this.state.hsnList.map((item) => (
+                        <option key={item.id} value={item.value}>
                           {item.value}
                         </option>
                       ))}
@@ -783,21 +1000,35 @@ export default class Rebarcoding extends Component {
 
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
-                    <label>EMP ID
-                  <span className="text-red font-bold">*</span>
+                    <label>
+                      EMP ID
+                      <span className="text-red font-bold">*</span>
                     </label>
-                    <input type="text" className="form-control" placeholder="" value={this.state.empId} disabled={true}
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder=""
+                      value={this.state.empId}
+                      disabled={true}
                     />
                   </div>
                 </div>
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
-                    <label>Store
-                  <span className="text-red font-bold">*</span>
+                    <label>
+                      Store
+                      <span className="text-red font-bold">*</span>
                     </label>
-                    <select className="form-control" placeholder="Select Store" value={this.state.storeId} disabled={true}>
-                      <option value='' disabled>Select</option>
-                      {this.state.storesList.map(item => (
+                    <select
+                      className="form-control"
+                      placeholder="Select Store"
+                      value={this.state.storeId}
+                      disabled={true}
+                    >
+                      <option value="" disabled>
+                        Select
+                      </option>
+                      {this.state.storesList.map((item) => (
                         <option key={item.id} value={item.id}>
                           {item.value}
                         </option>
@@ -805,9 +1036,18 @@ export default class Rebarcoding extends Component {
                     </select>
                   </div>
                 </div>
-                {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.stockDiv() : this.qtyDiv()}
-                {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.statusDiv() : null}
-                {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? this.stockDate() : null}
+                {this.state.domainDetails &&
+                this.state.domainDetails.label === "Retail"
+                  ? this.stockDiv()
+                  : this.qtyDiv()}
+                {this.state.domainDetails &&
+                this.state.domainDetails.label === "Retail"
+                  ? this.statusDiv()
+                  : null}
+                {this.state.domainDetails &&
+                this.state.domainDetails.label === "Retail"
+                  ? this.stockDate()
+                  : null}
               </div>
             </div>
           </ModalBody>
@@ -829,28 +1069,53 @@ export default class Rebarcoding extends Component {
             <div className="col-sm-3 col-12">
               <div className="form-group mt-2">
                 <label>From Date</label>
-                <input type="date" className="form-control"
-                  placeholder="FROM DATE" value={this.state.fromDate}
-                  onChange={(e) =>
-                    this.setState({ fromDate: e.target.value })} />
+                <input
+                  type="date"
+                  className="form-control"
+                  placeholder="FROM DATE"
+                  value={this.state.fromDate}
+                  onChange={(e) => this.setState({ fromDate: e.target.value })}
+                />
               </div>
             </div>
             <div className="col-sm-3 col-12">
               <div className="form-group mt-2">
-              <label>To Date</label>
-                <input type="date" className="form-control"
-                  placeholder="TO DATE" value={this.state.toDate}
-                  onChange={(e) =>
-                    this.setState({ toDate: e.target.value })} />
+                <label>To Date</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  placeholder="TO DATE"
+                  value={this.state.toDate}
+                  // onChange={(e) => this.setState({ toDate: e.target.value })}
+                  onChange={(e) => {
+                    var startDate = new Date(this.state.fromDate);
+                    var endDate = new Date(e.target.value);
+                    console.log(">>>", startDate, endDate);
+                    if (startDate <= endDate) {
+                      this.setState({ toDate: e.target.value });
+                      // console.log(">>>right");
+                      // alert("right");
+                    } else {
+                      toast.error("To date should be greater than From date ");
+                      // alert("To date should be greater than From date ");
+                      // console.log(">>>>wrong");
+                    }
+                  }}
+                />
               </div>
             </div>
             <div className="col-sm-3 col-12">
               <div className="form-group mt-2">
-              <label>Re-Barcode ID</label>
-                <input type="text" className="form-control frm-pr"
-                  placeholder="RE-BARCODE ID" value={this.state.barcodeSearchId}
+                <label>Re-Barcode ID</label>
+                <input
+                  type="text"
+                  className="form-control frm-pr"
+                  placeholder="RE-BARCODE ID"
+                  value={this.state.barcodeSearchId}
                   onChange={(e) =>
-                    this.setState({ barcodeSearchId: e.target.value })} />
+                    this.setState({ barcodeSearchId: e.target.value })
+                  }
+                />
 
                 {/* <button type="button" className="scan">
                 <img src={scan} /> 
@@ -859,7 +1124,15 @@ export default class Rebarcoding extends Component {
               </div>
             </div>
             <div className="col-3 col-sm-3 col-12 mt-3 pt-2 scaling-center scaling-mb scaling-mtop">
-              <button className="btn-unic-search active m-r-2 mt-2" onClick={this.getAllBarcodes}>SEARCH</button>
+              <button
+                className="btn-unic-search active m-r-2 mt-2"
+                onClick={() => {
+                  this.getAllBarcodes(0);
+                  this.setState({ pageNumber: 0 });
+                }}
+              >
+                SEARCH
+              </button>
             </div>
           </div>
           <div className="row m-0 p-0 scaling-center">
@@ -867,18 +1140,31 @@ export default class Rebarcoding extends Component {
             <div className="table-responsive p-0">
               <table className="table table-borderless mb-1">
                 <thead>
-                  {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? null : this.barcodesTextileHeader()}
+                  {this.state.domainDetails &&
+                  this.state.domainDetails.label === "Retail"
+                    ? null
+                    : this.barcodesTextileHeader()}
                 </thead>
                 <tbody>
                   {/* <tr> */}
-                  {(this.state.domainDetails && this.state.domainDetails.label === "Retail") ? null : this.barcodesListTableTextile()}
+                  {this.state.domainDetails &&
+                  this.state.domainDetails.label === "Retail"
+                    ? null
+                    : this.barcodesListTableTextile()}
                   {/* </tr> */}
                 </tbody>
+
+                <ReactPageNation
+                  {...this.state.barcodesList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                  }}
+                />
               </table>
             </div>
           </div>
         </div>
       </div>
-    )
+    );
   }
 }

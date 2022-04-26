@@ -4,6 +4,7 @@ import edit from "../../assets/images/edit.svg";
 import view from "../../assets/images/view.svg";
 import ListOfBarcodesService from "../../services/Reports/ListOfBarcodesService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import ReactPageNation from "../../commonUtils/Pagination";
 
 export default class ListOfReturnSlips extends Component {
   constructor(props) {
@@ -27,33 +28,34 @@ export default class ListOfReturnSlips extends Component {
       itemId: "",
       itemName: "",
       domainId1: "",
-
-      selectOption: [
-        {
-          value: "select",
-          label: "select",
-          id: "select",
-        },
-        {
-          value: "hyderabad",
-          label: "hyderabad",
-          id: "hyderabad",
-        },
-        {
-          value: "guntur",
-          label: "guntur",
-          id: "guntur",
-        },
-      ],
+      pageList: [],
+      // selectOption: [
+      //   {
+      //     value: "select",
+      //     label: "select",
+      //     id: "select",
+      //   },
+      //   {
+      //     value: "hyderabad",
+      //     label: "hyderabad",
+      //     id: "hyderabad",
+      //   },
+      //   {
+      //     value: "guntur",
+      //     label: "guntur",
+      //     id: "guntur",
+      //   },
+      // ],
       bcList: [],
     };
     this.getBarcodes = this.getBarcodes.bind(this);
+    this.changePage = this.changePage.bind(this);
     this.getStoreNames = this.getStoreNames.bind(this);
     this.viewReport = this.viewReport.bind(this);
     this.closeViewReport = this.closeViewReport.bind(this);
   }
 
-  getBarcodes() {
+  getBarcodes(pageNumber) {
     const obj = {
       fromDate: this.state.fromDate ? this.state.fromDate : undefined,
       toDate: this.state.toDate ? this.state.toDate : undefined,
@@ -78,11 +80,13 @@ export default class ListOfReturnSlips extends Component {
         : undefined,
     };
 
-    ListOfBarcodesService.getBarcodes(obj).then((res) => {
-      console.log(res.data.result);
+    ListOfBarcodesService.getBarcodes(obj, pageNumber).then((res) => {
+      // console.log(res.data.result.content);
+      console.log("............", pageNumber);
       console.log("storeList", this.state.storeList);
 
       let data = res.data.result;
+
       let obj = {
         barcode: "",
         storeId: "",
@@ -93,9 +97,10 @@ export default class ListOfReturnSlips extends Component {
       };
 
       let a = [];
-      data.map((d) => {
+      data?.content?.map((d) => {
         const storeName = this.state.storeList.filter((item) => {
           console.log("storeid", d.storeId);
+
           return d.storeId == item.id;
         });
         obj = {
@@ -111,12 +116,17 @@ export default class ListOfReturnSlips extends Component {
 
       console.log("bcList", a);
       this.setState({
+        pageList: data,
         // barcodeData: a,
         bcList: a,
         bcDetailsList: a,
       });
     });
   }
+
+  // changePage(pageNumber) {
+  //   this.getBarcodes(pageNumber);
+  // }
 
   viewReport(barcode) {
     let filterData = this.state.bcList.filter((x) => x.barcode == barcode);
@@ -228,6 +238,10 @@ export default class ListOfReturnSlips extends Component {
     }
   };
 
+  changePage(pageNumber) {
+    this.getBarcodes(pageNumber);
+  }
+
   renderTableData() {
     return this.state.bcList.map((items, index) => {
       const { barcode, storeName, empId, qty, itemMrp } = items;
@@ -255,14 +269,14 @@ export default class ListOfReturnSlips extends Component {
     });
   }
 
-  handleSelect(e) {
-    let obj = this.state.selectOption.find((o) => o.label === e.target.value);
-    this.setState({
-      itemId: obj.id,
-      itemName: e.target.value,
-      store: e.target.value,
-    });
-  }
+  // handleSelect(e) {
+  //   let obj = this.state.selectOption.find((o) => o.label === e.target.value);
+  //   this.setState({
+  //     itemId: obj.id,
+  //     itemName: e.target.value,
+  //     store: e.target.value,
+  //   });
+  // }
 
   renderPopupTableData() {
     if (this.state.popupData) {
@@ -444,7 +458,9 @@ export default class ListOfReturnSlips extends Component {
             <div className="form-group">
               <button
                 className="btn-unic-search active"
-                onClick={this.getBarcodes}
+                onClick={() => {
+                  this.getBarcodes(0);
+                }}
               >
                 SEARCH{" "}
               </button>
@@ -483,6 +499,13 @@ export default class ListOfReturnSlips extends Component {
               </tr>
              </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
+              {console.log(">>>.bclist", this.state.pageList)}
+              <ReactPageNation
+                {...this.state.pageList}
+                changePage={(pageNumber) => {
+                  this.changePage(pageNumber);
+                }}
+              />
             </table>
           </div>
         </div>

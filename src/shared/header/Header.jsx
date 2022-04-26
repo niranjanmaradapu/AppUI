@@ -364,15 +364,16 @@ class Header extends Component {
 
 
   componentWillMount() {
-
     const selectedDomain = sessionStorage.getItem("selectedDomain");
-    
-
-
+    const selectedStore = JSON.parse(sessionStorage.getItem("selectedstoreData"));
     const domainName = sessionStorage.getItem("domainName");
     const user = JSON.parse(sessionStorage.getItem("user"));
     this.state.user = user["cognito:username"];
-    if(domainName === "config_user") {
+    this.state.roleName = user["custom:roleName"];
+    this.state.storeName = selectedStore ? selectedStore.storeName : "";
+
+    console.log(this.state.roleName);
+        if(domainName === "config_user") {
       let header;
        this.state.headertype = "Accounting Portal";
       
@@ -397,6 +398,7 @@ class Header extends Component {
                 { childName: "Users", childImage: "deliveryslip", childPath: "/users" },
                 { childName: "Roles", childImage: "sale", childPath: "/roles" },
                 { childName: "Back Office", childImage: "sale", childPath: "/backOffice" },
+                { childName: "Payment", childImage: "sale", childPath: "/payment" },
               ],
             },
             {
@@ -729,7 +731,14 @@ class Header extends Component {
                         </div>
                     </div> */}
           <div className="row">
-            <div className="col-sm-5"></div>
+            <div className="col-sm-7">
+              <div className='head-text'>
+                  Role : <span> {this.state.roleName}</span>
+              </div>
+              <div className='head-text'>
+              Store : <span> {this.state?.storeName}</span>
+              </div>
+            </div>
             {/* <div className="col-5 search_bar">
               <form className="form-inline my-2 my-lg-0 ml-2">
                 <input className="form-control" type="search" placeholder="Search by bill no, barcode etc..."
@@ -737,7 +746,9 @@ class Header extends Component {
                 <button className="search_head my-2 my-sm-0" type="submit"></button>
               </form>
             </div> */}
-            <div className="col-sm-7 col-xs-12 text-right">
+            <div className="col-sm-5 col-xs-12 text-right">
+           
+              
               <div className="header-right float-right">
                 <ul className="navbar-nav">
                   {/* <li className="nav-item upper-case">{this.props.user.name}</li> */}

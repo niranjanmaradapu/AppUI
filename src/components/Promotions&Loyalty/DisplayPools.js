@@ -7,7 +7,7 @@ function DisplayPools({
     handleRemovePool
 }) {
     return (
-        <div className="table-responsive">
+        <div className="table-responsive m-0 p-0">
           <table className="table table-borderless mb-1 mt-2">
             <thead>
               <tr className="m-0 p-0">

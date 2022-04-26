@@ -43,6 +43,7 @@ export default class Roles extends Component {
         this.searchRoles = this.searchRoles.bind(this);
         this.handleValidation = this.handleValidation.bind(this);
         this.getAllRoles = this.getAllRoles.bind(this);
+        this.savePrivilege = this.savePrivilege.bind(this);
     }
 
 
@@ -98,12 +99,13 @@ export default class Roles extends Component {
         }
 
     }
-
-
+   
 
     handleValidation() {
         let errors = {};
         let formIsValid = true;
+    
+        
 
         //Name
         if (!this.state.roleName) {
@@ -131,6 +133,7 @@ export default class Roles extends Component {
         return formIsValid;
 
     }
+
 
 
     showRoles() {
@@ -165,6 +168,10 @@ export default class Roles extends Component {
     addRoles() {
         // const roleId = 
         const formValid = this.handleValidation();
+        // const valid =this.validate();
+       const valid =  this.state.roleName.length < 5 ? false : true;
+    if(valid){
+
         if (formValid) {
             if (this.state.isEdit) {
                 const saveObj = {
@@ -202,11 +209,17 @@ export default class Roles extends Component {
                     }
                 });
             }
-        } else {
+        }
+      else {
             toast.info("Please Enter all mandatory fields");
         }
-
     }
+    else {
+        toast.info("Please Enter atlest 5 characters in role field");
+    }
+   
+}
+   
 
     getPrivilegesByDomainId() {
         let selectedDomainId = 0;
@@ -245,8 +258,14 @@ export default class Roles extends Component {
     }
 
     hide() {
-        this.setState({ showRole: false });
+        this.setState({ showRole: false, childList: [] });
     }
+
+    savePrivilege() {
+        this.setState({ showRole: false});
+    }
+
+   
 
     setPrivileges(e, value, selectedNode, selectedChild) {
         selectedChild.checked = e.target.checked;
@@ -261,28 +280,28 @@ export default class Roles extends Component {
 
 
         } else {
-            
-                // Removing childs
-                let index1 = this.state.childList.findIndex(ele => ele.name === selectedChild.name);
-                this.state.childList.splice(index1, 1);
 
-                let isParent = false;
-                if(this.state.parentsList.length > 0 && this.state.childList.length > 0) {
-                    this.state.childList.forEach(child =>{
-                        if(child.parentPrivillageId === selectedNode.id) {
-                            isParent = true;
-                        }
-                    });
-                }
+            // Removing childs
+            let index1 = this.state.childList.findIndex(ele => ele.name === selectedChild.name);
+            this.state.childList.splice(index1, 1);
 
-                if(!isParent) {
-                    let index = this.state.parentsList.findIndex(ele => ele.name === selectedNode.name);
-                    this.state.parentsList.splice(index, 1);
-                }
+            let isParent = false;
+            if (this.state.parentsList.length > 0 && this.state.childList.length > 0) {
+                this.state.childList.forEach(child => {
+                    if (child.parentPrivillageId === selectedNode.id) {
+                        isParent = true;
+                    }
+                });
+            }
 
-               
+            if (!isParent) {
+                let index = this.state.parentsList.findIndex(ele => ele.name === selectedNode.name);
+                this.state.parentsList.splice(index, 1);
+            }
 
-            
+
+
+
 
 
         }
@@ -292,11 +311,9 @@ export default class Roles extends Component {
         this.setState({ childList: this.state.childList });
         this.setState({ PrivilegesList: this.state.PrivilegesList });
 
-       // console.log("privilegesList",this.state.productsList, "parentsList", parentsList, "childsList", this.state.childList );
     }
-
-    getSelectedPrivileges(parentsList, childList) {
-      //  console.log("parentsEdit", parentsList);
+getSelectedPrivileges(parentsList, childList) {
+        //  console.log("parentsEdit", parentsList);
         if (parentsList && parentsList.length > 0) {
             this.state.productsList.forEach((product, index) => {
                 if (product.subPrivillages && product.subPrivillages.length > 0) {
@@ -505,7 +522,7 @@ export default class Roles extends Component {
                     </ModalBody>
                     <ModalFooter>
                         <button className="pt-2 btn-bdr" onClick={this.hide}>Cancel</button>
-                        <button className="btn btn-bdr active fs-12" onClick={this.hide}>Save</button>
+                        <button className="btn btn-bdr active fs-12" onClick={this.savePrivilege}>Save</button>
                     </ModalFooter>
                 </Modal>
 
@@ -535,9 +552,7 @@ export default class Roles extends Component {
                                         <input type="text" className="form-control" placeholder="" value={this.state.roleName}
                                             onChange={(e) => this.setState({ roleName: e.target.value })}
                                             autoComplete="off" />
-                                        {/* <div>
-                                                         <span style={{ color: "red" }}>{this.state.errors["roleName"]}</span>
-                                                        </div> */}
+
                                     </div>
                                 </div>
                                 <div className="col-sm-4 col-12">
@@ -547,9 +562,7 @@ export default class Roles extends Component {
                                         <input type="text" className="form-control" placeholder="" value={this.state.descriptionName}
                                             onChange={(e) => this.setState({ descriptionName: e.target.value })}
                                             autoComplete="off" />
-                                        {/* <div>
-                                                         <span style={{ color: "red" }}>{this.state.errors["descriptionName"]}</span>
-                                                        </div> */}
+
                                     </div>
                                 </div>
 
@@ -601,21 +614,21 @@ export default class Roles extends Component {
                 <div className="row">
                     <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
-                        <label>Role</label>
+                            <label>Role</label>
                             <input type="text" className="form-control" placeholder="Role" value={this.state.searchRole}
                                 onChange={(e) => this.setState({ searchRole: e.target.value })} />
                         </div>
                     </div>
                     <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
-                        <label>Created By</label>
+                            <label>Created By</label>
                             <input type="text" className="form-control" placeholder="Created By" value={this.state.searchCreatedby}
                                 onChange={(e) => this.setState({ searchCreatedby: e.target.value })} />
                         </div>
                     </div>
                     <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
-                        <label>Created Date</label>
+                            <label>Created Date</label>
                             <input type="date" className="form-control" placeholder="Created Date" value={this.state.searchCreatedDate}
                                 onChange={(e) => this.setState({ searchCreatedDate: e.target.value })} />
                         </div>

@@ -75,36 +75,57 @@ class InventoryService {
             const param1 = '?barcodeId=' + barcodeId;
             return axios.delete(BASE_URL + INVENTORY_URLS.deleteRetailBarcode + param1);
         } else {
-            const param2 = '?barcodeTextileId=' + barcodeId;
+            const param2 = '?barcode=' + barcodeId;
             return axios.delete(BASE_URL + INVENTORY_URLS.deleteTextileBarcode + param2);
         }
     }
 
 
-    getAllBarcodes(list,domain){
+    getAllBarcodes(list,domain,pageNumber=0){
+        const param2 ='?page='+ pageNumber;
         if (domain && domain.label === "Retail") {
         return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesList,list);
         }else{
-            return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesListTextile,list);
+            
+            return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesListTextile + param2 +'&size=10',list);
+            // return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesListTextile,list);
         }
     }
 
-    getReBarcodeDetails(list,domain){
+    getReBarcodeDetails(list,domain,pageNumber=0){
+        const param2 ='?page='+ pageNumber;
         if (domain && domain.label === "Retail") {
         return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesList,list);
         }else{
-            return axios.post(BASE_URL+INVENTORY_URLS.getReBarcodeTextileBarcodeDetails,list);
+            return axios.post(BASE_URL+INVENTORY_URLS.getReBarcodeTextileBarcodeDetails+ param2+'&size=10',list);
         }
     }
 
-    saveBulkData(inventoryjson, domain, storeId) {
+    saveBulkData(uploadFile) {
+          let token = JSON.parse(sessionStorage.getItem('token'));
+        let formData = new FormData();
+            formData.append('file', uploadFile)
 
-        const param = '?storeId='+ storeId;
-        if (domain && domain.label === "Retail") {
-            return axios.post(BASE_URL+INVENTORY_URLS.savebulkRetail + param,inventoryjson);
-            }else{
-                return axios.post(BASE_URL+INVENTORY_URLS.savebulkTextile + param,inventoryjson);
-            }
+        // const param = '?storeId='+ storeId;
+        // if (domain && domain.label === "Retail") {
+        //     return axios.post(BASE_URL+INVENTORY_URLS.savebulkRetail + param,inventoryjson);
+        //     }else{
+        //         return axios.post(BASE_URL+INVENTORY_URLS.addBulkTextile + param,inventoryjson);
+
+        //     }
+        let commonUrl = "http://10.80.1.39:9092/inventoryTextile/add-bulk-products"
+        const uninterceptedAxiosInstance = axios.create();
+   return uninterceptedAxiosInstance.post(commonUrl,formData,
+                {
+                    headers: {
+                        "Content-type": "multipart/form-data",
+                        "type":"File",
+                         "Authorization":'Bearer' + ' ' + token,
+                        "storeId": 1
+                    },                    
+                })
+       
+
     }
 
     // saveCustomer(list) {

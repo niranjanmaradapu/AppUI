@@ -15,7 +15,7 @@ export default class ListOfDeliverySlips extends Component {
       itemId: "",
       itemName: "",
       storeList: [],
-      domaindataId:"",
+      domaindataId: "",
 
       // selectOption: [
       //   {
@@ -46,65 +46,29 @@ export default class ListOfDeliverySlips extends Component {
   }
 
   getDeliverySlips() {
-    // const obj = {
-    //   dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
-    //   dateTo: this.state.dateTo ? this.state.dateTo : undefined,
-    //   store: {
-    //     id:
-    //       parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
-    //         ? this.state.storeId
-    //         : undefined,
-    //     name: this.state.storeName,
-    //   },
-    // };
+    const obj = {
+      dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
+      dateTo: this.state.dateTo ? this.state.dateTo : undefined,
 
-    let obj = {};
-
-    if (
-      this.state.dateFrom &&
-      this.state.dateTo &&
-      this.state.storeId &&
-      this.state.storeName
-    ) {
-
-      obj = {
-        dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
-        dateTo: this.state.dateTo ? this.state.dateTo : undefined,
-        storeId:  parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
-        ? parseInt(this.state.storeId)
+      storeId:
+        parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
+          ? parseInt(this.state.storeId)
+          : undefined,
+      domainId: this.state.domaindataId
+        ? parseInt(this.state.domaindataId)
         : undefined,
-        domainId: this.state.domaindataId ? parseInt(this.state.domaindataId) : undefined,
-        store: {
-          id:
-            parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
-              ? this.state.storeId
-              : undefined,
-          name: this.state.storeName,
-        },
-      };
-    } else if (this.state.storeId && this.state.storeName) {
-      obj = {
-        store: {
-          id:
-            parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
-              ? this.state.storeId
-              : undefined,
-          name: this.state.storeName,
-        },
-      };
-    } else if (this.state.dateFrom && this.state.dateTo) {
-      obj = {
-        dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
-        dateTo: this.state.dateTo ? this.state.dateTo : undefined,
-        storeId:  parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
-        ? parseInt(this.state.storeId)
-        : undefined,
-        domainId: this.state.domaindataId ? parseInt(this.state.domaindataId) : undefined,
-      };
-    }
+
+      store: {
+        id:
+          parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
+            ? this.state.storeId
+            : undefined,
+        name: this.state.storeName,
+      },
+    };
 
     console.log(">>>>>Parms", obj);
-    ListOfDeliverySlipsService.getDeliverySlips(obj, parseInt(this.state.storeId))
+    ListOfDeliverySlipsService.getDeliverySlips(obj)
       .then((res) => {
         // console.log("......", res);
         console.log(res.data.result);
@@ -149,13 +113,13 @@ export default class ListOfDeliverySlips extends Component {
   componentWillMount() {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const storeId = sessionStorage.getItem("storeId");
-    this.setState({storeId: storeId});
+    this.setState({ storeId: storeId });
     console.log("user", user);
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if(domainData.label == "Textile") {
-      this.setState({domaindataId: 1}); 
-    } else if(domainData.label == "Retail") {
-      this.setState({domaindataId: 2}); 
+    if (domainData.label == "Textile") {
+      this.setState({ domaindataId: 1 });
+    } else if (domainData.label == "Retail") {
+      this.setState({ domaindataId: 2 });
     }
     if (user["custom:isSuperAdmin"] === "true") {
       this.state.domainDetails = JSON.parse(
@@ -241,7 +205,7 @@ export default class ListOfDeliverySlips extends Component {
       <div className="maincontent">
         <div className="row">
           <div className="col-12 col-sm-3 mt-2">
-          <label>From Date</label>
+            <label>From Date</label>
             <div className="form-group">
               <input
                 type="date"
@@ -254,7 +218,7 @@ export default class ListOfDeliverySlips extends Component {
           </div>
           <div className="col-12 col-sm-3 mt-2">
             <div className="form-group">
-            <label>To Date</label>
+              <label>To Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -265,9 +229,9 @@ export default class ListOfDeliverySlips extends Component {
             </div>
           </div>
 
-          <div className="col-12 col-sm-3 mt-2">
+          {/* <div className="col-12 col-sm-3 mt-2">
             <div className="form-group">
-            <label>Store</label>
+              <label>Store</label>
               <select
                 className="form-control"
                 value={this.state.storeId}
@@ -291,8 +255,8 @@ export default class ListOfDeliverySlips extends Component {
                   );
                 })}
               </select>
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
 
           <div className="col-12 col-sm-3 scaling-center scaling-mb mt-2 pt-4">
             <div className="form-group">

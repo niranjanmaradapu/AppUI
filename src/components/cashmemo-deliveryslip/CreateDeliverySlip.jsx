@@ -68,6 +68,7 @@ class CeateDeliverySlip extends Component {
     this.generateEstimationSlip = this.generateEstimationSlip.bind(this);
     this.hideModal = this.hideModal.bind(this);
     this.generateNew = this.generateNew.bind(this);
+    this.getLineItems = this.getLineItems.bind(this);
     //  this.deleteTableRow = this.deleteTableRow.bind(this);
 
 
@@ -341,7 +342,7 @@ class CeateDeliverySlip extends Component {
           <div className="col-12 col-sm-6 pt-1 p-r-0 pb-3 text-right scaling-center">
             {/* <button className="btn-unic m-r-2 scaling-mb">Clear Promotion</button> */}
             {/* <button className="btn-unic m-r-2 scaling-mb">Hold Estimation Slip</button> */}
-            <button className="btn-unic m-r-2 scaling-mb active" onClick={this.generateEstimationSlip}>Generate Estimation Slip</button>
+            <button className="btn-unic m-r-2 scaling-mb active" onClick={this.getLineItems}>Generate Estimation Slip</button>
           </div>
 
           <div className="p-0 pb-3 pt-2">
@@ -584,7 +585,9 @@ class CeateDeliverySlip extends Component {
 
 
 
-        this.setState({ lineItemsList: lineItemsList });
+        this.setState({ lineItemsList: lineItemsList }, () => {
+          this.generateNew()
+        });
       }
     });
   }
@@ -606,6 +609,7 @@ class CeateDeliverySlip extends Component {
           smNumber: "",
           barList: [],
           itemsList: [],
+          isCheckPromo: false,
           showTable: false
 
         });
@@ -687,6 +691,7 @@ class CeateDeliverySlip extends Component {
         <div className="">
           <div className="row">
             <div className="col-6 col-sm-3 sele">
+            <label>Select Type</label>
               <div className="form-group">
 
 
@@ -696,10 +701,15 @@ class CeateDeliverySlip extends Component {
                   value={this.state.selectedType} // set selected value
                   options={this.state.typesList} // set list of the data
                   onChange={this.handleChange} // assign onChange function
+                  isDisabled={true}
+                  
+
                 />
+                {this.props.disabled}
               </div>
             </div>
             <div className="col-6 col-sm-3">
+            <label>Barcode</label>
               <div className="form-group">
                 {/* <input type="text" className="form-control" name="barCode" value={this.state.barCode} onKeyPress={this.getDeliverySlips}
                                  placeholder="Barcode [Crtl + 1]"/> */}
@@ -721,6 +731,7 @@ class CeateDeliverySlip extends Component {
               </div>
             </div>
             <div className="col-sm-3 col-6 scaling-mtop">
+            <label>SM Number</label>
               <div className="form-group">
                 <input
                   type="text"
@@ -732,7 +743,7 @@ class CeateDeliverySlip extends Component {
                 />
               </div>
             </div>
-            <div className="col-sm-3 col-6 scaling-mtop">
+            {/* <div className="col-sm-3 col-6 scaling-mtop">
               <div className="form-group">
                 <input
                   type="number"
@@ -743,14 +754,14 @@ class CeateDeliverySlip extends Component {
                   placeholder="Qty"
                 />
               </div>
-            </div>
-            <div className="col-sm-3 scaling-ptop col-6">
+            </div> */}
+            <div className="col-sm-3 scaling-ptop col-6 mt-4">
               <div className="form-group">
 
                 {/* onClick={this.checkPromo} */}
                 <button
                   className={
-                    "btn-login btn-create mt-3" +
+                    "btn-login btn-create" +
                     (!this.state.isCheckPromo ? " btn-disable" : "")
                   }
                   onClick={this.checkPromo}
@@ -759,7 +770,7 @@ class CeateDeliverySlip extends Component {
                 </button>
               </div>
             </div>
-            <div className="col-sm-3 scaling-ptop col-6 mt-3">
+            <div className="col-sm-3 scaling-ptop col-6">
               <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
                 <input type="checkbox" className="form-check-input filled-in"
                   checked={this.state.isRemember}

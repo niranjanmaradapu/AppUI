@@ -315,6 +315,7 @@ export default class GenerateReturnSlip extends Component {
           <div className="col-12 col-sm-8">
             <div className="row">
               <div className="col-12 col-sm-4">
+              <label>Invoice Number</label>
                 <div className="form-group">
                   <input type="search" className="form-control frm-pr"
                     placeholder="Enter Invoice Number" 
@@ -326,13 +327,14 @@ export default class GenerateReturnSlip extends Component {
                 </div>
               </div>
               <div className="col-12 col-sm-4">
+              <label>Customer Phone Number</label>
                 <div className="form-group scaling-mb">
                   <input type="search" className="form-control"
                     placeholder="CUSTMER PHONE NUMBER"    value={this.state.mobileNo}
                     onChange={(e) => this.setState({mobileNo: e.target.value })} />
                 </div>
               </div>
-              <div className="col-12 col-sm-4 p-r-0 p-l-0 scaling-center">
+              <div className="col-12 col-sm-4 p-r-0 p-l-0 scaling-center mt-4">
                 <button className="btn-unic-search active m-r-2 scaling-mb" onClick={this.getReturnSlipDetails}>SEARCH</button>
                 <button className="btn-unic scaling-mb" onClick={this.tagCustomer}>Customer Tagging</button>
               </div>

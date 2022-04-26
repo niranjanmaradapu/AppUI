@@ -44,7 +44,7 @@ export default class CreateCustomer extends Component {
     //Name
     if (!this.state.name) {
         formIsValid = false;
-        errors["name"] = "Enter name";
+        errors["name"] = " Please Enter Name";
     }
 
    
@@ -53,7 +53,7 @@ export default class CreateCustomer extends Component {
     // Mobile
     if (!this.state.phoneNumber) {
         formIsValid = false;
-        errors["mobileNumber"] = "Enter Mobile Number";
+        errors["mobileNumber"] = " Please Enter Mobile Number";
     }
 
     // if (typeof this.state.mobileNumber !== "undefined") {
@@ -66,7 +66,7 @@ export default class CreateCustomer extends Component {
     //email 
     if (!this.state.email) {
         formIsValid = false;
-        errors["email"] = "Enter email";
+        errors["email"] = " Please Enter Email";
     }
 
     // if (typeof this.state.email !== "undefined") {
@@ -136,8 +136,9 @@ export default class CreateCustomer extends Component {
               <div className="row mt-2">
                 <div className="col-sm-4 col-12 scaling-mb">
                   <div className="form-group">
+                  <label>Customer Name  <span className="text-red font-bold" name="bold">*</span></label>
                     <input type="text" className="form-control"
-                      placeholder="CUSTOMER NAME *" autoFocus
+                      placeholder="CUSTOMER NAME " autoFocus
                       value={this.state.name}
                       onChange={(e) => this.setState({ name: e.target.value, username: e.target.value })}
                       autoComplete="off" />
@@ -148,8 +149,9 @@ export default class CreateCustomer extends Component {
                 </div>
                 <div className="col-sm-4 col-12 scaling-mb">
                   <div className="form-group">
+                  <label>Mobile Number  <span className="text-red font-bold" name="bold">*</span></label>
                     <input type="text" className="form-control"
-                      placeholder="MOBILE NUMBER *" autoFocus
+                      placeholder="MOBILE NUMBER " autoFocus
                       value={this.state.phoneNumber} maxLength="10" minLength="10"
                       onChange={(e) => this.setState({ phoneNumber: e.target.value })}
                       autoComplete="off" />
@@ -159,6 +161,7 @@ export default class CreateCustomer extends Component {
                   </div>
                 </div>
                 <div className="col-sm-4 col-12 scaling-mb">
+                <label>Email <span className="text-red font-bold" name="bold">*</span></label>
                   <div className="form-group">
                     <input type="email" className="form-control"
                       placeholder="EMAIL *" autoFocus
@@ -171,6 +174,7 @@ export default class CreateCustomer extends Component {
                   </div>
                 </div>
                 <div className="col-sm-4 col-12 mt-4">
+                <label>Gender</label>
                   <select className="form-control" value={this.state.gender}
                     onChange={(e) => this.setState({ gender: e.target.value })} >
                     <option>GENDER</option>
@@ -179,6 +183,7 @@ export default class CreateCustomer extends Component {
                   </select>
                 </div>
                 <div className="col-sm-4 col-12 mt-4">
+                <label>Address</label>
                   <div className="form-group">
                     <input type="text" className="form-control"
                       placeholder="ADDRESS" value={this.state.address}

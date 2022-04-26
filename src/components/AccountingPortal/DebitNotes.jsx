@@ -285,12 +285,13 @@ export default class DebitNotes extends Component {
         </div>
         <div className="row m-0 p-0 scaling-center">
           <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Debit Notes</h5>
-          <div className="table-responsive">
+          <div className="table-responsive p-0">
             <table className="table table-borderless mb-1 mt-2">
               <thead>
                 <tr className="m-0 p-0">
                   <th className="col-1">#CRM ID</th>
-                  <th className="col-2">Store</th>
+                  <th className="col-2">Customer Name</th>
+                  <th className="col-1">Store</th>
                   <th className="col-1">Date</th>
                   <th className="col-2">Paid Amount</th>
                   <th className="col-2">Balance</th>
@@ -304,12 +305,13 @@ export default class DebitNotes extends Component {
                   return (
                     <tr key={index}>
                       <td className="col-1 underline geeks">{items.customerId}</td>
-                      <td className="col-2"></td>
+                      <td className="col-2">{items.customerName}</td>
+                      <td className="col-1">{items.storeId}</td>
                       <td className="col-1">{items.fromDate}</td>
                       <td className="col-2">₹ {items.transactionAmount}</td>
-                      <td className="col-1">₹ {items.actualAmount}</td>
-                      <td className="col-2">{items.customerName}</td>
-                      <td className="col-2"></td>
+                      <td className="col-2">₹ {items.actualAmount}</td>
+                      <td className="col-2">{items.approvedBy}</td>
+                      {/* <td className="col-2"></td> */}
                       <td className="col-1">
                         <img src={edit} className="w-12 pb-2" />
                         <i className="icon-delete m-l-2 fs-16"></i></td>

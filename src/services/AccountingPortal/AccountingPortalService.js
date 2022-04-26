@@ -18,6 +18,20 @@ class AccountingPortalService {
     saveMasterTax(saveTax){
         return axios.post(BASE_URL+ACCOUNTING_PORTAL.saveMasterTax, saveTax);   
     }
+    updateMasterTax(obj){
+        return axios.put(BASE_URL+ACCOUNTING_PORTAL.updatetax, obj);   
+    }
+    deleteTaxMaster(selectedTaxMasterId) {
+        const id = `?id=${selectedTaxMasterId}`;
+        return axios.delete(BASE_URL+ACCOUNTING_PORTAL.deleteTax+id); 
+    }
+    updateHsn(obj){
+        return axios.put(BASE_URL+ACCOUNTING_PORTAL.updateHsn, obj);   
+    }
+    deleteHsn(selectedHsnId) {
+        const id = `?id=${selectedHsnId}`;
+        return axios.delete(BASE_URL+ACCOUNTING_PORTAL.deleteHsn+id); 
+    }
     getAllMasterTax(){
         return axios.get(BASE_URL+ACCOUNTING_PORTAL.getAllTaxes);
     }

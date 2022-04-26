@@ -81,6 +81,15 @@ getAllColumns(Id) {
     const domainId = `?domainId=${Id}`;
     return axios.get(BASE_URL+PROMOTIONS_URL.getAllColumns+domainId);
 }
+getAllStorePromos() {
+    return axios.get(BASE_URL+PROMOTIONS_URL.getAllStorePromos);  
+}
+promotionsSearching(obj) {
+    return axios.post(BASE_URL+PROMOTIONS_URL.promotionsSearching, obj);  
+}
+anyMatchingData(columnName) {
+    return axios.get(BASE_URL+PROMOTIONS_URL.anyMatchingData+`?columnName=${columnName}`);
+}
 }
 
 export default new PromotionsService()

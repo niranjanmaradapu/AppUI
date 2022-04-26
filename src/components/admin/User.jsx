@@ -5,6 +5,9 @@ import { ToastContainer, toast } from "react-toastify";
 import Multiselect from 'multiselect-react-dropdown';
 import URMService from '../../services/URM/URMService';
 
+import moment from 'moment';
+
+
 
 
 export default class User extends Component {
@@ -44,7 +47,9 @@ export default class User extends Component {
             usersList1: [],
             errors: {},
             adminRole: "",
-            userType:""
+            userType:"",
+            
+
         }
         this.setState({usersList: []})
         this.showCreateUser = this.showCreateUser.bind(this);
@@ -65,8 +70,11 @@ export default class User extends Component {
         this.searchUser = this.searchUser.bind(this);
         this.getUsers = this.getUsers.bind(this);
         this.handleValidation = this.handleValidation.bind(this);
+        
 
     }
+    
+   
 
     getDomainsList() {
         URMService.getDomainsList(this.state.clientId).then((res) => { 
@@ -142,14 +150,18 @@ export default class User extends Component {
             "name": null,
             "active":this.state.userType === "Active" ? "True" : "False",
             "inActive":this.state.userType === "InActive" ? "True" : "False",
-            "roleName": this.state.searchRole ? this.state.searchRole : null,
-            "storeName": this.state.searchStore ? this.state.searchStore : null,
+            "roleName": this.state.searchRole ? this.state.searchRole.trim() : null,
+            "storeName": this.state.searchStore ? this.state.searchStore.trim() : null,
             "clientDomainId": this.state.clientId
             }
 
             URMService.getUserBySearch(obj).then(res => {
                 console.log(res);
                 if(res) {
+                    
+                    res.data.result.forEach(element => {
+                        element.roleName = element.role.roleName ? element.role.roleName : "";
+                    });
                     this.setState({usersList: res.data.result, isUser: true});
                 } else {
                     this.setState({usersList: [], isUser: false});
@@ -226,11 +238,7 @@ export default class User extends Component {
             console.log(res);
             if(res) {
                this.setState({usersList: res.data.result,isUser: true });
-            // //    this.setState({usersList: res.data.result});
-            //    //this.state.isUser = true;
-            //  // this.state.usersList = res.data.result;
-            // //  this.setState({usersList1: this.state.usersList});
-            //   this.state.isUser = true;
+           
               
             }
         });
@@ -260,21 +268,23 @@ export default class User extends Component {
                     mobileNumber: userDetails.phoneNumber.substring(3,13),
                     email: items.email,
                     address: items.address,
-                    isAdmin: items.superAdmin,
+                    isAdmin: userDetails.superAdmin,
                     domain: userDetails.clientDomians[0]?.clientDomainaId, 
                     role: userDetails.role?.roleName,
                     storeName: userDetails.stores,
                     isEdit: true,
                     isSearch: false,
+                    isSuperAdmin: userDetails.superAdmin,
                     userId: items.userId,
                 }, () => {
+                    this.state.isSuperAdmin = this.state.isAdmin;
                     const user = sessionStorage.getItem('domainName');
-                    if(user !== 'config_user') {
+                    this.state.domain = this.state.isAdmin ? "" : this.state.domain;
+                    if(user !== 'config_user' && !this.state.isSuperAdmin) {
                         this.getAllRolesList();
                         this.getAllStoresList();
-                    }
+                    } 
                    
-                    this.setState({isSuperAdmin: this.state.isAdmin })
                 });
         
             }
@@ -300,7 +310,7 @@ export default class User extends Component {
 
 
         // Mobile
-        if (!this.state.mobileNumber) {
+        if (!this.state.mobileNumber || this.state.mobileNumber.length !=10) {
             formIsValid = false;
             errors["mobileNumber"] = "Enter phone Number";
         }
@@ -326,9 +336,21 @@ export default class User extends Component {
         //     }
 
         // }
-
-
-        this.setState({ errors: errors });
+        if(!this.state.isSuperAdmin) {
+            if (this.state.storeName.length === 0) {
+                formIsValid = false;
+                errors["storeName"] = "Select Store";
+            }
+            if (!this.state.domain) {
+                formIsValid = false;
+                errors["domain"] = "Select Domain";
+            }
+            if (!this.state.role) {
+                formIsValid = false;
+                errors["role"] = "Select Role";
+            }
+        }
+        this.setState({ errors: errors });               
         return formIsValid;
 
     }
@@ -415,11 +437,7 @@ export default class User extends Component {
     }
        
           
-        // this.state.usersList.push(obj);
-        // this.setState({ isUser: true });
-        // sessionStorage.setItem("usersList", JSON.stringify(this.state.usersList));
-        // toast.success("Users Created Successfully");
-        // this.hideCreateUser();
+        
     }
 
     
@@ -443,13 +461,13 @@ export default class User extends Component {
                          })
                      }
                     </td>
-                    <td className="col-2">{createdDate}</td>
+                    <td className="col-2" name="createdata">{createdDate}</td>
                     {/* <td className="col-1">{address}</td> */}
                     <td className="col-1">
                         <div>
                         {
                             active === true && (
-                                <button type="button" className="btn-active">Active</button>
+                                <button type="button" className="btn-active" name="active">Active</button>
                             )
 
                            
@@ -459,7 +477,7 @@ export default class User extends Component {
                         <div>
                         {
                             active === false && (
-                                <button type="button" className="btn-inactive">Inactive</button>
+                                <button type="button" className="btn-inactive" name="inactive">Inactive</button>
                             )
 
                            
@@ -469,8 +487,8 @@ export default class User extends Component {
                        
                         </td>
                     <td className="col-1">
-                        <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} />
-                        <i className="icon-delete"></i></td>
+                        <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} name="image" />
+                        <i className="icon-delete" name="icondel"></i></td>
                 </tr>
 
 
@@ -605,10 +623,10 @@ export default class User extends Component {
                     <td className="col-4">{name}</td>
                     <td className="col-1">
                         <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-15">
-                          <input type="checkbox" className="form-check-input filled-in mt-1" id="remember{{index}}"  
+                          <input type="checkbox" className="form-check-input filled-in mt-1"  id="remember{{index}}"  
                             name="barcodes{{index}}" checked={isCheck}
                             onChange={(e) => this.setStoresList(e, index, name)}/>
-                          <label className="form-check-label" htmlFor="remember{{index}}"></label>
+                          <label className="form-check-label" name="checklabel" htmlFor="remember{{index}}"></label>
                         </div>
                     </td>
                 </tr>
@@ -617,7 +635,7 @@ export default class User extends Component {
     }
 
     getDomainValue = (e) => {
-        this.setState({domain: e.target.value, storesList:[], rolesList:[] }, () => {
+        this.setState({domain: e.target.value, role: '', storesList:[], rolesList:[] }, () => {
             this.getAllStoresList();
                 this.getAllRolesList();
         });
@@ -688,11 +706,11 @@ export default class User extends Component {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <button className="btn-unic" onClick={this.closeStores}>
+                        <button className="btn-unic" onClick={this.closeStores} name="closestore">
                             Cancel
                         </button>
                         <button
-                            className="btn-unic active fs-12"
+                            className="btn-unic active fs-12" name="click"
                             onClick={this.closeStores}
                         >
                             Save
@@ -727,8 +745,8 @@ export default class User extends Component {
                             <div className="row">
                                 <div className="col-12 col-sm-4 scaling-mb">
                                     <div className="form-group">
-                                        <label>Name <span className="text-red font-bold">*</span></label>
-                                        <input type="text" className="form-control" placeholder="Enter Name"
+                                        <label>Name <span className="text-red font-bold" name="bold">*</span></label>
+                                        <input type="text" className="form-control" name="entername" placeholder="Enter Name"
                                             value={this.state.name} disabled={this.state.isEdit}
                                             onChange={(e) => this.setState({ name: e.target.value })}
                                             autoComplete="off" />
@@ -741,16 +759,17 @@ export default class User extends Component {
                                 <div className="col-12 col-sm-4 scaling-mb">
                                     <div className="form-group">
                                         <label>DOB </label>
-                                        <input type="date" className="form-control"
+                                        <input type="date" className="form-control" name="date"
                                             value={this.state.dob}
                                             onChange={(e) => this.setState({ dob: e.target.value })}
-                                            autoComplete="off" />
+                                            autoComplete="off"
+                                            max={moment().format("YYYY-MM-DD")} />
                                     </div>
                                 </div>
                                 <div className="col-12 col-sm-4">
                                     <div className="form-group">
                                         <label>Gender </label>
-                                        <select className="form-control" value={this.state.gender}
+                                        <select className="form-control" name="gender" value={this.state.gender}
                                             onChange={(e) => this.setState({ gender: e.target.value })}
                                         >
                                             <option>Select</option>
@@ -763,7 +782,7 @@ export default class User extends Component {
                                 <div className="col-12 col-sm-4 mt-3">
                                     <div className="form-group">
                                         <label>Mobile <span className="text-red font-bold">*</span></label>
-                                        <input type="text" className="form-control" placeholder="+91 "
+                                        <input type="text" className="form-control" placeholder="+91 " name="number"
                                             value={this.state.mobileNumber} maxLength="10" minLength="10"
                                             onChange={this.validation}
                                             autoComplete="off" />
@@ -776,7 +795,7 @@ export default class User extends Component {
                                 <div className="col-12 col-sm-4 mt-3">
                                     <div className="form-group">
                                         <label>Email <span className="text-red font-bold">*</span></label>
-                                        <input type="email" className="form-control" placeholder="sample@gmail.com"
+                                        <input type="email" className="form-control" placeholder="sample@gmail.com" name="email"
                                             value={this.state.email} disabled={this.state.isEdit}
                                             onChange={this.emailValidation}
                                             autoComplete="off" />
@@ -790,7 +809,7 @@ export default class User extends Component {
                                 <div className="col-12 col-sm-4 mt-3">
                                     <div className="form-group">
                                         <label>Address</label>
-                                        <input type="text" className="form-control" placeholder="Enter Address"
+                                        <input type="text" className="form-control" placeholder="Enter Address" name="adress"
                                             value={this.state.address}
                                             onChange={(e) => this.setState({ address: e.target.value })}
                                             autoComplete="off" />
@@ -821,31 +840,37 @@ export default class User extends Component {
                         </div> */}
                              <div className="col-12 col-sm-12">
                              <div className="form-check checkbox-rounded checkbox-living-coral-filled pt-1">
-                                        <input type="checkbox" className="form-check-input filled-in mt-1" id="admin" name="superadmin" value={this.state.isAdmin} 
+                                        <input type="checkbox" className="form-check-input filled-in mt-1" id="admin"
+                                         name="superadmin" 
+                                         defaultChecked={this.state.isAdmin}
+                                         value={this.state.isAdmin} 
                                       onChange={(e) => this.setSuperAdmin(e)}/>
-                                        <label className="form-check-label" htmlFor="remember">Is Super Admin</label>
+                                        <label className="form-check-label" name="remember" htmlFor="remember">Is Super Admin</label>
                                     </div>
                                 </div>
                                 <div className="col-12 col-sm-4 scaling-mb">
                                     <div className="form-group">
-                                        <label>Domain</label>
+                                        <label>Domain {!this.state.isSuperAdmin && <span className="text-red font-bold">*</span>}</label>
                                         {/* <select className="form-control" value={this.state.role}
                                             onChange={(e) => this.setState({ role: e.target.value })}>
                                             <option>Select Role</option>
                                             <option>Sales Executive</option>
                                             <option>Store Manager</option>
                                         </select> */}
-                                        <select className="form-control" value={this.state.domain}
+                                        <select className="form-control" name="control" value={this.state.domain}
                                          disabled={this.state.isSuperAdmin}
                                             onChange={this.getDomainValue}>
 
                                             {domainsList}
                                         </select >
+                                        <div>
+                                          <span style={{ color: "red" }}>{this.state.errors["domain"]}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="col-12 col-sm-4 scaling-mb">
                                     <div className="form-group">
-                                    <label>Store</label>
+                                    <label>Store {!this.state.isSuperAdmin && <span className="text-red font-bold">*</span>}</label>
                                         {/* <button className="btn-unic-search active m-r-2 mt-4" onClick={this.addStores}>Add Store </button> */}
 
 
@@ -879,6 +904,9 @@ export default class User extends Component {
                                             disable={this.state.isSuperAdmin}
                                             displayValue="name" // Property name to display in the dropdown options
                                         />
+                                        <div>
+                                        {this.state.isSuperAdmin ? '' : <span style={{ color: "red" }}>{this.state.errors["storeName"]}</span>}
+                                        </div>
 
 
 
@@ -891,19 +919,22 @@ export default class User extends Component {
                                 </div>
                                 <div className="col-12 col-sm-4 scaling-mb">
                                     <div className="form-group">
-                                        <label>Role</label>
+                                        <label>Role {!this.state.isSuperAdmin && <span className="text-red font-bold">*</span>}</label>
                                         {/* <select className="form-control" value={this.state.role}
                                             onChange={(e) => this.setState({ role: e.target.value })}>
                                             <option>Select Role</option>
                                             <option>Sales Executive</option>
                                             <option>Store Manager</option>
                                         </select> */}
-                                        <select className="form-control" value={this.state.role}  
+                                        <select className="form-control" name="setrole" value={this.state.role}  
                                          disabled={this.state.isSuperAdmin}
                                             onChange={this.setRoles}>
                                                 
                                             {rolesList}
                                         </select >
+                                        <div>
+                                          <span style={{ color: "red" }}>{this.state.errors["role"]}</span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -911,15 +942,15 @@ export default class User extends Component {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <button className="btn-unic" onClick={this.hideCreateUser}>Cancel</button>
-                        <button className="btn-unic active fs-12" onClick={this.addCreateUser}>Add User</button>
+                        <button className="btn-unic" onClick={this.hideCreateUser} name="cancel">Cancel</button>
+                        <button className="btn-unic active fs-12" onClick={this.addCreateUser} name="adduser">Add User</button>
                     </ModalFooter>
                 </Modal>
                 <div className="row">
                     <div className="col-12 col-sm-2 mt-2">
                         <div className="form-group">
                         <label>User Type</label>
-                            <select className="form-control"  onChange={(e) => this.setState({ userType: e.target.value })}>
+                            <select className="form-control" name="formcontrol" onChange={(e) => this.setState({ userType: e.target.value })}>
                                 <option>Select User Type</option>
                                 <option>Active</option>
                                 <option>InActive</option>
@@ -929,21 +960,21 @@ export default class User extends Component {
                     <div className="col-12 col-sm-2 mt-2">
                         <div className="form-group">
                         <label>Role</label>
-                        <input type="text" className="form-control" placeholder="Role" value={this.state.searchRole}
+                        <input type="text" className="form-control" name ="role" placeholder="role" value={this.state.searchRole}
                                 onChange={(e) => this.setState({ searchRole: e.target.value })} />
                         </div>
                     </div>
                     <div className="col-12 col-sm-2 mt-2">
                         <div className="form-group">
                         <label>Store/Branch</label>
-                        <input type="text" className="form-control" placeholder="Store/Branch" value={this.state.searchStore}
+                        <input type="text" className="form-control" name="store" placeholder="Store/Branch" value={this.state.searchStore}
                                 onChange={(e) => this.setState({ searchStore: e.target.value })} />
                         </div>
                     </div>
                     <div className="col-12 scaling-center scaling-mb col-sm-6 pt-4 mt-2 p-l-0">
-                        <button className="btn-unic-search active m-r-2" onClick={this.searchUser}>SEARCH </button>
-                        <button className="btn-unic-search active m-r-2" onClick={this.getUsers}>Clear </button>
-                        <button className="btn-unic-search active" onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button>
+                        <button className="btn-unic-search active m-r-2"  name="search" onClick={this.searchUser}>SEARCH </button>
+                        <button className="btn-unic-search active m-r-2" name="clear" onClick={this.getUsers}>Clear </button>
+                        <button className="btn-unic-search active" name="createuser" onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button>
                     </div>
 
                     {/* <div className="col-6 text-right mb-1">

@@ -288,7 +288,8 @@ export default class TagCustomer extends Component {
           <div className="row">
             <div className="col-12 col-sm-3">
               <h5 className="mt-2 mb-3 fs-18">Generate gift voucher </h5>
-              <div className="form-group mt-2 mb-3">
+              <div className="form-group mt-2 mb-2">
+              <label>GV Number</label>
                 <input type="search" className="form-control"
                   placeholder="Enter GV Number" value={this.state.gvNumber}
                   onChange={(e) =>
@@ -299,7 +300,8 @@ export default class TagCustomer extends Component {
                       <span style={{ color: "red" }}>{this.state.errors["gvNumber"]}</span>
                     </div>
               </div>
-              <div className="form-group mb-3">
+              <div className="form-group mb-2">
+              <label>Description</label>
                 <input type="search" className="form-control"
                   placeholder="Enter Description"
                   value={this.state.description}
@@ -307,7 +309,8 @@ export default class TagCustomer extends Component {
                     this.setState({ description: e.target.value })
                   } />
               </div>
-              <div className="form-group mb-3">
+              <div className="form-group mb-2">
+              <label>From Date</label>
                 <input type="date" className="form-control" placeholder="Enter FromDate"
                   value={this.state.fromDate}
                   onChange={(e) => this.setState({ fromDate: e.target.value }, () => {
@@ -323,7 +326,8 @@ export default class TagCustomer extends Component {
                       <span style={{ color: "red" }}>{this.state.errors["fromDate"]}</span>
                     </div>
               </div>
-              <div className="form-group mb-3">
+              <div className="form-group mb-2">
+              <label>To Date</label>
                 <input type="date" className="form-control" placeholder="Enter ToDate"
                   value={this.state.toDate}
                   onChange={(e) => this.setState({ toDate: e.target.value }, () => {
@@ -337,7 +341,8 @@ export default class TagCustomer extends Component {
                       <span style={{ color: "red" }}>{this.state.errors["toDate"]}</span>
                     </div>
               </div>
-              <div className="form-group mb-3">
+              <div className="form-group mb-2">
+              <label>Amount</label>
                 <input type="text" className="form-control"
                   placeholder="Enter Value"
                   value={this.state.amount}

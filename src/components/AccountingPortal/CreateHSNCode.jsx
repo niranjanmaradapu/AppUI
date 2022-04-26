@@ -19,9 +19,8 @@ export default class CreateHSNCode extends Component {
       taxId:"",
       priceFrom:"",
       priceTo:"",
-      slabBased:""
-     
-
+      slabBased:"",
+      isHSNCodeEdited: false
     };
 
     this.addHSNCode = this.addHSNCode.bind(this);
@@ -44,7 +43,7 @@ export default class CreateHSNCode extends Component {
   }
 
   closeHSNCode() {
-    this.setState({ isaddHSNCode: false });
+    this.setState({ isaddHSNCode: false, isHSNCodeDelete: false });
   }
   getAllHsnCodes(){
     AccountingPortalService.getAllHsnCodes().then(response => {
@@ -55,7 +54,7 @@ export default class CreateHSNCode extends Component {
     }); 
   }
   saveHSNCode(){
-    const obj={
+    let obj={
  "hsnCode": this.state.hsnCode,         
  "description": this.state.descprition,         
  "taxAppliesOn": this.state.taxAppliesOn,         
@@ -76,6 +75,7 @@ export default class CreateHSNCode extends Component {
 
   }
   console.log(obj)
+  if(!this.state.isHSNCodeEdited) {
     AccountingPortalService.saveHsnCode(obj).then(response => {
       if (response) {
       toast.success(response.data.message);
@@ -83,6 +83,21 @@ export default class CreateHSNCode extends Component {
       this.getAllHsnCodes()
       }
     });
+  } else {
+      obj = {...obj, id: this.state.selectedHSNCode.id};
+      AccountingPortalService.saveHsnCode(obj).then(response => {
+        if (response.data.isSuccess === 'true') {
+          toast.success(response.data.message);
+          this.setState({
+            selectedHSNCode: '',
+            isaddHSNCode: false,
+            isHSNCodeEdited: false
+          }, () => this.getAllHsnCodes());      
+        } else {
+          toast.warn(response.data.message);
+        }
+      });
+    }
   }
   getAllTaxes(){
     AccountingPortalService.getAllMasterTax().then(response => {
@@ -125,6 +140,37 @@ handleSelectChangeAllTax = (e) => {
  obj = e.target.value;
   this.setState({ taxId: obj });
 }
+editHSNCode = (items) => {
+  this.getDescriptionData();
+  this.getTaxAppliesOn();
+  this.getAllTaxes();
+  this.setState({
+    selectedHSNCode: items,
+    isHSNCodeEdited: true,
+    isaddHSNCode: true,
+    hsnCode: items.hsnCode,
+    priceTo: items.slabVos[0].priceTo,
+    priceFrom: items.slabVos[0].priceFrom
+  });
+}
+deleteHSNCode = (items) => {
+this.setState({
+  isHSNCodeDelete: true,
+  selectedHSNCode: items
+});
+}
+handleDeleteHSNCode = () => {
+ const { selectedHSNCode } = this.state;
+  AccountingPortalService.deleteHsn(selectedHSNCode.id).then(response => {
+    if (response.data.isSuccess === 'true') {
+        toast.success(response.data.message);
+        this.setState({
+          isHSNCodeDelete: false,
+          selectedHSNCode: ''
+        }, () => this.getAllHsnCodes());
+    }
+  });
+}
   render() {
     const description = this.state.descrptionList;
     let descDataList = description.length > 0
@@ -152,6 +198,25 @@ handleSelectChangeAllTax = (e) => {
                 }, this);
     return (
       <div className="maincontent">
+        <Modal isOpen={this.state.isHSNCodeDelete} size="md">
+          <ModalHeader>Delete HSN Code</ModalHeader>
+          <ModalBody>
+            <div className="maincontent p-0">
+              <h6>Are you sure want to delete HSN code?</h6>        
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <button className="btn-unic" onClick={this.closeHSNCode}>
+              Cancel
+            </button>
+            <button
+              className="btn-unic active fs-12"
+              onClick={this.handleDeleteHSNCode}
+            >
+              Delete
+            </button>
+          </ModalFooter>
+        </Modal>
         <Modal isOpen={this.state.isaddHSNCode} size="lg">
           <ModalHeader>Add HSN Code</ModalHeader>
           <ModalBody>
@@ -286,8 +351,8 @@ handleSelectChangeAllTax = (e) => {
               <td className="col-2">{items.taxAppliesOn}</td>
               <td className="col-2">{items.slabBased}</td>
               <td className="col-2 text-center">
-                <img src={edit} className="w-12 pb-2" />
-                <i className="icon-delete m-l-2 fs-16"></i></td>
+                <img src={edit} onClick={() => this.editHSNCode(items)} className="w-12 pb-2" />
+                <i onClick={() => this.deleteHSNCode(items)}className="icon-delete m-l-2 fs-16"></i></td>
             </tr>
                         );
                       })}

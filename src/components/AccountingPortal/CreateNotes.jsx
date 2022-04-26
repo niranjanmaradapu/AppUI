@@ -29,6 +29,7 @@ export default class CreateNotes extends Component {
     this.closeCredit = this.closeCredit.bind(this);
     this.saveCredit = this.saveCredit.bind(this);
     this.getCreditNotes = this.getCreditNotes.bind(this);
+    this.clearCreditNotes = this.clearCreditNotes(this);
   }
 
   componentWillMount() {
@@ -41,6 +42,16 @@ export default class CreateNotes extends Component {
 
   addCredit() {
     this.setState({ isCredit: true });
+  }
+
+  editCredit(creditNote) {
+   console.log(creditNote);
+    this.setState({ isCredit: true, 
+        mobileNumber: creditNote.mobileNumber, 
+        creditAmount: creditNote.actualAmount,
+        comments: creditNote.comments });
+    this.state.customerData.userName = creditNote.customerName;
+    this.state.customerData.userId  = creditNote.customerId;
   }
 
 
@@ -66,7 +77,7 @@ export default class CreateNotes extends Component {
   }
 
   clearCreditNotes() {
-    this.setState({fromDate:"", toDate:"",searchMobileNumber:""}, () => {
+        this.setState({fromDate:" ", toDate:" ",searchMobileNumber:" "}, () => {
       this.getCreditNotes();
     });
   }
@@ -161,15 +172,15 @@ export default class CreateNotes extends Component {
                 </div>
               </div>
 
-              <div className="col-4 ">
+              {/* <div className="col-4 ">
                 <div className="form-group">
                   <label>Customer ID</label>
                   <input type="text" className="form-control" placeholder=""
                     value={this.state.customerData?.userId} disabled
                   />
                 </div>
-              </div>
-              <div className="col-4 mt-3">
+              </div> */}
+              <div className="col-4">
                 <div className="form-group">
                   <label>Credit Amount</label>
                   <input type="text" className="form-control" placeholder="₹"
@@ -199,11 +210,13 @@ export default class CreateNotes extends Component {
               </div>
               <div className="col-4 mt-3">
                 <div className="form-group">
-                  <label>Approved By</label>
+                  <label>Created By</label>
                   <input type="text" className="form-control" placeholder=""
                     value={this.state.userName} disabled
                   />
                 </div>
+              </div>
+              <div className="col-4">
               </div>
 
               <div className="col-4 mt-3">
@@ -299,12 +312,13 @@ export default class CreateNotes extends Component {
               <thead>
                 <tr className="m-0 p-0">
                   <th className="col-1">#CRM ID</th>
-                  <th className="col-2">Store</th>
+                  <th className="col-2">Customer Name</th>
+                  <th className="col-1">Store</th>
                   <th className="col-1">Date</th>
                   <th className="col-2">Used Amount</th>
                   <th className="col-1">Balance</th>
                   <th className="col-2">Approved By</th>
-                  <th className="col-2">Role</th>
+                  {/* <th className="col-2">Role</th> */}
                   <th className="col-1"></th>
                 </tr>
               </thead>
@@ -313,15 +327,18 @@ export default class CreateNotes extends Component {
                   return (
                     <tr key={index}>
                       <td className="col-1 underline geeks">{items.customerId}</td>
-                      <td className="col-2"></td>
+                      <td className="col-2">{items.customerName}</td>
+                      <td className="col-1">{items.storeId}</td>
                       <td className="col-1">{items.fromDate}</td>
                       <td className="col-2">₹ {items.transactionAmount}</td>
                       <td className="col-1">₹ {items.actualAmount}</td>
-                      <td className="col-2">{items.customerName}</td>
-                      <td className="col-2"></td>
+                      <td className="col-2">{items.approvedBy}</td>
+                      {/* <td className="col-2"></td> */}
                       <td className="col-1">
-                        <img src={edit} className="w-12 pb-2" />
-                        <i className="icon-delete m-l-2 fs-16"></i></td>
+                        
+                        <img src={edit} className="w-12 pb-2" onClick={(e) => this.editCredit(items)} />
+                        <i className="icon-delete m-l-2 fs-16"></i>
+                        </td>
 
                     </tr>
                   );

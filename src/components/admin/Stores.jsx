@@ -211,9 +211,11 @@ export default class Stores extends Component {
         const searchStore = {
             "stateId": this.state.searchState,
             "cityId": null,
-            "districtId": this.state.searchDistrict === "Select" ?  "" : this.state.searchDistrict ,
+            "districtId": this.state.searchDistrict === "Select" || this.state.searchDistrict === "" ?  null : this.state.searchDistrict ,
             "storeName": this.state.searchStoreId
         }
+
+        console.log(searchStore.districtId);
 
         URMService.getStoresBySearch(searchStore).then(res => {
             if (res) {
@@ -663,20 +665,13 @@ export default class Stores extends Component {
                                 </div>
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
-                                        <label>GST Number</label>
+                                        <label>GST Number<span className="text-red font-bold">*</span></label>
                                         <input type="text" className="form-control" placeholder="Gst Number" 
                                             value={this.state.gstNumber}
                                             disabled={this.state.isGstNumber}
+                                            maxLength="15" minLength="15"
                                             onChange={(e) => this.setState({ gstNumber: e.target.value })} />
-                                            {
-                                                !this.state.isGstNumber && (
-                                                    <div>
-                                                    <span style={{ color: "red" }}>Please Provide GST Number</span>
-                                                </div>
-                                                )
-                                            }
-                                           
-
+                                            
                                     </div>
                                 </div>
                             </div>

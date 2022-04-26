@@ -34,7 +34,7 @@ export default class ManagePromo extends Component {
       endDate: '',
       promotionName: '',
       promoType: '',
-      storePromoName: '',
+      // storePromoName: '',
       storeStartDate: '',
       storeEndDate: '',
       isPramotionChecked: false,
@@ -74,6 +74,10 @@ export default class ManagePromo extends Component {
         storeStartDate: '',
         storeEndDate: '',
         storeVo: {},
+        promoApplyTypesForWholeBill: [
+          { value: 'QuantitySlab', label: 'Quantity Slab' },
+          { value: 'ValueSlab', label: 'Value Slab' }
+        ],
         promoApplyTypes: [
           { value: 'FixedQuantity', label: 'Fixed Quantity' },
           { value: 'AnyQuantity', label: 'Any Quantity' },
@@ -103,6 +107,9 @@ export default class ManagePromo extends Component {
           { value: 'FlatDiscount', label: 'Flat Discount' },
           { value: 'XunitsFromBuyPool', label: 'X Uints from Buy Pool' },
           { value: 'XunitsFromGetPool', label: 'X Uints from Get Pool' }
+        ],
+        benfitTypesForEachBarcode: [
+          { value: 'FlatDiscount', label: 'Flat Discount' }
         ],
         discountType: '',
         discountTypes: [
@@ -144,7 +151,18 @@ export default class ManagePromo extends Component {
         benfitVoArray: [],
         editedBenfit: {},
         updatedBenfitVos: [],
-        storePromoList: []
+        storePromoList: [],
+        selectedPromolist: [],
+        displayPromotions: false,
+        allStorePromos: [],
+        promotionTypes: [
+          { value: 'promotionForEachBarcode', label: 'On Barcode' },
+          { value: 'promotionForWholeBill', label: 'On Bill Value' },
+          { value: 'All', label: 'All' }
+        ],
+        searchPromotionType: '',
+        searchPromoStatus: '',
+        searchByStoreName: ''
     };
 
     this.addPromo = this.addPromo.bind(this);
@@ -168,27 +186,17 @@ export default class ManagePromo extends Component {
     this.savePriority = this.savePriority.bind(this);
     this.addSlab = this.addSlab.bind(this);
     this.addBenfit = this.addBenfit.bind(this);
-    this.promoSearchValidation = this.promoSearchValidation.bind(this);
     this.addBenefitsList = this.addBenefitsList.bind(this);
-    this.getEditBenfitByIndex = this.getEditBenfitByIndex.bind(this);   
+    this.getEditBenfitByIndex = this.getEditBenfitByIndex.bind(this);
+    this.getAllStorePromos = this.getAllStorePromos.bind(this);
+    this.showPramotionStoreMapping = this.showPramotionStoreMapping.bind(this);
+    this.showPromotionsList  = this.showPromotionsList.bind(this); 
   }
   componentDidMount() {
     this.getPromoList();
     this.getPoolList();
-    this.getDomainsList();  
-  }
-  promoSearchValidation() {
-    const { searchStoreName,
-      promotionName,
-      startDate,
-      endDate,
-      promoStatus } = this.state;
-    if(searchStoreName !== '' && promotionName !== '' && startDate !== '' && endDate !== '' && promoStatus !== '') {
-        return false;
-    } else {
-      return true;
-    }
-
+    this.getDomainsList();
+    this.getAllStorePromos();  
   }
   getDomainsList() {    
      const user = JSON.parse(sessionStorage.getItem('user'));
@@ -222,7 +230,9 @@ export default class ManagePromo extends Component {
     }
     getAllStoresList() {
       const user = JSON.parse(sessionStorage.getItem('user'));
-      URMService.getStoresByDomainId(user["custom:domianId1"]).then((res) => { 
+      const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain')); 
+      // URMService.getStoresByDomainId(user["custom:domianId1"]).then((res) => { 
+        URMService.getStoresByDomainId(selectedDomain.value).then((res) => { 
           if(res) {
             const result = res.data.result.map((item) => {
               const obj = {};
@@ -236,25 +246,47 @@ export default class ManagePromo extends Component {
       }); 
   }
   addPromoToStore() {
-    const { storeStartDate, storeEndDate, storePromoName, storePromoType, storeName} = this.state;
+    const { storeStartDate, storeEndDate, storePromoName, storePromoType, storeName, searchStoreName} = this.state;
+    let promoIds = []; 
+    let storeIds = [];
     const user = JSON.parse(sessionStorage.getItem("user"));    
     const createdBy = user['custom:userId'];
-  // const storeNames =  storeName.map((item) => {
+    
+    if(searchStoreName.length > 0) {
+      promoIds = searchStoreName.map(item => {
+        const obj = {};
+        obj.promoId = item.value;
+        obj.promotionName = item.label;
+         return obj;
+      });
+    } else {
+      let obj = {};
+      obj.promoId = searchStoreName.value;
+      obj.promotionName = searchStoreName.label;
+      promoIds.push(obj);
+    }
+    
+    if(storeName.length > 1) {
+      storeIds =  storeName.map((item) => {
+        const obj = {};
+        obj.id = item.value;
+        obj.name = item.label;
+        return obj;
+      });
+     } else {
       const obj = {};
       obj.id = storeName.value;
       obj.name = storeName.label;
-      obj.location = storeName.location;
-     //  return obj;
-   //  });
+      storeIds.push(obj);
+     }
     const requestObj = {
-        // promoType: storePromoType,
-        promotionName: storePromoName,
-        storeVo: obj,
-        promotionEndDate: storeEndDate,
-        promotionStartDate: storeStartDate,
+        promotions: promoIds,
+        stores: storeIds,
+        endDate: storeEndDate,
+        startDate: storeStartDate,
         priority: null,
         createdBy: createdBy,
-        isActive: true
+        promotionStatus: true
     }
     PromotionsService.addPromoToStore(requestObj).then((res) => {
       if(res.data.isSuccess === 'true') {
@@ -266,8 +298,7 @@ export default class ManagePromo extends Component {
           storePromoName: '', 
           storePromoType: '', 
           storeName: ''
-        });
-        this.getPromoList();
+        }, () => this.getAllStorePromos());
       } else {
         toast.success(res.data.message);
       }
@@ -276,41 +307,45 @@ export default class ManagePromo extends Component {
   cloneStoreName() {
     const { cloneStoreName,  checkedItem } = this.state;
     const obj = {
-      promoId : checkedItem.promoId,
-      storeName: cloneStoreName.label
+      // promoToStoreId : checkedItem.id,
+      id: checkedItem.id,
+      storeName: cloneStoreName.label,
+      storeId: cloneStoreName.value,
     }
     PromotionsService.clonePromotionByStore(obj).then((res) => {
       if(res.data.isSuccess === 'true') {
         toast.success(res.data.message);
         this.setState({
+          isPramotionChecked: false,
           closeClone: false,
           cloneStoreName: '',
           checkedItem: ''
-        });
+        }, () => this.getAllStorePromos());
       } else {
         toast.error(res.data.message);
       }
-      this.getPromoList();
+      // this.getPromoList();
     });
   }
   savePriority() {
     const { checkedItem, priority } = this.state;
     const obj = {
         priority: priority,
-        promoId: checkedItem.promoId
+        // promoToStoreId: checkedItem.id
+        id: checkedItem.id
     }
     PromotionsService.updatePriority(obj).then((res) => {
       if(res.data.isSuccess === 'true') {
         toast.success(res.data.message);
         this.setState({
           isSavePriority: false,
+          isPramotionChecked: false,
           priority: '',
           checkedItem: ''
-        });
+        }, () => this.getAllStorePromos());
       } else {
         toast.error(res.data.message);
       }
-      this.getPromoList();
     });
   }
   getPoolList() {
@@ -363,6 +398,12 @@ export default class ManagePromo extends Component {
 
   addStore() {
     this.setState({ isAddStore: true });
+  }
+  showPramotionStoreMapping() {
+    this.setState({ displayPromotions: true }, () => this.getAllStorePromos());
+  }
+  showPromotionsList() {
+    this.setState({ displayPromotions: false }, () => this.getPromoList());
   }
 
   closeStore() {
@@ -488,7 +529,13 @@ export default class ManagePromo extends Component {
     // obj = {};
   }
   promotionUpdate() {
-    this.setState({ promotionUpdate: true });
+    const {checkedItem } = this.state;
+    this.setState({
+      updatePromoStartDate: checkedItem.startDate,
+      updatePromoEndDate: checkedItem.endDate,
+      updatePromoStatus: checkedItem.promotionStatus, 
+      promotionUpdate: true 
+    });
   }
   savePriorityPopUp = () =>  {
     this.setState({ isSavePriority: true });
@@ -498,6 +545,15 @@ export default class ManagePromo extends Component {
   }
   handlePriority = (e) => {
     this.setState({ priority: e.target.value });
+  }
+  getAllStorePromos() {
+    PromotionsService.getAllStorePromos().then((res) => {
+      if(res.data.isSuccess === 'true') {        
+        this.setState({
+          allStorePromos: res.data.result
+        });
+      }
+    });
   }
   getPromoList() {
     PromotionsService.getPromoList().then((res) => {
@@ -538,24 +594,25 @@ export default class ManagePromo extends Component {
   }
   
   updatePromoDates = () => {
-    const { updatePromoStartDate, updatePromoEndDate, updatePromoStatus, checkedItem } = this.state;    
+    const { updatePromoStartDate, updatePromoEndDate, updatePromoStatus, checkedItem } = this.state;   
     const obj = {
       startDate: updatePromoStartDate,
       endDate: updatePromoEndDate,
-      isActive: updatePromoStatus,
-      promoId: checkedItem.promoId
+      promotionStatus: updatePromoStatus,
+      id: checkedItem.id
     }
     PromotionsService.updatePromotionDates(obj).then((res) => {
       if(res.data.isSuccess === 'true') {
         toast.success(res.data.message);
         this.setState({
           promotionUpdate: false,
+          isPramotionChecked: false,
           updatePromoStartDate: '',
           updatePromoEndDate: '',
           updatePromoStatus: '', 
           checkedItem: ''
         });
-        this.getPromoList();
+        this.getAllStorePromos();
       } else {
         toast.success(res.data.message);
       }
@@ -566,6 +623,31 @@ export default class ManagePromo extends Component {
       promotionUpdate: false,
       isPramotionChecked: false,
       checkedItem: ''
+    });
+  }
+  haandleSearchPromotionType = (e) => {
+    this.setState({searchPromotionType: e.target.value});
+  }
+  handleSearchPromotionStatus = (e) => {
+    this.setState({searchPromoStatus: e.target.value});
+  }
+  searchPromotion = () => {
+    const { searchPromotionType, searchPromoStatus} = this.state;
+    const requestObj = {
+      isActive: searchPromoStatus,
+      applicability : searchPromotionType 
+    }
+    PromotionsService.promotionsSearching(requestObj).then((res) => {
+      if(res.data.isSuccess === 'true') {
+        toast.success(res.data.message);
+        this.setState({
+          listOfPromos: res.data.result,
+          searchPromotionType: '',
+          searchPromoStatus: ''
+        });
+      } else {
+        toast.success(res.data.message);
+      }
     });
   }
   handlePromoStatus(e){
@@ -606,21 +688,21 @@ export default class ManagePromo extends Component {
     });
   }
   searchPromo() {
-    const {promoStatus, searchStoreName, endDate, startDate, promotionName } = this.state;
+    const {promoStatus, searchByStoreName, endDate, startDate, promotionName } = this.state;
     const obj = {
-        startDate: startDate,
-        endDate: endDate,
-        promotionName: promotionName,
-        isActive: promoStatus,
-        storeName: searchStoreName.label
+        promotionStartDate: startDate ? startDate : null,
+        promotionEndDate: endDate ? endDate : null,
+        promotionName: promotionName ? promotionName : null,
+        isActive: promoStatus ? promoStatus : null,
+        storeName: searchByStoreName ? searchByStoreName.label : null
     }
     // Need to handle search promotion
     PromotionsService.searchPromotion(obj).then((res) => {     
       if(res.data.isSuccess === 'true') {
         this.setState({
-         listOfPromos: res.data.result,
+          allStorePromos: res.data.result,
           promoStatus: '', 
-          searchStoreName: '',
+          searchByStoreName: '',
           endDate: '', 
           startDate: '', 
           promotionName: ''
@@ -689,13 +771,23 @@ export default class ManagePromo extends Component {
   handleStoreEndDate(e) {
     this.setState({ storeEndDate: e.target.value });
   }
-  handleChange(e, item) {
+  handleChange(e, index, item) {
     if(e.target.checked) {
+      this.state.allStorePromos.forEach((itm, ind) => {
+        if(index === ind){
+          itm.isCheckBoxChecked = true;
+        }
+      });
       this.setState({
         isPramotionChecked: true,
-        checkedItem: item
+        checkedItem: item,
       });
     } else {
+      this.state.allStorePromos.forEach((itm, ind) => {
+        if(index === ind){
+          itm.isCheckBoxChecked = false;
+        }
+      });
       this.setState({
         isPramotionChecked: false,
         checkedItem: ''
@@ -714,11 +806,13 @@ export default class ManagePromo extends Component {
   }
   onSearchStoreNameChange = selectedSore => {
     this.setState({
-      searchStoreName: selectedSore
+      searchByStoreName: selectedSore
     });
   }
   onSearchStorePromoNameChange = selectedPromotions =>{
-    
+    this.setState({
+      searchStoreName: selectedPromotions
+    });
   }
   oncloneStoreNameChange = selectedstore => {
     this.setState({
@@ -783,7 +877,7 @@ export default class ManagePromo extends Component {
         //   numOfItemsFromGetPool: benfitObj.numOfItemsFromGetPool,
         //   numOfItemsFromBuyPool: benfitObj.numOfItemsFromBuyPool
       });
-    } else {
+    } else if(promo.benfitVo.length > 0){
       benfitVo = promo.benfitVo[0];
       const poolObj =    { value: benfitVo.poolId, label: benfitVo.poolName };
       this.setState({
@@ -1025,7 +1119,11 @@ export default class ManagePromo extends Component {
                   <label>Benefit Type</label>
                   <select value={this.state.benfitType} onChange={(e) => this.handleBenfitType(e)} className="form-control">
                     <option>Select Types of Benefit</option>
-                        {
+                        {this.state.applicability === 'promotionForEachBarcode' ? 
+                          this.state.benfitTypesForEachBarcode &&
+                          this.state.benfitTypesForEachBarcode.map((item, i) => 
+                          (<option key={i} value={item.value}>{item.label}</option>))
+                        : 
                           this.state.benfitTypes &&
                           this.state.benfitTypes.map((item, i) => 
                           (<option key={i} value={item.value}>{item.label}</option>))
@@ -1057,7 +1155,7 @@ export default class ManagePromo extends Component {
                 <div className="form-group">
                   <label></label>
                   <select value={this.state.buyPoolValue} onChange={(e) => this.handleBuyPoolValue(e)} className="form-control">
-                    <option>Item Valued</option>
+                    <option>Item Value</option>
                         {   
                           this.state.buyPoolValues &&
                           this.state.buyPoolValues.map((item, i) => 
@@ -1092,7 +1190,7 @@ export default class ManagePromo extends Component {
                 <div className="form-group">
                   <label></label>
                   <select value={this.state.getPoolValue} onChange={(e) => this.handleGetPoolValue(e)} className="form-control">
-                    <option>Item Valued</option>
+                    <option>Item Value</option>
                         {   
                           this.state.getPoolValues &&
                           this.state.getPoolValues.map((item, i) => 
@@ -1116,7 +1214,7 @@ export default class ManagePromo extends Component {
               </div> }
               <div className="col-6 mt-3">
                 <div className="form-group">
-                  <label></label>
+                  <label>Discount Sub Type</label>
                   {(this.state.discountType === 'PercentageDiscountOn' || this.state.discountType === 'RupeesDiscountOn') ? <select value={this.state.item} onChange={(e) => this.handleItemValue(e)} className="form-control">
                     <option>Select Discount Subtype</option>
                         {   
@@ -1214,6 +1312,16 @@ export default class ManagePromo extends Component {
               <div className="col-3 mt-3">
                 <div className="form-group">
                   <label className="">Promotion Apply Type</label>
+                  {this.state.applicability === 'promotionForWholeBill' ?  
+                  <select value={this.state.promoApplyType} onChange={(e) => this.handlePromoApplyType(e)} className="form-control">
+                    <option>Select</option>
+                        { 
+                          this.state.promoApplyTypesForWholeBill &&
+                          this.state.promoApplyTypesForWholeBill.map((item, i) => 
+                          (<option key={i} value={item.value}>{item.label}</option>))
+                        }
+                  </select>
+                  : 
                   <select value={this.state.promoApplyType} onChange={(e) => this.handlePromoApplyType(e)} className="form-control">
                     <option>Select</option>
                         { 
@@ -1221,7 +1329,7 @@ export default class ManagePromo extends Component {
                           this.state.promoApplyTypes.map((item, i) => 
                           (<option key={i} value={item.value}>{item.label}</option>))
                         }
-                  </select>
+                  </select>}
                 </div>
               </div>
               <div className="col-3 mt-3">
@@ -1237,17 +1345,17 @@ export default class ManagePromo extends Component {
                   </select>
                 </div>                
               </div>
-              { (this.state.promoApplyType === '' || this.state.promoApplyType === 'FixedQuantity' || this.state.promoApplyType === 'AnyQuantity') ? <React.Fragment>
+              { this.state.promoApplyType === 'FixedQuantity' ? <React.Fragment>
               <div className="col-12 mt-4">
                 <h6 className="mb-2 fs-14 text-red">Buy pool definition</h6>
               </div>
-              <div className="col-3">
+              <div className="col-3 mt-3">
                 <div className="form-group">
                   <label>Buy Any</label>
                   <input type="text" value={this.state.buyAny} onChange={(e) => this.handleBuyAny(e)} className="form-control" placeholder="" />
                 </div>
               </div>
-              <div className="col-3">
+              <div className="col-3 mt-3">
               <div className="form-group">
                  <label className="">Add Buy Pools</label> 
                     <Select
@@ -1260,11 +1368,11 @@ export default class ManagePromo extends Component {
                 </div>
               </React.Fragment> : 
               <React.Fragment>
-              <div className="col-3">
+              <div className="col-3 mt-3">
                 <div className="form-group">
                 </div>
               </div>
-              <div className="col-3">
+              <div className="col-3 mt-3">
               <div className="form-group">
                  <label className="">Add Buy Pools</label> 
                     <Select
@@ -1278,7 +1386,7 @@ export default class ManagePromo extends Component {
              </React.Fragment>}
               
               { (this.state.promoApplyType === '' || this.state.promoApplyType === 'FixedQuantity' || this.state.promoApplyType === 'AnyQuantity') && <React.Fragment>
-                <div className="col-3 mt-3">                   
+                <div className="col-3 mt-4 pt-2">                   
                   {this.state.isPromoEdit === true ? <button className="btn-nobdr text-green p-t-3" type="button" onClick={this.editBenefits}>+ Add Benefits</button> : 
                   <button className="btn-nobdr text-red p-t-3" type="button" onClick={this.addBenefits}>+ Add Benefits</button> }
                 </div> </React.Fragment>}
@@ -1286,19 +1394,19 @@ export default class ManagePromo extends Component {
                 <div className="col-12 mt-4">
                   <h6 className="mb-2 fs-14 text-red"></h6>
                 </div>
-                <div className="col-3">
+                <div className="col-3 mt-3">
                   <div className="form-group">
                     <label>From</label>
                     <input type="text" className="form-control" value={this.state.fromSlabValue} onChange={(e) => this.handlefromSlab(e)} placeholder="" />
                   </div>
                 </div>
-                <div className="col-3">
+                <div className="col-3 mt-3">
                   <div className="form-group">
                     <label className="">To</label> 
                       <input type="text" value={this.state.toSlabValue} onChange={(e) => this.handleToSlab(e)} className="form-control" placeholder="" />
                   </div>
                 </div>
-                <div className="col-3 mt-3">
+                <div className="col-3 mt-3 pt-2">
                   <button className="btn-nobdr text-red p-t-3" type="button" onClick={this.addSlab}>+ Add Slab</button>
                 </div>
                 <div className="col-12">
@@ -1319,8 +1427,8 @@ export default class ManagePromo extends Component {
                                 <td className="col-3">{item.fromSlab}</td>
                                 <td className="col-3">{item.toSlab}</td>
                                 <td className="col-1">
-                                {this.state.isPromoEdit === true ? <button className="btn-nobdr text-green p-t-3" type="button" onClick={() => this.getEditBenfitByIndex(index)}>BENFIT</button> : 
-                                    <button className="btn-nobdr text-red p-t-3" type="button" onClick={() => this.addBenefitsList(index)}>BENFIT</button> }
+                                {this.state.isPromoEdit === true ? <button className="btn-nobdr text-green p-t-2 p-b-3" type="button" onClick={() => this.getEditBenfitByIndex(index)}>+ Add Benefits</button> : 
+                                    <button className="btn-nobdr text-red p-t-2 p-b-3" type="button" onClick={() => this.addBenefitsList(index)}>+ Add Benefits</button> }
                                 </td>
                                 {/* <td className="col-1"><button onClick={() => this.addBenefitsList(index)} className="btn-unic active fs-12">BENFIT</button></td> */}
                                 
@@ -1400,28 +1508,35 @@ export default class ManagePromo extends Component {
                 <div className="form-group">
                   <label>Promotion Name</label>
                   {this.state.storePromoType === 'By_Promotion' &&  this.state.storePromoType !== '' ? 
-                  <select value={this.state.storePromoName} onChange={(e) => this.handleStorePromoName(e)} className="form-control">
-                  <option>Select Promotion</option>
-                  { 
-                    this.state.promotionNames &&
-                    this.state.promotionNames.map((item, i) => 
-                    (<option key={i} value={item.promotionName}>{item.promotionName}</option>))
-                  }
-                </select> : 
-                // <Select
-                //     isMulti
-                //     onChange={this.onSearchStorePromoNameChange}
-                //     options={this.state.storePromoList}
-                //     value={this.state.searchStoreName}
-                // />
-                <select value={this.state.storePromoName} onChange={(e) => this.handleStorePromoName(e)} className="form-control">
-                  <option>Select Promotion</option>
-                  { 
-                    this.state.promotionNames &&
-                    this.state.promotionNames.map((item, i) => 
-                    (<option key={i} value={item.promotionName}>{item.promotionName}</option>))
-                  }
-                </select>
+                //   <select value={this.state.storePromoName} onChange={(e) => this.handleStorePromoName(e)} className="form-control">
+                //   <option>Select Promotion</option>
+                //   { 
+                //     this.state.storePromoList &&
+                //     this.state.storePromoList.map((item, i) => 
+                //     (<option key={i} value={item}>{item.label}</option>))
+                //   }
+                // </select>
+                <Select
+                    // isMulti
+                    onChange={this.onSearchStorePromoNameChange}
+                    options={this.state.storePromoList}
+                    value={this.state.searchStoreName}
+                /> 
+                : 
+                <Select
+                    isMulti
+                    onChange={this.onSearchStorePromoNameChange}
+                    options={this.state.storePromoList}
+                    value={this.state.searchStoreName}
+                />
+                // <select value={this.state.storePromoName} onChange={(e) => this.handleStorePromoName(e)} className="form-control">
+                //   <option>Select Promotion</option>
+                //   { 
+                //     this.state.promotionNames &&
+                //     this.state.promotionNames.map((item, i) => 
+                //     (<option key={i} value={item.promotionName}>{item.promotionName}</option>))
+                //   }
+                // </select>
                   }
                   {/* <input type="text" value={this.state.storePromoName}  onChange={(e) => this.handleStorePromoName(e)} className="form-control" /> */}    
                 </div>
@@ -1443,7 +1558,7 @@ export default class ManagePromo extends Component {
                   <label>Store</label>
                   {this.state.storePromoType === 'By_Promotion' && this.state.storePromoType !== '' ?
                     <Select
-                      // isMulti
+                      isMulti
                       onChange={this.onStoreNameChange}
                       options={this.state.storesList}
                       value={this.state.storeName}
@@ -1497,7 +1612,7 @@ export default class ManagePromo extends Component {
           </ModalFooter>
         </Modal>
         <Modal isOpen={this.state.promotionUpdate} size="xl">
-          <ModalHeader>Update Promotions</ModalHeader>
+          <ModalHeader>Modify Promo Validity</ModalHeader>
           <ModalBody>
           <div className="row">
               <div className="col-3 mt-3">
@@ -1539,7 +1654,39 @@ export default class ManagePromo extends Component {
             </button>
           </ModalFooter>
         </Modal>
-        <div className="row mb-2">
+        <div className="row m-0 p-0 scaling-center">  
+          <div className="col-6 p-l-0">
+            <button
+              // className="btn-unic-search active m-1 mt-1"
+              className={!this.state.displayPromotions ? 'btn-unic-search active m-1 mt-1' : 'btn-unic-search m-1 mt-1' }
+              onClick={this.showPromotionsList}
+            >
+              <i className="icon-retail p-r-1"></i> List Of Promotions
+            </button>
+
+            <button
+              // className="btn-unic-search  m-1 mt-1"
+              className={this.state.displayPromotions ? 'btn-unic-search active m-1 mt-1' : 'btn-unic-search m-1 mt-1' }
+              onClick={this.showPramotionStoreMapping}
+            >
+              <i className="icon-retail p-r-1"></i> Manage Promotions
+            </button>
+
+            {!this.state.displayPromotions && <button
+              className="btn-unic-search active m-r-2 mt-1"
+              onClick={this.addPromo}
+            >
+              <i className="icon-sale p-r-1"></i>Add Promo
+            </button> }
+            {this.state.displayPromotions && <button
+              className="btn-unic-search active mt-1"
+              onClick={this.addStore}
+            >
+              <i className="icon-retail p-r-1"></i> Add Store
+            </button>}
+          </div>
+       </div> 
+        {/* {!this.state.displayPromotions && <div className="row mb-2">
           <div className="col-sm-4 col-12 scaling-mb">
             <div className="promo-darkblue">
               <div className="row">
@@ -1585,25 +1732,16 @@ export default class ManagePromo extends Component {
               </div>
             </div>
           </div>
-        </div>
- 
-        <div className="row">
+        </div>} */}
+        {this.state.displayPromotions && <div className="row">
           <div className="col-sm-2 col-6">
             <div className="form-group mt-2 mb-3">
-            {/* <select value={this.state.store} onChange={this.handleStore}className="form-control">
-              <option>Select Store</option>
-              { 
-                this.state.stores &&
-                this.state.stores.map((item, i) => 
-                (<option key={i} value={item.value}>{item.label}</option>))
-              }                
-              </select> */}
                <label>Store Name</label>
               <Select
                 // isMulti
                 onChange={this.onSearchStoreNameChange}
                 options={this.state.storesList}
-                value={this.state.searchStoreName}
+                value={this.state.searchByStoreName}
               />
             </div>
           </div>
@@ -1657,41 +1795,88 @@ export default class ManagePromo extends Component {
           </div>
           <div className="col-sm-4 col-12 pl-0 mb-3 scaling-center scaling-mb">
          
-            <button
+            {/* {this.state.displayPromotions && <button
               className="btn-unic-search active m-r-2 mt-1"
               onClick={this.addPromo}
             >
               <i className="icon-sale p-r-1"></i>Add Promo
-            </button>
-            <button
+            </button> }
+            {this.state.displayPromotions && <button
               className="btn-unic-search active mt-1"
               onClick={this.addStore}
             >
               <i className="icon-retail p-r-1"></i> Add Store
+            </button>} */}
+
+            {/* <button
+              className="btn-unic-search active mt-1"
+              onClick={this.showPromotionsList}
+            >
+              <i className="icon-retail p-r-1"></i>  Promotions List
             </button>
+
+            <button
+              className="btn-unic-search active mt-1"
+              onClick={this.showPramotionStoreMapping}
+            >
+              <i className="icon-retail p-r-1"></i> Manage Promotions
+            </button> */}
+          </div> 
+        </div>}
+
+        {!this.state.displayPromotions && <div className="row">
+          <div className="col-sm-2 col-6 mt-2">
+            <div className="form-group mb-3">
+            <label>Promo Status</label>
+            <select value={this.state.searchPromoStatus} onChange={(e) =>  this.handleSearchPromotionStatus(e)} className="form-control">
+                <option>Select Promo Status</option>
+                { 
+                  this.state.promoStatuses &&
+                  this.state.promoStatuses.map((item, i) => 
+                  (<option key={i} value={item.value}>{item.label}</option>))
+              }
+              </select>
+            </div>
           </div>
-        </div>
-        <div className="row m-0 p-0 scaling-center">
-  
+          <div className="col-sm-2 col-6 mt-2">
+            <div className="form-group mb-3">
+            <label>Promo Type</label>
+              <select value={this.state.searchPromotionType} onChange={ (e) => this.haandleSearchPromotionType(e)} className="form-control">
+                <option>Select Promo Type</option>
+                { 
+                  this.state.promotionTypes &&
+                  this.state.promotionTypes.map((item, i) => 
+                  (<option key={i} value={item.value}>{item.label}</option>))
+                }                
+                </select>
+            </div>
+          </div>
+          <div className="col-sm-2 col-6 mt-2 pt-4">
+          <button className="btn-unic-redbdr" onClick={this.searchPromotion}>SEARCH</button>
+          </div>
+        </div>}
+
+
+        <div className="row m-0 p-0 scaling-center">  
           <div className="col-6 p-l-0">
           <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Promotions</h5>
-            <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.promotionUpdate}>Update Promotions</button>
-            <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.cloneStore}>Clone Promotions</button>
-            <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.savePriorityPopUp}>Save Priority</button>
+            {this.state.displayPromotions && <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.promotionUpdate}>Modify Validity</button>}
+            {this.state.displayPromotions && <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.cloneStore}>Clone</button>}
+            {this.state.displayPromotions &&  <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.savePriorityPopUp}>Change Promo Priority</button>}
           </div>
           <div className="col-6 text-right p-r-0 mt-4 align-self-center">
             <span className="mt-3 ">Show on page </span><span className="font-bold fs-14"> 1-10</span><span> out of 11</span><button className="btn-transparent" type="button"><img src={left} /></button><button className="btn-transparent" type="button"><img src={right} /></button>
           </div>
           <div className="table-responsive p-0">
-            <table className="table table-borderless mb-1 mt-2">
+            {!this.state.displayPromotions ? <table className="table table-borderless mb-1 mt-2">
               <thead>
                 <tr className="m-0 p-0">
                   <th className="col-1"># Promo-ID</th>
                   <th className="col-2">Promo Name</th>
                   <th className="col-2">DESCRIPTION</th>
-                  <th className="col-2">Start Date</th>
-                  <th className="col-2">End Date</th>
-                  <th className="col-1">Status</th>
+                  <th className="col-2">Type</th>
+                  <th className="col-2">Apply On	</th>
+                  <th className="col-2">Promo Print Name</th>
                   <th className="col-1"></th>
                 </tr>
               </thead>
@@ -1699,25 +1884,64 @@ export default class ManagePromo extends Component {
               {this.state.listOfPromos.length > 0 && this.state.listOfPromos.map((item, index) => {
                 return( 
                 <tr key={index}>
-                  <td className="col-1 underline geeks"> <input type="checkbox" onChange={(e) => this.handleChange(e, item)}/> <span className="pt-0 mt-0">{item.promoId}</span> </td>
+                  <td className="col-1 underline geeks"> {/* <input type="checkbox" onChange={(e) => this.handleChange(e, item)}/> */}<span className="pt-0 mt-0">{item.promoId}</span> </td>
                   <td className="col-2">{item.promotionName}</td>
                   <td className="col-2">{item.description}</td>
-                  <td className="col-2">{item.promotionStartDate}</td>
-                  <td className="col-2">{item.promotionEndDate}</td>
-                  <td className="col-1">
+                  <td className="col-2">{item.applicability}</td>
+                  <td className="col-2">{item.promoApplyType}</td>
+                  <td className="col-2">{item.printNameOnBill}</td>
+                  {/* <td className="col-1">
                     {item.isActive ? 
                       <button className="btn-active">Active</button> : 
                       <button className="btn-inactive">Inactive</button>}
-                  </td>
+                  </td> */}
                   <td className="col-1">
                     <img src={edit} onClick={this.editPramotion(item)} className="w-12 pb-2" />
-                    <i onClick={this.handleRemovePromo(item)} className="icon-delete m-l-2 fs-16"></i></td>
+                    {/* <i onClick={this.handleRemovePromo(item)} className="icon-delete m-l-2 fs-16"></i> */}
+                  </td>
                   </tr> 
                   )
                 })}
                 {this.state.listOfPromos.length == 0  && <tr>No records found!</tr>}              
               </tbody>
-            </table>
+            </table> : 
+            <table className="table table-borderless mb-1 mt-2">
+            <thead>
+              <tr className="m-0 p-0">
+                <th className="col-1"># Mapping Id</th>
+                <th className="col-2">Promotion</th>
+                <th className="col-2">Store</th>
+                <th className="col-2">Priority</th>
+                <th className="col-2">Start Date</th>
+                <th className="col-2">End Date</th>
+                <th className="col-1">Status</th>
+                <th className="col-1"></th>
+              </tr>
+            </thead>
+            <tbody>
+            {this.state.allStorePromos.length > 0 && this.state.allStorePromos.map((item, index) => {
+              return( 
+              <tr key={index}>
+                <td className="col-1 underline geeks"> <input type="checkbox" checked={item.isCheckBoxChecked}  onChange={(e) => this.handleChange(e,index, item)}/> <span className="pt-0 mt-0">{item.id}</span> </td>
+                <td className="col-2">{item.promotionName}</td>
+                <td className="col-2">{item.storeName}</td>
+                <td className="col-2">{item.priority}</td>
+                <td className="col-2">{item.startDate}</td>
+                <td className="col-2">{item.endDate}</td>
+                <td className="col-1">
+                  {item.promotionStatus ? 
+                    <button className="btn-active">Active</button> : 
+                    <button className="btn-inactive">Inactive</button>}
+                </td>
+                {/* <td className="col-1">
+                  <img src={edit} onClick={this.editPramotion(item)} className="w-12 pb-2" />
+                  <i onClick={this.handleRemovePromo(item)} className="icon-delete m-l-2 fs-16"></i></td> */}
+                </tr> 
+                )
+              })}
+              {this.state.listOfPromos.length == 0  && <tr>No records found!</tr>}              
+            </tbody>
+          </table>}
           </div>
         </div>
       </div>

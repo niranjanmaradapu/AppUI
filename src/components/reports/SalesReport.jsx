@@ -49,7 +49,7 @@ export default class SalesReport extends Component {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
       dateTo: this.state.dateTo ? this.state.dateTo : undefined,
       custMobileNumber: this.state.custMobileNumber
-        ? this.state.custMobileNumber
+        ? "+91".concat(this.state.custMobileNumber)
         : undefined,
       billStatus: this.state.billStatus ? this.state.billStatus : undefined,
       invoiceNumber: this.state.invoiceNumber
@@ -84,7 +84,8 @@ export default class SalesReport extends Component {
       itemPrice: "",
       discount: "",
       taxLabel: "",
-      taxableAmount: "",
+      // taxableAmount: "",
+      taxValue: "",
       cgst: "",
       sgst: "",
       igst: "",
@@ -107,7 +108,8 @@ export default class SalesReport extends Component {
         // cgst: d.hsnDetailsVo.taxVo.cgst,
         // sgst: d.hsnDetailsVo.taxVo.sgst,
         // igst: d.hsnDetailsVo.taxVo.igst,
-        taxableAmount: d.taxableAmount,
+        // taxableAmount: d.taxableAmount,
+        taxValue: d.taxValue,
         cgst: d.cgst,
         sgst: d.sgst,
         igst: d.igst,
@@ -188,7 +190,8 @@ export default class SalesReport extends Component {
           itemPrice,
           discount,
           taxLabel,
-          taxableAmount,
+          taxValue,
+          // taxableAmount,
           cgst,
           sgst,
           igst,
@@ -196,7 +199,7 @@ export default class SalesReport extends Component {
         } = items;
         return (
           <tr key={index}>
-            <td width="10%">{barCode}</td>
+            <td width="15%">{barCode}</td>
             <td width="10%">{section}</td>
             {/* <td width="10%">{section}</td> */}
             <td width="5%">{empId}</td>
@@ -205,8 +208,8 @@ export default class SalesReport extends Component {
             <td width="5%">{itemPrice}</td>
             <td width="5%">{discount}</td>
             <td width="5%">{taxLabel}</td>
-            <td width="10%">{taxableAmount}</td>
-            <td width="10%">{cgst}</td>
+            <td width="10%">{taxValue}</td>
+            <td width="5%">{cgst}</td>
             <td width="10%">{sgst}</td>
             <td width="5%">{igst}</td>
             <td width="10%">{netValue}</td>
@@ -217,21 +220,21 @@ export default class SalesReport extends Component {
   }
 
   validation(e) {
-    this.setState({
-      [e.target.id]: e.target.value,
-      mobileNumber: e.target.value,
-    });
+    // this.setState({
+    //   [e.target.id]: e.target.value,
+    //   mobileNumber: e.target.value,
+    // });
 
-    // const regex = /^[0-9\b]+$/;
-    // const value = e.target.value;
-    // if (value === "" || regex.test(value)) {
-    //   this.setState({
-    //     [e.target.id]: e.target.value,
-    //     mobileNumber: e.target.value,
-    //   });
-    // } else {
-    //   // toast.error("pls enter numbers")
-    // }
+    const regex = /^[0-9\b]+$/;
+    const value = e.target.value;
+    if (value === "" || regex.test(value)) {
+      this.setState({
+        [e.target.id]: e.target.value,
+        custMobileNumber: e.target.value,
+      });
+    } else {
+      // toast.error("pls enter numbers");
+    }
   }
 
   render() {
@@ -285,7 +288,7 @@ export default class SalesReport extends Component {
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
-                    <th width="10%">Barcode</th>
+                    <th width="15%">Barcode</th>
                     <th width="10%">Section</th>
                     <th width="5%">EMPID</th>
                     <th width="10%">HSN Code</th>
@@ -294,7 +297,7 @@ export default class SalesReport extends Component {
                     <th width="5%">Disc</th>
                     <th width="5%">GST%</th>
                     <th width="10%">Tax Amount</th>
-                    <th width="10%">CGST</th>
+                    <th width="5%">CGST</th>
                     <th width="10%">SGST</th>
                     <th width="5%">IGST</th>
                     <th width="10%">Net Amount</th>
@@ -336,7 +339,7 @@ export default class SalesReport extends Component {
         <div className="row">
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
-            <label>From Date</label>
+              <label>From Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -348,7 +351,7 @@ export default class SalesReport extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
-            <label>To Date</label>
+              <label>To Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -360,7 +363,7 @@ export default class SalesReport extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
-            <label>Bill Status</label>
+              <label>Bill Status</label>
               <select
                 className="form-control"
                 value={this.state.billStatus}
@@ -377,7 +380,7 @@ export default class SalesReport extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
-            <label>Invoice / Bill No</label>
+              <label>Invoice / Bill No</label>
               <input
                 type="text"
                 className="form-control"
@@ -404,26 +407,31 @@ export default class SalesReport extends Component {
                 minLength="10"
                 onChange={this.validation}
               /> */}
-               <label>Mobile</label>
+              <label>Mobile</label>
               <input
                 type="text"
                 className="form-control"
                 placeholder="MOBILE NUMBER"
                 value={this.state.custMobileNumber}
+                maxLength="10"
+                minLength="10"
+                onChange={this.validation}
+                autoComplete="off"
                 // maxLength="12"
                 // minLength="12"
+
                 // onFocus={this.validation}
                 // onChange={this.validation}
-                onChange={(e) =>
-                  this.setState({ custMobileNumber: e.target.value })
-                }
+                // onChange={(e) =>
+                //   this.setState({ custMobileNumber: e.target.value })
+                // }
                 // autoComplete="off"
               />
             </div>
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
-            <label>EMP ID</label>
+              <label>EMP ID</label>
               <input
                 type="text"
                 className="form-control"

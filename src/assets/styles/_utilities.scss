@@ -86,6 +86,7 @@ hr{
         line-height: 3 !important;
     }
 }
+
 .form_ctl{
     & .form-control {
         height: 32px !important;
@@ -225,4 +226,19 @@ input[type=checkbox]+label:active:before {
 textarea {
     // resize: vertical;
     width: 100% !important;
+}
+.head{
+    &-text{
+        display: inline-block;
+        font-size: 14px;
+        // color: $prima;
+        padding: 20px;
+        & span{
+            color:$primary-color;
+            font-weight: 600;
+            font-size: 14px;
+            // padding-left: 10px;
+            
+        }
+    }
 }

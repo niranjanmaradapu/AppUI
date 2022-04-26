@@ -48,7 +48,8 @@ class Login extends Component {
       confirmationCode: "",
       newForgotPassword: "",
       storeId: "",
-      domainId: ""
+      domainId: "",
+      moduleNames:[]
     };
 
     sessionStorage.setItem("lang", this.state.value);
@@ -69,6 +70,8 @@ class Login extends Component {
 
   componentWillMount() {
     sessionStorage.removeItem("selectedDomain");
+   
+   
 
 
     //this.state.storeNames = data
@@ -109,6 +112,9 @@ class Login extends Component {
           const token = res.data.result.authenticationResult.idToken;
           sessionStorage.setItem("user", JSON.stringify(jwt_decode(token)));
           sessionStorage.setItem("token", JSON.stringify(token));
+          const user = JSON.parse(sessionStorage.getItem("user"));
+          console.log(user);
+          this.setState({loggedUser: user});
           // this.getDropdownList();
           const role = JSON.parse(sessionStorage.getItem("user"));
           if (role["cognito:groups"]) {
@@ -162,6 +168,7 @@ class Login extends Component {
         // toast.error('Invalid Credentials');
         this.setState({ userName: "", password: "", selectedOption: null });
         sessionStorage.removeItem("user");
+        
         //  window.location.reload();
       }
     });
@@ -244,16 +251,28 @@ class Login extends Component {
       } else {
         sessionStorage.setItem("domainName", role["cognito:groups"][0]);
         //  sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
-        this.props.history.push("/dashboard");
+        // this.props.history.push("/dashboard");
+        this.navigateSpecificRoute();
       }
     } else if (role["custom:isSuperAdmin"] === "true") {
       // sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
-      this.props.history.push("/dashboard");
+     // this.props.history.push("/dashboard");
+     this.navigateSpecificRoute();
     } else {
       toast.error("No Role Available");
       // sessionStorage.removeItem('user')
       // window.location.reload();
     }
+  }
+
+  navigateSpecificRoute() {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    URMService.getSelectedPrivileges(user["custom:roleName"]).then(res => {
+      if(res && res.data && res.data.result){
+        this.setState({moduleNames: res.data.result.parentPrivilages});
+        this.props.history.push(this.state.moduleNames[0].path);
+      }
+     });
   }
 
   changePassword() {
@@ -432,6 +451,8 @@ class Login extends Component {
       isRegister: false,
       isChangePassword: false,
       isconfirmPassword: false,
+      confirmationCode: ""
+
     });
 
     LoginService.changeForgotPassword(
@@ -480,7 +501,7 @@ class Login extends Component {
     // Organisation
     if (!this.state.registerOrganisation) {
       formIsValid = false;
-      errors["registerOrganisation"] = "Enter register Organisation";
+      errors["registerOrganisation"] = "Enter  Organisation";
     }
 
 
@@ -592,7 +613,7 @@ class Login extends Component {
             return (
               <li
                 key={index}
-                onClick={(e) => this.handleClick(index + 1, element.domaiName,element.clientDomainaId )}
+                onClick={(e) => this.handleClick(index + 1, element.domaiName,element.id )}
               >
                 <a>
                   <img src={element.src} />
@@ -651,7 +672,7 @@ class Login extends Component {
 
   getStoreDetails() {
     this.state.storesName.forEach(element => {
-      if(element.storeId === parseInt(this.state.storeId)) {
+      if(parseInt(element.storeId) === parseInt(this.state.storeId)) {
         sessionStorage.setItem("selectedstoreData", JSON.stringify(element));
       }
     });
@@ -684,6 +705,7 @@ class Login extends Component {
 
                 onChange={(e) => {
                   this.setState({ storeId: e.target.value }, () => {
+                    sessionStorage.removeItem("storeId")
                     sessionStorage.setItem("storeId", this.state.storeId)
                     this.getStoreDetails();
                   })
@@ -701,7 +723,14 @@ class Login extends Component {
               Cancel
             </button>
             <button className="btn-unic active fs-12 mt-3" onClick={(e) => {
-              this.props.history.push("/dashboard");
+              //this.props.history.push("/dashboard");
+              console.log(this.state.loggedUser["custom:isSuperAdmin"]);
+              if(this.state.loggedUser["custom:isSuperAdmin"] === "true") {
+                this.props.history.push("/dashboard");
+              } else {
+                this.navigateSpecificRoute();
+              }
+              
             }
             }>
               OK
@@ -818,7 +847,7 @@ class Login extends Component {
                     {/* <h5>MEMBER LOGIN</h5> */}
                     <h5 className="">
                       {" "}
-                      {t("Hey")}'<br /> {t("Login Now")}{" "}
+                      {t("Login Now")}{" "}
                     </h5>
                     <div className="form-group m-t-2">
                       <input
@@ -1040,12 +1069,12 @@ class Login extends Component {
                           }
                           autoComplete="off"
                         />
-                        {/* <div>
+                        <div>
                                                             <span style={{ color: "red" }}>{this.state.errors["registerName"]}</span>
-                                                        </div> */}
+                                                        </div>
                       </div>
                       <div className="col-6">
-                        <label>Organisation</label>
+                        <label>Organisation <span className="text-red font-bold">*</span></label>
                         <input
                           type="text"
                           name="name"
@@ -1077,9 +1106,9 @@ class Login extends Component {
                           onChange={this.validation}
                           autoComplete="off"
                         />
-                        {/* <div>
+                        <div>
                                                             <span style={{ color: "red" }}>{this.state.errors["registerMobile"]}</span>
-                                                        </div> */}
+                                                        </div>
                       </div>
 
                       <div className="col-6">
@@ -1094,9 +1123,9 @@ class Login extends Component {
                           onChange={this.emailValidation}
                           autoComplete="off"
                         />
-                        {/* <div>
+                        <div>
                                                             <span style={{ color: "red" }}>{this.state.errors["registerEmail"]}</span>
-                                                        </div> */}
+                                                        </div>
                       </div>
 
                       <div className="col-12">

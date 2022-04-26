@@ -17,13 +17,17 @@ export default class CreateTaxMaster extends Component {
       userName: "",
       userId: "",
       storeId: "",
-      taxList:[]
-
+      taxList:[],
+      isTaxMasterEdited: false,
+      selectedTaxMaster: '', 
+      isDeleteTaxMaster: false
     };
 
     this.addTaxMaster = this.addTaxMaster.bind(this);
     this.saveTaxMaster = this.saveTaxMaster.bind(this);
     this.closeTaxMaster = this.closeTaxMaster.bind(this);
+    this.editTaxMaster = this.editTaxMaster.bind(this);
+    this.handleDeleteTaxMaster = this.handleDeleteTaxMaster.bind(this);
   }
 
 
@@ -32,10 +36,10 @@ export default class CreateTaxMaster extends Component {
   }
 
   closeTaxMaster() {
-    this.setState({ isTaxMaster: false });
+    this.setState({ isTaxMaster: false, isDeleteTaxMaster: false });
   }
   saveTaxMaster(){
-    const obj = {
+    let obj = {
       "cess": parseInt(this.state.cess),
       "cgst": parseInt(this.state.cgst),
       "igst": parseInt(this.state.igst),
@@ -45,13 +49,29 @@ export default class CreateTaxMaster extends Component {
       // "mobileNumber": this.state.mobileNumber,
       // "storeId": this.state.storeId
     };
-    AccountingPortalService.saveMasterTax(obj).then(response => {
-      if (response) {
-        toast.success(response.data.message);
-         this.getTaxDataList();
-        this.closeTaxMaster();
-      }
-    });
+    if(!this.state.isTaxMasterEdited) {
+      AccountingPortalService.saveMasterTax(obj).then(response => {
+        if (response) {
+          toast.success(response.data.message);
+           this.getTaxDataList();
+          this.closeTaxMaster();
+        }
+      });
+    } else {
+      obj = {...obj, id: this.state.selectedTaxMaster.id};
+      AccountingPortalService.updateMasterTax(obj).then(response => {
+        if (response.data.isSuccess === 'true') {
+          toast.success(response.data.message);
+          this.setState({
+           selectedTaxMaster: '',
+           isTaxMasterEdited: false,
+           isTaxMaster: false
+          }, () => this.getTaxDataList());
+        } else {
+          toast.warn(response.data.message);
+        }
+      });
+    }
   }
   componentWillMount() {
     const user = JSON.parse(sessionStorage.getItem('user'));
@@ -64,6 +84,36 @@ export default class CreateTaxMaster extends Component {
       if (response) {
         this.setState({ taxList: response.data.result });
         console.log(this.state.taxList);
+      }
+    });
+  }
+  editTaxMaster(items) {
+    this.setState({ 
+      isTaxMaster: true,
+      isTaxMasterEdited: true,
+      taxLabel: items.taxLabel,
+      cgst: items.cgst,
+      sgst: items.sgst,
+      igst: items.igst,
+      cess: items.cess,
+      selectedTaxMaster: items
+    });
+  }
+  deleteTaxMaster = (items) => {
+    this.setState({
+      isDeleteTaxMaster: true,
+      selectedTaxMaster: items
+    });
+  }
+  handleDeleteTaxMaster() {
+    const { selectedTaxMaster } = this.state;
+    AccountingPortalService.deleteTaxMaster(selectedTaxMaster.id).then(response => {
+      if (response.data.isSuccess === 'true') {
+        toast.success(response.data.message);
+        this.setState({
+         selectedTaxMaster: '',
+         isDeleteTaxMaster: false
+        }, () => this.getTaxDataList());
       }
     });
   }
@@ -163,6 +213,25 @@ export default class CreateTaxMaster extends Component {
             </button>
           </ModalFooter>
         </Modal>
+        <Modal isOpen={this.state.isDeleteTaxMaster} size="md">
+          <ModalHeader>Delete Tax Master</ModalHeader>
+          <ModalBody>
+            <div className="maincontent p-0">
+              <h6>Are you sure want to delete tax master?</h6>        
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <button className="btn-unic" onClick={this.closeTaxMaster}>
+              Cancel
+            </button>
+            <button
+              className="btn-unic active fs-12"
+              onClick={this.handleDeleteTaxMaster}
+            >
+              Delete
+            </button>
+          </ModalFooter>
+        </Modal>
         <div className="row">
           <div className="col-sm-5 col-6">
             <h5 className="mt-1 mb-2 fs-18 p-l-0 mt-3">List Of Taxes</h5>
@@ -195,8 +264,8 @@ export default class CreateTaxMaster extends Component {
               <td className="col-2">{items.cess}</td>
               {/* <td className="col-2"><button className="btn-active">Default</button></td> */}
               <td className="col-2 text-center">
-                <img src={edit} className="w-12 pb-2" />
-                <i className="icon-delete m-l-2 fs-16"></i></td>
+                <img src={edit} onClick={() => this.editTaxMaster(items)} className="w-12 pb-2" />
+                <i onClick={() => this.deleteTaxMaster(items)} className="icon-delete m-l-2 fs-16"></i></td>
             </tr>
             );
           })}

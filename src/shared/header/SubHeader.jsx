@@ -77,6 +77,7 @@ class SubHeader extends Component {
           children: [
             { childName: "Inventory List", childImage: "deliveryslip", childPath: "/inventoryList", },
             { childName: "Barcode List", childImage: "sale", childPath: "/barcodeList", },
+            // { childName: "Product Combo", childImage: "sale", childPath: "/productsCombo", },
 
           ],
         },
@@ -311,6 +312,7 @@ class SubHeader extends Component {
           children: [
             { name: "Users", childImage: "deliveryslip", childPath: "/users" },
             { name: "Roles", childImage: "sale", childPath: "/roles" },
+            { name: "Payment", childImage: "sale", childPath: "/payment" },
           ],
         },
         {
@@ -336,15 +338,9 @@ class SubHeader extends Component {
 
   componentWillMount() {
     const domainName = sessionStorage.getItem("domainName");
-    // if(domainName === "config_user") { 
-    // this.setState({ message: "URM Portal" }, () => { this.setHeaders(); })
-    // } else {
-    //   eventBus.on("subHeader", (data) =>
-    //   this.setState({ message: data.message }, () => {this.setHeaders();}));
-    // }
-
     eventBus.on("subHeader", (data) =>
-      this.setState({ message: data.message }, () => {this.setHeaders();}));
+      this.setState({ message: data.message }, () => {this.setHeaders();})
+      );
       console.log(this.state.message);
       if(!this.state.message) {
           if(domainName === "config_user") { 

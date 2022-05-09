@@ -70,12 +70,13 @@ class InventoryService {
         }
     }
 
-    deleteBarcode(barcodeId,domain) {
+    deleteBarcode(barcode,domain,barcodeId) {
         if (domain && domain.label === "Retail") {
             const param1 = '?barcodeId=' + barcodeId;
             return axios.delete(BASE_URL + INVENTORY_URLS.deleteRetailBarcode + param1);
         } else {
-            const param2 = '?barcode=' + barcodeId;
+            const param2 = '?barcode=' + barcode;
+            console.log("barcode",barcode);
             return axios.delete(BASE_URL + INVENTORY_URLS.deleteTextileBarcode + param2);
         }
     }
@@ -87,7 +88,8 @@ class InventoryService {
         return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesList,list);
         }else{
             
-            return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesListTextile + param2 +'&size=10',list);
+            // return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesListTextile + param2 +'&size=10',list);
+             return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesListTextile + param2 +'&size=10',list);
             // return axios.post(BASE_URL+INVENTORY_URLS.getAllBarcodesListTextile,list);
         }
     }
@@ -101,30 +103,21 @@ class InventoryService {
         }
     }
 
-    saveBulkData(uploadFile) {
-          let token = JSON.parse(sessionStorage.getItem('token'));
-        let formData = new FormData();
+    saveBulkData(uploadFile,store) {
+        //  const param2 ='?storeId='+ store;
+           let token = JSON.parse(sessionStorage.getItem('token'));
+           let formData = new FormData();
             formData.append('file', uploadFile)
-
-        // const param = '?storeId='+ storeId;
-        // if (domain && domain.label === "Retail") {
-        //     return axios.post(BASE_URL+INVENTORY_URLS.savebulkRetail + param,inventoryjson);
-        //     }else{
-        //         return axios.post(BASE_URL+INVENTORY_URLS.addBulkTextile + param,inventoryjson);
-
-        //     }
-        let commonUrl = "http://10.80.1.39:9092/inventoryTextile/add-bulk-products"
+        //     addBulkTextile   BASE_URL+INVENTORY_URLS.addBulkTextile     "storeId":store
+       //   let commonUrl = "http://10.80.1.39:9097/inventory/inventoryTextile/add-bulk-products"
         const uninterceptedAxiosInstance = axios.create();
-   return uninterceptedAxiosInstance.post(commonUrl,formData,
+   return uninterceptedAxiosInstance.post(BASE_URL+INVENTORY_URLS.addBulkTextile,formData,
                 {
                     headers: {
-                        "Content-type": "multipart/form-data",
-                        "type":"File",
-                         "Authorization":'Bearer' + ' ' + token,
-                        "storeId": 1
+                          "Authorization":'Bearer' + ' ' + token,
+                          "storeId":store
                     },                    
                 })
-       
 
     }
 

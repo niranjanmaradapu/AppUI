@@ -130,7 +130,10 @@ export default class ListOfPools extends Component {
     ruleNumber: 0,
     isPoolRuleUpdated: false,
     editedRuleNumber: '',
-    activeIndex: null
+    activeIndex: null,
+    selectedOption: '',
+    errors: [],
+    poolError: {}
     };
 
     this.addPool = this.addPool.bind(this);
@@ -156,7 +159,18 @@ export default class ListOfPools extends Component {
     this.toggleClass = this.toggleClass.bind(this);
   }  
   componentDidMount() {
-    this.getDomainsList();   
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const clientDomainId = user["custom:clientDomians"].split(",")[0];
+      URMService.getDomainName(clientDomainId).then(res => {
+        if(res) {
+          const obj  = {
+            value: clientDomainId,
+            label: res.data.result.domaiName
+          }
+          this.setState({ selectedOption: obj }, () => this.getDomainsList());
+        }
+      });
+      // this.getDomainsList();
   }
   getAllColumns(clientId) {
     PromotionsService.getAllColumns(clientId).then((res) => {
@@ -187,12 +201,13 @@ export default class ListOfPools extends Component {
       });
     });
   }
-  getDomainsList() {    
+  getDomainsList() {
+    const { selectedOption } = this.state;   
     const user = JSON.parse(sessionStorage.getItem('user'));
-    const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));   
+    // const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
      URMService.getDomainsList(user["custom:clientId1"]).then((res) => {
          if(res) {
-           if(selectedDomain.label === 'Textile') {
+           if(selectedOption.label === 'Textile') {
              this.setState({ clientId:  1 /* res.data.result[1].domain[0].id */}, () => this.getPoolList());
            } else {
              this.setState({ clientId: 2 /* res.data.result[0].domain[0].id */ }, () => this.getPoolList());
@@ -201,8 +216,14 @@ export default class ListOfPools extends Component {
      });
    }
   getPoolList() {
-    this.getAllColumns(this.state.clientId)
-    PromotionsService.getPoolList().then((res) => {
+    const { clientId } = this.state;
+    this.getAllColumns(this.state.clientId);
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const selectedstoreData = JSON.parse(sessionStorage.getItem("selectedstoreData"));
+    const storeId = selectedstoreData.storeId;
+    const customClientId = user['custom:clientId1'];
+    const domainId = clientId;
+    PromotionsService.getPoolList(domainId, customClientId, storeId).then((res) => {
       if(res.data.isSuccess === 'true') {   
             var elements = res.data.result['poolvo'].reduce( (previous, current) => {
             var object = previous.filter(object => object.createdBy === current.createdBy);
@@ -223,6 +244,7 @@ export default class ListOfPools extends Component {
   }
   
   handleChange(e) {
+  this.state.poolError["poolName"] = '';
    this.setState({poolName: e.target.value});
   }
 
@@ -231,6 +253,7 @@ export default class ListOfPools extends Component {
   }
 
   handlePoolType(e){
+    this.state.poolError["poolType"] = '';
     this.setState({poolType: e.target.value});
   }
 
@@ -245,10 +268,26 @@ export default class ListOfPools extends Component {
           addedIncludedPoolRules: []
        });
   }
+  handlePoolData = () => {
+    const {poolName, poolType } = this.state;
+    let errors = {};
+    let formIsValid = true;
+    if (!poolName) {
+      formIsValid = false;
+      errors["poolName"] = "Enter Pool Name";
+    }
+    if (!poolType) {
+      formIsValid = false;
+      errors["poolType"] = "Select Pool Type";
+    }
+    this.setState({ poolError: errors });               
+    return formIsValid;
+  }
   addPoolDetails() {
     const { addedIncludedPoolRules, addedExcludedPoolRules, activeTab, ruleNumber, isUpdatable} = this.state;
     let poolConditions = [];
-    const user = JSON.parse(sessionStorage.getItem("user"));    
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const selectedstoreData = JSON.parse(sessionStorage.getItem("selectedstoreData"));    
     const createdBy = user['custom:userId'];
     delete this.state.addNewRule['valueList']
     if(this.state.isUpdatable) {
@@ -270,6 +309,8 @@ export default class ListOfPools extends Component {
                   isForEdit: true,
                   poolName: this.state.poolName,
                   poolType: this.state.poolType,
+                  storeId: selectedstoreData.storeId,
+                  clientId: user['custom:clientId1'],
                   createdBy: createdBy,
                   domainId: this.state.clientId,
                    pool_RuleVo: this.groupByMultiplePropertiesEdit(updatedConditionArray),
@@ -313,26 +354,33 @@ export default class ListOfPools extends Component {
       isForEdit: false,
       poolName: this.state.poolName,
       poolType: this.state.poolType,
+      storeId: selectedstoreData.storeId,
+      clientId: user['custom:clientId1'],
       createdBy: createdBy,
       domainId: this.state.clientId,
       pool_RuleVo: this.groupByMultipleProperties(conditionArray)
     }
+    if(conditionArray.length === 0) {
+      this.handlePoolData();
+      toast.info('Add Pool Rule');
+    } else if(this.handlePoolData()) {
       PromotionsService.addPool(obj).then((res) => {
-          if (res.data.isSuccess === 'true') {
-              toast.success(res.data.message);
-              this.setState({ 
-                isAddPool: false,
-                isUpdatable: false,
-                poolName: '',
-                poolType: '',
-                addNewRule: [],
-                updatedRuleVO: []
-              });
-              this.getPoolList();
-          } else {
-            toast.error(res.data.message);
-          }
-      });
+        if (res.data.isSuccess === 'true') {
+            toast.success(res.data.message);
+            this.setState({ 
+              isAddPool: false,
+              isUpdatable: false,
+              poolName: '',
+              poolType: '',
+              addNewRule: [],
+              updatedRuleVO: []
+            });
+            this.getPoolList();
+        } else {
+          toast.error(res.data.message);
+        }
+     });
+    }
   }
   }
   handleAddRow = () => {
@@ -347,27 +395,52 @@ export default class ListOfPools extends Component {
         isPoolRuleUpdated: false,
         isAddRule: true,
         addNewRule: [],
-        ruleNumber: ruleNum
+        ruleNumber: ruleNum, 
+        // addNewRule
       });
   };
-
-  handleAddRuleRow = () => {
-    const item = {
-      columnName: '',
-      givenValue: '',
-      operatorSymbol: '',
-      selectedPoolValues: []
-    };
-    this.setState({
-      addNewRule: [...this.state.addNewRule, item]     
+  conditionValidation = () => {
+    const { addNewRule } = this.state;
+    const membersArrayErrors = []
+    addNewRule.forEach((member, memberIndex) => {
+      const memberErrors = {}
+      if (!member || !member.columnName) {
+        memberErrors.columnName = 'Required'
+        membersArrayErrors[memberIndex] = memberErrors
+      }
+      if (!member || !member.operatorSymbol) {
+        memberErrors.operatorSymbol = 'Required'
+        membersArrayErrors[memberIndex] = memberErrors
+      }
+      if (!member || !member.givenValue) {
+        memberErrors.givenValue = 'Required'
+        membersArrayErrors[memberIndex] = memberErrors
+      }      
     });
+    return membersArrayErrors;
+  } 
+  handleAddRuleRow = () => { 
+    const conditionErrors = this.conditionValidation();
+    if(conditionErrors.length === 0) {
+      const item = {
+        columnName: '',
+        givenValue: '',
+        operatorSymbol: '',
+        selectedPoolValues: []
+      };
+      this.setState({
+        addNewRule: [...this.state.addNewRule, item]     
+      });
+    } else {
+      toast.info('Select All Mandatary Fields Of The Condition');
+    }
+    
   };
   onColumnValueChange = idx => (opt) => {
     const { addNewRule } = this.state;
     const values =  opt.map( itm => itm.value);
     this.state.addNewRule[idx].selectedPoolValues=opt;
     this.state.addNewRule[idx].givenValue = values.join(", ");
-    console.log('+++++++++++addNewRule+++++++++++', addNewRule);
     this.setState({
       // selectedPoolValues: opt,
       addNewRule
@@ -461,10 +534,10 @@ export default class ListOfPools extends Component {
     });
   }
 
-  handleRemoveSpecificRow = (idx) => () => {
+  handleRemoveSpecificRow = (idx) => () => {    
     const addNewRule = [...this.state.addNewRule]
     addNewRule.splice(idx, 1)
-    this.setState({ addNewRule })
+    this.setState({ addNewRule})
   }
   handleRemoveSpecificRule = (idx) => {
     if(this.state.activeTab === 'INCLUDED') {
@@ -502,6 +575,13 @@ export default class ListOfPools extends Component {
   }
   handleCreatedBy(e) {
     this.setState({ createdBy: e.target.value });
+  }
+  clearPool = () => {
+    this.setState({ 
+      listOfPools: [],
+      createdBy: '',
+      poolType: ''     
+     }, () => this.getPoolList());
   }
   searchPool() {
     const { createdBy, poolType, poolStatus, createdByList} = this.state;
@@ -678,10 +758,77 @@ export default class ListOfPools extends Component {
   }
   addRule = () => {
     const { addNewRule, editedRuleNumber, activeTab, addedExcludedPoolRules, addedIncludedPoolRules, isUpdatable, isPoolRuleUpdated } = this.state;
-    if(isUpdatable) {
-          // if pool condition edit
+    const conditionErrors = this.conditionValidation();
+    if(addNewRule.length === 0) {
+      toast.info('Add At Least One Condition');
+    } else if(conditionErrors.length === 0 && addNewRule.length > 0){
+      if(isUpdatable) {
+            // if pool condition edit
+            const addedNewRules = addNewRule.map((item) => {
+              // item.ruleNumber = this.state.ruleNumber;
+              if(isUpdatable) {
+                item.isForEdit = true;
+              } else {
+                item.isForEdit = false;
+              }
+              return item;
+            });
+          if(activeTab === 'INCLUDED') {
+            let  addedIncludedPoolRules1 = [];
+            if(isPoolRuleUpdated) {
+                addedIncludedPoolRules1 = [...addedIncludedPoolRules];
+            } else {
+              const finalIncludedRules = addedNewRules.map((item) => { 
+                item.ruleType = 'Include';
+                item.ruleNumber = this.state.ruleNumber
+                return item; 
+              });
+              const groupedRules = this.groupByRuleNumber(finalIncludedRules);
+              addedIncludedPoolRules1 = [...addedIncludedPoolRules, ...groupedRules];
+            }
+            let includeConditions = [];
+            addedIncludedPoolRules1.forEach(item => {
+              delete item.ruleNumber;
+              item.rules.forEach(itm => {
+                includeConditions.push(itm);
+              });
+            });
+            this.setState({
+              isPoolRuleUpdated: false,
+              ruleNumber: this.state.ruleNumber,
+              isAddRule: false,
+              addedIncludedPoolRules: this.groupByRuleNumber(includeConditions),
+              addNewRule: []
+            });
+          } else {
+              let  addedExcludedPoolRules1 = [];
+              if(isPoolRuleUpdated) {
+                addedExcludedPoolRules1 = [...addedExcludedPoolRules];
+              } else {
+                const finalExcludedRules = addedNewRules.map((item) => { 
+                  item.ruleType = 'Include';
+                  item.ruleNumber = this.state.ruleNumber
+                  return item; 
+                });
+                const groupedRules = this.groupByRuleNumber(finalExcludedRules);
+                addedExcludedPoolRules1 = [...addedExcludedPoolRules, ...groupedRules];
+              }
+              let updateExConditions = [];
+              addedExcludedPoolRules1.forEach(item => {
+                item.rules.forEach(itm => {
+                  updateExConditions.push(itm);
+                });
+              });
+              this.setState({
+                isPoolRuleUpdated: false,
+                isAddRule: false,
+                addedExcludedPoolRules: this.groupByRuleNumber(updateExConditions),
+                addNewRule: []
+              });
+          }
+      } else {
           const addedNewRules = addNewRule.map((item) => {
-            // item.ruleNumber = this.state.ruleNumber;
+            item.ruleNumber = this.state.ruleNumber;
             if(isUpdatable) {
               item.isForEdit = true;
             } else {
@@ -689,98 +836,38 @@ export default class ListOfPools extends Component {
             }
             return item;
           });
-        if(activeTab === 'INCLUDED') {
-          let  addedIncludedPoolRules1 = [];
-          if(isPoolRuleUpdated) {
-               addedIncludedPoolRules1 = [...addedIncludedPoolRules];
-          } else {
-            const finalIncludedRules = addedNewRules.map((item) => { 
-              item.ruleType = 'Include';
-              item.ruleNumber = this.state.ruleNumber
-              return item; 
-            });
-            const groupedRules = this.groupByRuleNumber(finalIncludedRules);
-            addedIncludedPoolRules1 = [...addedIncludedPoolRules, ...groupedRules];
-          }
-          let includeConditions = [];
-          addedIncludedPoolRules1.forEach(item => {
-            delete item.ruleNumber;
-            item.rules.forEach(itm => {
-              includeConditions.push(itm);
-            });
+        if(activeTab === 'INCLUDED') {      
+          // const includeRules = [...addedIncludedPoolRules, ...addedNewRules];
+          const finalIncludedRules = addedNewRules.map((item) => { 
+            item.ruleType = 'Include';
+            return item; 
           });
+          const groupedRules = this.groupByRuleNumber(finalIncludedRules);
+          const includeRules = [...addedIncludedPoolRules, ...groupedRules];
           this.setState({
-            isPoolRuleUpdated: false,
-            ruleNumber: this.state.ruleNumber,
             isAddRule: false,
-            addedIncludedPoolRules: this.groupByRuleNumber(includeConditions),
+          // addedIncludedPoolRules: finalIncludedRules,
+            addedIncludedPoolRules: includeRules,
             addNewRule: []
           });
         } else {
-            let  addedExcludedPoolRules1 = [];
-            if(isPoolRuleUpdated) {
-              addedExcludedPoolRules1 = [...addedExcludedPoolRules];
-            } else {
-              const finalExcludedRules = addedNewRules.map((item) => { 
-                item.ruleType = 'Include';
-                item.ruleNumber = this.state.ruleNumber
-                return item; 
-              });
-              const groupedRules = this.groupByRuleNumber(finalExcludedRules);
-              addedExcludedPoolRules1 = [...addedExcludedPoolRules, ...groupedRules];
-            }
-            let updateExConditions = [];
-            addedExcludedPoolRules1.forEach(item => {
-              item.rules.forEach(itm => {
-                updateExConditions.push(itm);
-              });
-            });
-            this.setState({
-              isPoolRuleUpdated: false,
-              isAddRule: false,
-              addedExcludedPoolRules: this.groupByRuleNumber(updateExConditions),
-              addNewRule: []
-            });
+          // const excludeRules = [...addedExcludedPoolRules, ...addedNewRules];
+          const finalExcludedRules = addedNewRules.map((item) => { 
+            item.ruleType = 'Exclude';
+            return item; 
+          });
+          const groupedRules = this.groupByRuleNumber(finalExcludedRules);
+          const excludeRules = [...addedExcludedPoolRules, ...groupedRules];
+          this.setState({
+            isAddRule: false,
+            addedExcludedPoolRules: excludeRules,
+            addNewRule: []
+          });
         }
-    } else {
-        const addedNewRules = addNewRule.map((item) => {
-          item.ruleNumber = this.state.ruleNumber;
-          if(isUpdatable) {
-            item.isForEdit = true;
-          } else {
-             item.isForEdit = false;
-          }
-          return item;
-        });
-      if(activeTab === 'INCLUDED') {      
-        // const includeRules = [...addedIncludedPoolRules, ...addedNewRules];
-        const finalIncludedRules = addedNewRules.map((item) => { 
-          item.ruleType = 'Include';
-          return item; 
-        });
-        const groupedRules = this.groupByRuleNumber(finalIncludedRules);
-        const includeRules = [...addedIncludedPoolRules, ...groupedRules];
-        this.setState({
-          isAddRule: false,
-         // addedIncludedPoolRules: finalIncludedRules,
-          addedIncludedPoolRules: includeRules,
-          addNewRule: []
-        });
-      } else {
-        // const excludeRules = [...addedExcludedPoolRules, ...addedNewRules];
-        const finalExcludedRules = addedNewRules.map((item) => { 
-          item.ruleType = 'Exclude';
-          return item; 
-        });
-        const groupedRules = this.groupByRuleNumber(finalExcludedRules);
-        const excludeRules = [...addedExcludedPoolRules, ...groupedRules];
-        this.setState({
-          isAddRule: false,
-          addedExcludedPoolRules: excludeRules,
-          addNewRule: []
-        });
       }
-    }      
+    } else {
+      toast.info('Select All Mandatary Fields Of The Condition');
+    }     
   }
 
   getPrivilegesList() {
@@ -1133,13 +1220,14 @@ Tabs = () => {
                 </div>
                 <div className="col-4">
                 <div className="form-group">
-                  <label>Pool Name</label>
+                  <label>Pool Name <span className="text-red font-bold" name="bold">*</span></label>
                   <input type="text" value={this.state.poolName}  onChange={this.handleChange} className="form-control" placeholder="" />
                 </div>
+                <span style={{ color: "red" }}>{this.state.poolError["poolName"]}</span>
                 </div>
                 <div className="col-4">
                 <div className="form-group">
-                  <label>Pool Type</label>
+                  <label>Pool Type <span className="text-red font-bold" name="bold">*</span></label>
                   <select value={this.state.poolType} onChange={this.handlePoolType} className="form-control">
                     <option>Select Pool Type</option>
                        { 
@@ -1149,6 +1237,7 @@ Tabs = () => {
                         }
                   </select>
                 </div>
+                <span style={{ color: "red" }}>{this.state.poolError["poolType"]}</span>
                 </div>
                 <div className="col-4 outlet">
                 
@@ -1200,23 +1289,17 @@ Tabs = () => {
               </select>
             </div>
           </div>
-          <div className="col-sm-3 col-12">
-            <div className="form-group mt-2 mb-3">
-            <label>Status</label>
-              <select  value={this.state.poolStatus} onChange={this.handlePoolStatus} className="form-control">
-                <option>Select Status</option>
-                { 
-                  this.state.poolStatuses &&
-                  this.state.poolStatuses.map((item, i) => 
-                  (<option key={i} value={item.value}>{item.label}</option>))
-                }
-              </select>
-            </div>
-          </div>
-          <div className="col-sm-3 col-12 text-right pt-4 scaling-center scaling-mb">
+          <div className="col-sm-4 col-12 pt-4 scaling-center scaling-mb">
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>SEARCH</button>
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearPool}>CLEAR</button>
             <button className="btn-unic-redbdr mt-2" onClick={this.addPool}>Add Pool</button>
           </div>
+           {/*<div className="col-sm-2 col-12">
+            <div className="form-group mt-2 mb-3">
+            <button className="btn-unic-search active m-r-2 mt-4" onClick={this.clearPool}>CLEAR</button>
+            </div> 
+          </div>*/}
+         
         </div>
         <div className="row m-0 p-0 scaling-center">
           <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Pools</h5>

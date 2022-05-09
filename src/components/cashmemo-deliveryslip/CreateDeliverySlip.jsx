@@ -39,6 +39,7 @@ class CeateDeliverySlip extends Component {
       totalAmount: 0,
       totalQuantity: 0,
       type: "",
+      errors: {},
       showTable: false,
       isCheckPromo: false,
       isQuantity: true,
@@ -69,6 +70,7 @@ class CeateDeliverySlip extends Component {
     this.hideModal = this.hideModal.bind(this);
     this.generateNew = this.generateNew.bind(this);
     this.getLineItems = this.getLineItems.bind(this);
+    // this.handleValidation=this.handleValidation.bind(this);
     //  this.deleteTableRow = this.deleteTableRow.bind(this);
 
 
@@ -131,12 +133,16 @@ class CeateDeliverySlip extends Component {
   };
 
   getDeliverySlips = (e) => {
+    // const formValid = this.handleValidation();
+    // if (formValid) {
+
     const storeId = sessionStorage.getItem("storeId");
     this.setState({ type: this.state.selectedType.label });
     let mrp = 0;
     let promo = 0;
     let total = 0;
     if (e.key === "Enter") {
+      
 
       this.setState({ copysmNumber: JSON.parse(JSON.stringify(this.state.smNumber)) });
       if (this.state.barCode && this.state.smNumber) {
@@ -206,7 +212,7 @@ class CeateDeliverySlip extends Component {
       }
     }
 
-
+  // }
   };
 
   remberSalesMan(e) {
@@ -467,13 +473,13 @@ class CeateDeliverySlip extends Component {
 
   checkQuantity(e, index, item) {
     if (e.target.value !== "") {
-      item.quantity = e.target.value;
+      item.quantity =  parseInt(e.target.value);
       let qty = item.quantity;
       if (parseInt(e.target.value) <= item.qty) {
         this.setState({ qty: e.target.value });
 
 
-        item.quantity = e.target.value;
+        item.quantity = parseInt(e.target.value);
         let totalcostMrp = item.itemMrp * parseInt(e.target.value);
 
         item.totalMrp = totalcostMrp
@@ -482,7 +488,7 @@ class CeateDeliverySlip extends Component {
         toast.info("Insufficient Quantity");
       }
     } else {
-      item.quantity = e.target.value;
+      item.quantity = parseInt(e.target.value);
     }
 
     let grandTotal = 0;
@@ -522,6 +528,26 @@ class CeateDeliverySlip extends Component {
 
 
   }
+  // handleValidation() {
+  //   let errors = {};
+  //   let formIsValid = true;
+  //   //sm number
+  //   if (!this.state.smNumber) {
+  //     formIsValid = false;
+  //     errors["smNumber"] = "Please Enter SM Number";
+  // }
+  // if (this.state.smNumber) {
+  //     let input = this.state.smNumber;
+  //     const smnumValid = input.length < 4 ;
+  //     if (this.state.smNumber && !smnumValid) {
+  //       formIsValid = false;
+  //       errors["smNumber"] = "SM Number Must Have 4 Digits";
+  //     }
+  //   }
+
+  //   this.setState({ errors: errors });
+  //   return formIsValid;
+  // }
 
 
 
@@ -729,9 +755,12 @@ class CeateDeliverySlip extends Component {
                                <img src={scan}/> SCAN  
                 </button> */}
               </div>
+              {/* <div>
+               <span style={{ color: "red" }}>{this.state.errors["barCode"]}</span>
+                                        </div> */}
             </div>
             <div className="col-sm-3 col-6 scaling-mtop">
-            <label>SM Number</label>
+            <label>SM Number<span className="text-red font-bold">*</span></label>
               <div className="form-group">
                 <input
                   type="text"
@@ -742,6 +771,12 @@ class CeateDeliverySlip extends Component {
                   onChange={(e) => this.setState({ smNumber: e.target.value })}
                 />
               </div>
+              {/* <div>
+                             <span style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
+                                                        </div> */}
+              {/* <div>
+                <span style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
+                                        </div> */}
             </div>
             {/* <div className="col-sm-3 col-6 scaling-mtop">
               <div className="form-group">

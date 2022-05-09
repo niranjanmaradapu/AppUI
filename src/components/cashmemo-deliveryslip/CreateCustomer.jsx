@@ -28,7 +28,7 @@ export default class CreateCustomer extends Component {
       gstmobile: "",
       gstemail: "",
       gstaddress: "",
-      isCustomer: "true",
+      isCustomer: true,
       isConfigUser: "false",
       errors: {},
 
@@ -44,29 +44,72 @@ export default class CreateCustomer extends Component {
     //Name
     if (!this.state.name) {
         formIsValid = false;
-        errors["name"] = " Please Enter Name";
+        errors["name"] = " Please Enter Name ";
     }
+    if (this.state.name) {
+      let input = this.state.name;
+      const nameValid = input.length < 6 ;
+      const exnameValid = input.length > 25;
+      if (nameValid) {
+        formIsValid = false;
+        errors["name"] = "Please Enter Atleast 6 Characters";
+      }else if(exnameValid){
+        formIsValid = false;
+        errors["name"] = "Please Enter Name Below 25 characters";
+        }
+      }
+  
+  
 
    
 
 
     // Mobile
-    if (!this.state.phoneNumber) {
-        formIsValid = false;
-        errors["mobileNumber"] = " Please Enter Mobile Number";
-    }
-
-    // if (typeof this.state.mobileNumber !== "undefined") {
-    //     if (!this.state.mobileNumber.match(/^[0-9\b]+$/)) {
-    //         formIsValid = false;
-    //         errors["mobileNumber"] = "Please Enter Valid Mobile Number";
-    //     }
+    // if (!this.state.phoneNumber) {
+    //     formIsValid = false;
+    //     errors["mobileNumber"] = " Please Enter Mobile Number";
     // }
 
+    if (this.state.phoneNumber) {
+      let input = this.state.phoneNumber;
+          const mobileValid = input.length ===10
+          if(this.state.phoneNumber && !mobileValid){
+        if (!this.state.phoneNumber.match(/^[0-9\b]+$/)) {
+            formIsValid = false;
+            errors["mobileNumber"] = "Please Enter Valid Mobile Number";
+        }
+        }
+    }
+     // Mobile
+  //    
+  if (!this.state.phoneNumber) {
+            
+    formIsValid = false;
+    errors["mobileNumber"] = "Please Enter Mobile Number";
+}
+
+if (this.state.phoneNumber) {
+  var pattern = new RegExp(/^[0-9\b]+$/);
+  if (pattern.test(this.state.phoneNumber)) {
+    let input = this.state.phoneNumber;
+    const mobValid= input.length === 10;
+  if(this.state.phoneNumber && !mobValid){
+      formIsValid = false;
+    errors["mobileNumber"] = "Please Enter valid Mobile Number.";
+  }
+ 
+  }
+ }
+ 
     //email 
+    // if (!this.state.email) {
+    //     formIsValid = false;
+    //     errors["email"] = " Please Enter Email";
+    // }
     if (!this.state.email) {
-        formIsValid = false;
-        errors["email"] = " Please Enter Email";
+      errors["email"] = 'Email address is required';
+    } else if (!/\S+@\S+\.\S+/.test(this.state.email)) {
+      errors["email"] = 'Please Enter Valid Email';
     }
 
     // if (typeof this.state.email !== "undefined") {
@@ -116,7 +159,7 @@ export default class CreateCustomer extends Component {
           gstmobile: "",
           gstemail: "",
           gstaddress: "",
-          isCustomer: "true",
+          isCustomer: true,
           isConfigUser: "false"
         })
       }

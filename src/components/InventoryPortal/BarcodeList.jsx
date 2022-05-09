@@ -1112,14 +1112,13 @@ export default class BarcodeList extends Component {
   };
 
   handleExcelChange = (event) => {
-    console.log("Files", event.target.files[0]);
     let uploadFile = event.target.files[0];
     if (uploadFile !== null) {
       // let formData = new FormData();
       // formData.append('file', uploadFile);
-      InventoryService.saveBulkData(uploadFile).then((response) => {
+      InventoryService.saveBulkData(uploadFile,this.state.selectedStoreId).then((response) => {
         if (response) {
-          toast.success(response.data.message);
+          toast.success(response.data.result);
         }
       });
     }
@@ -1674,14 +1673,19 @@ export default class BarcodeList extends Component {
                     : this.barcodesListTableTextile()}
                 </tbody>
 
-                {/* {this.state.barcodesList?.content?.length < 10 ? null : ( */}
-                <ReactPageNation
+               
+              </table>
+              <div className="row m-0 pb-3 mb-5 mt-3">
+                 {/* {this.state.barcodesList?.content?.length < 10 ? null : ( */}
+                 <div className="d-flex justify-content-center">
+                 <ReactPageNation
                   {...this.state.barcodesList}
                   changePage={(pageNumber) => {
                     this.changePage(pageNumber);
                   }}
                 />
-              </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -20,7 +20,8 @@ export default class Channels extends Component {
             clientId: "",
             isMultiDomain: false,
             userName: "",
-            isAddDomain: false
+            isAddDomain: false,
+            loggedUser:null
         }
 
         this.showChannels = this.showChannels.bind(this);
@@ -32,7 +33,7 @@ export default class Channels extends Component {
 
     componentWillMount() {
         const user = JSON.parse(sessionStorage.getItem('user'));
-        this.setState({userName : user["cognito:username"], isEdit: false });
+        this.setState({userName : user["cognito:username"], isEdit: false ,loggedUser:user["custom:userId"]});
         if (user) {
             this.setState({ clientId: user["custom:clientId1"],
              userName : user["cognito:username"] }, () => { this.getDomainsList(); });
@@ -89,7 +90,7 @@ export default class Channels extends Component {
             "discription": this.state.description,
             "masterDomianId": this.state.domainName.id,
             "clientId": this.state.clientId,
-            "createdBy": this.state.userName
+            "createdBy": parseInt(this.state.loggedUser)
         }
         URMService.saveDomains(obj).then((res) => {
             if (res) {

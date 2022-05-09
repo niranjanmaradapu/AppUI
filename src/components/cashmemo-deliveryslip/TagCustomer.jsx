@@ -65,7 +65,17 @@ export default class TagCustomer extends Component {
     //Name
     if (!this.state.gvNumber) {
         formIsValid = false;
-        errors["gvNumber"] = "Enter GV Number";
+        errors["gvNumber"] = "Please Enter GV Number";
+    }
+    if(this.state.gvNumber)
+    {
+      let input=this.state.gvNumber;
+      const gvnumValid =input.length === 8;
+      if(this.state.gvNumber && !gvnumValid){
+        formIsValid = false;
+        errors["gvNumber"] = "GV Number Must Have 8 Numbers";
+
+      }
     }
 
    
@@ -74,7 +84,7 @@ export default class TagCustomer extends Component {
     // Mobile
     if (!this.state.fromDate) {
         formIsValid = false;
-        errors["fromDate"] = "Enter From Date";
+        errors["fromDate"] = "Select From Date";
     }
 
     // if (typeof this.state.mobileNumber !== "undefined") {
@@ -87,7 +97,7 @@ export default class TagCustomer extends Component {
     //email 
     if (!this.state.toDate) {
         formIsValid = false;
-        errors["toDate"] = "Enter To Date";
+        errors["toDate"] = "Select To Date";
     }
 
     if (!this.state.amount) {
@@ -360,7 +370,7 @@ export default class TagCustomer extends Component {
                       <input type="text" className="form-control"
                         placeholder="GV AMOUNT" />
                     </div> */}
-              <button className="btn-unic-search active mt-1 m-r-2"
+              <button className=""
                 onClick={this.addGiftVoucher}>ADD GIFT VOUCHER</button>
             </div>
             <div className="col-12 col-sm-9">

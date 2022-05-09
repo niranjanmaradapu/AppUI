@@ -84,16 +84,14 @@ export default class CreateNotes extends Component {
 
 
   saveCredit() {
+    const {customerData, comments, storeId, creditAmount} = this.state;
     const obj = {
-      "actualAmount": parseInt(this.state.creditAmount),
-      "transactionAmount": parseInt(this.state.creditAmount),
-      "approvedBy": parseInt(this.state.userId),
-      "comments": this.state.comments,
-      "creditDebit": "C",
-      "customerId": this.state.customerData?.userId,
-      "customerName": this.state.customerData?.userName,
-      "mobileNumber": this.state.mobileNumber,
-      "storeId": this.state.storeId
+      comments: comments,
+      amount: creditAmount,
+      customerId: customerData.userId,
+      storeId: storeId,
+      transactionType: "CREDIT",
+      accountType:"CREDIT"
     }
     AccountingPortalService.saveCredit(obj).then(response => {
       if (response) {

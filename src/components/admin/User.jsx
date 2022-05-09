@@ -48,6 +48,7 @@ export default class User extends Component {
             errors: {},
             adminRole: "",
             userType:"",
+            loggedUserId:null
             
 
         }
@@ -79,7 +80,7 @@ export default class User extends Component {
     getDomainsList() {
         URMService.getDomainsList(this.state.clientId).then((res) => { 
             if(res) {
-                this.setState({domainsList: res.data.result, domain: res.data.result[0].clientDomainaId});
+                this.setState({domainsList: res.data.result, domain: res.data.result[0].id});
                 this.getAllStoresList();
                 this.getAllRolesList();
             }
@@ -145,7 +146,7 @@ export default class User extends Component {
     searchUser() {
         this.setState({isSearch: true});
         const obj = {
-            "id": null,
+            "id": 0,
             "phoneNo": null,
             "name": null,
             "active":this.state.userType === "Active" ? "True" : "False",
@@ -215,7 +216,7 @@ export default class User extends Component {
 
     componentWillMount() {
         const user = JSON.parse(sessionStorage.getItem('user'));
-        this.setState({userName : user["cognito:username"], isEdit: false });
+        this.setState({userName : user["cognito:username"], isEdit: false,loggedUserId: user["custom:userId"] });
         if(user) {
             this.setState({ clientId: user["custom:clientId1"],
             domainId: user["custom:domianId1"] }, () => {this.getDomainsList();});
@@ -269,7 +270,7 @@ export default class User extends Component {
                     email: items.email,
                     address: items.address,
                     isAdmin: userDetails.superAdmin,
-                    domain: userDetails.clientDomians[0]?.clientDomainaId, 
+                    domain: userDetails.clientDomians[0]?.id, 
                     role: userDetails.role?.roleName,
                     storeName: userDetails.stores,
                     isEdit: true,
@@ -301,32 +302,55 @@ export default class User extends Component {
         let formIsValid = true;
 
         //Name
+        // if (!this.state.name) {
+        //     formIsValid = false;
+        //     errors["name"] = "Enter name";
+        // }
         if (!this.state.name) {
             formIsValid = false;
-            errors["name"] = "Enter name";
-        }
+            errors["name"] = "Please Enter Name";
+          }
+          if (this.state.name) {
+            let input = this.state.name;
+            const nameValid = input.length < 6 
+            const exnameValid = input.length > 25
+            if (nameValid) {
+              formIsValid = false;
+              errors["name"] = "Please Enter Atleast 6 Characters";
+            }else if(exnameValid){
+            formIsValid = false;
+            errors["name"] = "Please Enter Name Below 25 characters";
+            }
+          }
 
        
 
 
         // Mobile
-        if (!this.state.mobileNumber || this.state.mobileNumber.length !=10) {
+        if (!this.state.mobileNumber) {
+            
             formIsValid = false;
-            errors["mobileNumber"] = "Enter phone Number";
+            errors["mobileNumber"] = "Enter Mobile Number";
         }
+           
+    if (this.state.mobileNumber) {
+        let input = this.state.mobileNumber;
+        const mobValid= input.length === 10;
+      var pattern = new RegExp(/^[0-9\b]+$/);
+      if (pattern.test(this.state.mobileNumber)) {
+      if(this.state.mobileNumber && !mobValid){
+          formIsValid = false;
+        errors["mobileNumber"] = "Please Enter Valid Mobile Number.";
+      }
 
-        // if (typeof this.state.mobileNumber !== "undefined") {
-        //     if (!this.state.mobileNumber.match(/^[0-9\b]+$/)) {
-        //         formIsValid = false;
-        //         errors["mobileNumber"] = "Please Enter Valid Mobile Number";
-        //     }
-        // }
+      }
+    }
 
         //email 
-        if (!this.state.email) {
-            formIsValid = false;
-            errors["email"] = "Enter email";
-        }
+        // if (!this.state.email) {
+        //     formIsValid = false;
+        //     errors["email"] = "Please Enter email";
+        // }
 
         // if (typeof this.state.email !== "undefined") {
 
@@ -336,18 +360,26 @@ export default class User extends Component {
         //     }
 
         // }
+
+        if (!this.state.email) {
+            errors["email"] = 'Please Enter Email';
+          } else if (!/\S+@\S+\.\S+/.test(this.state.email)) {
+            errors["email"] = 'Please Enter Valid Email ';
+          }
+
+
         if(!this.state.isSuperAdmin) {
             if (this.state.storeName.length === 0) {
                 formIsValid = false;
-                errors["storeName"] = "Select Store";
+                errors["storeName"] = "Please Select Store";
             }
             if (!this.state.domain) {
                 formIsValid = false;
-                errors["domain"] = "Select Domain";
+                errors["domain"] = "Please Select Domain";
             }
             if (!this.state.role) {
                 formIsValid = false;
-                errors["role"] = "Select Role";
+                errors["role"] = "Please Select Role";
             }
         }
         this.setState({ errors: errors });               
@@ -383,7 +415,7 @@ export default class User extends Component {
                 "isConfigUser": "false",
                 "clientDomain": [clientDomain],
                 "isSuperAdmin": JSON.stringify(this.state.isAdmin),
-                "createdBy" : this.state.userName
+                "createdBy" : this.state.loggedUserId
             }
             URMService.editUser(saveObj).then((response) => {
                 if(response) {
@@ -415,7 +447,7 @@ export default class User extends Component {
                 "isConfigUser": "false",
                 "clientDomain": [clientDomain],
                 "isSuperAdmin": JSON.stringify(this.state.isAdmin),
-                "createdBy" : this.state.userName
+                "createdBy" : this.state.loggedUserId
     
                 }
 
@@ -444,7 +476,7 @@ export default class User extends Component {
 
     getTableData() {
         return this.state.usersList.map((items, index) => {
-            const {userId, userName, roleName, stores, createdDate, active } = items;
+            const {userId, userName, roleName, stores, createdDate, active, isSuperAdmin } = items;
             return (
 
                 <tr className="" key={index}>
@@ -487,7 +519,7 @@ export default class User extends Component {
                        
                         </td>
                     <td className="col-1">
-                        <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} name="image" />
+                        {!isSuperAdmin ? <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} name="image" /> : <img src={edit} className="w-12 m-r-2 pb-2" name="image" />}
                         <i className="icon-delete" name="icondel"></i></td>
                 </tr>
 
@@ -674,7 +706,7 @@ export default class User extends Component {
                 && modules.map((item, i) => {
                     return (
 
-                        <option key={i} value={item.clientDomainaId}>{item.domaiName}</option>
+                        <option key={i} value={item.id}>{item.domaiName}</option>
                     )
                 }, this);
         }
@@ -894,7 +926,7 @@ export default class User extends Component {
 
                                         <Multiselect
                                         className= {
-                                            this.state.isSuperAdmin ? "" : "form-control m-t-5 p-3 fs-14"
+                                            this.state.isSuperAdmin ? "disable" : "form-control m-t-5 p-3 fs-14 "
                                         }
                                             options={this.state.storesList} // className="form-control m-t-5 p-3 fs-14"  Options to display in the dropdown
                                             selectedValues={this.state.storeName} // Preselected value to persist in dropdown

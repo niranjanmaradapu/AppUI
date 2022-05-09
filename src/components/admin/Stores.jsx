@@ -38,7 +38,9 @@ export default class Stores extends Component {
             focus: false,
             isSearch: false,
             gstNumber: "",
-            isGstNumber: false
+            isGstNumber: false,
+            loggedUser:"",
+            searchDistrict:0
         }
 
         this.showStores = this.showStores.bind(this);
@@ -63,12 +65,13 @@ export default class Stores extends Component {
             storeManager: "",
             phoneNumber: "",
             storeName: "",
-            domain: this.state.domainList[0]?.clientDomainaId,
+            domain: this.state.domainList[0]?.id,
             errors: {},
             isEdit: false,
             isSearch: false,
             isGstNumber: false,
-            gstNumber:""
+            gstNumber:"",
+          
 
         });
         this.getDomainsList();
@@ -77,12 +80,15 @@ export default class Stores extends Component {
     hideStores() {
         this.getDomainsList();
         this.setState({ showModal: false });
+        this.setState({
+            stateName:""
+        });
     }
 
     getDomainsList() {
         URMService.getDomainsList(this.state.clientId).then((res) => {
             if (res) {
-                this.setState({ domainList: res.data.result, domain: res.data.result[0].clientDomainaId });
+                this.setState({ domainList: res.data.result, domain: res.data.result[0].id });
             }
 
         });
@@ -90,6 +96,7 @@ export default class Stores extends Component {
 
     componentWillMount() {
         const user = JSON.parse(sessionStorage.getItem('user'));
+        this.setState({loggedUser: user["custom:userId"]});
         if (user) {
             this.setState({ clientId: user["custom:clientId1"], userName: user["cognito:username"] }, () => { this.getAllStores(); })
             this.getStates();
@@ -211,7 +218,7 @@ export default class Stores extends Component {
         const searchStore = {
             "stateId": this.state.searchState,
             "cityId": null,
-            "districtId": this.state.searchDistrict === "Select" || this.state.searchDistrict === "" ?  null : this.state.searchDistrict ,
+            "districtId": this.state.searchDistrict === "Select" || this.state.searchDistrict === "" ?  0 : parseInt(this.state.searchDistrict) ,
             "storeName": this.state.searchStoreId
         }
 
@@ -231,7 +238,9 @@ export default class Stores extends Component {
     saveStores() {
 
         const formValid = this.handleValidation();
-        console.log(formValid);
+     
+      
+        console.log(this.state.loggedUser);
         if (formValid) {
             let saveObj;
             if (this.state.isEdit) {
@@ -244,12 +253,12 @@ export default class Stores extends Component {
                     "area": this.state.area,
                     "address": this.state.address,
                     "phoneNumber": this.state.phoneNumber,
-                    "domainId": this.state.domain,
-                    "createdBy": this.state.userName,
+                    "domainId": parseInt(this.state.domain),
+                    "createdBy": parseInt(this.state.loggedUser),
                     "createdDate": "",
                     "stateCode": this.state.stateName,
                     "gstNumber": parseInt(this.state.gstNumber),
-                    "clientId":this.state.clientId
+                    "clientId":parseInt(this.state.clientId),
 
                 }
 
@@ -269,11 +278,11 @@ export default class Stores extends Component {
                     "area": this.state.area,
                     "address": this.state.address,
                     "phoneNumber": this.state.phoneNumber,
-                    "domainId": this.state.domain,
-                    "createdBy": this.state.userName,
+                    "domainId": parseInt(this.state.domain),
+                    "createdBy":  parseInt(this.state.loggedUser),
                     "stateCode": this.state.stateName,
                     "gstNumber": this.state.gstNumber,
-                    "clientId":this.state.clientId
+                    "clientId":parseInt(this.state.clientId)
                 }
                 URMService.saveStore(saveObj).then(res => {
                     if (res) {
@@ -300,13 +309,15 @@ export default class Stores extends Component {
     }
 
     editStore(items) {
-        console.log(items);
-
+        console.log(items.gstNumber);
+       
         this.setState({
             showModal: true, stateName: items.stateCode, district: items.districtId.toString(), city: items.cityId,
             area: items.area, phoneNumber: items.phoneNumber,
             address: items.address,
-            domain: items.clientDomianlId.clientDomainaId, storeName: items.name,
+            domain: items.domainId, storeName: items.name,
+            gstNumber:items.gstNumber,
+            isGstNumber:true,
             isEdit: true,
             selectedStore: items,
             isSearch: false
@@ -324,8 +335,8 @@ export default class Stores extends Component {
                     <td className="col-1">{index + 1}</td>
                     <td className="col-2">{items.name}</td>
                     <td className="col-2">{items.cityId}</td>
-                    <td className="col-2">{items.clientDomianlId?.domaiName}</td>
-                    <td className="col-2">{items.createdBy}</td>
+                    <td className="col-2">{items.domainName}</td>
+                    <td className="col-2">{items.userName}</td>
                     <td className="col-2">{items.createdDate}</td>
                     <td className="col-1">
                         <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editStore(items)} />
@@ -363,6 +374,7 @@ export default class Stores extends Component {
             </div>
         )
     }
+    
 
 
     handleValidation() {
@@ -410,8 +422,20 @@ export default class Stores extends Component {
 
         if (!this.state.storeName) {
             formIsValid = false;
-            errors["storeName"] = "Enter Store Name";
+            errors["storeName"] = "Please Enter Store Name";
         }
+        if (this.state.storeName) {
+            let input = this.state.storeName;
+            const storeValid = input.length < 6 ;
+            const exstoreValid = input.length > 25 ;
+            if (this.state.storeName && storeValid) {
+              formIsValid = false;
+              errors["storeName"] = "Please enter Atlest 6 Characters";
+            }else if(this.state.storeName && exstoreValid){
+                formIsValid = false;
+                errors["storeName"] = "Please Enter Store Name Below 25 characters";
+            }
+          }
 
 
 
@@ -428,14 +452,22 @@ export default class Stores extends Component {
 
         if (!this.state.district) {
             formIsValid = false;
-            errors["districtName"] = "Enter District Name";
+            errors["districtName"] = "Select District Name";
         }
 
         // gstNumber 
         if (!this.state.gstNumber) {
             formIsValid = false;
-            errors["gstNumber"] = "Enter gstNumber ";
+            errors["gstNumber"] = "Enter GST Number ";
         }
+        // if (this.state.gstNumber) {
+        //     let input = this.state.gstNumber;
+        //      const gstValid = input.length === 15 ;
+        //        if (this.state.gstNumber && !gstValid) {
+        //         formIsValid = false;
+        //         errors["gstNumber"] = "Enter Valid GST Number";
+        //     }
+        // }
 
 
 
@@ -457,7 +489,7 @@ export default class Stores extends Component {
                 && modules.map((item, i) => {
                     return (
 
-                        <option key={i} value={item.clientDomainaId}>{item.domaiName}</option>
+                        <option key={i} value={item.id}>{item.domaiName}</option>
                     )
                 }, this);
         }
@@ -523,23 +555,29 @@ export default class Stores extends Component {
                                             <option>Andhra Pradesh</option>
                                             <option>Telangana</option>
                                             <option>Mumbai</option>
-                                        </select> */}
+                                        // </select> */}
+                                        {/* <span style={{ color: "red" }}>{this.state.errors["stateName"]}</span> */}
 
                                         <select className="form-control" value={this.state.stateName}
+
                                             onChange={(e) => this.setState({ stateName: e.target.value, isGstNumber:false, gstNumber:"" }, () => {
                                                 this.getDistricts();
                                                 this.getGSTNumber();
                                             })}>
+                                                 {/* <span style={{ color: "red" }}>{this.state.errors["stateName"]}</span> */}
 
                                             {statesList}
                                         </select >
-
-                                       
+                                        <div>
+                                            <span style={{ color: "red" }}>{this.state.errors["stateName"]}</span>
+                                        </div>
 
                                     </div>
+                                    
                                 </div>
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
+                                        
                                         <label>District<span className="text-red font-bold">*</span></label>
                                         {/* <select className="form-control" value={this.state.district}
                                             onChange={(e) => this.setState({ district: e.target.value })}>
@@ -551,14 +589,19 @@ export default class Stores extends Component {
 
                                         <select className="form-control" value={this.state.district}
                                             onChange={(e) => this.setState({ district: e.target.value })}>
-
+                                            
                                             {districtList}
+                                            
+                                            
                                         </select >
+                                    
+                                       
 
-                                        {/* <div>
-                                            <span style={{ color: "red" }}>{this.state.errors["district"]}</span>
-                                        </div> */}
                                     </div>
+                                    
+                                    <div>
+                                            <span style={{ color: "red" }}>{this.state.errors["districtName"]}</span>
+                                        </div>
                                 </div>
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
@@ -583,10 +626,10 @@ export default class Stores extends Component {
 
                                         // }}
                                         />
-                                        {/* 
+                                        
                                         <div>
                                             <span style={{ color: "red" }}>{city}</span>
-                                        </div> */}
+                                        </div>
 
 
 
@@ -612,9 +655,9 @@ export default class Stores extends Component {
                                         <input type="text" className="form-control"
                                             placeholder="Area" value={this.state.area}
                                             onChange={(e) => this.setState({ area: e.target.value })} />
-                                        {/* <div>
+                                        <div>
                                             <span style={{ color: "red" }}>{this.state.errors["area"]}</span>
-                                        </div> */}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="col-sm-4 col-12 mt-3">
@@ -641,10 +684,13 @@ export default class Stores extends Component {
                                 <div className="col-4">
                                     <div className="form-group">
                                         <label>Domain<span className="text-red font-bold">*</span></label>
-
+                                        
                                         <select className="form-control" value={this.state.domain}
                                             onChange={(e) => this.setState({ domain: e.target.value })}>
-
+                                                
+                                                <div>
+                                            <span style={{ color: "red" }}>{this.state.errors["domain"]}</span>
+                                        </div>
                                             {modulesList}
                                         </select >
                                         {/* <div>
@@ -658,22 +704,34 @@ export default class Stores extends Component {
                                         <input type="text" className="form-control"
                                             value={this.state.storeName}
                                             onChange={(e) => this.setState({ storeName: e.target.value })} />
-                                        {/* <div>
-                                            <span style={{ color: "red" }}>{this.state.errors["storeName"]}</span>
-                                        </div> */}
+                                        
                                     </div>
+                                    <div>
+                                            <span style={{ color: "red" }}>{this.state.errors["storeName"]}</span>
+                                        </div>
                                 </div>
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
-                                        <label>GST Number<span className="text-red font-bold">*</span></label>
-                                        <input type="text" className="form-control" placeholder="Gst Number" 
+                                    <label>GST Number<span className="text-red font-bold">*</span></label>
+                                    
+                                        
+                                            <input type="text"  className ="form-control" placeholder="Gst Number" 
+                                            disabled ={this.state.isGstNumber}
                                             value={this.state.gstNumber}
-                                            disabled={this.state.isGstNumber}
                                             maxLength="15" minLength="15"
-                                            onChange={(e) => this.setState({ gstNumber: e.target.value })} />
+                                            onChange={(e) => this.setState({ gstNumber: e.target.value })} 
+                                            erorText="Please enter only 15 digits number"/>
+                                        
+                                        
                                             
                                     </div>
+                                    {/* <div>
+                                            <span style={{ color: "red" }}>{this.state.errors["gstNumber"]}</span>
+                                        </div> */}
+                                    
                                 </div>
+                                
+
                             </div>
                         </div>
                     </ModalBody>
@@ -688,6 +746,7 @@ export default class Stores extends Component {
                 <div className="row">
                     <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
+                        <label>State</label>
                             <select className="form-control" value={this.state.searchState}
                                 onChange={(e) => this.setState({ searchState: e.target.value, isSearch: true }, ()=>{
                                     this.getDistricts()
@@ -699,23 +758,26 @@ export default class Stores extends Component {
                     </div>
                     <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
+                        <label>District</label>
                             <select className="form-control" value={this.state.searchDistrict}
                                 onChange={(e) => this.setState({ searchDistrict: e.target.value })}>
 
                                 {districtList}
                             </select >
+
                         </div>
                     </div>
                     <div className="col-sm-2 col-12 mt-2">
                         <div className="form-group">
+                        <label>Store Name</label>
                             <input type="text" className="form-control"
-                                placeholder="Store Name" value={this.state.searchStoreId}
+                                placeholder="Enter Name" value={this.state.searchStoreId}
                                 onChange={(e) => this.setState({ searchStoreId: e.target.value })} />
                         </div>
                     </div>
-                    <div className="col-sm-6 col-12 scaling-center scaling-mb mt-2 p-l-0">
+                    <div className="col-sm-6 col-12 scaling-center scaling-mb mt-2 pt-4 p-l-0">
                         <button className="btn-unic-search active m-r-2" onClick={this.searchStore}>SEARCH </button>
-                        <button className="btn-unic-search active m-r-2" onClick={this.getAllStores}>Clear </button>
+                        <button className="btn-unic-search active m-r-2" onClick={this.getAllStores}>CLEAR </button>
                         <button className="btn-unic-search active" onClick={this.showStores}><i className="icon-retail mr-1"></i>  Add Store </button>
                     </div>
                     <div>

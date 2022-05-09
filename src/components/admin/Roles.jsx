@@ -27,7 +27,8 @@ export default class Roles extends Component {
             childList: [],
             errors: {},
             isAdmin: false,
-            isSuperAdmin: false
+            isSuperAdmin: false,
+            loggedUser:null
 
 
         }
@@ -51,7 +52,7 @@ export default class Roles extends Component {
     getDomainsList() {
         URMService.getDomainsList(this.state.clientId).then((res) => {
             if (res) {
-                this.setState({ domainList: res.data.result, domain: res.data.result[0].clientDomainaId }, this.getPrivilegesByDomainId());
+                this.setState({ domainList: res.data.result, domain: res.data.result[0].id }, this.getPrivilegesByDomainId());
             }
 
         });
@@ -94,7 +95,7 @@ export default class Roles extends Component {
     componentWillMount() {
         const user = JSON.parse(sessionStorage.getItem('user'));
         if (user) {
-            this.setState({ clientId: user["custom:clientId1"], userName: user["cognito:username"] },
+            this.setState({ clientId: user["custom:clientId1"], userName: user["cognito:username"],loggedUser:user["custom:userId"] },
                 () => { this.getAllRoles(); })
         }
 
@@ -110,15 +111,27 @@ export default class Roles extends Component {
         //Name
         if (!this.state.roleName) {
             formIsValid = false;
-            errors["roleName"] = "Enter Role Name";
+            errors["rolename"] = "Please Enter Role";
         }
+        if (this.state.roleName) {
+            let input = this.state.roleName;
+            const roleValid = input.length < 6 ;
+            const exroleValid = input.length > 25 ;
+            if (roleValid) {
+              formIsValid = false;
+              errors["rolename"] = "Please enter Atleast 6 Characters";
+            }else if(exroleValid){
+                errors["rolename"] = "Please Enter Role Name Below 25 Characters";
+            }
+          }
+          
 
 
 
         // Area 
         if (!this.state.descriptionName) {
             formIsValid = false;
-            errors["descriptionName"] = "Enter Description";
+            errors["descriptionName"] = "Please Enter Description";
         }
 
 
@@ -140,7 +153,7 @@ export default class Roles extends Component {
         //    this.setState(this.baseState);
         this.setState({ showModal: true, isAdmin: false, isSuperAdmin: false, isSearch: false, isEdit: false, errors: {}, selectedPrivilegesList: [] });
         if (this.state.domainList && this.state.domainList.length > 0) {
-            this.setState({ domain: this.state.domainList[0].clientDomainaId }, () => {
+            this.setState({ domain: this.state.domainList[0].id }, () => {
                 this.getPrivilegesByDomainId();
             });
         }
@@ -168,8 +181,7 @@ export default class Roles extends Component {
     addRoles() {
         // const roleId = 
         const formValid = this.handleValidation();
-        // const valid =this.validate();
-       const valid =  this.state.roleName.length < 5 ? false : true;
+        const valid = this.state.roleName.length < 6 && !this.state.descriptionName ? false : true ;
     if(valid){
 
         if (formValid) {
@@ -178,7 +190,7 @@ export default class Roles extends Component {
                     "roleName": this.state.roleName,
                     "description": this.state.descriptionName,
                     "clientDomianId": parseInt(this.state.domain),
-                    "createdBy": this.state.userName,
+                    "createdBy": parseInt(this.state.loggedUser),
                     "parentPrivilages": this.state.parentsList,
                     "subPrivillages": this.state.childList,
                     "roleId": this.state.roleId
@@ -196,7 +208,7 @@ export default class Roles extends Component {
                     "roleName": this.state.roleName,
                     "description": this.state.descriptionName,
                     "clientDomianId": parseInt(this.state.domain),
-                    "createdBy": this.state.userName,
+                    "createdBy": parseInt(this.state.loggedUser),
                     "parentPrivilages": this.state.parentsList,
                     "subPrivillages": this.state.childList,
                 }
@@ -210,13 +222,11 @@ export default class Roles extends Component {
                 });
             }
         }
+        }
       else {
             toast.info("Please Enter all mandatory fields");
         }
-    }
-    else {
-        toast.info("Please Enter atlest 5 characters in role field");
-    }
+    
    
 }
    
@@ -224,7 +234,7 @@ export default class Roles extends Component {
     getPrivilegesByDomainId() {
         let selectedDomainId = 0;
         this.state.domainList.forEach((ele, index) => {
-            if (ele.clientDomainaId === parseInt(this.state.domain)) {
+            if (ele.id === parseInt(this.state.domain)) {
                 if (ele.domaiName === "Textile") {
                     selectedDomainId = 1;
                 } else if (ele.domaiName === "Retail") {
@@ -424,9 +434,9 @@ getSelectedPrivileges(parentsList, childList) {
             descriptionName: items.discription,
             childList: items.subPrivilageVo,
             parentsList: items.parentPrivilageVo,
-            roleId: items.roleId,
+            roleId: items.id,
             isSearch: false,
-            domain: items.clientDomainVo.clientDomainaId
+            domain: items.clientDomainVo.id
         }, () => {
             this.getPrivilegesByDomainId();
         });
@@ -441,14 +451,14 @@ getSelectedPrivileges(parentsList, childList) {
             return (
 
                 <tr className="">
-                    <td className="col-1 geeks">{index + 1}</td>
+                    <td className="col-1">{index + 1}</td>
                     <td className="col-2">{roleName}</td>
-                    <td className="col-2">{items?.clientDomainVo?.domaiName}</td>
+                    <td className="col-1">{items?.clientDomainVo?.domaiName}</td>
                     <td className="col-2">{createdBy}</td>
                     <td className="col-2">{createdDate}</td>
                     <td className="col-1">{usersCount}</td>
                     <td className="col-2">{discription}</td>
-                    <td className="col-1">
+                    <td className="col-2">
                         <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editRole(items)} />
                         <i className="icon-delete"></i>
                     </td>
@@ -466,15 +476,15 @@ getSelectedPrivileges(parentsList, childList) {
                 <div className="table-responsive p-0">
                     <table className="table table-borderless mb-0">
                         <thead>
-                            <tr className="">
+                            <tr className="m-0 p-0">
                                 <th className="col-1">S.No </th>
                                 <th className="col-2">Role</th>
-                                <th className="col-2">Domain</th>
+                                <th className="col-1">Domain</th>
                                 <th className="col-2">Created By</th>
                                 <th className="col-2">Created Date</th>
                                 <th className="col-1">User Count</th>
                                 <th className="col-2">Description</th>
-                                <th className="col-1"></th>
+                                <th className="col-2"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -498,7 +508,7 @@ getSelectedPrivileges(parentsList, childList) {
                 && modules.map((item, i) => {
                     return (
 
-                        <option key={i} value={item.clientDomainaId}>{item.domaiName}</option>
+                        <option key={i} value={item.id}>{item.domaiName}</option>
                     )
                 }, this);
         }
@@ -552,6 +562,7 @@ getSelectedPrivileges(parentsList, childList) {
                                         <input type="text" className="form-control" placeholder="" value={this.state.roleName}
                                             onChange={(e) => this.setState({ roleName: e.target.value })}
                                             autoComplete="off" />
+                                            <span style={{ color: "red" }}>{this.state.errors["rolename"]}</span>
 
                                     </div>
                                 </div>
@@ -562,7 +573,7 @@ getSelectedPrivileges(parentsList, childList) {
                                         <input type="text" className="form-control" placeholder="" value={this.state.descriptionName}
                                             onChange={(e) => this.setState({ descriptionName: e.target.value })}
                                             autoComplete="off" />
-
+                                        <span style={{ color: "red" }}>{this.state.errors["descriptionName"]}</span>
                                     </div>
                                 </div>
 

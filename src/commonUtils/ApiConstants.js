@@ -38,6 +38,7 @@ export const CREATE_DELIVERY_SLIP_URL = {
     getCustomerMobile: "/user-management/user/customer/mobileNo",
     getGiftVochers: "/new-sale/newsale/getlistofgv",
     saveGiftVoucher: "/new-sale/newsale/saveGv",
+    searchGiftVoucher:"/new-sale/newsale/searchingBy",
     changeGvFlag: "/new-sale/newsale/changeflaggv",
     getDayCloserSlips:"/new-sale/newsale/getPendingDeliverySlips",
     dayCloserPendingDeliverySlips:"/new-sale/newsale/closePendingDeliverySlips"
@@ -52,7 +53,8 @@ export const NEW_SALE_URL = {
     getCreditNotes: "/hsn-details/credit-debit-notes/getCreditNotes",
     saveSale: "/new-sale/newsale/sale",
     getCoupons: "/new-sale/newsale/getGv",
-    getHsnDetails: "/hsn-details/hsnDetails/getHsnDetails",
+    // getHsnDetails: "/hsn-details/hsnDetails/getHsnDetails",
+    getHsnDetails: "/hsn-details/hsn-details/getHsnDetails",
     getCheckPromo: "/connection-pool/promo/checkPromtionTextile",
     getinvoiceLevelCheckProm:"/connection-pool/promo/invoiceLevelCheckPromtionTextile"
 };
@@ -90,12 +92,13 @@ export const INVENTORY_URLS = {
     getAllDivisions: "/inventory/catalog/ListOfDivisions",
     getAllSections: "/inventory/catalog/getcategoriesByid",
     getAllCategories: "/inventory/catalog/ListOfAllCategories",
-    getAllHsnList: "/hsn-details/hsnDetails/getHsnDetails",
+    // getAllHsnList: "/hsn-details/hsnDetails/getHsnDetails",
+    getAllHsnList: "/hsn-details/hsn-details/getHsnDetails",
     getStoreNamesByIds: '/user-management/store/storeList',
     getReBarcodeTextileBarcodeDetails: '/inventory/inventoryTextile/getAllAdjustments',
     getEmpNameByEmpId: "/user-management/user/getUser",
     savebulkTextile: "/inventory/inventoryTextile/saveProductTextileList",
-    addBulkTextile: "/inventoryTextile/add-bulk-products"
+    addBulkTextile: "/inventory/inventoryTextile/add-bulk-products"
 
 };
 
@@ -133,7 +136,7 @@ export const DELIVERYSLIPS_LIST_URL = {
 
 
 export const ESTIMATIONSLIP_LIST_URL = {
-    estimationslipsList: "/new-sale/newsale/getlistofdeliveryslips"
+    estimationslipsList: "/new-sale/newsale/getlistofdeliveryslips",
 };
 
 
@@ -235,17 +238,19 @@ export const PROMOTIONS_URL = {
 };
 
 export const ACCOUNTING_PORTAL = {
-    saveCredit: "/hsn-details/credit-debit-notes/saveCreditDebitNotes",
+    // saveCredit: "/hsn-details/credit-debit-notes/saveCreditDebitNotes",
+    saveCredit: "/hsn-details/credit-debit-notes/save",
     getCreditNotes: "/hsn-details/credit-debit-notes/getAllCreditNotes",
     getDebitNotes: "/hsn-details/credit-debit-notes/getAllDebitNotes",
     saveMasterTax:"/hsn-details/tax/addnewtax",
     updatetax: "/hsn-details/tax/updatetax",
     deleteTax: "/hsn-details/tax/deleteTax",
     getAllTaxes:"/hsn-details/tax/getTaxDetails",
-    getAllHsnCodesData:"/hsn-details//hsnDetails/getHsnDetails",
-    getDescritionData:"/hsn-details/hsnDetails/getEnums/description",
-    getTaxAppliesOnData:"/hsn-details/hsnDetails/getEnums/taxAppliesOn",
-    saveHsnCode:"/hsn-details/hsnDetails/saveHsn",
-    deleteHsn: "/hsn-details/hsnDetails/deleteHsn",
-    updateHsn: "/hsn-details/hsnDetails/updateHsn"
+    getAllHsnCodesData:"/hsn-details/hsn-details/getHsnDetails",
+    getDescritionData:"/hsn-details/hsn-details/getEnums/description",
+    getTaxAppliesOnData:"/hsn-details/hsn-details/getEnums/taxAppliesOn",
+     // saveHsnCode:"/hsn-details/hsnDetails/saveHsn",
+    saveHsnCode:"/hsn-details/hsn-details/save",
+    deleteHsn: "/hsn-details/hsn-details/deleteHsn",
+    updateHsn: "/hsn-details/hsn-details/updateHsn"
 };

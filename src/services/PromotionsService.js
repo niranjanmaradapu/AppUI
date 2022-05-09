@@ -4,9 +4,10 @@ import { BASE_URL } from '../commonUtils/Base';
 
 class PromotionsService {
  
-getPoolList(){
+getPoolList(domainId, customClientId, storeId){
     // const param = `?isActive=All&domainId=${domainId}`;
-    const param = '?isActive=All';
+    const param = `?isActive=true&domainId=${domainId}&clientId=${customClientId}&storeId=${storeId}`;
+    // const param = '?isActive=All';
     return axios.get(BASE_URL+PROMOTIONS_URL.getPoolList+param);
 }
 
@@ -24,8 +25,9 @@ modifyPool(obj) {
 searchPool(obj) {
     return axios.post(BASE_URL+PROMOTIONS_URL.searchPool, obj);
 }
-getPromoList() {
-    const param = '?flag=All';
+getPromoList(domainId, customClientId, storeId) {
+    const param = `?flag=true&domainId=${domainId}&clientId=${customClientId}&storeId=${storeId}`;
+   //  const param = '?flag=All';
     return axios.get(BASE_URL+PROMOTIONS_URL.getPromoList+param);
 }
 deletePromo(id) {

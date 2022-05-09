@@ -15,8 +15,8 @@ export default class Payment extends Component {
   }
   render() {
     return (
-      <div>
-      <div className="row m-0 p-0">
+      <div className='maincontent'>
+      <div className="row mb-3">
         <div className="col-sm-4 col-12">
           <div className="form-group">
             <label>Razorpay Id<span className="text-red font-bold">*</span></label>

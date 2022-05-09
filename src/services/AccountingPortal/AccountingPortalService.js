@@ -7,7 +7,7 @@ class AccountingPortalService {
     saveCredit(saveCredit) {
         return axios.post(BASE_URL+ACCOUNTING_PORTAL.saveCredit, saveCredit);
     }
-
+    
     getCreditNotes(creditNotes) {
         return axios.post(BASE_URL+ACCOUNTING_PORTAL.getCreditNotes, creditNotes);
     }

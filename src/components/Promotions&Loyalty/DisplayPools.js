@@ -36,7 +36,8 @@ function DisplayPools({
                 </td>
                 <td className="col-1">
                   <img onClick={() => modifyPool(item)} src={edit} className="w-12 pb-2" />
-                  <i onClick={() => handleRemovePool(item)} className="icon-delete m-l-2 fs-16"></i></td>
+                  {/* <i onClick={() => handleRemovePool(item)} className="icon-delete m-l-2 fs-16"></i> */}
+                  </td>
                 </tr> 
                 )
               })}

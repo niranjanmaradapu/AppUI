@@ -66,6 +66,7 @@ export default class NewSale extends Component {
       dropValue: "",
       grandNetAmount: 0,
       grandReceivedAmount: 0.0,
+      payingAmount:0, 
       grandBalance: 0,
       returnCash: 0,
       totalAmount:0,
@@ -161,6 +162,9 @@ export default class NewSale extends Component {
     this.getUPIModel = this.getUPIModel.bind(this);
     this.hideUPIModel = this.hideUPIModel.bind(this);
     this.getUPILink = this.getUPILink.bind(this);
+    this.getinvoiceLevelCheckPromo=this.getinvoiceLevelCheckPromo.bind(this);
+    this.invoiceLevelCheckPromo=this.invoiceLevelCheckPromo.bind(this);
+    
 
     //this.handler = this.handler.bind(this);
   }
@@ -472,8 +476,9 @@ export default class NewSale extends Component {
   }
 
   getCardModel = () => {
+    this.setState({payingAmount: this.state.grandNetAmount})
     this.setState({
-      isCard: true,
+      isCard: true
     },
       () => {
         if (this.state.isreturnCreditCash) {
@@ -824,6 +829,50 @@ export default class NewSale extends Component {
       });
     }
   };
+  invoiceLevelCheckPromo(){
+    console.log("string");
+    this.getinvoiceLevelCheckPromo();
+    
+    
+  }
+  getinvoiceLevelCheckPromo()  {
+    console.log('*******************',this.state.barCodeList);
+    const storeId = sessionStorage.getItem("storeId");
+
+    const requestObj = this.state.barCodeList.map((item) => {
+      let obj = {};
+      console.log('++++++++++++item+++++++++++++', item);
+      obj.actualValue = item.actualValue;
+      obj.barCode=item.barCode;
+      obj.cgst=item.cgst;
+      obj.discount=item.discount;
+      obj.division=item.division;
+      obj.domainId=item.domainId;
+      obj.grossValue=item.grossValue;
+      obj.hsnCode=item.hsnCode;
+      obj.itemPrice=item.itemPrice;
+      obj.lineItemId=item.lineItemId;
+      obj.netValue=item.netValue;
+      obj.quantity=item.quantity;
+      obj.section=item.section;
+      obj.sgst=item.sgst;
+      obj.storeId=item.storeId;
+      obj.subSection=item.subSection;
+      obj.taxValue=item.taxValue;
+      obj.userId=item.userId
+     return obj;
+    });
+    console.log("+++++++++++++++++++++++", requestObj );
+   
+    NewSaleService.getinvoiceLevelCheckPro(1,storeId,requestObj).then((res) => {
+      if (res.status === 200) {
+        console.log(res);
+        this.setState({
+          barCodeList: res.data.result
+        });
+      }
+    });
+  }
 
   showDiscount() {
     this.state.totalManualDisc = 0;
@@ -928,7 +977,7 @@ export default class NewSale extends Component {
       this.state.returnCash = Math.round(this.state.returnCash);
       this.setState({isCash: false});
     } else if (collectedCash == Math.round(this.state.grandNetAmount)) {
-      this.setState({ isPayment: false, grandNetAmount: 0 });
+      this.setState({ isPayment: false,payingAmount: this.state.grandNetAmount, grandNetAmount: 0,});
       this.setState({isCash: false});
 
     } else if(collectedCash < this.state.grandNetAmount) {
@@ -984,6 +1033,7 @@ export default class NewSale extends Component {
     this.setState({ netCardPayment: this.state.grandNetAmount })
     sessionStorage.removeItem("recentSale");
     const storeId = sessionStorage.getItem("storeId");
+    
     let obj;
     if (this.state.isTextile) {
       obj = {
@@ -1008,7 +1058,7 @@ export default class NewSale extends Component {
 
         "approvedBy": null,
 
-        "netPayableAmount": this.state.grandNetAmount,
+        "netPayableAmount": this.state.payingAmount,
 
         "offlineNumber": null,
 
@@ -1047,6 +1097,7 @@ export default class NewSale extends Component {
             cashAmount: 0,
             taxAmount: 0.0,
             grandNetAmount: 0,
+            payingAmount:0,
             returnCash: 0,
             stateGST: 0,
             centralGST: 0,
@@ -1301,6 +1352,7 @@ export default class NewSale extends Component {
         {
           this.state.isTextile && (
             <div className="table-responsive">
+              
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
@@ -1314,6 +1366,7 @@ export default class NewSale extends Component {
                 </thead>
 
                 <tbody>
+                {console.log('++++++++++++barCodeList+++++++++++++', this.state.barCodeList)}
                   {this.state.barCodeList.map((items, index) => {
                     return (
                       <tr key={index}>
@@ -1323,7 +1376,7 @@ export default class NewSale extends Component {
                         <td className="col-3"><p>#{items.barCode}</p></td>
                         <td className="col-2">{items.quantity}</td>
                         <td className="col-2">₹ {items.itemPrice}</td>
-                        <td className="col-2">₹ 0</td>
+                        <td className="col-2">₹ {items.discount}</td>
                         <td className="col-2">₹ {items.netValue}</td>
                       </tr>
                     );
@@ -1861,6 +1914,14 @@ export default class NewSale extends Component {
                       <button
                         className={" m-r-2 scaling-mb " + (this.state.isBillLevel ? "btn-unic btn-disable" : "btn-unic active")}
                         onClick={this.showDiscount} >Bill Level Discount</button>
+                        <button
+                        type="button"
+                        className="btn-unic m-r-2 active scaling-mb"
+                        onClick={this.invoiceLevelCheckPromo}
+                      
+                        > Check Promo Discount
+                        </button>
+                      
                     </div>
 
 

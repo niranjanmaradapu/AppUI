@@ -35,6 +35,10 @@ import r_brand from "../../assets/images/r_brand.svg";
 import Hsn from "../../assets/images/hsn.svg";
 import eventBus from '../../commonUtils/eventBus';
 import URMService from '../../services/URM/URMService';
+import { useHistory } from 'react-router';
+
+import { matchPath } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 
 const data = [
@@ -371,8 +375,15 @@ class Header extends Component {
     this.state.user = user["cognito:username"];
     this.state.roleName = user["custom:roleName"];
     this.state.storeName = selectedStore ? selectedStore.storeName : "";
-
-    console.log(this.state.roleName);
+    
+    // window.location.reload();
+    // const currentRoute = this.state.moduleNames.find(
+    //   route => matchPath(this.props.location.pathname, route.)
+    // )
+    //console.log(`My current route key is : ${currentRoute.key}`)
+   
+    // console.log( this.state.headertype);
+    
         if(domainName === "config_user") {
       let header;
        this.state.headertype = "Accounting Portal";
@@ -458,11 +469,13 @@ class Header extends Component {
           }
          
         });
+      
        }
    
       this.getDomains();
     }
-   
+   console.log(this.state.moduleNames)
+  
   }
 
   getDomains() {
@@ -474,7 +487,7 @@ class Header extends Component {
     if(user["custom:isSuperAdmin"] === "true") { 
       this.state.domainLists.forEach((ele, index) => {
         const obj  = {
-          value: ele.clientDomainaId,
+          value: ele.id,
           label: ele.domaiName
         }
         dataDrop.push(obj);
@@ -496,7 +509,7 @@ class Header extends Component {
         
         if(res) {
           const obj  = {
-            value: res.data.result.clientDomainaId,
+            value: res.data.result.id,
             label: res.data.result.domaiName
           }
           dataDrop.push(obj);
@@ -593,6 +606,7 @@ class Header extends Component {
       if(res) {
        
         this.setState({moduleNames: res.data.result});
+        console.log(this.state.moduleNames)
         this.props.history.push("/dashboard");
         eventBus.dispatch("subHeader", { message: (res.data.result && res.data.result.length>0)?res.data.result[0].id:"" });
       }

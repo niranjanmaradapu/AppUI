@@ -48,8 +48,7 @@ class Login extends Component {
       confirmationCode: "",
       newForgotPassword: "",
       storeId: "",
-      domainId: "",
-      moduleNames:[]
+      domainId: ""
     };
 
     sessionStorage.setItem("lang", this.state.value);
@@ -66,12 +65,12 @@ class Login extends Component {
     this.saveForgotPassword = this.saveForgotPassword.bind(this);
     this.getConfirmationCode = this.getConfirmationCode.bind(this);
     this.getStoreDetails = this.getStoreDetails.bind(this);
+    this.forgotPasswordValidations=this.forgotPasswordValidations.bind(this);
+    this.changePasswordValidation=this.changePasswordValidation.bind(this);
   }
 
   componentWillMount() {
     sessionStorage.removeItem("selectedDomain");
-   
-   
 
 
     //this.state.storeNames = data
@@ -112,9 +111,6 @@ class Login extends Component {
           const token = res.data.result.authenticationResult.idToken;
           sessionStorage.setItem("user", JSON.stringify(jwt_decode(token)));
           sessionStorage.setItem("token", JSON.stringify(token));
-          const user = JSON.parse(sessionStorage.getItem("user"));
-          console.log(user);
-          this.setState({loggedUser: user});
           // this.getDropdownList();
           const role = JSON.parse(sessionStorage.getItem("user"));
           if (role["cognito:groups"]) {
@@ -251,13 +247,11 @@ class Login extends Component {
       } else {
         sessionStorage.setItem("domainName", role["cognito:groups"][0]);
         //  sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
-        // this.props.history.push("/dashboard");
-        this.navigateSpecificRoute();
+        this.props.history.push("/dashboard");
       }
     } else if (role["custom:isSuperAdmin"] === "true") {
       // sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
-     // this.props.history.push("/dashboard");
-     this.navigateSpecificRoute();
+      this.props.history.push("/dashboard");
     } else {
       toast.error("No Role Available");
       // sessionStorage.removeItem('user')
@@ -265,22 +259,57 @@ class Login extends Component {
     }
   }
 
-  navigateSpecificRoute() {
-    const user = JSON.parse(sessionStorage.getItem("user"));
-    URMService.getSelectedPrivileges(user["custom:roleName"]).then(res => {
-      if(res && res.data && res.data.result){
-        this.setState({moduleNames: res.data.result.parentPrivilages});
-        this.props.history.push(this.state.moduleNames[0].path);
+
+  changePasswordValidation(){
+    let errors = {};
+    let formIsValid = true;
+
+
+    // new password
+   
+    // if(!this.state.newPassword) {
+    //   errors["newpassword"] = 'Please Enter Password';
+    // }
+    if(this.state.newPassword){
+        let input = this.state.newPassword;
+        const newValid = input.length < 8 ;
+        const exnewValid = input.length > 25;
+        if(this.state.newPassword && newValid)
+        {
+          formIsValid = false;
+        errors["newpassword"]= 'Please Enter Atleast 8 Characters';
+    }else if (this.state.newPassword && exnewValid) {
+      formIsValid = false;
+      errors["newpassword"]= 'Password Should Less Than 15 Characters';
+    }
+  }
+  
+    // confirm password
+    // if (!this.state.confirmPassword) {
+    //   errors["currentpassword"] = "Please Enter Confirm Password ";
+    // }
+    if (this.state.confirmPassword) {
+      let input = this.state.confirmPassword;
+      const currpassValid = input.length < 8 ;
+      const excurrpassValid = input.length > 25;
+      if (this.state.confirmPassword && currpassValid) {
+        formIsValid = false;
+        errors["currentpassword"]= "Please Enter Atleast 8 Characters";
+      }else if (this.state.confirmPassword && excurrpassValid) {
+        formIsValid = false;
+        errors["currentpassword"]= "Confirm Password Should Less Than 25 Characters";
       }
-     });
+    }
+    this.setState({ errors: errors });
+    return formIsValid;
+
   }
 
   changePassword() {
-    // let roleName;
-    // const role = JSON.parse(sessionStorage.getItem('user'));
-    // if (role["cognito:groups"][0] !== "config_user" && role["custom:isSuperAdmin"] === "false") {
-    //     roleName = role["cognito:groups"][0];
-    // }
+    
+    if(this.state.newPassword && this.state.confirmPassword){
+      const formValid = this.changePasswordValidation();
+    if (formValid) {
     console.log(this.state.newPassword, this.state.confirmPassword);
 
     if(this.state.newPassword == this.state.confirmPassword) {
@@ -300,11 +329,17 @@ class Login extends Component {
         }
         this.hideChangePassword();
       });
+    
+    
     } else {
-      toast.error("Confirm Password and Passsword doesn't match");
+      toast.error("New Passsword And Confirm Password  Doesn't Match");
     }
-   
+  
+    }
+  } else {
+    toast.error("Please Enter Passsword And Confirm Password");
   }
+}
 
   hideChangePassword() {
     this.setState({
@@ -312,6 +347,7 @@ class Login extends Component {
       isLogin: true,
       userName: "",
       password: "",
+      newPassword:""
     });
     //  window.location.reload();
   }
@@ -426,7 +462,7 @@ class Login extends Component {
   getConfirmationCode() {
     LoginService.getConfirmationCode(this.state.userName).then((res) => {
       if (res) {
-        toast.success("Confirmation Code Sent to mail");
+        toast.success("Confirmation Code Sent To Mail");
         this.setState({
           isForgot: false,
           isLogin: false,
@@ -442,7 +478,54 @@ class Login extends Component {
     });
   }
 
+
+  forgotPasswordValidations(){
+    let errors = {};
+    let formIsValid = true;
+
+    //newForgotPassword
+    if (!this.state.newForgotPassword) {
+      formIsValid = false;
+      errors["newforgotpassword"] = "Please Enter New Password";
+    }
+    if (this.state.newForgotPassword) {
+      let input = this.state.newForgotPassword;
+      const newforgotValid = input.length < 8 ;
+      const exnewforgotValid = input.length > 25;
+      if (this.state.newForgotPassword && newforgotValid) {
+        formIsValid = false;
+        errors["newforgotpassword"] = "Please Enter Atleast 8 Characters";
+      }else if(this.state.newForgotPassword && exnewforgotValid){
+        formIsValid = false;
+        errors["newforgotpassword"] = "Password Should Less Than 25 Characters";
+      }
+    }
+
+    //confirmationCode
+    if (!this.state.confirmationCode) {
+      formIsValid = false;
+      errors["confirmationcode"] = "Please Enter Confirmation Code";
+    }
+    if (this.state.confirmationCode) {
+      let input = this.state.confirmationCode;
+      const confirmValid = input.length === 6;
+      if (this.state.confirmationCode && !confirmValid) {
+        formIsValid = false;
+        errors["confirmationcode"] = "Please Enter Valid Confirmation Code ";
+      }
+    }
+
+    this.setState({ errors: errors });
+    return formIsValid;
+
+  }
+
   saveForgotPassword() {
+    if(this.state.confirmationCode && this.state.newForgotPassword){
+    // const formValid = this.handleValidation();
+    const formValid = this.forgotPasswordValidations();
+    if (formValid) {
+    
     this.setState({
       isForgot: false,
       isLogin: true,
@@ -467,7 +550,13 @@ class Login extends Component {
       }
       //  this.hideChangePassword();
     });
+  
   }
+
+  }else {
+    toast.info("Please Enter All Mandatory Fields");
+  }
+}
 
   hideRegister() {
     this.setState({
@@ -485,6 +574,7 @@ class Login extends Component {
       registerOrganisation: "",
       registerMobile: "",
       registerAddress: "",
+      
     });
   }
 
@@ -495,52 +585,86 @@ class Login extends Component {
     //Name
     if (!this.state.registerName) {
       formIsValid = false;
-      errors["registerName"] = "Enter name";
+      errors["registerName"] = "Please Enter Name";
+    }
+    if (this.state.registerName) {
+      let input = this.state.registerName;
+      const nameValid = input.length < 6;
+      const exnameValid =input.length > 25;
+      if (nameValid) {
+        formIsValid = false;
+        errors["registerName"] = "Please Enter Atleast 6 Characters";
+      }else if(exnameValid){
+        formIsValid = false;
+        errors["registerName"] = "Please Enter Name Below 25 Characters";
+      }
     }
 
     // Organisation
     if (!this.state.registerOrganisation) {
       formIsValid = false;
-      errors["registerOrganisation"] = "Enter  Organisation";
+      errors["registerOrganisation"] = "Please Enter Organisation";
     }
+    if (this.state.registerOrganisation) {
+      let input = this.state.registerOrganisation;
+      const orgValid = input.length < 3;
+      const exorgValid =input.length > 25;
+      if (this.state.registerOrganisation && orgValid) {
+        formIsValid = false;
+        errors["registerOrganisation"] = "Please Enter Atleast 3 Characters";
+      }else if(this.state.registerOrganisation && exorgValid){
+        formIsValid = false;
+        errors["registerOrganisation"] = "Please Enter Organisation Below 25 Characters";
+      }
+    }
+
+    
 
 
     // Mobile
     if (!this.state.registerMobile) {
-      formIsValid = false;
-      errors["registerMobile"] = "Enter phone Number";
-    }
+    formIsValid = false;
+    errors["registermobile"] = "Please Enter Mobile Number";
+   }
+    
+if (this.state.registerMobile) {
+ var pattern = new RegExp(/^[0-9\b]+$/);
+    if (pattern.test(this.state.registerMobile)) {
+       let input = this.state.registerMobile;
+      const mobValid= input.length === 10;
+          if(this.state.registerMobile && !mobValid){
+               formIsValid = false;
+                  errors["registermobile"] = "Please Enter Valid Mobile Number.";
+ }
 
-    if (typeof this.state.registerMobile !== "undefined") {
-      if (!this.state.registerMobile.match(/^[0-9\b]+$/)) {
-        formIsValid = false;
-        errors["registerMobile"] = "Please Enter Valid Mobile Number";
-      }
-    }
+ }
+}
 
-    //email
-    if (!this.state.registerEmail) {
-      formIsValid = false;
-      errors["registerEmail"] = "Enter email";
-    }
 
-    // if (typeof this.state.registerEmail !== "undefined") {
+  
+  if (!this.state.registerEmail) {
+    errors["registeremail"] = 'Please Enter Email ';
+  } else if (!/\S+@\S+\.\S+/.test(this.state.registerEmail)) {
+    errors["registeremail"] = 'Please Enter Valid Email';
+  }
 
-    //     if (!this.state.registerEmail.match(/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{4,})$/i)) {
-    //         formIsValid = false;
-    //         errors["registerEmail"] = "Please Enter Valid Email";
-    //     }
-
-    // }
+   
 
     this.setState({ errors: errors });
     return formIsValid;
   }
 
+
   registerClient() {
-    const formValid = this.handleValidation();
+   
+    if(this.state.registerName && this.state.registerOrganisation && this.state.registerMobile && this.state.registerEmail){
+      const formValid = this.handleValidation();
     if (formValid) {
-      if(this.state.registerMobile.length === 10) {
+          // let input = this.state.registerName;
+          // const nameVal =input.length > 6;
+          // let mob=this.state.registerMobile;
+          // const mobVal =mob.length === 10;
+          // if(this.state.registerName && this.state.registerOrganisation && this.state.registerMobile && this.state.registerEmail){
         const obj = {
           name: this.state.registerName,
           organizationName: this.state.registerOrganisation,
@@ -572,7 +696,7 @@ class Login extends Component {
               isConfigUser: "true",
               clientDomain: [],
               isSuperAdmin: "false",
-              createdBy: "NA",
+              createdBy: 0,
             };
   
             URMService.saveUser(clientObj).then((response) => {
@@ -593,13 +717,16 @@ class Login extends Component {
             });
           }
         });
-      } else {
-        toast.error("Please Enter Valid Mobile Number")
       }
-    
     } else {
-      toast.info("Please Enter all mandatory fields");
+      toast.info("Please Enter All Mandatory Fields");
     }
+  
+  // }else{
+  //   toast.info("Please Enter All Mandatory Fields")
+  // }
+  
+
   }
 
 
@@ -723,14 +850,7 @@ class Login extends Component {
               Cancel
             </button>
             <button className="btn-unic active fs-12 mt-3" onClick={(e) => {
-              //this.props.history.push("/dashboard");
-              console.log(this.state.loggedUser["custom:isSuperAdmin"]);
-              if(this.state.loggedUser["custom:isSuperAdmin"] === "true") {
-                this.props.history.push("/dashboard");
-              } else {
-                this.navigateSpecificRoute();
-              }
-              
+              this.props.history.push("/dashboard");
             }
             }>
               OK
@@ -964,6 +1084,10 @@ class Login extends Component {
                         }
                         placeholder="Confirmation Code"
                       />
+                      <div>
+                             <span style={{ color: "red" }}>{this.state.errors["confirmationcode"]}</span>
+                                                        </div>
+
                       <input
                         type="password"
                         className="form-control"
@@ -974,6 +1098,10 @@ class Login extends Component {
                         }
                         placeholder="New Password"
                       />
+                       <div>
+                             <span style={{ color: "red" }}>{this.state.errors["newforgotpassword"]}</span>
+                                                        </div>
+
                     </div>
                     <button
                       className="btn-login_v1 mt-3"
@@ -1015,7 +1143,13 @@ class Login extends Component {
                           this.setState({ newPassword: e.target.value })
                         }
                         placeholder="New Password"
+                      
                       />
+                          <div>
+                             <span style={{ color: "red" }}>{this.state.errors["newpassword"]}</span>
+                                                        </div>
+                      
+                      
                        <input
                         type="password"
                         className="mt-3 mb-3 form-control"
@@ -1027,6 +1161,9 @@ class Login extends Component {
                         autoComplete="off"
                         placeholder="Confirm Password"
                       />
+                        <div>
+                             <span style={{ color: "red" }}>{this.state.errors["currentpassword"]}</span>
+                                                        </div>
                     </div>
                     <button
                       className="btn-login_v1 mt-3"
@@ -1070,7 +1207,7 @@ class Login extends Component {
                           autoComplete="off"
                         />
                         <div>
-                                                            <span style={{ color: "red" }}>{this.state.errors["registerName"]}</span>
+                             <span style={{ color: "red" }}>{this.state.errors["registerName"]}</span>
                                                         </div>
                       </div>
                       <div className="col-6">
@@ -1088,7 +1225,7 @@ class Login extends Component {
                           autoComplete="off"
                         />
                          <div>
-                                                            <span style={{ color: "red" }}>{this.state.errors["registerOrganisation"]}</span>
+                                 <span style={{ color: "red" }}>{this.state.errors["registerOrganisation"]}</span>
                                                         </div>
                       </div>
 
@@ -1107,7 +1244,7 @@ class Login extends Component {
                           autoComplete="off"
                         />
                         <div>
-                                                            <span style={{ color: "red" }}>{this.state.errors["registerMobile"]}</span>
+                           <span style={{ color: "red" }}>{this.state.errors["registermobile"]}</span>
                                                         </div>
                       </div>
 
@@ -1124,7 +1261,7 @@ class Login extends Component {
                           autoComplete="off"
                         />
                         <div>
-                                                            <span style={{ color: "red" }}>{this.state.errors["registerEmail"]}</span>
+                                                            <span style={{ color: "red" }}>{this.state.errors["registeremail"]}</span>
                                                         </div>
                       </div>
 

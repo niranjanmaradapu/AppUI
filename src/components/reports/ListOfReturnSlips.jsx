@@ -1,0 +1,515 @@
+import React, { Component } from "react";
+import { renderIntoDocument } from "react-dom/test-utils";
+import edit from "../../assets/images/edit.svg";
+import view from "../../assets/images/view.svg";
+import ListOfBarcodesService from "../../services/Reports/ListOfBarcodesService";
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import ReactPageNation from "../../commonUtils/Pagination";
+
+export default class ListOfReturnSlips extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      fromDate: "",
+      toDate: "",
+      // startRecordNumber: 0,
+      // numberOfRecords: 5,
+      barcodeTextileId: "",
+      barcode: "",
+      store: "",
+      empId: "",
+      id: "",
+      itemMrpLessThan: "",
+      itemMrpGreaterThan: "",
+      isView: false,
+      clientDomianId: "",
+      storeList: [],
+      bcDetailsList: [],
+      itemId: "",
+      itemName: "",
+      domainId1: "",
+      pageList: [],
+      // selectOption: [
+      //   {
+      //     value: "select",
+      //     label: "select",
+      //     id: "select",
+      //   },
+      //   {
+      //     value: "hyderabad",
+      //     label: "hyderabad",
+      //     id: "hyderabad",
+      //   },
+      //   {
+      //     value: "guntur",
+      //     label: "guntur",
+      //     id: "guntur",
+      //   },
+      // ],
+      bcList: [],
+    };
+    this.getBarcodes = this.getBarcodes.bind(this);
+    this.changePage = this.changePage.bind(this);
+    this.getStoreNames = this.getStoreNames.bind(this);
+    this.viewReport = this.viewReport.bind(this);
+    this.closeViewReport = this.closeViewReport.bind(this);
+  }
+
+  getBarcodes(pageNumber) {
+    const obj = {
+      fromDate: this.state.fromDate ? this.state.fromDate : undefined,
+      toDate: this.state.toDate ? this.state.toDate : undefined,
+      // startRecordNumber: 0,
+      // numberOfRecords: 5,
+      barcodeTextileId: this.state.barcodeTextileId
+        ? parseInt(this.state.barcodeTextileId)
+        : undefined,
+      barcode: this.state.barcode ? this.state.barcode : undefined,
+      // storeName: this.state.store ? this.state.store : undefined,
+      storeId:
+        this.state.storeId && this.state.storeId != 0
+          ? this.state.storeId
+          : undefined,
+
+      empId: this.state.empId ? this.state.empId : undefined,
+      itemMrpLessThan: this.state.itemMrpLessThan
+        ? this.state.itemMrpLessThan
+        : undefined,
+      itemMrpGreaterThan: this.state.itemMrpGreaterThan
+        ? this.state.itemMrpGreaterThan
+        : undefined,
+    };
+
+    ListOfBarcodesService.getBarcodes(obj, pageNumber).then((res) => {
+      // console.log(res.data.result.content);
+      console.log("............", pageNumber);
+      console.log("storeList", this.state.storeList);
+
+      let data = res.data.result;
+
+      let obj = {
+        barcode: "",
+        storeId: "",
+        storeName: "",
+        empId: "",
+        qty: "",
+        itemMrp: "",
+      };
+
+      let a = [];
+      data?.content?.map((d) => {
+        const storeName = this.state.storeList.filter((item) => {
+          console.log("storeid", d.storeId);
+
+          return d.storeId == item.id;
+        });
+        obj = {
+          barcode: d.barcode,
+          storeId: d.storeId,
+          empId: d.empId,
+          qty: d.qty,
+          itemMrp: d.itemMrp,
+          storeName: storeName[0]?.name,
+        };
+        a.push(obj);
+      });
+
+      console.log("bcList", a);
+      this.setState({
+        pageList: data,
+        // barcodeData: a,
+        bcList: a,
+        bcDetailsList: a,
+      });
+    });
+  }
+
+  // changePage(pageNumber) {
+  //   this.getBarcodes(pageNumber);
+  // }
+
+  viewReport(barcode) {
+    let filterData = this.state.bcList.filter((x) => x.barcode == barcode);
+    console.log("filterdata", filterData);
+    let obj = {
+      barcode: "",
+      itemMrp: "",
+      storeName: "",
+      qty: "",
+    };
+
+    obj = {
+      barcode: filterData[0].barcode,
+      itemMrp: filterData[0].itemMrp,
+      storeName: filterData[0].storeName,
+      qty: filterData[0].qty,
+    };
+
+    //console.log("after insert a", a);
+    this.setState({ popupData: obj, isView: true });
+  }
+
+  closeViewReport() {
+    this.setState({ isView: false });
+  }
+  componentDidMount() {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const storeId = sessionStorage.getItem("storeId");
+    this.setState({ storeId: storeId });
+    console.log("user", user);
+    const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
+    if (domainData.label == "Textile") {
+      this.setState({ domaindataId: 1 });
+    } else if (domainData.label == "Retail") {
+      this.setState({ domaindataId: 2 });
+    }
+    if (user["custom:isSuperAdmin"] === "true") {
+      this.state.domainDetails = JSON.parse(
+        sessionStorage.getItem("selectedDomain")
+      );
+
+      // const user = JSON.parse(sessionStorage.getItem("user"));
+      // console.log("user", user);
+      // if (user["custom:isSuperAdmin"] === "true") {
+      //   this.state.domainDetails = JSON.parse(
+      //     sessionStorage.getItem("selectedDomain")
+      //   );
+
+      //   console.log(
+      //     ">>>>>>>doma",
+      //     JSON.parse(sessionStorage.getItem("selectedDomain"))
+      //   );
+      let testData = [];
+      testData.push(JSON.parse(sessionStorage.getItem("selectedDomain")));
+      console.log(">>>>>>parse", testData);
+
+      this.setState(
+        {
+          storeList: testData,
+          clientId: user["custom:clientId1"],
+          domainId1: testData[0].value,
+          domainDetails: this.state.domainDetails,
+        },
+        () => {
+          console.log(this.state);
+          this.getStoreNames(this.state.domainId1);
+        }
+      );
+    } else {
+      this.setState(
+        {
+          userName: user["cognito:username"],
+          isEdit: false,
+          clientId: user["custom:clientId1"],
+          domainId1: user["custom:domianId1"],
+        },
+        () => {
+          console.log(this.state);
+          this.getStoreNames(user["custom:domianId1"]);
+        }
+      );
+    }
+  }
+
+  componentWillMount() {}
+
+  getStoreNames = (domainId) => {
+    console.log("vgfgfhgfhgf", this.state.domainId1, domainId);
+    if (domainId != undefined) {
+      ListOfBarcodesService.getStoreNames(domainId).then((res) => {
+        console.log("........", res);
+        var optionList = [];
+        if (res.data.result) {
+          var obj = { id: "0", name: "SELECT STORE" };
+          optionList.push(obj);
+          res.data.result.map((data) => {
+            obj = {
+              id: data.id,
+              name: data.name,
+            };
+            optionList.push(obj);
+          });
+        }
+
+        this.setState({
+          storeList: optionList,
+        });
+      });
+    }
+  };
+
+  changePage(pageNumber) {
+    this.getBarcodes(pageNumber);
+  }
+
+  renderTableData() {
+    return this.state.bcList.map((items, index) => {
+      const { barcode, storeName, empId, qty, itemMrp } = items;
+      return (
+        <tr className="" key={index}>
+          <td className="col-1">{index + 1}</td>
+          <td className="col-2">{barcode}</td>
+          <td className="col-2">{storeName}</td>
+          <td className="col-2">{empId}</td>
+          <td className="col-1">{qty}</td>
+          <td className="col-2">₹ {itemMrp}</td>
+          <td className="col-2 ">
+            {/* <img src={edit} className="w-12 m-r-2 pb-2" /> */}
+            <img
+              src={view}
+              className="w-12 pb-2"
+              onClick={() => {
+                this.viewReport(barcode);
+              }}
+            />
+            {/* <i className="icon-delete fs-16"></i> */}
+          </td>
+        </tr>
+      );
+    });
+  }
+
+  // handleSelect(e) {
+  //   let obj = this.state.selectOption.find((o) => o.label === e.target.value);
+  //   this.setState({
+  //     itemId: obj.id,
+  //     itemName: e.target.value,
+  //     store: e.target.value,
+  //   });
+  // }
+
+  renderPopupTableData() {
+    if (this.state.popupData) {
+      // return this.state.popupData.map((items, index) => {
+      const { barcode, itemMrp, storeName, qty } = this.state.popupData;
+      return (
+        <tr>
+          <td className="col-2">{barcode}</td>
+          <td className="col-2">{itemMrp}</td>
+          <td className="col-2">{storeName}</td>
+          <td className="col-2">{qty}</td>
+        </tr>
+      );
+    }
+  }
+
+  render() {
+    return (
+      <div className="maincontent">
+        <Modal isOpen={this.state.isView} className="modal-fullscreen">
+          <ModalHeader>BARCODE DETAILS </ModalHeader>
+          <ModalBody>
+            <div className="table-responsive">
+              <table className="table table-borderless mb-1">
+                <thead>
+                  <tr className="m-0 p-0">
+                    <th className="col-2">BARCODE</th>
+                    <th className="col-2">MRP</th>
+                    <th className="col-2">STORE</th>
+                    <th className="col-2">QTY</th>
+                  </tr>
+                </thead>
+                {/* <tbody>
+                  <tr>
+                    <td>BAR001</td>
+                    <td>Western Wear</td>
+                    <td>001</td>
+                    <td>4699</td>
+                    <td>01</td>
+                    <td>1,120</td>
+                    <td>800</td>
+                    <td>5.00</td>
+                    <td>333.33</td>
+                    <td>8.33</td>
+                    <td>8.33</td>
+                    <td>0.00</td>
+                    <td>350</td>
+                  </tr>
+                </tbody> */}
+                <tbody>{this.renderPopupTableData()}</tbody>
+              </table>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <button className="pt-2 btn-bdr" onClick={this.closeViewReport}>
+              CANCEL
+            </button>
+            {/* <button
+              className="btn btn-bdr active fs-12"
+              onClick={this.closeViewReport}
+            >
+              SAVE
+            </button> */}
+          </ModalFooter>
+        </Modal>
+
+        <div className="row">
+          <div className="col-6 col-sm-2 mt-2 mb-2">
+            <div className="form-group">
+              <label>From Date</label>
+              <input
+                type="date"
+                className="form-control"
+                placeholder="FROM DATE"
+                value={this.state.fromDate}
+                onChange={(e) => this.setState({ fromDate: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="col-6 col-sm-2 mt-2 mb-2">
+            <div className="form-group">
+              <label>To Date</label>
+              <input
+                type="date"
+                className="form-control"
+                placeholder="TO DATE"
+                value={this.state.toDate}
+                onChange={(e) => this.setState({ toDate: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="col-6 col-sm-2 mt-2 mb-2">
+            <div className="form-group">
+              <label>Barcode</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="BARCODE NUMBER"
+                value={this.state.barcode}
+                // onChange={(e) =>
+                //   this.setState({ barcodeTextileId: e.target.value })
+                // }
+                onChange={(e) => this.setState({ barcode: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="col-6 col-sm-2 mt-2 mb-2">
+            <div className="form-group">
+              <label>Store</label>
+              <select
+                className="form-control"
+                value={this.state.storeId}
+                // onChange={(e) => {
+                //   this.handleSelect(e);
+                // }}
+
+                onChange={(e) => {
+                  const selectedValue = this.state.storeList.filter((item) => {
+                    return item.id == e.target.value;
+                  });
+                  this.setState({
+                    storeId: e.target.value,
+                    storeName: selectedValue[0].name,
+                  });
+                }}
+              >
+                {this.state.storeList.map((i) => {
+                  return (
+                    <option key={i.id} value={i.id}>
+                      {i.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+          </div>
+          <div className="col-6 col-sm-2 mt-2">
+            <div className="form-group">
+              <label>EMP ID</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="EMP ID"
+                value={this.state.empId}
+                onChange={(e) => this.setState({ empId: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="col-6 col-sm-2 mt-2">
+            <div className="form-group">
+              <label>Barcode MRP LessThan </label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="BARCODE MRP <"
+                value={this.state.itemMrpLessThan}
+                onChange={(e) =>
+                  this.setState({ itemMrpLessThan: e.target.value })
+                }
+              />
+            </div>
+          </div>
+
+          <div className="col-6 col-sm-2 mt-2">
+            <div className="form-group">
+              <label>Barcode MRP GraterThan </label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="BARCODE MRP >"
+                value={this.state.itemMrpGreaterThan}
+                onChange={(e) =>
+                  this.setState({ itemMrpGreaterThan: e.target.value })
+                }
+              />
+            </div>
+          </div>
+          <div className="col-6 col-sm-2 scaling-mb mt-2 pt-4">
+            <div className="form-group">
+              <button
+                className="btn-unic-search active"
+                onClick={() => {
+                  this.getBarcodes(0);
+                }}
+              >
+                SEARCH{" "}
+              </button>
+            </div>
+          </div>
+        </div>
+        <h5 className="pl-4 mt-3  fs-18 scaling-center scaling-mb">
+          List Of Barcodes
+        </h5>
+        <div className="row m-0 p-0 mb-3">
+          <div className="table-responsive p-0">
+            <table className="table table-borderless mb-1 mt-2">
+              <thead>
+                <tr className="m-0 p-0">
+                  <th className="col-1">S.NO</th>
+                  <th className="col-2">Barcode</th>
+                  <th className="col-2">Barcode Store</th>
+                  <th className="col-2">EMP ID</th>
+                  <th className="col-1">QTY</th>
+                  <th className="col-2">BARCODE MRP</th>
+                  <th className="col-2">VIEW</th>
+                </tr>
+              </thead>
+              {/* <tbody>
+              <tr className="">
+                <td className="col-1">01</td>
+                <td className="col-2">BAR00001</td>
+                <td className="col-2">Kukatpally</td>
+                <td className="col-2">EMP123</td>
+                <td className="col-1">10</td>
+                <td className="col-2">₹ 2,000</td>
+                <td className="col-2 text-center">
+                  <img src={edit} className="w-12 m-r-2 pb-2" />
+                  <i className="icon-delete fs-16"></i>
+                </td>
+              </tr>
+             </tbody> */}
+              <tbody>{this.renderTableData()}</tbody>
+              {console.log(">>>.bclist", this.state.pageList)}
+              <ReactPageNation
+                {...this.state.pageList}
+                changePage={(pageNumber) => {
+                  this.changePage(pageNumber);
+                }}
+              />
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}

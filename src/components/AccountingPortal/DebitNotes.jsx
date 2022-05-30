@@ -279,7 +279,6 @@ handleValidation () {
                     disabled
                   />
                 </div>
-                {/* <span style={{ color: "red" }}>{this.state.error["mobileNumber"]}</span> */}
               </div>
 
               <div className="col-4">
@@ -289,7 +288,6 @@ handleValidation () {
                     value={this.state.customerData?.userName} disabled
                   />
                 </div>
-                {/* <span style={{ color: "red" }}>{this.state.error["customerName"]}</span> */}
               </div>
 
               <div className="col-4">
@@ -313,7 +311,6 @@ handleValidation () {
                     }}
                   />
                 </div>
-                {/* <span style={{ color: "red" }}>{this.state.error["debitAmount"]}</span> */}
               </div>
               <div className="col-4 mt-3">
                 <div className="form-group">

@@ -314,15 +314,6 @@ export default class CreateNotes extends Component {
                   />
                 </div>
               </div>
-
-              {/* <div className="col-4 ">
-                <div className="form-group">
-                  <label>Customer ID</label>
-                  <input type="text" className="form-control" placeholder=""
-                    value={this.state.customerData?.userId} disabled
-                  />
-                </div>
-              </div> */}
               <div className="col-4">
                 <div className="form-group">
                   <label>Credit Amount <span className="text-red font-bold" name="bold">*</span></label>

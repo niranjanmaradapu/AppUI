@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 name: app-ui
 
-replicaCount: 5
+replicaCount: 1
 namespace: 
   name: default
 image:
@@ -38,7 +38,7 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: NodePort   # Change to NoadPort for Ingress
+  type: LoadBalancer   # Change to NoadPort for Ingress
   port: 3000
 
 ingress:

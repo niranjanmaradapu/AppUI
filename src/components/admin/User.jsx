@@ -245,10 +245,10 @@ export default class User extends Component {
                this.setState({
                 //    usersList: res.data.result, 
                 usersList:  this.state.usersList, 
-                   totalPages: res.data.result.totalPages,
+                //    totalPages: res.data.result.totalPages,
                    isUser: true });
           
-                   console.log("totalpages",this.state.totalPages);
+                //    console.log("totalpages",this.state.totalPages);
             }
         });
     }
@@ -571,7 +571,7 @@ export default class User extends Component {
                 
                 <div className="row m-0 pb-3 mb-5 mt-3">
 
-                {this.state.totalPages > 1 ? (
+                {/* {this.state.totalPages > 1 ? ( */}
 <div className="d-flex justify-content-center">
 <ReactPageNation
   {...this.state.usersList}
@@ -580,7 +580,7 @@ export default class User extends Component {
   }}
 />
 </div>
-  ) : null}
+  {/* ) : null} */}
 </div>
                 </div>
             </div>

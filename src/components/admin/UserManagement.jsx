@@ -31,6 +31,9 @@ export default class UserManagement extends Component {
                                 <Tab eventKey="fourth" title="CHANNELS">
                                    <Channels />
                                 </Tab>
+                                <Tab eventKey="fifth" title="BACKOFFICE">
+                                   <backOffice/>
+                                </Tab>
                             </Tabs>
                         </div>
                     </div>

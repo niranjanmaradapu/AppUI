@@ -7,7 +7,7 @@ function DisplayPools({
     handleRemovePool
 }) {
     return (
-        <div className="table-responsive">
+        <div className="table-responsive m-0 p-0">
           <table className="table table-borderless mb-1 mt-2">
             <thead>
               <tr className="m-0 p-0">
@@ -36,7 +36,8 @@ function DisplayPools({
                 </td>
                 <td className="col-1">
                   <img onClick={() => modifyPool(item)} src={edit} className="w-12 pb-2" />
-                  <i onClick={() => handleRemovePool(item)} className="icon-delete m-l-2 fs-16"></i></td>
+                  {/* <i onClick={() => handleRemovePool(item)} className="icon-delete m-l-2 fs-16"></i> */}
+                  </td>
                 </tr> 
                 )
               })}

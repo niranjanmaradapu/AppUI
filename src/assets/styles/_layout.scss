@@ -186,7 +186,7 @@ body{
                         margin: 0px;
                         padding: 0px;
                         text-align:center ;
-                        cursor: pointer;
+                        
                       & span{
                         width:50px;
                         margin:15px;
@@ -197,6 +197,7 @@ body{
                         border:1px solid #DCE3F2;
                         background-color: $white;
                         text-align: center;
+                        cursor: pointer;
                         & label{
                             font-size: 12px;
                             height:15px;
@@ -219,7 +220,42 @@ body{
                             }
                         }
                       }
-                    
+                    &.disable{
+                        & span{
+                            width:50px;
+                            margin:15px;
+                            margin-bottom: 0px;
+                            height:50px;
+                            padding:16%;
+                            border-radius: 50px;
+                            border:1px solid #d8d8d8;
+                            background-color: #d8d8d8;
+                            text-align: center;
+                            cursor: default !important;
+                            curs
+                            & label{
+                                font-size: 12px;
+                                height:15px;
+                                color: #d8d8d8;
+                                position: relative;
+                                top: 20px;
+                                left: -2px;
+                            }
+                            &:hover{
+                                border:1px solid #d8d8d8 !important;
+                                // height:50px;
+                                // border-radius: 50px;
+                                // width:50px;
+                                color: #d8d8d8 !important;
+                                & label{
+                                    font-size: 12px;
+                                    height:15px;
+                                    color: #d8d8d8 !important;
+                                    // color: #353C40;
+                                }
+                            }
+                          }
+                    }
                     
                    
                     }
@@ -503,7 +539,10 @@ body{
         font-size:14px;
     }
 }
-
+.disable_ms{
+    background-color: #d8d8d8;
+    background: #d8d8d8;
+}
 
 
 @media only screen and (min-width:320px) and (max-width:700px) {

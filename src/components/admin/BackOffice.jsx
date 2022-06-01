@@ -4,7 +4,7 @@ import edit from '../../assets/images/edit.svg';
 export default class BackOffice extends Component {
     render() {
         return (
-            <div className='maincontent'>
+            <div className="maincontent">
                   <div className="row">
                     <div className="col-sm-2 col-12 mt-2">
                     <div className="form-group">

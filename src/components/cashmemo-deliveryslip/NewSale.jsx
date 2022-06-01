@@ -43,7 +43,7 @@ export default class NewSale extends Component {
       rBarCodeList: [],
       discReasons: [],
       selectedDisc: {},
-      userId: "NA",
+      userId: null,
       deliverySlipData: {
         barcode: [],
         mrp: "",
@@ -64,10 +64,13 @@ export default class NewSale extends Component {
       customerGST: "",
       address: "",
       dropValue: "",
-      grandNetAmount: 0.0,
+      grandNetAmount: 0,
       grandReceivedAmount: 0.0,
+      payingAmount:0, 
       grandBalance: 0,
       returnCash: 0,
+      totalAmount:0,
+      couponAmount: 0,
       input: {},
       isBillingDetails: false,
       errors: {},
@@ -77,6 +80,7 @@ export default class NewSale extends Component {
       showTable: false,
       dsNumberList: [],
       isCredit: false,
+      isCreditAmount: false,
       paymentType: [],
       mobileData: {
         address: "",
@@ -95,8 +99,10 @@ export default class NewSale extends Component {
       netPayableAmount: 0,
       netCardPayment: 0,
       promoDiscount: 0,
+      isBillingDiscount: false,
       retailBarCodeList: [],
       barCodeRetailList: [],
+      createdBy: null,
       genderList: [
         {
           value: "female",
@@ -126,6 +132,7 @@ export default class NewSale extends Component {
       upiMobilenumber: "",
       balanceCreditAmount: "",
       isreturnCreditCash: false,
+      upiAmount:0,
 
       // open: false,
     };
@@ -155,6 +162,9 @@ export default class NewSale extends Component {
     this.getUPIModel = this.getUPIModel.bind(this);
     this.hideUPIModel = this.hideUPIModel.bind(this);
     this.getUPILink = this.getUPILink.bind(this);
+    this.getinvoiceLevelCheckPromo=this.getinvoiceLevelCheckPromo.bind(this);
+    this.invoiceLevelCheckPromo=this.invoiceLevelCheckPromo.bind(this);
+    
 
     //this.handler = this.handler.bind(this);
   }
@@ -164,7 +174,7 @@ export default class NewSale extends Component {
     const clientId = JSON.parse(sessionStorage.getItem('selectedDomain'));
     console.log(clientId.label);
     const user = JSON.parse(sessionStorage.getItem('user'));
-    this.setState({ userId: parseInt(user["custom:userId"]), idClient: user["custom:clientId1"] });
+    this.setState({ createdBy: parseInt(user["custom:userId"]), idClient: user["custom:clientId1"] });
     if (clientId.label === "Textile") {
       this.setState({ isTextile: true, isRetail: false });
     } else if (clientId.label === "Retail") {
@@ -220,6 +230,7 @@ export default class NewSale extends Component {
   hideCashModal = () => {
     this.setState({
       isCash: false,
+      cashAmount: 0,
     });
   };
 
@@ -298,7 +309,7 @@ export default class NewSale extends Component {
   }
 
   getCreditModel() {
-    this.setState({ isCreditModel: true });
+    this.setState({ isCreditModel: true, payCreditAmount: this.state.grandNetAmount });
 
   }
 
@@ -310,7 +321,7 @@ export default class NewSale extends Component {
 
     if (this.state.creditAmount < this.state.grandNetAmount) {
       const amount = this.state.grandNetAmount - this.state.creditAmount;
-      this.setState({ isPayment: true, isreturnCreditCash: true, balanceCreditAmount: amount }, () => {
+      this.setState({ isPayment: true, isreturnCreditCash: true, balanceCreditAmount: amount, grandNetAmount: amount }, () => {
         const obj = {
 
           "paymentType": "PKTADVANCE",
@@ -329,6 +340,8 @@ export default class NewSale extends Component {
 
       this.state.paymentType.push(obj);
     }
+    const grandAmount = this.state.grandNetAmount >= this.state.payCreditAmount ? this.state.grandNetAmount - this.state.payCreditAmount : 0
+    this.setState({isCreditAmount: true, grandNetAmount:grandAmount});
 
     this.hideCreditModel();
 
@@ -372,10 +385,13 @@ export default class NewSale extends Component {
 
         "offlineNumber": null,
 
-        "userId": this.state.userId,
+        "userId": this.state.userId ? this.state.userId : null,
+        "createdBy": this.state.createdBy,
         "sgst": this.state.centralGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
+        "recievedAmount": this.state.cashAmount,
+        "returnAmount": this.state.returnCash,
         "lineItemsReVo": null,
         "paymentAmountType": [
           {
@@ -402,7 +418,7 @@ export default class NewSale extends Component {
             dob: " ",
             customerGST: " ",
             address: " ",
-            manualDisc: "",
+            manualDisc: 0,
             customerEmail: "",
             netPayableAmount: 0.0,
             barCodeList: [],
@@ -410,13 +426,16 @@ export default class NewSale extends Component {
             promoDiscount: 0.0,
             cashAmount: 0,
             taxAmount: 0.0,
-            grandNetAmount: 0.0,
+            grandNetAmount: 0,
             returnCash: 0,
             stateGST: 0,
             centralGST: 0,
             isPayment: true,
             isCCPay: true,
             isCCModel: false,
+            totalAmount:0,
+            couponAmount:0,
+            isCredit: false,
 
 
           });
@@ -457,8 +476,9 @@ export default class NewSale extends Component {
   }
 
   getCardModel = () => {
+    this.setState({payingAmount: this.state.grandNetAmount})
     this.setState({
-      isCard: true,
+      isCard: true
     },
       () => {
         if (this.state.isreturnCreditCash) {
@@ -476,13 +496,17 @@ export default class NewSale extends Component {
   onCouponCode() {
     NewSaleService.getCoupons(this.state.idClient, this.state.couponCode).then(res => {
       if (res.data.result !== "Record not found") {
+        console.log(res.data.result.value);
         let grandTotal = this.state.grandNetAmount;
         if (grandTotal > res.data.result.value) {
           grandTotal = grandTotal - res.data.result.value;
+          this.setState({ grandNetAmount: grandTotal }, () => {
+          this.setState({ isCouponApplied: false, couponAmount: res.data.result.value });
+          });
+        } else if(grandTotal <= res.data.result.value)  {
+          toast.error("Please purchase greater than coupon amount")
         }
-        this.setState({ grandNetAmount: grandTotal }, () => {
-          this.setState({ isCouponApplied: false });
-        });
+       
       } else {
         toast.error(res.data.result);
       }
@@ -495,79 +519,87 @@ export default class NewSale extends Component {
     });
     const value = displayRazorpay(this.state.cardAmount)
   };
+  getPaymentResposne() {
+  let  timer = 0
+  let time=  setInterval(function() {
+    // alert("5 seconds are up");
+    console.log("++++++++++++++++ CALLING API");
+    timer = timer+5
+    console.log("timer+++",timer)
+    if(timer=== 20){
+      clearInterval(time);
+
+      console.log("++++++++++CLEARED")
+    }
+}, 5000);
+
+  } 
+
+//   startTimer() {
+//     timer = setInterval(function() {
+//         alert("5 seconds are up");
+//     }, 5000);
+// }
+ 
+//  stopTimer() {
+//     alert("Timer stopped");
+//     clearInterval(timer);
+// }
 
   pay = () => {
     if (this.state.isUPIModel) {
-
+      // this.getPaymentResposne() 
       const obj = {
-        "amount": 200,
-        "currency": "INR",
-        "accept_partial": true,
-        "first_min_partial_amount": 200,
-        "expire_by": 1691097057,
-        "reference_id": "pkstore111oo6",
-        "description": "Payment for policy no #23456",
-        "customer": {
-          "name": "p Kumar",
-          "contact": "+916305857148",
-          "email": "prasannakumar3333@gmail.com"
-        },
-        "notify": {
-          "sms": true,
-          "email": true
-        },
-        "reminder_enable": true,
-        "notes": {
-          "policy_name": "Jeevan Bima"
-        },
-        "callback_url": "https://example-callback-url.com/",
-        "callback_method": "get"
+        "amount": this.state.upiAmount,
+        "description":"payment description",
+        "customerDetails":{
+          "name":"kadali",
+          "contact":this.state.upiMobilenumber,
+          "email":"kadali7799@gmail.com"
+          }
       }
-
-
-      let axiosConfig = {
-        mode:"no-cors",
+  
+      const token = JSON.parse(sessionStorage.getItem('token'));
+          const uninterceptedAxiosInstance = axios.create();
+      uninterceptedAxiosInstance.post('http://14.98.164.17:9097/paymentgateway/razorpay/create-payment-link', obj,{
         headers: {
-          'Authorization': 'Basic cnpwX3Rlc3RfREJ4TVhKWkhReFljbWM6VHhnV0xjZkZabU9MTGZzQjJOOUdDMEVi',
-          "Access-Control-Allow-Origin": "*",
-          'Content-Type': 'application/json'
-        }
-      };
-
-      const uninterceptedAxiosInstance = axios.create();
-      uninterceptedAxiosInstance.post('https://api.razorpay.com/v1/payment_links', obj,axiosConfig).then(response => {
+          'Authorization': 'Bearer' + ' ' + token,
+        }}).then(response => {
         console.log(response);
+        if(response.data) {
+          this.setState({isUPIModel: false});
+        }
       });
 
 
-
+      
       // NewSaleService.payment(this.state.grandNetAmount, this.state.newSaleId).then((res) => {
       //   this.setState({ isUPIModel: false });
       //   const data = JSON.parse(res.data.result);
       //   if (res.data.result) {   
-     //   }
-        // var instance = new Razorpay({ key_id: data.id, key_secret: 'rzp_test_z8jVsg0bBgLQer' })
-        // instance.paymentLink.create({
-        //   upi_link: true,
-        //   amount: this.state.grandNetAmount,
-        //   currency: "INR",
-        //   accept_partial: true,
-        //   first_min_partial_amount: 100,
-        //   description: "For XYZ purpose",
-        //   customer: {
-        //     name: "Neelu",
-        //     email: "Neelu@gmail.com",
-        //     contact: this.state.upiMobilenumber
-        //   },
-        //   notify: {
-        //     sms: true,
-        //     email: true
-        //   },
-        //   reminder_enable: true,
-        //   notes: {
-        //     policy_name: "Jeevan Bima"
-        //   }
-        // });
+      //   }
+      // var instance = new Razorpay({ key_id: data.id, key_secret: 'rzp_test_z8jVsg0bBgLQer' })
+      // instance.paymentLink.create({
+      //   upi_link: true,
+      //   amount: this.state.grandNetAmount,
+      //   currency: "INR",
+      //   accept_partial: true,
+      //   first_min_partial_amount: 100,
+      //   description: "For XYZ purpose",
+      //   customer: {
+      //     name: "Neelu",
+      //     email: "Neelu@gmail.com",
+      //     contact: this.state.upiMobilenumber
+      //   },
+      //   notify: {
+      //     sms: true,
+      //     email: true
+      //   },
+      //   reminder_enable: true,
+      //   notes: {
+      //     policy_name: "Jeevan Bima"
+      //   }
+      // });
       // });
 
     } else {
@@ -689,11 +721,11 @@ export default class NewSale extends Component {
     this.state.finalList = [];
     this.state.rBarCodeList = [];
     const obj = {
-      "dsNumber": this.state.dsNumber,
+      "dsNumber": this.state.dsNumber.trim(),
     }
     this.state.dsNumberList.push(obj);
 
-    NewSaleService.getDeliverySlipDetails(this.state.dsNumber).then((res) => {
+    NewSaleService.getDeliverySlipDetails(this.state.dsNumber.trim()).then((res) => {
       this.setState({ showTable: true });
       this.state.dlslips.push(res.data.result);
       if (this.state.dlslips.length > 1) {
@@ -771,7 +803,7 @@ export default class NewSale extends Component {
       console.log("Checking the slab")
     }
     const grandTotal = this.state.netPayableAmount + this.state.centralGST + this.state.centralGST;
-    this.setState({ grandNetAmount: grandTotal });
+    this.setState({ grandNetAmount: grandTotal, totalAmount: grandTotal });
 
 
   }
@@ -797,10 +829,54 @@ export default class NewSale extends Component {
       });
     }
   };
+  invoiceLevelCheckPromo(){
+    console.log("string");
+    this.getinvoiceLevelCheckPromo();
+    
+    
+  }
+  getinvoiceLevelCheckPromo()  {
+    console.log('*******************',this.state.barCodeList);
+    const storeId = sessionStorage.getItem("storeId");
+
+    const requestObj = this.state.barCodeList.map((item) => {
+      let obj = {};
+      console.log('++++++++++++item+++++++++++++', item);
+      obj.actualValue = item.actualValue;
+      obj.barCode=item.barCode;
+      obj.cgst=item.cgst;
+      obj.discount=item.discount;
+      obj.division=item.division;
+      obj.domainId=item.domainId;
+      obj.grossValue=item.grossValue;
+      obj.hsnCode=item.hsnCode;
+      obj.itemPrice=item.itemPrice;
+      obj.lineItemId=item.lineItemId;
+      obj.netValue=item.netValue;
+      obj.quantity=item.quantity;
+      obj.section=item.section;
+      obj.sgst=item.sgst;
+      obj.storeId=item.storeId;
+      obj.subSection=item.subSection;
+      obj.taxValue=item.taxValue;
+      obj.userId=item.userId
+     return obj;
+    });
+    console.log("+++++++++++++++++++++++", requestObj );
+   
+    NewSaleService.getinvoiceLevelCheckPro(1,storeId,requestObj).then((res) => {
+      if (res.status === 200) {
+        console.log(res);
+        this.setState({
+          barCodeList: res.data.result
+        });
+      }
+    });
+  }
 
   showDiscount() {
     this.state.totalManualDisc = 0;
-    this.setState({ isBillingDisc: true, returnCash: 0 }, () => {
+    this.setState({ isBillingDisc: true, isBillLevel: false, returnCash: 0 }, () => {
       this.getDiscountReasons();
     });
 
@@ -808,7 +884,7 @@ export default class NewSale extends Component {
   }
 
   hideDiscount() {
-    this.setState({ isBillingDisc: false, manualDisc: 0, returnCash: 0, selectedDisc: {} });
+    this.setState({ isBillingDisc: false,  returnCash: 0, selectedDisc: {} });
   }
   showCalculator() {
 
@@ -824,29 +900,32 @@ export default class NewSale extends Component {
   }
 
   saveDiscount() {
-    if(this.state.manualDisc <= this.state.grandNetAmount) {
+    console.log(this.state.manualDisc);
+    if (this.state.manualDisc <= this.state.grandNetAmount) {
 
       if (Object.keys(this.state.selectedDisc).length !== 0 && this.state.manualDisc !== 0 && this.state.discApprovedBy !== '') {
-        this.state.netPayableAmount = 0;
+        // this.state.netPayableAmount = 0;
         const totalDisc =
           this.state.totalPromoDisc + parseInt(this.state.manualDisc);
         if (totalDisc < this.state.grandNetAmount) {
           const netPayableAmount = this.state.grandNetAmount - totalDisc;
-          this.state.netPayableAmount = netPayableAmount;
-  
-          this.getTaxAmount();
+          this.state.grandNetAmount = netPayableAmount;
+
+         // this.getTaxAmount();
         }
         const promDisc = parseInt(this.state.manualDisc) + this.state.totalPromoDisc;
-        this.setState({ showDiscReason: true, promoDiscount: promDisc });
-  
+        this.setState({ showDiscReason: true, promoDiscount: promDisc, isBillingDiscount: true, isBillLevel: true });
+
         this.hideDiscount();
       } else {
-        toast.info("Please Enter all fields")
+        toast.info("Please Enter all fields");
+        this.setState({isBillLevel: false})
       }
     } else {
       toast.error("Please enter sufficient amount");
+      this.setState({isBillLevel: false})
     }
-   
+
 
   }
 
@@ -868,17 +947,27 @@ export default class NewSale extends Component {
     });
   }
 
-  handleChange(event) {
-    this.setState({ mobilenumber: event.target.value });
+  handleChange(e) {
+    const regex = /^[0-9\b]+$/;
+    const value = e.target.value;
+    if (value === "" || regex.test(value)) {
+      this.setState({
+        [e.target.id]: e.target.value,
+        mobilenumber: e.target.value,
+      });
+    } else {
+      this.setState({ registerMobile: "" });
+      // toast.error("pls enter numbers")
+    }
+    // this.setState({ mobilenumber: event.target.value });
   }
 
   getReturnAmount = () => {
-    console.log(this.state.grandNetAmount);
+
     if (this.state.barCodeList.length > 0 || this.state.barCodeRetailList.length > 0) {
       this.setState({ isPayment: false });
     }
-    // this.state.grandNetAmount =
-    //   this.state.netPayableAmount + this.state.taxAmount;
+
     this.state.grandReceivedAmount =
       this.state.netPayableAmount + this.state.taxAmount;
     const collectedCash = parseInt(this.state.cashAmount);
@@ -886,28 +975,28 @@ export default class NewSale extends Component {
     if (collectedCash > this.state.grandNetAmount) {
       this.state.returnCash = collectedCash - this.state.grandNetAmount;
       this.state.returnCash = Math.round(this.state.returnCash);
-      //  this.hideCashModal();
+      this.setState({isCash: false});
     } else if (collectedCash == Math.round(this.state.grandNetAmount)) {
-      // this.state.grandNetAmount = 0;
-      this.setState({ isPayment: false });
+      this.setState({ isPayment: false,payingAmount: this.state.grandNetAmount, grandNetAmount: 0,});
+      this.setState({isCash: false});
 
-    } else if (collectedCash < this.state.grandNetAmount) {
-      // this.state.grandNetAmount = this.state.grandNetAmount - collectedCash;
-      //   toast.info("Please enter sufficient amount");
+    } else if(collectedCash < this.state.grandNetAmount) {
+     // this.state.grandNetAmount = this.state.grandNetAmount - collectedCash;
+     toast.error("Please collect suffient amount");
     } else {
       this.state.cashAmount = 0;
       this.state.returnCash = 0;
       this.state.grandNetAmount = 0;
       this.state.grandReceivedAmount = 0;
-      this.setState({ isPayment: true });
-      // toast.info("Please enter sufficient amount");
+      this.setState({ isPayment: true});
+      this.setState({isCash: false});
     }
-
-    if (this.state.returnCash >= 1) {
-      this.hideCashModal();
-    } else {
-      toast.error("Please collect suffient amount");
-    }
+    console.log(this.state.returnCash);
+    // if (this.state.returnCash >= 1 || this.state.returnCash === 0) {
+    //   this.setState({isCash: false});
+    // } else {
+    //   toast.error("Please collect suffient amount");
+    // }
 
     const obj = {
 
@@ -917,8 +1006,7 @@ export default class NewSale extends Component {
 
     this.state.paymentType.push(obj);
 
-
-
+   
     //  this.hideCashModal();
   };
 
@@ -945,6 +1033,7 @@ export default class NewSale extends Component {
     this.setState({ netCardPayment: this.state.grandNetAmount })
     sessionStorage.removeItem("recentSale");
     const storeId = sessionStorage.getItem("storeId");
+    
     let obj;
     if (this.state.isTextile) {
       obj = {
@@ -969,16 +1058,19 @@ export default class NewSale extends Component {
 
         "approvedBy": null,
 
-        "netPayableAmount": this.state.grandNetAmount,
+        "netPayableAmount": this.state.payingAmount,
 
         "offlineNumber": null,
 
-        "userId": this.state.userId,
+        "userId": this.state.userId ? this.state.userId : null,
 
         "sgst": this.state.centralGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
         "lineItemsReVo": null,
+        "createdBy": this.state.createdBy,
+        "recievedAmount": this.state.cashAmount,
+        "returnAmount": this.state.returnCash,
         "paymentAmountType": this.state.paymentType
 
       }
@@ -989,14 +1081,14 @@ export default class NewSale extends Component {
 
       NewSaleService.saveSale(obj).then((res) => {
         if (res) {
-          this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
+          this.setState({ isBillingDetails: false, dsNumber: "",upiAmount: this.state.grandNetAmount, finalList: [] });
           this.setState({
             customerName: " ",
             gender: " ",
             dob: " ",
             customerGST: " ",
             address: " ",
-            manualDisc: "",
+            manualDisc: 0,
             customerEmail: "",
             netPayableAmount: 0.0,
             barCodeList: [],
@@ -1004,11 +1096,21 @@ export default class NewSale extends Component {
             promoDiscount: 0.0,
             cashAmount: 0,
             taxAmount: 0.0,
-            grandNetAmount: 0.0,
+            grandNetAmount: 0,
+            payingAmount:0,
             returnCash: 0,
             stateGST: 0,
             centralGST: 0,
-            isPayment: true
+            isPayment: true,
+            isCreditAmount: false,
+            creditAmount:0,
+            payCreditAmount:0,
+            totalAmount:0,
+            couponAmount:0,
+            isCredit: false,
+            
+
+
 
           });
           this.setState({ showDiscReason: false, isPayment: true });
@@ -1080,12 +1182,15 @@ export default class NewSale extends Component {
 
               "offlineNumber": null,
 
-              "userId": this.state.userId,
+              "userId": this.state.userId ? this.state.userId : null,
 
               "dlSlip": null,
               "lineItemsReVo": this.state.lineItemsList,
               "sgst": this.state.centralGST,
               "cgst": this.state.centralGST,
+              "createdBy": this.state.createdBy,
+              "recievedAmount": this.state.cashAmount,
+              "returnAmount": this.state.returnCash,
               "paymentAmountType": [
                 {
                   "paymentType": "Cash",
@@ -1119,7 +1224,9 @@ export default class NewSale extends Component {
                   centralGST: 0,
                   barCodeRetailList: [],
                   returnCash: 0,
-                  grandNetAmount: 0
+                  grandNetAmount: 0,
+                  totalAmount: 0,
+                  isCredit: false
 
                 });
                 this.setState({ showDiscReason: false, isPayment: true });
@@ -1147,7 +1254,6 @@ export default class NewSale extends Component {
   }
 
   tagCustomer() {
-
     const selectedMobile = JSON.parse(JSON.stringify(this.state.mobilenumber));
     const obj = {
       "id": "",
@@ -1160,8 +1266,6 @@ export default class NewSale extends Component {
     }
 
     CreateDeliveryService.getUserByMobile("+91" + this.state.mobilenumber).then(res => {
-
-
       if (res) {
         const mobileData = res.data.result;
         this.setState({
@@ -1248,6 +1352,7 @@ export default class NewSale extends Component {
         {
           this.state.isTextile && (
             <div className="table-responsive">
+              
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
@@ -1261,6 +1366,7 @@ export default class NewSale extends Component {
                 </thead>
 
                 <tbody>
+                {console.log('++++++++++++barCodeList+++++++++++++', this.state.barCodeList)}
                   {this.state.barCodeList.map((items, index) => {
                     return (
                       <tr key={index}>
@@ -1270,7 +1376,7 @@ export default class NewSale extends Component {
                         <td className="col-3"><p>#{items.barCode}</p></td>
                         <td className="col-2">{items.quantity}</td>
                         <td className="col-2">₹ {items.itemPrice}</td>
-                        <td className="col-2">₹ 0</td>
+                        <td className="col-2">₹ {items.discount}</td>
                         <td className="col-2">₹ {items.netValue}</td>
                       </tr>
                     );
@@ -1490,8 +1596,10 @@ export default class NewSale extends Component {
                   type="text"
                   name="cash"
                   className="form-control"
-                  value={this.state.grandNetAmount}
-
+                  value={this.state.payCreditAmount}
+                  onChange={(e) =>
+                    this.setState({ payCreditAmount: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -1708,10 +1816,10 @@ export default class NewSale extends Component {
 
               <div className="col-12">
                 <div className="d-flex mt-3 pointer">
-                  <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                  {/* <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
                     <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" />
                     <label className="form-check-label" htmlFor="roundedExample2">Confirming me to receive promotional messages.</label>
-                  </div>
+                  </div> */}
 
                 </div>
               </div>
@@ -1750,6 +1858,7 @@ export default class NewSale extends Component {
                     {
                       this.state.isTextile && (
                         <div>
+                           <label>ES Number</label>
                           <input type="search" className="form-control frm-pr"
                             value={this.state.dsNumber}
                             onChange={(e) => this.setState({ dsNumber: e.target.value })}
@@ -1765,6 +1874,7 @@ export default class NewSale extends Component {
                     {
                       this.state.isRetail && (
                         <div>
+                           <label>Barcode</label>
                           <input type="search" className="form-control frm-pr"
                             value={this.state.retailBarCode}
                             onChange={(e) => this.setState({ retailBarCode: e.target.value })}
@@ -1785,7 +1895,7 @@ export default class NewSale extends Component {
               </div>
               <div className="row m-0 p-0">
                 <div className="col-12 col-sm-4 scaling-center p-l-0">
-                  <h5 className="mt-1 mb-3">
+                  <h5 className="mt-1 fs-18 mb-3">
                     Order Details
                   </h5>
                 </div>
@@ -1798,10 +1908,20 @@ export default class NewSale extends Component {
 
                       <button
                         type="button"
-                        className="btn-unic m-r-2 active scaling-mb"
+                        className={"m-r-2  scaling-mb" + (this.state.isCredit ? "btn-unic btn-disable" : "btn-unic active")}
                         onClick={this.toggleModal}
                       >Tag Customer </button>
-                      <button className="btn-unic m-r-2 scaling-mb" onClick={this.showDiscount} >Bill Level Discount</button>
+                      <button
+                        className={" m-r-2 scaling-mb " + (this.state.isBillLevel ? "btn-unic btn-disable" : "btn-unic active")}
+                        onClick={this.showDiscount} >Bill Level Discount</button>
+                        <button
+                        type="button"
+                        className="btn-unic m-r-2 active scaling-mb"
+                        onClick={this.invoiceLevelCheckPromo}
+                      
+                        > Check Promo Discount
+                        </button>
+                      
                     </div>
 
 
@@ -1918,7 +2038,16 @@ export default class NewSale extends Component {
                 </div>
 
 
+
                 <div className="payment">
+                <div className="row">
+                    <div className="col-5 p-r-0 pt-1">
+                      <label>Total Amount</label>
+                    </div>
+                    <div className="col-7 p-l-0 pt-1 text-right">
+                      <label className="font-bold">₹ {this.state.totalAmount}</label>
+                    </div>
+                  </div>
                   <div className="row">
                     <div className="col-5 p-r-0 pt-1">
                       <label>Payable Amount</label>
@@ -1927,6 +2056,46 @@ export default class NewSale extends Component {
                       <label className="font-bold">₹ {this.state.grandNetAmount}</label>
                     </div>
                   </div>
+
+                 
+                {
+                  this.state.isBillingDiscount && (
+                    <div className="row">
+                    <div className="col-5">
+                      <label>Billing Discount</label>
+                    </div>
+                    <div className="col-7 text-right">
+                      <label className="font-bold">₹ {this.state.manualDisc}</label>
+                    </div>
+                  </div>
+                  )
+                }
+
+                  {
+                    this.state.isCreditAmount && (
+                      <div>
+                            <div className="row">
+                      <div className="col-5">
+                        <label>Credit Amount</label>
+                      </div>
+                      <div className="col-7 text-right">
+                        <label className="font-bold">₹ {this.state.creditAmount}</label>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-5">
+                        <label>Payed Amount</label>
+                      </div>
+                      <div className="col-7 text-right">
+                        <label className="font-bold">₹ {this.state.payCreditAmount}</label>
+                      </div>
+                    </div>
+                      </div>
+                      
+                  
+                    
+                    )
+                  }
 
 
 
@@ -1945,7 +2114,16 @@ export default class NewSale extends Component {
 
 
                   {
-                    this.state.returnCash !== 0 && (
+                    this.state.returnCash >= 0  && (
+                      <div> 
+                        <div className="row">
+                        <div className="col-5 p-r-0 pt-1">
+                          <label>Collected Amount</label>
+                        </div>
+                        <div className="col-7 p-l-0 pt-1 text-right">
+                          <label className="font-bold">₹ {this.state.cashAmount}</label>
+                        </div>
+                      </div>
                       <div className="row">
                         <div className="col-5 p-r-0 pt-1">
                           <label>Return Amount</label>
@@ -1954,8 +2132,25 @@ export default class NewSale extends Component {
                           <label className="font-bold">₹ {this.state.returnCash}</label>
                         </div>
                       </div>
+                      </div>
+                      
                     )
                   }
+
+{
+                    this.state.couponAmount > 0 && (
+                      <div className="row">
+                      <div className="col-5">
+                        <label>Coupon Applied</label>
+                      </div>
+                      <div className="col-7 text-right">
+                        <label className="font-bold">₹ {this.state.couponAmount}</label>
+                      </div>
+                    </div>
+                    )
+                  }
+
+                  
 
 
 
@@ -2054,7 +2249,8 @@ export default class NewSale extends Component {
 
                 <div className="mt-3">
                   <button
-                    className={"mt-1 w-100 " + (this.state.isPayment ? "btn-unic btn-disable" : "btn-unic active")} onClick={this.savePayment}
+                    className={"mt-1 w-100 " + (this.state.grandNetAmount !== 0 || this.state.totalAmount === 0 ? "btn-unic btn-disable" : "btn-unic active")} 
+                    onClick={this.savePayment}
                   >PROCEED TO CHECKOUT</button>
                   {/* <button className="btn-unic p-2 w-100">HOLD PAYMENT</button> */}
                 </div>

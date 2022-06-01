@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import edit from '../../assets/images/edit.svg';
+import uparrow from '../../assets/images/up_arrow.svg';
+import downarrow from '../../assets/images/down_arrow.svg';
 import '../../assets/nav.scss';
+import { Collapse } from "react-collapse";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
 import PromotionsService from "../../services/PromotionsService";
@@ -10,8 +13,8 @@ import DisplayPools from './DisplayPools'
 import Pagination from './Pagination';
 import Select from 'react-select';
 
-
 export default class ListOfPools extends Component {
+
   constructor(props){
     super(props);
     this.state  = {
@@ -77,27 +80,27 @@ export default class ListOfPools extends Component {
 
     ],
     updatedColumns: [
-      { value: 'CostPrice', label: 'Cost_Price' },
-      { value: 'Section', label: 'Section' },
-      { value: 'SubSection', label: 'Sub_Section' },
-      { value: 'Dcode', label: 'Dcode' },
-      { value: 'Mrp', label: 'Mrp' },      
-      { value: 'BarcodeCreatedOn', label: 'Barcode_Created_On' },
-      { value: 'Style Code', label: 'Style_Code' },
-      { value: 'SubSectionId', label: 'SubSectionId' },
-      { value: 'Uom', label: 'Uom' },
-      { value: 'BatchNo', label: 'Batch_No' },
-      { value: 'DiscountType', label: 'Discount Type' },
-      { value: 'Division', label: 'Division' }
+      // { value: 'CostPrice', label: 'Cost_Price' },
+      // { value: 'Section', label: 'Section' },
+      // { value: 'SubSection', label: 'Sub_Section' },
+      // { value: 'Dcode', label: 'Dcode' },
+      // { value: 'Mrp', label: 'Mrp' },      
+      // { value: 'BarcodeCreatedOn', label: 'Barcode_Created_On' },
+      // { value: 'Style Code', label: 'Style_Code' },
+      // { value: 'SubSectionId', label: 'SubSectionId' },
+      // { value: 'Uom', label: 'Uom' },
+      // { value: 'BatchNo', label: 'Batch_No' },
+      // { value: 'DiscountType', label: 'Discount Type' },
+      // { value: 'Division', label: 'Division' }
     ],
     options: [
-      { value: 'Equals', label: 'Equals' },
-      { value: 'NotEquals', label: 'Not Equals' },
-      { value: 'GreaterThan', label: 'Greater Than' },
-      { value: 'LessThan', label: 'Less Than' },
-      { value: 'GreaterThanAndEquals', label: 'Greater Than And Equals' },      
-      { value: 'LessThanAndEquals', label: 'Less Than And Equals' },
-      { value: 'In', label: 'IN' }
+      // { value: 'Equals', label: 'Equals' },
+      // { value: 'NotEquals', label: 'Not Equals' },
+      // { value: 'GreaterThan', label: 'Greater Than' },
+      // { value: 'LessThan', label: 'Less Than' },
+      // { value: 'GreaterThanAndEquals', label: 'Greater Than And Equals' },      
+      // { value: 'LessThanAndEquals', label: 'Less Than And Equals' },
+      // { value: 'In', label: 'IN' }
     ],
     columns: [],
     poolTypes: [
@@ -119,7 +122,6 @@ export default class ListOfPools extends Component {
     currentPools: [],
     listOfPoolCount: '',
     columnType: '',
-    columnValues: [],
     selectedPoolValues: [],
     activeTab: 'INCLUDED',
     isAddRule: false,
@@ -127,7 +129,11 @@ export default class ListOfPools extends Component {
     addedExcludedPoolRules: [],
     ruleNumber: 0,
     isPoolRuleUpdated: false,
-    editedRuleNumber: ''
+    editedRuleNumber: '',
+    activeIndex: null,
+    selectedOption: '',
+    errors: [],
+    poolError: {}
     };
 
     this.addPool = this.addPool.bind(this);
@@ -150,26 +156,39 @@ export default class ListOfPools extends Component {
     this.paginate = this.paginate.bind(this);
     this.getAllColumns = this.getAllColumns.bind(this);
     this.handlePoolRuleConfirmation = this.handlePoolRuleConfirmation.bind(this);
-  }
-  
+    this.toggleClass = this.toggleClass.bind(this);
+  }  
   componentDidMount() {
-    this.getDomainsList();   
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    const clientDomainId = user["custom:clientDomians"].split(",")[0];
+      URMService.getDomainName(clientDomainId).then(res => {
+        if(res) {
+          const obj  = {
+            value: clientDomainId,
+            label: res.data.result.domaiName
+          }
+          this.setState({ selectedOption: obj }, () => this.getDomainsList());
+        }
+      });
+      // this.getDomainsList();
   }
   getAllColumns(clientId) {
     PromotionsService.getAllColumns(clientId).then((res) => {
       let columnsObj = {}
-      const result =  res.data['result'].reduce((a, v) => ({ ...a, [v]: v}), {});
-      columnsObj.cost_price = result.cost_price;
-      columnsObj.item_mrp = result.item_mrp;
-      columnsObj.batch_no = result.batch_no;
-      columnsObj.colour = result.colour;
-      columnsObj.uom = result.uom;
-      columnsObj.division = result.division;
-      columnsObj.section = result.section;
-      columnsObj.sub_section = result.sub_section;
-      columnsObj.category = result.category;
-      columnsObj.original_barcode_created_at = result.original_barcode_created_at;
-      columnsObj.promo_label = result.promo_label;
+     //  const result =  res.data['result'].reduce((a, v) => ({ ...a, [v]: v}), {});
+      const result =  [...new Set(res.data['result'].map((itm) => itm.columnName))];
+      columnsObj.Mrp = result.Mrp;
+      columnsObj.CostPrice = result.CostPrice;
+      columnsObj.Section = result.Section;
+      columnsObj.SubSection = result.SubSection;
+      columnsObj.Dcode = result.Dcode;
+      columnsObj.BarcodeCreatedOn = result.BarcodeCreatedOn;
+      columnsObj.StyleCode = result.StyleCode;
+      columnsObj.SubsectionId = result.SubsectionId;
+      columnsObj.Uom = result.Uom;
+      columnsObj.BatchNo = result.BatchNo;
+      columnsObj.DiscountType = result.DiscountType;
+      columnsObj.Division = result.Division;
       const propertyNames = Object.keys(columnsObj);
       const columnNames = propertyNames.map((item) => {
         const obj = {};
@@ -182,22 +201,29 @@ export default class ListOfPools extends Component {
       });
     });
   }
-  getDomainsList() {    
+  getDomainsList() {
+    const { selectedOption } = this.state;   
     const user = JSON.parse(sessionStorage.getItem('user'));
-    const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));   
+    // const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
      URMService.getDomainsList(user["custom:clientId1"]).then((res) => {
          if(res) {
-           if(selectedDomain.label === 'Textile') {
-             this.setState({ clientId:  res.data.result[1].domain[0].id }, () => this.getPoolList());
+           if(selectedOption.label === 'Textile') {
+             this.setState({ clientId:  1 /* res.data.result[1].domain[0].id */}, () => this.getPoolList());
            } else {
-             this.setState({ clientId:  res.data.result[0].domain[0].id }, () => this.getPoolList());
+             this.setState({ clientId: 2 /* res.data.result[0].domain[0].id */ }, () => this.getPoolList());
            }            
          }       
      });
    }
   getPoolList() {
-    this.getAllColumns(this.state.clientId)
-    PromotionsService.getPoolList().then((res) => {
+    const { clientId } = this.state;
+    this.getAllColumns(this.state.clientId);
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const selectedstoreData = JSON.parse(sessionStorage.getItem("selectedstoreData"));
+    const storeId = selectedstoreData.storeId;
+    const customClientId = user['custom:clientId1'];
+    const domainId = clientId;
+    PromotionsService.getPoolList(domainId, customClientId, storeId).then((res) => {
       if(res.data.isSuccess === 'true') {   
             var elements = res.data.result['poolvo'].reduce( (previous, current) => {
             var object = previous.filter(object => object.createdBy === current.createdBy);
@@ -218,6 +244,7 @@ export default class ListOfPools extends Component {
   }
   
   handleChange(e) {
+  this.state.poolError["poolName"] = '';
    this.setState({poolName: e.target.value});
   }
 
@@ -226,6 +253,7 @@ export default class ListOfPools extends Component {
   }
 
   handlePoolType(e){
+    this.state.poolError["poolType"] = '';
     this.setState({poolType: e.target.value});
   }
 
@@ -240,10 +268,26 @@ export default class ListOfPools extends Component {
           addedIncludedPoolRules: []
        });
   }
+  handlePoolData = () => {
+    const {poolName, poolType } = this.state;
+    let errors = {};
+    let formIsValid = true;
+    if (!poolName) {
+      formIsValid = false;
+      errors["poolName"] = "Enter Pool Name";
+    }
+    if (!poolType) {
+      formIsValid = false;
+      errors["poolType"] = "Select Pool Type";
+    }
+    this.setState({ poolError: errors });               
+    return formIsValid;
+  }
   addPoolDetails() {
     const { addedIncludedPoolRules, addedExcludedPoolRules, activeTab, ruleNumber, isUpdatable} = this.state;
     let poolConditions = [];
-    const user = JSON.parse(sessionStorage.getItem("user"));    
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const selectedstoreData = JSON.parse(sessionStorage.getItem("selectedstoreData"));    
     const createdBy = user['custom:userId'];
     delete this.state.addNewRule['valueList']
     if(this.state.isUpdatable) {
@@ -265,6 +309,8 @@ export default class ListOfPools extends Component {
                   isForEdit: true,
                   poolName: this.state.poolName,
                   poolType: this.state.poolType,
+                  storeId: selectedstoreData.storeId,
+                  clientId: user['custom:clientId1'],
                   createdBy: createdBy,
                   domainId: this.state.clientId,
                    pool_RuleVo: this.groupByMultiplePropertiesEdit(updatedConditionArray),
@@ -308,26 +354,33 @@ export default class ListOfPools extends Component {
       isForEdit: false,
       poolName: this.state.poolName,
       poolType: this.state.poolType,
+      storeId: selectedstoreData.storeId,
+      clientId: user['custom:clientId1'],
       createdBy: createdBy,
       domainId: this.state.clientId,
       pool_RuleVo: this.groupByMultipleProperties(conditionArray)
     }
+    if(conditionArray.length === 0) {
+      this.handlePoolData();
+      toast.info('Add Pool Rule');
+    } else if(this.handlePoolData()) {
       PromotionsService.addPool(obj).then((res) => {
-          if (res.data.isSuccess === 'true') {
-              toast.success(res.data.message);
-              this.setState({ 
-                isAddPool: false,
-                isUpdatable: false,
-                poolName: '',
-                poolType: '',
-                addNewRule: [],
-                updatedRuleVO: []
-              });
-              this.getPoolList();
-          } else {
-            toast.error(res.data.message);
-          }
-      });
+        if (res.data.isSuccess === 'true') {
+            toast.success(res.data.message);
+            this.setState({ 
+              isAddPool: false,
+              isUpdatable: false,
+              poolName: '',
+              poolType: '',
+              addNewRule: [],
+              updatedRuleVO: []
+            });
+            this.getPoolList();
+        } else {
+          toast.error(res.data.message);
+        }
+     });
+    }
   }
   }
   handleAddRow = () => {
@@ -342,23 +395,55 @@ export default class ListOfPools extends Component {
         isPoolRuleUpdated: false,
         isAddRule: true,
         addNewRule: [],
-        ruleNumber: ruleNum
+        ruleNumber: ruleNum, 
+        // addNewRule
       });
   };
-
-  handleAddRuleRow = () => {
-    const item = {
-      columnName: '',
-      givenValue: '',
-      operatorSymbol: ''
-    };
-    this.setState({
-      addNewRule: [...this.state.addNewRule, item]
+  conditionValidation = () => {
+    const { addNewRule } = this.state;
+    const membersArrayErrors = []
+    addNewRule.forEach((member, memberIndex) => {
+      const memberErrors = {}
+      if (!member || !member.columnName) {
+        memberErrors.columnName = 'Required'
+        membersArrayErrors[memberIndex] = memberErrors
+      }
+      if (!member || !member.operatorSymbol) {
+        memberErrors.operatorSymbol = 'Required'
+        membersArrayErrors[memberIndex] = memberErrors
+      }
+      if (!member || !member.givenValue) {
+        memberErrors.givenValue = 'Required'
+        membersArrayErrors[memberIndex] = memberErrors
+      }      
     });
+    return membersArrayErrors;
+  } 
+  handleAddRuleRow = () => { 
+    const conditionErrors = this.conditionValidation();
+    if(conditionErrors.length === 0) {
+      const item = {
+        columnName: '',
+        givenValue: '',
+        operatorSymbol: '',
+        selectedPoolValues: []
+      };
+      this.setState({
+        addNewRule: [...this.state.addNewRule, item]     
+      });
+    } else {
+      toast.info('Select All Mandatary Fields Of The Condition');
+    }
+    
   };
-  onColumnValueChange = opt => {
+  onColumnValueChange = idx => (opt) => {
+    const { addNewRule } = this.state;
+    const values =  opt.map( itm => itm.value);
+    this.state.addNewRule[idx].selectedPoolValues=opt;
+    this.state.addNewRule[idx].givenValue = values.join(", ");
     this.setState({
-      selectedPoolValues: opt
+      // selectedPoolValues: opt,
+      addNewRule
     });
   };
   handleTextChange = (idx, e) => {
@@ -366,60 +451,45 @@ export default class ListOfPools extends Component {
     addNewRule[idx][e.target.name] = e.target.value;
     this.setState({ addNewRule });
   };
- 
+
+  handleOperatorSymbolChange = (idx, e) => {
+    let addNewRule = this.state.addNewRule;
+    addNewRule[idx][e.target.name] = e.target.value;    
+    this.setState({ addNewRule});
+  }
+  getValuesForAllColumns = (columnType, idx) => {
+    let addNewRule = this.state.addNewRule;
+    PromotionsService.getValuesFromProductTextileColumns(columnType).then((res) => {
+      if (res.data.isSuccess === 'true') {
+        const columnNames = res.data['result'].map((item) => {
+          const obj = {};
+            obj.label = item;
+            obj.value = item;
+            return obj;
+        });
+        this.state.addNewRule[idx].valueList = columnNames;
+        this.setState({
+          addNewRule
+        });
+      } else {
+        toast.error(res.data.message);
+      }
+    });
+  }
+  
   handleRoleChange = (idx, e) => {
     let addNewRule = this.state.addNewRule;
     addNewRule[idx][e.target.name] = e.target.value;
-    this.setState({ addNewRule });
-    // let columnType = addNewRule[idx][e.target.name];
-    // this.setState({ addNewRule, columnType:  e.target.name}, () => {
-  
-    //  if(columnType  === 'uom') {
-    //     PromotionsService.getValuesFromProductTextileColumns(columnType).then((res) => {
-    //       if (res.data.isSuccess === 'true') {
-    //         const columnNames = res.data['result'].map((item) => {
-    //           const obj = {};
-    //             obj.label = item;
-    //             obj.value = item;
-    //             return obj;
-    //         });
-    //         this.state.addNewRule[idx].valueList = columnNames;
-    //         this.setState({
-    //           addNewRule,
-    //           columnValues: columnNames
-    //         });
-    //       } else {
-    //         toast.error(res.data.message);
-    //       }
-    //     });
-    //  } else if(columnType  === 'batch_no' || columnType  === 'category' || columnType  === 'colour' || columnType  === 'division' || columnType  === 'sub_section' ||  columnType  === 'section') {
-    //   PromotionsService.getValuesFromBarcodeTextileColumns(columnType).then((res) => {
-    //     if (res.data.isSuccess === 'true') {
-    //       const columnNames = res.data['result'].map((item) => {
-    //         const obj = {};
-    //           obj.label = item;
-    //           obj.value = item;
-    //           return obj;
-    //       });
-    //       this.state.addNewRule[idx].valueList = columnNames;
-    //       this.setState({
-    //         addNewRule,
-    //         columnValues: columnNames
-    //       });
-    //     } else {
-    //       toast.error(res.data.message);
-    //     }
-    //   });
-    //  }
-
-    // });
-  };
-  // handleRemovePool = (item) => () => {
-  //   this.setState({
-  //     deletePoolConformation: true,
-  //     selectedItem: item
-  //   });
-  // }
+    let columnType = addNewRule[idx][e.target.name];
+    this.getOperatorForEachColumn(columnType, idx);
+    this.setState({ addNewRule, columnType:  e.target.name}, () => {      
+    if(columnType  === 'BatchNo' || columnType  === 'StyleCode' || 
+               columnType  === 'Division' || columnType  === 'SubSection' ||  
+               columnType  === 'Section' || columnType  === 'Uom') {
+       this.getValuesForAllColumns(columnType, idx);
+     }
+    });
+  }
   paginate(e, number) {    
     const { poolsPerPage } = this.state;
     this.setState({
@@ -451,7 +521,7 @@ export default class ListOfPools extends Component {
     const conditionsList = this.conditionsList(pool.pool_RuleVo);
     this.setState({
         // getting max rule num
-        // ruleNumber: Math.max(...ruleList.map(item => item.ruleNumber)),
+         ruleNumber: Math.max(...conditionsList.map(item => item.ruleNumber)),
          isUpdatable: true,
          isAddPool: true,
          poolId: pool.poolId,
@@ -464,10 +534,10 @@ export default class ListOfPools extends Component {
     });
   }
 
-  handleRemoveSpecificRow = (idx) => () => {
+  handleRemoveSpecificRow = (idx) => () => {    
     const addNewRule = [...this.state.addNewRule]
     addNewRule.splice(idx, 1)
-    this.setState({ addNewRule })
+    this.setState({ addNewRule})
   }
   handleRemoveSpecificRule = (idx) => {
     if(this.state.activeTab === 'INCLUDED') {
@@ -505,6 +575,13 @@ export default class ListOfPools extends Component {
   }
   handleCreatedBy(e) {
     this.setState({ createdBy: e.target.value });
+  }
+  clearPool = () => {
+    this.setState({ 
+      listOfPools: [],
+      createdBy: '',
+      poolType: ''     
+     }, () => this.getPoolList());
   }
   searchPool() {
     const { createdBy, poolType, poolStatus, createdByList} = this.state;
@@ -551,6 +628,49 @@ export default class ListOfPools extends Component {
       addedNewRules: []
     });
   }
+  getOperatorList = () => {
+    const { addNewRule } = this.state;
+    //For In Operator start
+    addNewRule.forEach((val) => {
+    val.selectedPoolValues= {};
+    const givenValues  = val.givenValue.split(", ");
+    const givenValuesList = givenValues.map((itm) => {
+         const obj = {};
+         obj.label = itm;
+         obj.value = itm;
+         return obj;
+    });
+    val.selectedPoolValues = givenValuesList;
+    });
+    this.setState({ 
+      addNewRule 
+    });
+    //For In Operator end
+    addNewRule.forEach((itm, idx) => {
+      itm.oparatorsList = [];
+      this.getOperatorForEachColumn(itm.columnName, idx);
+      if(itm.columnName  === 'BatchNo' || itm.columnName  === 'StyleCode' || itm.columnName  === 'Division' 
+        || itm.columnName  === 'SubSection' ||  itm.columnName  === 'Section' || itm.columnName === 'Uom') {
+        this.getValuesForAllColumns(itm.columnName, idx);
+      }
+    });
+  }
+  getOperatorForEachColumn = (column, idx) => {
+    const { addNewRule } = this.state;
+    PromotionsService.anyMatchingData(column).then((res) => {
+      let opetators;
+      if (res.data.isSuccess === 'true') {          
+          opetators = res.data.result.map((item) => {
+          let obj = {};
+          obj.label = item.operator.trim();
+          obj.value = item.operator.trim();
+          return obj;
+        });
+      }
+      this.state.addNewRule[idx].oparatorsList = opetators;
+      this.setState({ addNewRule });
+    });
+  }
   editPoolRule(item, index) {
     const { activeTab, addedExcludedPoolRules, addedIncludedPoolRules, isUpdatable } = this.state;
     if(isUpdatable) {
@@ -568,7 +688,7 @@ export default class ListOfPools extends Component {
           isPoolRuleUpdated: true,
           addedIncludedPoolRules: this.groupByRuleNumber(includeConditions.filter(item =>  item.ruleType === 'Include')),
           addNewRule: includeConditions.filter(itm => itm.ruleType === 'Include' && itm.ruleNumber == item)
-        });
+        }, () => this.getOperatorList());
       } else {
         let excludeConditions = [];
         addedExcludedPoolRules.forEach(item => {
@@ -582,7 +702,7 @@ export default class ListOfPools extends Component {
           isPoolRuleUpdated: true,
           addedExcludedPoolRules: this.groupByRuleNumber(excludeConditions.filter(item =>  item.ruleType === 'Exclude')),
           addNewRule: excludeConditions.filter(itm => itm.ruleType === 'Exclude' && itm.ruleNumber == item)
-        });
+        }, () => this.getOperatorList());
       }      
     }
   }
@@ -638,10 +758,77 @@ export default class ListOfPools extends Component {
   }
   addRule = () => {
     const { addNewRule, editedRuleNumber, activeTab, addedExcludedPoolRules, addedIncludedPoolRules, isUpdatable, isPoolRuleUpdated } = this.state;
-    if(isUpdatable) {
-          // if pool condition edit
+    const conditionErrors = this.conditionValidation();
+    if(addNewRule.length === 0) {
+      toast.info('Add At Least One Condition');
+    } else if(conditionErrors.length === 0 && addNewRule.length > 0){
+      if(isUpdatable) {
+            // if pool condition edit
+            const addedNewRules = addNewRule.map((item) => {
+              // item.ruleNumber = this.state.ruleNumber;
+              if(isUpdatable) {
+                item.isForEdit = true;
+              } else {
+                item.isForEdit = false;
+              }
+              return item;
+            });
+          if(activeTab === 'INCLUDED') {
+            let  addedIncludedPoolRules1 = [];
+            if(isPoolRuleUpdated) {
+                addedIncludedPoolRules1 = [...addedIncludedPoolRules];
+            } else {
+              const finalIncludedRules = addedNewRules.map((item) => { 
+                item.ruleType = 'Include';
+                item.ruleNumber = this.state.ruleNumber
+                return item; 
+              });
+              const groupedRules = this.groupByRuleNumber(finalIncludedRules);
+              addedIncludedPoolRules1 = [...addedIncludedPoolRules, ...groupedRules];
+            }
+            let includeConditions = [];
+            addedIncludedPoolRules1.forEach(item => {
+              delete item.ruleNumber;
+              item.rules.forEach(itm => {
+                includeConditions.push(itm);
+              });
+            });
+            this.setState({
+              isPoolRuleUpdated: false,
+              ruleNumber: this.state.ruleNumber,
+              isAddRule: false,
+              addedIncludedPoolRules: this.groupByRuleNumber(includeConditions),
+              addNewRule: []
+            });
+          } else {
+              let  addedExcludedPoolRules1 = [];
+              if(isPoolRuleUpdated) {
+                addedExcludedPoolRules1 = [...addedExcludedPoolRules];
+              } else {
+                const finalExcludedRules = addedNewRules.map((item) => { 
+                  item.ruleType = 'Include';
+                  item.ruleNumber = this.state.ruleNumber
+                  return item; 
+                });
+                const groupedRules = this.groupByRuleNumber(finalExcludedRules);
+                addedExcludedPoolRules1 = [...addedExcludedPoolRules, ...groupedRules];
+              }
+              let updateExConditions = [];
+              addedExcludedPoolRules1.forEach(item => {
+                item.rules.forEach(itm => {
+                  updateExConditions.push(itm);
+                });
+              });
+              this.setState({
+                isPoolRuleUpdated: false,
+                isAddRule: false,
+                addedExcludedPoolRules: this.groupByRuleNumber(updateExConditions),
+                addNewRule: []
+              });
+          }
+      } else {
           const addedNewRules = addNewRule.map((item) => {
-            // item.ruleNumber = this.state.ruleNumber;
+            item.ruleNumber = this.state.ruleNumber;
             if(isUpdatable) {
               item.isForEdit = true;
             } else {
@@ -649,73 +836,38 @@ export default class ListOfPools extends Component {
             }
             return item;
           });
-        if(activeTab === 'INCLUDED') {
-          let includeConditions = [];
-          let arr = [];
-          addedIncludedPoolRules.forEach(item => {
-            delete item.ruleNumber;
-            item.rules.forEach(itm => {
-              includeConditions.push(itm);
-            });
+        if(activeTab === 'INCLUDED') {      
+          // const includeRules = [...addedIncludedPoolRules, ...addedNewRules];
+          const finalIncludedRules = addedNewRules.map((item) => { 
+            item.ruleType = 'Include';
+            return item; 
           });
+          const groupedRules = this.groupByRuleNumber(finalIncludedRules);
+          const includeRules = [...addedIncludedPoolRules, ...groupedRules];
           this.setState({
             isAddRule: false,
-            addedIncludedPoolRules: this.groupByRuleNumber(includeConditions),
+          // addedIncludedPoolRules: finalIncludedRules,
+            addedIncludedPoolRules: includeRules,
             addNewRule: []
           });
         } else {
-            let updateExConditions = [];
-            addedExcludedPoolRules.forEach(item => {
-              item.rules.forEach(itm => {
-                updateExConditions.push(itm);
-              });
-            });
-            this.setState({
-              isAddRule: false,
-              addedIncludedPoolRules: this.groupByRuleNumber(updateExConditions),
-              // addedExcludedPoolRules: this.groupByRuleNumber(updateExConditions.map(obj => addedNewRules.find(o => o.id === obj.id) || obj)),
-              addNewRule: []
-            });
+          // const excludeRules = [...addedExcludedPoolRules, ...addedNewRules];
+          const finalExcludedRules = addedNewRules.map((item) => { 
+            item.ruleType = 'Exclude';
+            return item; 
+          });
+          const groupedRules = this.groupByRuleNumber(finalExcludedRules);
+          const excludeRules = [...addedExcludedPoolRules, ...groupedRules];
+          this.setState({
+            isAddRule: false,
+            addedExcludedPoolRules: excludeRules,
+            addNewRule: []
+          });
         }
-    } else {
-        const addedNewRules = addNewRule.map((item) => {
-          item.ruleNumber = this.state.ruleNumber;
-          if(isUpdatable) {
-            item.isForEdit = true;
-          } else {
-             item.isForEdit = false;
-          }
-          return item;
-        });
-      if(activeTab === 'INCLUDED') {      
-        // const includeRules = [...addedIncludedPoolRules, ...addedNewRules];
-        const finalIncludedRules = addedNewRules.map((item) => { 
-          item.ruleType = 'Include';
-          return item; 
-        });
-        const groupedRules = this.groupByRuleNumber(finalIncludedRules);
-        const includeRules = [...addedIncludedPoolRules, ...groupedRules];
-        this.setState({
-          isAddRule: false,
-         // addedIncludedPoolRules: finalIncludedRules,
-          addedIncludedPoolRules: includeRules,
-          addNewRule: []
-        });
-      } else {
-        // const excludeRules = [...addedExcludedPoolRules, ...addedNewRules];
-        const finalExcludedRules = addedNewRules.map((item) => { 
-          item.ruleType = 'Exclude';
-          return item; 
-        });
-        const groupedRules = this.groupByRuleNumber(finalExcludedRules);
-        const excludeRules = [...addedExcludedPoolRules, ...groupedRules];
-        this.setState({
-          isAddRule: false,
-          addedExcludedPoolRules: excludeRules,
-          addNewRule: []
-        });
       }
-    }      
+    } else {
+      toast.info('Select All Mandatary Fields Of The Condition');
+    }     
   }
 
   getPrivilegesList() {
@@ -738,41 +890,68 @@ export default class ListOfPools extends Component {
         );
     });
 }
+toggleClass(index, e) {
+  this.setState({
+    activeIndex: this.state.activeIndex === index ? null : index
+  });
+}
+moreLess(index) {
+  if (this.state.activeIndex === index) {
+    return (
+      <span>
+        <img src={uparrow} className="w-12 pb-2" />
+      </span>
+    );
+  } else {
+    return (
+      <span>
+        <img src={downarrow} className="w-12 pb-2" />
+      </span>
+    );
+  }
+}
 FirstTab = () => {
   return (
     <div className="FirstTab">
-      <div className="table-responsive p-0">
-          <table className="table table-borderless mb-1 mt-2">
-            <tbody>
+      <div className="table-responsive m-0 p-0">
               {this.state.addedIncludedPoolRules.length > 0 && this.state.addedIncludedPoolRules.map((item, index) => {
                 return (
                     <div>
-                        <tr key={index}> 
-                          <td className="col-6"><h6>Condition - {item.ruleNumber}</h6></td>
-                          <td><img onClick={() => this.editPoolRule(item.ruleNumber, index)} src={edit} className="w-12 pb-2" /> </td>
-                          <td> <i onClick= {() => this.handleRemoveSpecificRule(index)} className="icon-delete m-l-2 fs-16"></i></td>
-                        </tr>
-                        <thead>
-                        <tr className="m-0 p-0">
-                          <th className="col-3">COLUMN NAME</th>
-                          <th className="col-3">OPERATOR</th>
-                          <th className="col-3">VALUES</th>
-                        </tr>
+                      <table className="table table-borderless mb-1 mt-2">
+                      <thead>
+                          <tr key={index}> 
+                            <td className="col-10"><h6>Rule - {item.ruleNumber}</h6></td>
+                            <td><img onClick={() => this.editPoolRule(item.ruleNumber, index)} src={edit} className="w-12 pb-2" /> </td>
+                            <td> <i onClick= {() => this.handleRemoveSpecificRule(index)} className="icon-delete m-l-2 fs-16"></i></td>
+                            <td><i onClick={this.toggleClass.bind(this, index)}>{this.moreLess(index)}</i></td>
+                          </tr>
                         </thead>
-                          {item.rules.map((itm, ind) => {
-                              return (
-                                <tr key={ind}>
-                                  <td className="col-3">{itm.columnName}</td>
-                                  <td className="col-3">{itm.operatorSymbol}</td>
-                                  <td className="col-3">{itm.givenValue}</td>
-                                </tr>
-                                )
-                          })}
+                      </table>
+                      <Collapse isOpened={this.state.activeIndex === index}>
+                        <table className="table table-borderless mb-1 mt-2">
+                          <thead>
+                            <tr className="mt-1 p-0">
+                              <th className="col-3">COLUMN NAME</th>
+                              <th className="col-3">OPERATOR</th>
+                              <th className="col-3">VALUES</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {item.rules.map((itm, ind) => {
+                                return (
+                                  <tr key={ind}>
+                                    <td className="col-3">{itm.columnName}</td>
+                                    <td className="col-3">{itm.operatorSymbol}</td>
+                                    <td className="col-3">{itm.givenValue}</td>
+                                  </tr>
+                                  )
+                            })}
+                            </tbody>
+                          </table>
+                        </Collapse>
                     </div>
                   )
               })}
-            </tbody>
-          </table>
       </div>
     </div>
   );
@@ -781,38 +960,45 @@ FirstTab = () => {
 SecondTab = () => {
   return (
     <div className="SecondTab">
-      <div className="table-responsive">
-          <table className="table table-borderless mb-1 mt-2">
-            <tbody>
+      <div className="table-responsive m-0 p-0">
               {this.state.addedExcludedPoolRules.length > 0 && this.state.addedExcludedPoolRules.map((item, index) => {
                 return (
                   <div>
-                    <tr key={index}> 
-                      <td className="col-6"><h6>Condition - {item.ruleNumber}</h6></td>
-                      <td><img onClick={() => this.editPoolRule(item.ruleNumber, index)} src={edit} className="w-12 pb-2" /> </td>
-                      <td> <i onClick= {() => this.handleRemoveSpecificRule(index)} className="icon-delete m-l-2 fs-16"></i></td>
-                    </tr>
+                  <table className="table table-borderless mb-1 mt-2">
                     <thead>
-                    <tr className="m-0 p-0">
-                      <th className="col-3">COLUMN NAME</th>
-                      <th className="col-3">OPERATOR</th>
-                      <th className="col-3">VALUES</th>
-                    </tr>
-                    </thead>
-                    {item.rules.map((itm, ind) => {
-                        return (
-                          <tr key={ind}>
-                            <td className="col-3">{itm.columnName}</td>
-                            <td className="col-3">{itm.operatorSymbol}</td>
-                            <td className="col-3">{itm.givenValue}</td>
+                        <tr key={index}> 
+                        <td className="col-10"><h6>Rule - {item.ruleNumber}</h6></td>
+                        <td><img onClick={() => this.editPoolRule(item.ruleNumber, index)} src={edit} className="w-12 pb-2" /> </td>
+                        <td> <i onClick= {() => this.handleRemoveSpecificRule(index)} className="icon-delete m-l-2 fs-16"></i></td>
+                        <td><i onClick={this.toggleClass.bind(this, index)}>{this.moreLess(index)}</i></td>
+                        </tr>
+                      </thead>
+                    </table>
+                    <Collapse isOpened={this.state.activeIndex === index}>
+                      <table className="table table-borderless mb-1 mt-2">
+                        <thead>
+                          <tr className="mt-1 p-0">
+                            <th className="col-3">COLUMN NAME</th>
+                            <th className="col-3">OPERATOR</th>
+                            <th className="col-3">VALUES</th>
                           </tr>
-                          )
-                    })}
-                  </div>
+                        </thead>
+                        <tbody>
+                          {item.rules.map((itm, ind) => {
+                              return (
+                                <tr className="m-0 p-0" key={ind}>
+                                  <td className="col-3">{itm.columnName}</td>
+                                  <td className="col-3">{itm.operatorSymbol}</td>
+                                  <td className="col-3">{itm.givenValue}</td>
+                                </tr>
+                                )
+                          })}
+                        </tbody>
+                      </table>
+                    </Collapse>
+                  </div>  
                 )
               })}
-            </tbody>
-          </table>
       </div>
     </div>
   );
@@ -837,7 +1023,7 @@ Tabs = () => {
   return (
     <div className="Tabs">
       {/* Tab nav */}
-      <ul className="nav">
+      <ul className="nav mt-4">
         <li
         className={this.state.activeTab === "INCLUDED" ? "active" : ""}
         onClick={this.handleInclude}
@@ -919,18 +1105,19 @@ Tabs = () => {
                   <table className="table table-borderless mb-1 mt-2">
                     <thead>
                       <tr className="m-0 p-0">
-                        <th className="col-4">Column Name</th>
-                        <th className="col-4">Operator</th>
-                        <th className="col-3">Values</th>
+                        <th className="col-4 text-center">Column Name</th>
+                        <th className="col-3 text-center">Operator</th>
+                        <th className="col-4 text-center">Values</th>
                         <th className="col-1"></th>
                       </tr>
                     </thead>
                 </table>
-                <table className="table table-borderless gfg mb-0">
+                <table className="table-borderless V1_table gfg mb-0 w-100">
                   <tbody>
                       {this.state.addNewRule.map((item, idx) => (
+                        
                         <tr id="addr0" key={idx}>
-                          <td>
+                          <td className='col-4 t-form'>
                           <select 
                               value={this.state.addNewRule[idx].columnName} 
                               onChange={e => this.handleRoleChange(idx, e)} 
@@ -938,60 +1125,63 @@ Tabs = () => {
                               className="form-control">
                               <option>Select Name</option>
                               {
-                                  this.state.updatedColumns &&
-                                  this.state.updatedColumns.map((item, i) => 
+                                  this.state.columns &&
+                                  this.state.columns.map((item, i) => 
                                   (<option key={i} value={item.value}>{item.label.toUpperCase()}</option>))
                                 }
                             </select>
                           </td>
-                          <td>
+                          <td className='col-3 t-form'>
                             <select 
-                              value={this.state.addNewRule[idx].operatorSymbol} 
-                              onChange={ e => this.handleRoleChange(idx, e)}                          
+                              value={this.state.addNewRule[idx].operatorSymbol}
+                              onChange={ e => this.handleOperatorSymbolChange(idx, e)}                          
                               name="operatorSymbol"
                               className="form-control">
                                 <option>Select Operator</option>
                                 {
-                                  this.state.options &&
-                                  this.state.options.map((item, i) => 
+                                  this.state.addNewRule[idx].oparatorsList &&
+                                  this.state.addNewRule[idx].oparatorsList.map((item, i) => 
                                   (<option key={i} value={item.value}>{item.label}</option>))
                                 }
                             </select>
                           </td>
-                          
-                          {(this.state.addNewRule[idx].columnName === 'cost_price'  || this.state.addNewRule[idx].columnName === 'item_mrp' || this.state.addNewRule[idx].columnName === 'original_barcode_created_at') ? <td> <input
+                          {(this.state.addNewRule[idx].columnName === 'CostPrice'  || this.state.addNewRule[idx].columnName === 'Mrp' || this.state.addNewRule[idx].columnName === 'BarcodeCreatedOn') ? 
+                          <td className='col-4 t-form'> <input
                               type="text"
                               name="givenValue"
                               value={this.state.addNewRule[idx].givenValue}
                               onChange={e => this.handleTextChange(idx, e)}
                               className="form-control"
                             /> </td> :  
-                            <td> {(this.state.addNewRule[idx].operatorSymbol === 'In' ) ? <Select
-                                isMulti
-                                onChange={this.onColumnValueChange}
-                                options={this.state.columnValues}
-                                value={this.state.givenValue}
-                          />
-                          //   : <select 
-                          //   value={this.state.addNewRule[idx].givenValue} 
-                          //   onChange={ e => this.handleTextChange(idx, e)}                          
-                          //   name="givenValue"
-                          //   className="form-control">
-                          //     <option>Select Column Values</option>
-                          //     {
-                          //       this.state.addNewRule[idx].valueList &&
-                          //       this.state.addNewRule[idx].valueList.map((item, i) => 
-                          //       (<option key={i} value={item.value}>{item.label}</option>))
-                          //     }
-                          // </select>
-                          : <input
-                              type="text"
-                              name="givenValue"
-                              value={this.state.addNewRule[idx].givenValue}
-                              onChange={e => this.handleTextChange(idx, e)}
-                              className="form-control"
-                            />
-                            } </td> }
+                            <td  className='col-4 t-form'>
+                            <div className="sele-height">
+                              {(this.state.addNewRule[idx].operatorSymbol === 'In' ) ? 
+                                <Select className="w-100"
+                                  isMulti
+                                  onChange={this.onColumnValueChange(idx)}
+                                  options={this.state.addNewRule[idx].valueList}
+                                  value={this.state.addNewRule[idx].selectedPoolValues}
+                                  // value={this.state.addNewRule[idx].givenValue}
+                                />
+                               : 
+                              
+                                <select
+                                  value={this.state.addNewRule[idx].givenValue} 
+                                  onChange={ e => this.handleTextChange(idx, e)}                          
+                                  name="givenValue"
+                                  className="form-control">
+                                    <option>Select Column Values</option>
+                                    {
+                                      this.state.addNewRule[idx].valueList &&
+                                      this.state.addNewRule[idx].valueList.map((item, i) => 
+                                      (<option key={i} value={item.value}>{item.label}</option>))
+                                  }
+                                </select>
+                          
+                              }
+                            </div>
+                            </td>
+                          }
                           {
                             this.state.addNewRule.length > 1 && 
                             <td className="col-1 text-center">
@@ -1030,13 +1220,14 @@ Tabs = () => {
                 </div>
                 <div className="col-4">
                 <div className="form-group">
-                  <label>Pool Name</label>
+                  <label>Pool Name <span className="text-red font-bold" name="bold">*</span></label>
                   <input type="text" value={this.state.poolName}  onChange={this.handleChange} className="form-control" placeholder="" />
                 </div>
+                <span style={{ color: "red" }}>{this.state.poolError["poolName"]}</span>
                 </div>
                 <div className="col-4">
                 <div className="form-group">
-                  <label>Pool Type</label>
+                  <label>Pool Type <span className="text-red font-bold" name="bold">*</span></label>
                   <select value={this.state.poolType} onChange={this.handlePoolType} className="form-control">
                     <option>Select Pool Type</option>
                        { 
@@ -1046,10 +1237,11 @@ Tabs = () => {
                         }
                   </select>
                 </div>
+                <span style={{ color: "red" }}>{this.state.poolError["poolType"]}</span>
                 </div>
                 <div className="col-4 outlet">
                 
-                    <button type="button" className="btn-unic-redbdr" onClick={this.handleAddRow}>Add Pool Rule</button>
+                    <button type="button" className="btn-unic-redbdr mt-4" onClick={this.handleAddRow}>Add Pool Rule</button>
                 
                 </div>
                 <div className="App">
@@ -1097,23 +1289,17 @@ Tabs = () => {
               </select>
             </div>
           </div>
-          <div className="col-sm-3 col-12">
-            <div className="form-group mt-2 mb-3">
-            <label>Status</label>
-              <select  value={this.state.poolStatus} onChange={this.handlePoolStatus} className="form-control">
-                <option>Select Status</option>
-                { 
-                  this.state.poolStatuses &&
-                  this.state.poolStatuses.map((item, i) => 
-                  (<option key={i} value={item.value}>{item.label}</option>))
-                }
-              </select>
-            </div>
-          </div>
-          <div className="col-sm-3 col-12 text-right pt-4 scaling-center scaling-mb">
+          <div className="col-sm-4 col-12 pt-4 scaling-center scaling-mb">
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>SEARCH</button>
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearPool}>CLEAR</button>
             <button className="btn-unic-redbdr mt-2" onClick={this.addPool}>Add Pool</button>
           </div>
+           {/*<div className="col-sm-2 col-12">
+            <div className="form-group mt-2 mb-3">
+            <button className="btn-unic-search active m-r-2 mt-4" onClick={this.clearPool}>CLEAR</button>
+            </div> 
+          </div>*/}
+         
         </div>
         <div className="row m-0 p-0 scaling-center">
           <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Pools</h5>

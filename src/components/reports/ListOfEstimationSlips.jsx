@@ -24,7 +24,7 @@ export default class ListOfEstimationSlips extends Component {
       storeId: "",
       selectOption: [
         {
-          name: "DS STATUS",
+          name: "ES STATUS",
           id: "DS STATUS",
         },
         {
@@ -221,7 +221,7 @@ export default class ListOfEstimationSlips extends Component {
             <div className="row mb-2">
               <div className="col-3">
                 <div className="">
-                  <label>Delivery Slip : </label>{" "}
+                  <label>Estimation Slip : </label>{" "}
                   <span className="font-bold fs-13">
                     {" "}
                     {this.state.dsNumber}
@@ -274,6 +274,7 @@ export default class ListOfEstimationSlips extends Component {
 
         <div className="row">
           <div className="col-2 mt-2">
+          <label>From Date</label>
             <div className="form-group">
               <input
                 type="date"
@@ -284,19 +285,39 @@ export default class ListOfEstimationSlips extends Component {
               />
             </div>
           </div>
+          {/* var startDate = new Date($('#startDate').val());
+var endDate = new Date($('#endDate').val());
+
+if (startDate < endDate){
+// Do something
+} */}
           <div className="col-2 mt-2">
+          <label>To Date</label>
             <div className="form-group">
               <input
                 type="date"
                 className="form-control"
                 placeholder="TO DATE"
                 value={this.state.dateTo}
-                onChange={(e) => this.setState({ dateTo: e.target.value })}
+                onChange={(e) => {
+                  var startDate = new Date(this.state.dateFrom);
+                  var endDate = new Date(e.target.value);
+                  console.log(">>>", startDate, endDate);
+                  if (startDate <= endDate) {
+                    this.setState({ dateTo: e.target.value });
+                    // console.log(">>>right");
+                    // alert("right");
+                  } else {
+                    alert("To date should be greater than From date ");
+                    // console.log(">>>>wrong");
+                  }
+                }}
               />
             </div>
           </div>
 
           <div className="col-12 col-sm-2 mt-2">
+          <label>ES Status</label>
             <div className="form-group">
               <select
                 className="form-control"
@@ -322,17 +343,19 @@ export default class ListOfEstimationSlips extends Component {
           </div>
 
           <div className="col-2 mt-2">
+          <label>ES Number</label>
             <div className="form-group">
               <input
                 type="text"
                 className="form-control"
-                placeholder="DS NUMBER"
+                placeholder="ES NUMBER"
                 value={this.state.dsNumber}
                 onChange={(e) => this.setState({ dsNumber: e.target.value })}
               />
             </div>
           </div>
           <div className="col-2 mt-2">
+          <label>Barcode</label>
             <div className="form-group">
               <input
                 type="text"
@@ -343,7 +366,7 @@ export default class ListOfEstimationSlips extends Component {
               />
             </div>
           </div>
-          <div className="col-2 mt-2">
+          <div className="col-2 mt-4 pt-2">
             <div className="form-group">
               <button
                 className="btn-unic-search active"
@@ -360,9 +383,9 @@ export default class ListOfEstimationSlips extends Component {
             <thead>
               <tr className="m-0 p-0">
                 <th className="col-1">S.NO</th>
-                <th className="col-2">DS Number</th>
-                <th className="col-1">DS DATE</th>
-                <th className="col-1">DS STATUS</th>
+                <th className="col-2">ES Number</th>
+                <th className="col-1">ES DATE</th>
+                <th className="col-1">ES STATUS</th>
                 <th className="col-2">GROSS AMOUNT</th>
                 <th className="col-1">PROMO DISC</th>
                 <th className="col-2">NET AMOUNT</th>

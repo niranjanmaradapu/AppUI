@@ -64,7 +64,10 @@ class NewSaleService {
         const param = '?storeId='+ storeId +'&domainId='+ domainId; 
         return axios.post(BASE_URL+NEW_SALE_URL.getCheckPromo+param, reqObj);
     }
-
+    getinvoiceLevelCheckPro(domainId, storeId , reqObj){
+        const param = '?storeId='+ storeId +'&domainId='+ domainId; 
+        return axios.post(BASE_URL+NEW_SALE_URL.getinvoiceLevelCheckProm+param, reqObj);
+    }
   
 } 
 export default new NewSaleService()

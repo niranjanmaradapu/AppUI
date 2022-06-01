@@ -35,6 +35,10 @@ import r_brand from "../../assets/images/r_brand.svg";
 import Hsn from "../../assets/images/hsn.svg";
 import eventBus from '../../commonUtils/eventBus';
 import URMService from '../../services/URM/URMService';
+import { useHistory } from 'react-router';
+
+import { matchPath } from 'react-router';
+import { useLocation } from 'react-router-dom';
 
 
 const data = [
@@ -364,18 +368,26 @@ class Header extends Component {
 
 
   componentWillMount() {
-
     const selectedDomain = sessionStorage.getItem("selectedDomain");
-    console.log(selectedDomain);
-
-
+    const selectedStore = JSON.parse(sessionStorage.getItem("selectedstoreData"));
     const domainName = sessionStorage.getItem("domainName");
     const user = JSON.parse(sessionStorage.getItem("user"));
     this.state.user = user["cognito:username"];
-    if(domainName === "config_user") {
+    this.state.roleName = user["custom:roleName"];
+    this.state.storeName = selectedStore ? selectedStore.storeName : "";
+    
+    // window.location.reload();
+    // const currentRoute = this.state.moduleNames.find(
+    //   route => matchPath(this.props.location.pathname, route.)
+    // )
+    //console.log(`My current route key is : ${currentRoute.key}`)
+   
+    // console.log( this.state.headertype);
+    
+        if(domainName === "config_user") {
       let header;
        this.state.headertype = "Accounting Portal";
-       console.log(this.state.headertype);
+      
        eventBus.dispatch("subHeader", { message: this.state.headertype });
           header = [
             {
@@ -397,8 +409,21 @@ class Header extends Component {
                 { childName: "Users", childImage: "deliveryslip", childPath: "/users" },
                 { childName: "Roles", childImage: "sale", childPath: "/roles" },
                 { childName: "Back Office", childImage: "sale", childPath: "/backOffice" },
+                { childName: "Payment", childImage: "sale", childPath: "/payment" },
+              ],
+            },
+            {
+              name: "Back Office",
+              id:'3',
+              path: "/backOffice",
+              parentImage: "icon-r_brand fs-30 i_icon",
+              children: [
+                { childName: "State & Districts", childImage: "sale", childPath: "/backOffice" },
+                { childName: "Tax Master", childImage: "deliveryslip", childPath: "/taxMaster" },
+                { childName: "HSN Codes", childImage: "sale", childPath: "/hsnDetails" },
               ],
             }
+          
            
     
           ];
@@ -444,11 +469,13 @@ class Header extends Component {
           }
          
         });
+      
        }
    
       this.getDomains();
     }
-   
+   console.log(this.state.moduleNames)
+  
   }
 
   getDomains() {
@@ -460,7 +487,7 @@ class Header extends Component {
     if(user["custom:isSuperAdmin"] === "true") { 
       this.state.domainLists.forEach((ele, index) => {
         const obj  = {
-          value: ele.clientDomainaId,
+          value: ele.id,
           label: ele.domaiName
         }
         dataDrop.push(obj);
@@ -482,7 +509,7 @@ class Header extends Component {
         
         if(res) {
           const obj  = {
-            value: res.data.result.clientDomainaId,
+            value: res.data.result.id,
             label: res.data.result.domaiName
           }
           dataDrop.push(obj);
@@ -528,7 +555,7 @@ class Header extends Component {
   }
 
   handleChange = e => {
-    // setSelectedOption(e);
+   
    
     sessionStorage.setItem("selectedDomain", JSON.stringify(e));
     if (e.label === 'Logout') {
@@ -537,27 +564,22 @@ class Header extends Component {
         sessionStorage.clear();
       window.location.reload();
     } else {
-      //  sessionStorage.setItem('domainName',JSON.stringify(e));
+     
       if (e.label === 'Textile') {
-       // this.props.history.push("createdeliveryslip");
-       // window.location.reload();
+       
        this.setState({domainId : 1}, () => {
         this.setAdminHeader();
       });
       this.state.headertype = "Dashboard";
       this.setAdminHeader();
       } else if (e.label === 'Retail') {
-  //      this.props.history.push("retail");
-        // header = this.state.moduleRetailNames;
+ 
         this.setState({domainId : 2}, () => {
           this.setAdminHeader();
         });
         this.state.headertype = "Retail";
       
-    //   window.location.reload();
-        // this.state.headertype = "Retail";
-        // this.setAdminHeader();
-     //   header = this.state.moduleRetailNames;
+   
       } else if (e.label === 'Electronics') {
         this.props.history.push("electronics");
         window.location.reload();
@@ -575,14 +597,7 @@ class Header extends Component {
 
   setAdminHeader() {
     
-  //  this.setState({headertype: "URM Portal"});
-
-  // const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
-  // let header = this.state.copyModules;
-  // if (selectedDomain && selectedDomain.label === "Retail") {
-  //   header = this.state.moduleRetailNames;
-  // }
-  // this.setState({ moduleNames: header },  () => { this.getChilds(); });
+ 
   const user = JSON.parse(sessionStorage.getItem("user"));
   if(this.state.user !== "config_user" && user["custom:isSuperAdmin"] === "true") { 
 
@@ -591,6 +606,7 @@ class Header extends Component {
       if(res) {
        
         this.setState({moduleNames: res.data.result});
+        console.log(this.state.moduleNames)
         this.props.history.push("/dashboard");
         eventBus.dispatch("subHeader", { message: (res.data.result && res.data.result.length>0)?res.data.result[0].id:"" });
       }
@@ -624,31 +640,7 @@ class Header extends Component {
     }
   }
 
-  // componentWillMount(){
-  //     this.state.user = sessionStorage.getItem('domainName');
-  //     if(this.state.user !== "config_user") {
-  //       this.state.domainsList = JSON.parse(sessionStorage.getItem('domainList'));
-  //       const obj = {
-  //         createdDate: "",
-  //         createdUser: "",
-  //         description: "",
-  //         domain: "Logout"
-  //        }
-  //        this.state.domainsList.push(obj);
-  //     }  else {
-  //       const obj = {
-  //         createdDate: "",
-  //         createdUser: "",
-  //         description: "",
-  //         domain: "Logout"
-  //        }
-  //        this.state.domainsList.push(obj);
-  //     }    
-
-
-
-  // }
-
+  
 
   handleSelectChange = (e) => {
     console.log(e.target.value);
@@ -656,6 +648,7 @@ class Header extends Component {
     let parentPath;
     this.setState({headertype: e.target.value});
     eventBus.dispatch("subHeader", { message: e.target.value });
+    console.log(this.state.moduleNames);
     this.state.moduleNames.forEach(ele => {
       if (ele.id == e.target.value) {
         if(ele.path) {
@@ -669,23 +662,22 @@ class Header extends Component {
        if(domainName === "config_user") {
         eventBus.dispatch("subHeader", { message: ele.name });
        }
-    //   
-         // parentPath = ele.subPrivillages[0].childPath;
+    
         
       } 
       
       
 
     });
-    // this.props.history.push(parentPath);
-    // console.log(parentPath);
-      if(parentPath) {
-        this.props.history.push(parentPath);
-      } else {
-        this.props.history.push("/dashboard");
-      }
+   
+   
+      // if(parentPath) {
+      //   this.props.history.push(parentPath);
+      // } else {
+      //   this.props.history.push("/dashboard");
+      // }
 
-   // this.props.history.push("/dashboard");
+   
 
   }
 
@@ -753,7 +745,14 @@ class Header extends Component {
                         </div>
                     </div> */}
           <div className="row">
-            <div className="col-sm-5"></div>
+            <div className="col-sm-7">
+              <div className='head-text'>
+                  Role : <span> {this.state.roleName}</span>
+              </div>
+              <div className='head-text'>
+              Store : <span> {this.state?.storeName}</span>
+              </div>
+            </div>
             {/* <div className="col-5 search_bar">
               <form className="form-inline my-2 my-lg-0 ml-2">
                 <input className="form-control" type="search" placeholder="Search by bill no, barcode etc..."
@@ -761,7 +760,9 @@ class Header extends Component {
                 <button className="search_head my-2 my-sm-0" type="submit"></button>
               </form>
             </div> */}
-            <div className="col-sm-7 col-xs-12 text-right">
+            <div className="col-sm-5 col-xs-12 text-right">
+           
+              
               <div className="header-right float-right">
                 <ul className="navbar-nav">
                   {/* <li className="nav-item upper-case">{this.props.user.name}</li> */}

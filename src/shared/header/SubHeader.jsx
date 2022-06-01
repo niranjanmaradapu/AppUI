@@ -77,6 +77,7 @@ class SubHeader extends Component {
           children: [
             { childName: "Inventory List", childImage: "deliveryslip", childPath: "/inventoryList", },
             { childName: "Barcode List", childImage: "sale", childPath: "/barcodeList", },
+            // { childName: "Product Combo", childImage: "sale", childPath: "/productsCombo", },
 
           ],
         },
@@ -311,6 +312,18 @@ class SubHeader extends Component {
           children: [
             { name: "Users", childImage: "deliveryslip", childPath: "/users" },
             { name: "Roles", childImage: "sale", childPath: "/roles" },
+            { name: "Payment", childImage: "sale", childPath: "/payment" },
+          ],
+        },
+        {
+          parentName: "Back Office",
+          id:'3',
+          path: "/backOffice",
+          parentImage: "icon-r_brand fs-30 i_icon",
+          children: [
+            { name: "State & Districts", childImage: "sale", childPath: "/backOffice" },
+            { name: "Tax Master", childImage: "deliveryslip", childPath: "/taxMaster" },
+            { name: "HSN Codes", childImage: "sale", childPath: "/hsnDetails" },
           ],
         }
      
@@ -325,15 +338,9 @@ class SubHeader extends Component {
 
   componentWillMount() {
     const domainName = sessionStorage.getItem("domainName");
-    // if(domainName === "config_user") { 
-    // this.setState({ message: "URM Portal" }, () => { this.setHeaders(); })
-    // } else {
-    //   eventBus.on("subHeader", (data) =>
-    //   this.setState({ message: data.message }, () => {this.setHeaders();}));
-    // }
-
     eventBus.on("subHeader", (data) =>
-      this.setState({ message: data.message }, () => {this.setHeaders();}));
+      this.setState({ message: data.message }, () => {this.setHeaders();})
+      );
       console.log(this.state.message);
       if(!this.state.message) {
           if(domainName === "config_user") { 
@@ -351,6 +358,7 @@ setHeaders() {
       if(ele.parentName == this.state.message) {
           this.setState({buttonsList: ele.children}, ()=>{
             this.setState({selectedChildName: this.state.buttonsList[0].name});
+            this.props.history.push(this.state.buttonsList[0].childPath);
           });
       }
   });
@@ -360,6 +368,7 @@ setHeaders() {
     if(res) {
       this.setState({buttonsList: res.data.result}, ()=>{
         this.setState({selectedChildName: this.state.buttonsList[0].name});
+        this.props.history.push(this.state.buttonsList[0].childPath);
       });
     }
   });
@@ -378,6 +387,7 @@ setHeaders() {
         subList = this.removeDuplicates(subList,"id");
          this.setState({buttonsList:subList}, ()=>{
           this.setState({selectedChildName: this.state.buttonsList.length  > 0 ? this.state.buttonsList[0].name: ""});
+          this.props.history.push(this.state.buttonsList[0].childPath);
         });
 
         }
@@ -385,7 +395,7 @@ setHeaders() {
     }
   }
 
-  // console.log(this.state.buttonsList);
+   
 
  
 
@@ -401,6 +411,7 @@ return array.filter(obj=>!lookup.has(obj[key])&&lookup.add(obj[key]));
 
 
   handleNavigationChange(index, childPath, childName) {
+    console.log(childPath);
     this.setState({ selectedChildName: childName });
     this.props.history.push(childPath);
   }

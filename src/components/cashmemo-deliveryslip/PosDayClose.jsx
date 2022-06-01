@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import dress1 from '../../assets/images/midi_blue.svg';
 import error from '../../assets/images/error.svg';
+import CreateDeliveryService from '../../services/CreateDeliveryService';
+import { ToastContainer, toast } from "react-toastify";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 
 export default class PosDayClose extends Component {
@@ -9,26 +11,96 @@ export default class PosDayClose extends Component {
     super(props);
     this.state  = {
       isCloseDay: false,
+      mobileData: {
+        dsNumber:"",
+        mrp:"",
+        dsId:"",
+        salesMan:"",
+        dayCloserList: [],
+        closerDayList: [],
+        storeId:"",
+        length:"",
+        enableButton:false
+
+      }
     };
+    
 
     this.closeDay = this.closeDay.bind(this);
+    this.getAllDayCloser = this.getAllDayCloser.bind(this);
+    this.closeDayCloser = this.closeDayCloser.bind(this);
+    //this.getDayCloserTable = this.getDayCloserTable.bind(this);
     this.hideModal = this.hideModal.bind(this);
+  }
+  
+  componentWillMount() {
+    const storeId = sessionStorage.getItem("storeId");
+    this.setState({ storeId: storeId});
+    this.getAllDayCloser();
   }
 
 
   closeDay() {
     this.setState({ isCloseDay: true });
+    this.closeDayCloser();
+   
+  
   }
-
+  closeDayCloser() {
+    CreateDeliveryService.closeDayCloser(sessionStorage.getItem('storeId')).then(res => {
+      if (res) {
+        toast.success(res.data.result);
+        this.getAllDayCloser();
+        
+      }
+    }); 
+  }
+  
+ 
 
   hideModal() {
     this.setState({ isCloseDay: false });
   }
+  getAllDayCloser() {
+    CreateDeliveryService.getAllDayClosr(sessionStorage.getItem('storeId')).then(res => {
+      if (res) {
+        this.setState({ dayCloserList: res.data.result });
+        if(this.state.dayCloserList.length>0){
+          this.setState({enableButton:true})
+        }
+        
+      }
+    }); 
+  }
+           // console.log(this.state.giftVochersList);
+  getDayCloserTable() {
+    
+    if (this.state.dayCloserList && this.state.dayCloserList.length > 0) {
+      return this.state.dayCloserList.map((items, index) => {
+        const { dsNumber ,mrp, salesMan } = items;
+        return (
+          <tr key={index}>
+            <td className="col-2 geeks">
+              {index + 1}
+            </td>
+            <td className="col-3">{dsNumber}</td>
+            <td className="col-1">{mrp}</td>
+            <td className="col-2">{salesMan}</td>
+            
+
+          </tr>
+        );
+      });
+    }
+
+  }
+
+
 
   render() {
     return (
       <div className="maincontent">
-          <Modal isOpen={this.state.isCloseDay} size="md">
+          <Modal isOpen={this.state.isDayClose} size="md">
           <ModalHeader>Confirm Activity</ModalHeader>
           <ModalBody>
             <div className="row ">
@@ -54,110 +126,41 @@ register today?</h6>
 
         <div className="row mb-2 scaling-center">
           <div className="col-sm-6 mt-2 col-12 scaling-mb"><h5>List Of Pending Delivery Slips</h5></div>
-          <div className="col-sn-6 col-12 text-right scaling-mb">
-          <button className="btn-unic mt-2 active" onClick={this.closeDay}>Day Close Activity</button>
+          <div className="col-sn-6 col-12 text-right scaling-mb"> 
+          {/* <button  className="btn-unic-search mt-2  "
+          //  disabled = {this.state.dayCloserList && this.state.dayCloserList.length > 0 }
+                onClick={this.closeDay}>Day closuer</button> */}
+  <button
+                  className={
+                    "btn-unic-search mt-2" +
+                    (!this.state.enableButton ? " btn-disable" : "")
+                  }
+                  onClick={this.closeDay}
+                >
+                 Day closure
+                </button>
+
           </div>
           </div>
           <div className="table-responsive">
         <table className="table table-borderless mb-1">
           <thead>
             <tr className="m-0 p-0">
-              <th className="col-3">ITEM</th>
-              <th className="col-1">DIVISION</th>
-              <th className="col-1">Size</th>
-              <th className="col-1">Qty</th>
-              <th className="col-1">sm</th>
-              <th className="col-1">mrp</th>
-              <th className="col-2">Discount Type</th>
-              <th className="col-1">Discount</th>
-              {/* <th className="col-4">Description</th> */}
-              <th className="col-1">Total</th>
+            <th className="col-2">S.No</th>
+              <th className="col-3">DSNumber</th>
+              <th className="col-1">MRP</th>
+              <th className="col-2">SALESMan</th>
+              
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className="col-3 geeks">
-                <div className="d-flex">
-                <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                          <input type="checkbox" className="form-check-input filled-in mt-3" id="roundedExample2"  />
-                          <label className="form-check-label" htmlFor="roundedExample2"></label>
-                    <img src={dress1} />
-                  </div>
-                  <div className="td_align ">
-                    <label>Antheaa</label>
-                    <label>Women Black & Rust Orange Floral Print #123456789</label>
-                  </div>
-
-                </div>
-              </td>
-              <td className="col-1">Women</td>
-              <td className="col-1">M</td>
-              <td className="col-1 V1_forms">10</td>
-              <td className="col-1">S1234</td>
-              <td className="col-1">₹ 1,499.00</td>
-              <td className="col-2">Dussehra offer</td>
-              <td className="col-1">₹ 499.00</td>
-              <td className="col-1 ">₹ 1,000.00
-                <i className="icon-delete m-l-2"></i>
-              </td>
-            </tr>
-            <tr>
-              <td className="col-3 geeks">
-                <div className="d-flex">
-                <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                          <input type="checkbox" className="form-check-input filled-in mt-3" id="roundedExample2" />
-                          <label className="form-check-label" htmlFor="roundedExample2"></label>
-                    <img src={dress1} />
-                  </div>
-                  
-                  <div className="td_align ">
-                    <label>Antheaa</label>
-                    <label>Women Black & Rust Orange Floral Print #123456789</label>
-                  </div>
-
-                </div>
-              </td>
-              <td className="col-1">Women</td>
-              <td className="col-1">M</td>
-              <td className="col-1 V1_forms">10</td>
-              <td className="col-1">S1234</td>
-              <td className="col-1">₹ 1,499.00</td>
-              <td className="col-2">Dussehra offer</td>
-              <td className="col-1">₹ 499.00</td>
-              <td className="col-1 ">₹ 1,000.00
-                <i className="icon-delete m-l-2"></i>
-              </td>
-            </tr>
-
+          {this.getDayCloserTable()}
           </tbody>
         </table>
       </div>
-        <div className="rect-cardred m-0">
-              <div className="row">
-                <div className="col-sm-5 col-1"></div>
-                <div className="col-sm-1 col-2">
-                  <label>TOTAL QTY</label>
-                  <h6 className="pt-2">02</h6>
-                </div>
-                <div className="col-sm-1 col-1"></div>
-                <div className="col-sm-1 col-2">
-                  <label>MRP</label>
-                  <h6 className="pt-2">2,998 ₹</h6>
-                </div>
-                <div className="col-sm-2 col-1"></div>
-                <div className="col-sm-1 col-2">
-                  <label>DISCOUNT</label>
-                  <h6 className="pt-2">998 ₹</h6>
-                </div>
-                <div className="col-sm-1 col-3 text-right text-center text-red">
-                  <label className="text-red ">GRAND TOTAL</label>
-                  <h6 className="fs-16 text-red pt-1">2000 ₹</h6>
-                </div>
-              </div>
-          </div>
-</div>
+      </div>
 
   
     )
+    }
   }
-}

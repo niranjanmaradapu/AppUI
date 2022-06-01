@@ -40,6 +40,10 @@ import URMDashboard from '../../components/admin/URMDashboard';
 import ListOfEstimationSlips from '../../components/reports/ListOfEstimationSlips';
 import Rebarcoding from '../../components/InventoryPortal/Rebarcoding';
 import BackOffice from '../../components/admin/BackOffice';
+import TaxMaster from '../../components/BackOfficePortal/TaxMaster';
+import HsnDetails from '../../components/BackOfficePortal/HsnDetails';
+import Payment from '../../components/admin/Payment';
+import ProductsCombo from '../../components/InventoryPortal/ProductsCombo';
 
 
 
@@ -290,9 +294,29 @@ export default class Layout extends Component {
                                     component={Rebarcoding}
                                 />
                                 <PrivateRoute
-                                    path='/backOffice'
+                                      path='/backOffice'
                                     exact={true}
                                     component={BackOffice}
+                                />
+                                 <PrivateRoute
+                                    path='/taxMaster'
+                                    exact={true}
+                                    component={TaxMaster}
+                                />
+                                 <PrivateRoute
+                                    path='/hsnDetails'
+                                    exact={true}
+                                    component={HsnDetails}
+                                />
+                                 <PrivateRoute
+                                    path='/payment'
+                                    exact={true}
+                                    component={Payment}
+                                />
+                                  <PrivateRoute
+                                    path='/productsCombo'
+                                    exact={true}
+                                    component={ProductsCombo}
                                 />
                             </Switch>
                         </div>

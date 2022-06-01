@@ -12,16 +12,16 @@ const App = () => {
   const sampleJSONdata = [{
     type: 'codes',
     id: '1'
-  },{
+  }, {
     type: 'cdsfsdss',
     id: '2',
-  
+
   }];
 
   saveDataInIndexDB(sampleJSONdata);
 
 
- 
+
   const loadScript = (src) => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -41,309 +41,334 @@ const App = () => {
   });
   return (
     <Router>
-       <Route exact path="/">
-         <Login />
-       </Route>
-        {/* <PrivateRoute
+      <Route exact path="/">
+        <Login />
+      </Route>
+      {/* <PrivateRoute
                                     path='/'
 
                                     component={Login}
                                 /> */}
-    <Switch>
- 
-       {/* <Route path="/createdeliveryslip">
+      <Switch>
+
+        {/* <Route path="/createdeliveryslip">
          <Layout  />
        </Route> */}
         <PrivateRoute
-                                    path='/createdeliveryslip'
-                                    exact={true}
-                                    component={Layout}
-                                />
+          path='/createdeliveryslip'
+          exact={true}
+          component={Layout}
+        />
 
-       {/* <Route path="/newsale">
+        {/* <Route path="/newsale">
          <Layout />
        </Route> */}
         <PrivateRoute
-                                    path='/newsale'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/promoitemexchange">
+          path='/newsale'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/promoitemexchange">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/promoitemexchange'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/generatereturnslip">
+        <PrivateRoute
+          path='/promoitemexchange'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/generatereturnslip">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/generatereturnslip'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/createcustomer">
+        <PrivateRoute
+          path='/generatereturnslip'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/createcustomer">
          <Layout />
        </Route> */}
-         <PrivateRoute
-                                    path='/createcustomer'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/tagcustomer">
+        <PrivateRoute
+          path='/createcustomer'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/tagcustomer">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/tagcustomer'
-                                    exact={true}
-                                    component={Layout}
-                                />
+        <PrivateRoute
+          path='/tagcustomer'
+          exact={true}
+          component={Layout}
+        />
 
-       {/* <Route path="/posdayclose">
+        {/* <Route path="/posdayclose">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/posdayclose'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/salereport">
+        <PrivateRoute
+          path='/posdayclose'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/salereport">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/salereport'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/listofsalebills">
+        <PrivateRoute
+          path='/salereport'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/listofsalebills">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/listofsalebills'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/listofdeliveryslips">
+        <PrivateRoute
+          path='/listofsalebills'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/listofdeliveryslips">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/listofdeliveryslips'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/listofreturnslips">
+        <PrivateRoute
+          path='/listofdeliveryslips'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/listofreturnslips">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/listofreturnslips'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/usermanagement">
+        <PrivateRoute
+          path='/listofreturnslips'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/usermanagement">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/usermanagement'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/listofPromotions">
+        <PrivateRoute
+          path='/usermanagement'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/listofPromotions">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/listofPromotions'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/inventoryList">
+        <PrivateRoute
+          path='/listofPromotions'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/inventoryList">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/inventoryList'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/barcodeList">
+        <PrivateRoute
+          path='/inventoryList'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/barcodeList">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/barcodeList'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/users">
+        <PrivateRoute
+          path='/barcodeList'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/users">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/users'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/roles">
+        <PrivateRoute
+          path='/users'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/roles">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/roles'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/stores">
+        <PrivateRoute
+          path='/roles'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/stores">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/stores'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/domain">
+        <PrivateRoute
+          path='/stores'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/domain">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/domain'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/createHSN">
+        <PrivateRoute
+          path='/domain'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/createHSN">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/createHSN'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/createNotes">
+        <PrivateRoute
+          path='/createHSN'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/createNotes">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/createNotes'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/createTaxMaster">
+        <PrivateRoute
+          path='/createNotes'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/createTaxMaster">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/createTaxMaster'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/debitNotes">
+        <PrivateRoute
+          path='/createTaxMaster'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/debitNotes">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/debitNotes'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/listOfPools">
+        <PrivateRoute
+          path='/debitNotes'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/listOfPools">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/listOfPools'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/loyaltyPoints">
+        <PrivateRoute
+          path='/listOfPools'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/loyaltyPoints">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/loyaltyPoints'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/managePromo">
+        <PrivateRoute
+          path='/loyaltyPoints'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/managePromo">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/managePromo'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/hrPortal">
+        <PrivateRoute
+          path='/managePromo'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/hrPortal">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/hrPortal'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/accountingDashboard">
+        <PrivateRoute
+          path='/hrPortal'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/accountingDashboard">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/accountingDashboard'
-                                    exact={true}
-                                    component={Layout}
-                                />
+        <PrivateRoute
+          path='/accountingDashboard'
+          exact={true}
+          component={Layout}
+        />
 
-       {/* <Route path="/reportsDashboard">
+        {/* <Route path="/reportsDashboard">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/reportsDashboard'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/urmDashboard">
+        <PrivateRoute
+          path='/reportsDashboard'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/urmDashboard">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/urmDashboard'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/listOfEstimationSlips">
+        <PrivateRoute
+          path='/urmDashboard'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/listOfEstimationSlips">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/listOfEstimationSlips'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/rebarcoding">
+        <PrivateRoute
+          path='/listOfEstimationSlips'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/rebarcoding">
          <Layout />
        </Route> */}
-       <PrivateRoute
-                                    path='/rebarcoding'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/retail">
+        <PrivateRoute
+          path='/rebarcoding'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/retail">
          <RetailLayout />
        </Route> */}
-       <PrivateRoute
-                                    path='/retail'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/electronics">
+        <PrivateRoute
+          path='/retail'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/electronics">
          <ElectronicsLayout />
        </Route> */}
-       <PrivateRoute
-                                    path='/electronics'
-                                    exact={true}
-                                    component={Layout}
-                                />
-       {/* <Route path="/dashboard">
+        <PrivateRoute
+          path='/electronics'
+          exact={true}
+          component={Layout}
+        />
+        {/* <Route path="/dashboard">
          <Layout />
        </Route> */}
-          <PrivateRoute
-                                    path='/dashboard'
-                                    exact={true}
-                                    component={Layout}
-                                />
+        <PrivateRoute
+          path='/dashboard'
+          exact={true}
+          component={Layout}
+        />
 
-<PrivateRoute
-                                    path='/backOffice'
-                                    exact={true}
-                                    component={Layout}
-                                />
+        <PrivateRoute
+          path='/backOffice'
+          exact={true}
+          component={Layout}
+        />
+
+        <PrivateRoute
+          path='/taxMaster'
+          exact={true}
+          component={Layout}
+        />
+
+        <PrivateRoute
+          path='/hsnDetails'
+          exact={true}
+          component={Layout}
+        />
 
 
-       </Switch>
-       </Router>
+        <PrivateRoute
+          path='/payment'
+          exact={true}
+          component={Layout}
+        />
+
+        <PrivateRoute
+          path='/productsCombo'
+          exact={true}
+          component={Layout}
+        />
+
+
+      </Switch>
+    </Router>
   );
 }
 

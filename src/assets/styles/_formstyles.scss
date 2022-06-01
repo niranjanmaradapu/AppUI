@@ -344,7 +344,7 @@ label, .col-form-label{
       transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 & input[type="text"]{
-  display: block;
+      display: block;
       width: 100%;
       padding: 0.2rem 0.75rem;
       font-size: 1rem;
@@ -361,4 +361,37 @@ label, .col-form-label{
       transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
   }
+}
+.searchWrapper {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-height: 22px;
+  font-size: 12px;
+  position: relative;
+}
+.chip {
+  padding: 4px 7px !important;
+  background: $primary-color !important;
+  margin-right: 2px !important;
+  margin-bottom: 5px;
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  line-height: 19px;
+  color: #fff;
+}
+.optionContainer{
+  & li{
+    &:hover{
+      background-color: $secondary-color !important;
+      color: $white;
+    }
+  }
+  & .highlightOption {
+    background: $secondary-color !important;
+    color: $white;
+}
+
+
 }

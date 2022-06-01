@@ -3,9 +3,18 @@ on:
   push:
     branches:
       - DevOps
+      - master
   pull_request:
     branches: 
       - DevOps
+      - master
+  workflow_call:
+    secrets: 
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
   schedule:
   - cron: '* * * * *'
 jobs:
@@ -13,11 +22,12 @@ jobs:
     runs-on: ubuntu-latest
     env: 
       MODULE_NAME: app-ui
-    permissions:
-      contents: read
-      packages: write
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          repository: 'niranjanmaradapu/AppUI' 
+          ref: DevOps
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1 
       - name: Set up Docker Buildx
@@ -40,11 +50,12 @@ jobs:
     runs-on: ubuntu-latest   
     env: 
       MODULE_NAME: app-ui
-    permissions:
-      contents: read
-      packages: write
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          repository: 'niranjanmaradapu/AppUI'
+          ref: DevOps
       - name: AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -57,3 +68,4 @@ jobs:
         with:
           cluster-name: Microservice-K8S-Cluster
           command: helm upgrade --set image.tag="$GITHUB_SHA" --install app-ui ./app-ui 
+

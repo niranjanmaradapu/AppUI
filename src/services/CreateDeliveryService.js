@@ -71,6 +71,15 @@ class CreateDeliveryService {
         const param = '?flag=' + status;
         return axios.put(BASE_URL + CREATE_DELIVERY_SLIP_URL.changeGvFlag + param, gvObj);
     }
+    getAllDayClosr(storeId) {
+        const param = '?storeId=' + storeId ;
+        return axios.get(BASE_URL + CREATE_DELIVERY_SLIP_URL.getDayCloserSlips+param);
+    }
+    closeDayCloser(storeId) {
+        const param = '?storeId=' + storeId ;
+        return axios.put(BASE_URL + CREATE_DELIVERY_SLIP_URL.dayCloserPendingDeliverySlips+param);
+    }
+
 
 }
 

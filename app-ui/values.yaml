@@ -38,7 +38,7 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: LoadBalancer   # Change to NoadPort for Ingress
+  type: NodePort   # Change to NoadPort for Ingress
   port: 3000
 
 ingress:
@@ -49,7 +49,7 @@ ingress:
     nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/use-regex: "true"
   hosts:
-    - host: app-ui.themadhire.com
+    - host: web.themadhire.com
       paths:
       - path: /
         backend:
@@ -58,7 +58,7 @@ ingress:
   tls:
     - secretName: app-ui-tls
       hosts:
-        - app-ui.themadhire.com
+        - web.themadhire.com
 
 resources:
   limits:

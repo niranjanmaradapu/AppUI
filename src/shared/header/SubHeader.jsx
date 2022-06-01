@@ -419,7 +419,7 @@ return array.filter(obj=>!lookup.has(obj[key])&&lookup.add(obj[key]));
     return this.state.buttonsList.map((items, index) => {
       const { name, childPath } = items;
       return name && (
-        <button key={index} className={`btn-unic m-r-2 ${this.state.selectedChildName == name ? 'active m-r-2 ' : ''}`}
+        <button key={index} className={`btn-nav ${this.state.selectedChildName == name ? 'active ' : ''}`}
           onClick={() => this.handleNavigationChange(index, childPath, name)}>{name}</button>
       );
     });

@@ -38,11 +38,11 @@ export default class ProductsCombo extends Component {
   componentWillMount() {
     const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
     let domainId;
-    if(selectedDomain.label === 'Textile') {
-      domainId = 1;
-    } else {
-      domainId = 2;
-    }
+    // if(selectedDomain.label === 'Textile') {
+    //   domainId = 1;
+    // } else {
+    //   domainId = 2;
+    // }
     this.setState({ 
       domainDetails:  JSON.parse(sessionStorage.getItem('selectedDomain')),
       selectedStoreId: JSON.parse(sessionStorage.getItem('storeId')),

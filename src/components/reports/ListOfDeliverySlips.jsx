@@ -54,9 +54,7 @@ export default class ListOfDeliverySlips extends Component {
         parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
           ? parseInt(this.state.storeId)
           : undefined,
-      domainId: this.state.domaindataId
-        ? parseInt(this.state.domaindataId)
-        : undefined,
+     //  domainId: this.state.domaindataId ? parseInt(this.state.domaindataId) : undefined,
 
       store: {
         id:
@@ -116,11 +114,11 @@ export default class ListOfDeliverySlips extends Component {
     this.setState({ storeId: storeId });
     console.log("user", user);
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if (domainData.label == "Textile") {
-      this.setState({ domaindataId: 1 });
-    } else if (domainData.label == "Retail") {
-      this.setState({ domaindataId: 2 });
-    }
+    // if (domainData.label == "Textile") {
+    //   this.setState({ domaindataId: 1 });
+    // } else if (domainData.label == "Retail") {
+    //   this.setState({ domaindataId: 2 });
+    // }
     if (user["custom:isSuperAdmin"] === "true") {
       this.state.domainDetails = JSON.parse(
         sessionStorage.getItem("selectedDomain")

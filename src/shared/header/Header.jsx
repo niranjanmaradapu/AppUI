@@ -850,7 +850,7 @@ class Header extends Component {
                         <div className='text_parent'>
                         <span className="text-left p-l-2 mb-0 ellipsis">{this.state.user}</span>
                         </div>
-                        <Select className="align"
+                        <Select className="align drop_select"
                           value={this.state.selectedOption} // set selected value
                           options={this.state.dropData} // set list of the data
                           onChange={this.handleChange} // assign onChange function

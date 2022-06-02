@@ -269,7 +269,7 @@ export default class User extends Component {
         URMService.getUserBySearch(obj).then(res=> {
             console.log(res);
             if(res) {
-                const userDetails = res.data.result[0];
+                const userDetails = res.data.result.content[0];
                 this.setState({
                     showModal: true,
                     name: userDetails.userName,
@@ -285,7 +285,7 @@ export default class User extends Component {
                     isEdit: true,
                     isSearch: false,
                     isSuperAdmin: userDetails.superAdmin,
-                    userId: items.userId,
+                    userId: items.id,
                 }, () => {
                     this.state.isSuperAdmin = this.state.isAdmin;
                     const user = sessionStorage.getItem('domainName');
@@ -402,7 +402,7 @@ export default class User extends Component {
         let saveObj; 
         if(this.state.isEdit) {
             saveObj = {
-                "userId": this.state.userId,
+                "id": this.state.userId,
                 "email":this.state.email,	
                 "phoneNumber": "+91".concat(this.state.mobileNumber),
                 "birthDate": this.state.dob,

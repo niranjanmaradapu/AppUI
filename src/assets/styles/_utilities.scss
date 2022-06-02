@@ -27,6 +27,9 @@ hr{
     &-secondary{
         color:$secondary-color !important;
     }
+    &-orange{
+        color: $orange-light !important;
+    }
 }
 .navigation{
     & .nav{

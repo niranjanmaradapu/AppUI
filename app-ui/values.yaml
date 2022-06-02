@@ -42,7 +42,7 @@ service:
   port: 3000
 
 ingress:
-  enabled: false  # Enable ingress : true 
+  enabled: true # Enable ingress : true 
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod

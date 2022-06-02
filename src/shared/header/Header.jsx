@@ -1,5 +1,7 @@
 import { getDefaultNormalizer } from '@testing-library/react';
 import React, { Component, useEffect } from 'react'
+import 'bootstrap/dist/css/bootstrap.css';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from "react-router-dom";
 import cashmemo from "../../assets/images/cash_memo.svg";
 import profile from "../../assets/images/profile.svg";
@@ -7,6 +9,14 @@ import Select from 'react-select';
 import { browserHistory } from 'react-router';
 import logosm from '../../assets/images/easy_retail_logo.svg';
 import portal_icon from '../../assets/images/c_portal.svg';
+import portal_menu from '../../assets/images/c_portal_dark.svg';
+import Inventory_img from '../../assets/images/inventory_portal.svg';
+import Promotions_img from '../../assets/images/promotions_loyal.svg';
+import Accounting_img from '../../assets/images/accounting_portal.svg';
+import Reports_img from '../../assets/images/reports_chart.svg';
+import URM_img from '../../assets/images/URM_portal.svg';
+import HR_img from '../../assets/images/HR_portal.svg';
+
 import search from '../../assets/images/search.svg';
 import list from "../../assets/images/all_modules.svg";
 import arrow from "../../assets/images/circle_arrow.svg";
@@ -730,6 +740,35 @@ class Header extends Component {
 
                   {modulesList}
                 </select >
+
+                {/* <Dropdown>
+                    <Dropdown.Toggle className="drop-tog" variant="success">
+                      Select Category
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item>
+                      <img className="" src={portal_menu} /> Customer Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <img src={Inventory_img} /> Inventory Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Promotions_img} /> Promotions & Loyalty
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Accounting_img} /> Accounting Potal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Reports_img} /> Reports
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={URM_img} /> URM Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={HR_img} /> HR Portal
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown> */}
               </div>
             </div>
           </div>
@@ -785,7 +824,9 @@ class Header extends Component {
                         <i className="icon-tag_customer"></i>
                       </div>
                       <div className="itemMain-right text-left">
-                        <span className="text-left p-l-2 mb-0">{this.state.user}</span>
+                        <div className='text_parent'>
+                        <span className="text-left p-l-2 mb-0 ellipsis">{this.state.user}</span>
+                        </div>
                         <Select className="align"
                           value={this.state.selectedOption} // set selected value
                           options={this.state.dropData} // set list of the data

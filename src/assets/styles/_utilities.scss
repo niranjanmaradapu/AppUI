@@ -296,3 +296,14 @@ textarea {
  
 }
   
+.text_parent{
+        width: 150px;
+        overflow: hidden;
+
+    & .ellipsis {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    
+}

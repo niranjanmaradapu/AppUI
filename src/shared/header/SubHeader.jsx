@@ -355,7 +355,7 @@ setHeaders() {
   const domainName = sessionStorage.getItem("domainName");
   if( user["custom:isConfigUser"] === "true") { 
     this.state.moduleConfigheader.forEach(ele => {
-      if(ele.parentName == this.state.message) {
+      if(ele.id == this.state.message) {
           this.setState({buttonsList: ele.children}, ()=>{
             this.setState({selectedChildName: this.state.buttonsList[0].name});
             this.props.history.push(this.state.buttonsList[0].childPath);

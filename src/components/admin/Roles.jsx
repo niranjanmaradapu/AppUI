@@ -29,8 +29,8 @@ export default class Roles extends Component {
             errors: {},
             isAdmin: false,
             isSuperAdmin: false,
-            loggedUser:null
-
+            loggedUser:null,
+            isRoleName:false,
 
         }
         this.baseState = this.state;
@@ -155,7 +155,8 @@ export default class Roles extends Component {
             descriptionName: "",
             childList: [],
             parentsList: [],
-            roleId: ""
+            roleId: "",
+            isRoleName:false,
         });
     }
 
@@ -192,6 +193,11 @@ export default class Roles extends Component {
                         toast.success(res.data.result);
                         this.getAllRoles()
                         this.hideRoles();
+                    }
+                    if(this.state.roleName) {
+                        this.setState({isRoleName: true});
+                    } else {
+                        this.setState({isRoleName: false});
                     }
                 });
             } else {
@@ -237,7 +243,7 @@ export default class Roles extends Component {
 
         URMService.getAllPrivileges().then(res => {
             if (res) {
-                this.setState({ productsList: res.data.mobilePrivileges });
+                this.setState({ productsList: res.data.mobilePrivileges});
                 this.state.productsList.forEach((element, index) => {
                     if (element.subPrivileges && element.subPrivileges.length > 0) {
                         element.subPrivileges.forEach((child, index) => {
@@ -259,7 +265,10 @@ export default class Roles extends Component {
     }
 
     hide() {
-        this.setState({ showRole: false, childList: [] });
+        this.setState({ showRole: false});
+        if(!this.state.isEdit){
+            this.setState({childList:[]})
+        }
     }
 
     savePrivilege() {
@@ -334,6 +343,7 @@ getSelectedPrivileges(parentsList, childList) {
     }
 
     getPrivilegesList() {
+        console.log("++++++++++++++++++productsList+++++++++++++++"+this.state.productsList);
         return this.state.productsList.length > 0 && this.state.productsList.map((node, i) => {
             const parentName = node.name;
             const label = <span className="node">{parentName}</span>
@@ -427,7 +437,8 @@ getSelectedPrivileges(parentsList, childList) {
             parentsList: items.parentPrivilege,
             roleId: items.id,
             isSearch: false,
-            domain: items.clientDomain.id
+            isRoleName:true,
+            // domain: items.clientDomain.id
         }, () => {
             this.getPrivilegesByDomainId();
         });
@@ -444,14 +455,14 @@ getSelectedPrivileges(parentsList, childList) {
                 <tr className="">
                     <td className="col-1 geeks">{index + 1}</td>
                     <td className="col-2">{roleName}</td>
-                    <td className="col-2">{items?.clientDomainVo?.domaiName}</td>
+                    {/* <td className="col-2">{items?.clientDomainVo?.domaiName}</td> */}
                     <td className="col-2">{createdBy}</td>
                     <td className="col-2">{createdDate}</td>
                     <td className="col-1">{usersCount}</td>
                     <td className="col-2">{discription}</td>
                     <td className="col-1">
                         <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editRole(items)} />
-                        <i className="icon-delete"></i>
+                        {/* <i className="icon-delete"></i> */}
                     </td>
                 </tr>
             );
@@ -470,7 +481,7 @@ getSelectedPrivileges(parentsList, childList) {
                             <tr className="">
                                 <th className="col-1">S.No </th>
                                 <th className="col-2">Role</th>
-                                <th className="col-2">Domain</th>
+                                {/* <th className="col-2">Domain</th> */}
                                 <th className="col-2">Created By</th>
                                 <th className="col-2">Created Date</th>
                                 <th className="col-1">User Count</th>
@@ -551,8 +562,9 @@ getSelectedPrivileges(parentsList, childList) {
                                     <div className="form-group">
                                         <label>Role<span className="text-red font-bold">*</span></label>
                                         <input type="text" className="form-control" placeholder="" value={this.state.roleName}
+                                        disabled ={this.state.isRoleName}
                                         maxLength = {errorLengthMax.roleName}
-                                            onChange={(e) => this.setState({ roleName: e.target.value })}
+                                            onChange={(e) => this.setState({ roleName: e.target.value ,isRoleName:false})}
                                             autoComplete="off" />
                                             <span style={{ color: "red" }}>{this.state.errors["rolename"]}</span>
 

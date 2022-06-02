@@ -412,10 +412,10 @@ export default class Stores extends Component {
         // }
 
         //Domain 
-        if (!this.state.domain) {
-            formIsValid = false;
-            errors["domain"] = account_err_msg.domain;
-        }
+        // if (!this.state.domain) {
+        //     formIsValid = false;
+        //     errors["domain"] = account_err_msg.domain;
+        // }
 
 
 

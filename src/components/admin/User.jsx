@@ -217,7 +217,7 @@ export default class User extends Component {
         this.setState({ showCreate: false });
     }
 
-    componentWillMount() {
+    componentDidMount() {
         const user = JSON.parse(sessionStorage.getItem('user'));
         this.setState({userName : user["cognito:username"], isEdit: false,loggedUserId: user["custom:userId"] });
         if(user) {
@@ -239,9 +239,10 @@ export default class User extends Component {
            
         }
         URMService.getUsers(this.state.clientId,pageNumber).then(res => {
-            console.log(res);
+            
             if(res) {
-                this.state.usersList = res?.data?.result;
+                
+                this.state.usersList = res?.data?.content;
                this.setState({
                 //    usersList: res.data.result, 
                 usersList:  this.state.usersList, 
@@ -491,7 +492,9 @@ export default class User extends Component {
       }
 
     getTableData() {
-        return this.state.usersList?.content.map((items, index) => {
+        
+        return this.state.usersList.map((items, index) => {
+            
             const {id, userName, roleName, stores, createdDate, active,isSuperAdmin } = items;
             return (
 

@@ -42,11 +42,11 @@ service:
   port: 3000
 
 ingress:
-  enabled: true  # Enable ingress : true 
+  enabled: false  # Enable ingress : true 
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    #nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   hosts:
     - host: web.themadhire.com
       paths:

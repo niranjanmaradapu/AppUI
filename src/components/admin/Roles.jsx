@@ -444,12 +444,12 @@ getSelectedPrivileges(parentsList, childList) {
                 <tr className="">
                     <td className="col-1 geeks">{index + 1}</td>
                     <td className="col-2">{roleName}</td>
-                    <td className="col-2">{items?.clientDomainVo?.domaiName}</td>
+                    <td className="col-1">{items?.clientDomainVo?.domaiName}</td>
                     <td className="col-2">{createdBy}</td>
                     <td className="col-2">{createdDate}</td>
                     <td className="col-1">{usersCount}</td>
                     <td className="col-2">{discription}</td>
-                    <td className="col-1">
+                    <td className="col-2">
                         <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editRole(items)} />
                         <i className="icon-delete"></i>
                     </td>
@@ -465,17 +465,17 @@ getSelectedPrivileges(parentsList, childList) {
                     <h5 className='fs-18'>Roles List</h5>
                 </div>
                 <div className="table-responsive p-0">
-                    <table className="table table-borderless mb-0">
+                    <table className="table table-borderless mb-1 mt-2">
                         <thead>
-                            <tr className="">
+                            <tr className="m-0 p-0">
                                 <th className="col-1">S.No </th>
                                 <th className="col-2">Role</th>
-                                <th className="col-2">Domain</th>
+                                <th className="col-1">Domain</th>
                                 <th className="col-2">Created By</th>
                                 <th className="col-2">Created Date</th>
                                 <th className="col-1">User Count</th>
                                 <th className="col-2">Description</th>
-                                <th className="col-1"></th>
+                                <th className="col-2"></th>
                             </tr>
                         </thead>
                         <tbody>

@@ -667,7 +667,7 @@ class Header extends Component {
     const domainName = sessionStorage.getItem("domainName");
     let parentPath;
     this.setState({headertype: e.target.value, selectedCategory: item, selectedImage: image});
-    eventBus.dispatch("subHeader", { message: e.target.value });
+    eventBus.dispatch("subHeader", { message: item.id });
     console.log(this.state.moduleNames);
     this.state.moduleNames.forEach(ele => {
       if (ele.id == e.target.value) {

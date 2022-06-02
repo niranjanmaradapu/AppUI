@@ -177,7 +177,7 @@ export default class User extends Component {
         URMService.getStoresByDomainId(this.state.clientId).then((res) =>{
             if(res) {
                this.setState({storesList: res.data, storeName: this.state.isEdit ? this.state.storeName : []});
-             this.state.storesList = res.data.result;
+             this.state.storesList = res.data;
             }
         }); 
     }
@@ -378,10 +378,10 @@ export default class User extends Component {
                     formIsValid = false;
                     errors["storeName"] = urmErrorMessages.storeName;
                 }
-                if (!this.state.domain) {
-                    formIsValid = false;
-                    errors["domain"] = urmErrorMessages.domain;
-                }
+                // if (!this.state.domain) {
+                //     formIsValid = false;
+                //     errors["domain"] = urmErrorMessages.domain;
+                // }
                 if (!this.state.role) {
                     formIsValid = false;
                     errors["role"] = urmErrorMessages.role;
@@ -393,6 +393,7 @@ export default class User extends Component {
     }
 
     addCreateUser() {
+        if(this.state.email && this.state.mobileNumber && this.state.name){
         const formValid = this.handleValidation();
          if (formValid) {
         const user = sessionStorage.getItem('domainName');
@@ -469,13 +470,16 @@ export default class User extends Component {
                 
     
         }
-    } else {
-        toast.info("Please Enter all mandatory fields");
-    }
-       
+    
+
+    } 
+}else {
+    toast.info("Please Enter all mandatory fields");
+}
+}
           
         
-    }
+    
 
     changePage(pageNumber) {
         console.log(">>>page", pageNumber);

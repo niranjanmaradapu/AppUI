@@ -923,7 +923,7 @@ export default class User extends Component {
                                         </div>
                                     </div>
                                 </div> */}
-                                <div className="col-12 col-sm-4 scaling-mb">
+                                <div className="col-12 col-sm-4 scaling-mb mt-2">
                                     <div className="form-group">
                                     <label>Store {!this.state.isSuperAdmin && <span className="text-red font-bold">*</span>}</label>
                                         {/* <button className="btn-unic-search active m-r-2 mt-4" onClick={this.addStores}>Add Store </button> */}
@@ -949,7 +949,7 @@ export default class User extends Component {
 
                                         <Multiselect
                                         className= {
-                                            this.state.isSuperAdmin ? "disable" : "form-control m-t-5 p-3 fs-14 "
+                                            this.state.isSuperAdmin ? "disable" : "cursor fs-14 "
                                         }
                                             options={this.state.storesList} // className="form-control m-t-5 p-3 fs-14"  Options to display in the dropdown
                                             selectedValues={this.state.storeName} // Preselected value to persist in dropdown
@@ -972,7 +972,7 @@ export default class User extends Component {
 
                                     </div>
                                 </div>
-                                <div className="col-12 col-sm-4 scaling-mb">
+                                <div className="col-12 col-sm-4 scaling-mb mt-2">
                                     <div className="form-group">
                                         <label>Role {!this.state.isSuperAdmin && <span className="text-red font-bold">*</span>}</label>
                                         {/* <select className="form-control" value={this.state.role}

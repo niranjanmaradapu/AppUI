@@ -61,9 +61,9 @@ export default class ProductsCombo extends Component {
   getBarcodeDetails() {
     const { selectedStoreId, domainDetails, dsNumber } = this.state;
     InventoryService.getBarcodeDetails(dsNumber, domainDetails, selectedStoreId).then((res) => {
-      if (res && res.data.isSuccess === "true" && res.data.result) {
-          const { barcode, name, itemMrp, productTextileId } = res.data.result;
-          const obj = { barcode, name, itemMrp, productTextileId, qty: 1};
+      if (res) {
+          const { barcode, name, itemMrp, id } = res.data;
+          const obj = { barcode, name, itemMrp, id, qty: 1};
           this.setState({
             dsNumber: '',
             listOfProducts: [...this.state.listOfProducts, obj ]
@@ -86,7 +86,7 @@ export default class ProductsCombo extends Component {
     const { listOfProducts, comboName, comboQuantity, comboDescription, selectedDomainId, selectedStoreId,isEdit} = this.state;
     const comboProductList = listOfProducts.map((itm) => {
       const obj = {};
-      obj.productTextileId = itm.productTextileId;
+      obj.id = itm.id;
       obj.barcode = itm.barcode;
       obj.qty = itm.qty;
       obj.itemMrp = itm.itemMrp;
@@ -357,6 +357,7 @@ handleChange (){
                 <thead>
                 <tr className="m-0 p-0">
                   <th className="col-2"># Inventory-ID</th>
+                  <th className="col-2">BARCODE</th>
                   <th className="col-2">STORE ID</th>
                   <th className="col-2">Combo Name</th>
                   <th className="col-2">No.of Items</th>
@@ -368,6 +369,7 @@ handleChange (){
                       return (
                         <tr key={ind}>
                           <td className="col-2">{itm.id}</td>
+                          <td className="col-2">{itm.barcode}</td>
                           <td className="col-2">{itm.storeId}</td>
                           <td className="col-2">{itm.name}</td>
                           <td className="col-2">{itm.bundleQuantity}</td>

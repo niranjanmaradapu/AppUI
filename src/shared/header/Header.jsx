@@ -84,7 +84,13 @@ class Header extends Component {
     super(props)
     this.state = {
       userData: {},
-
+      selectedCategory: {
+      "id": "2",
+      "name": "Accounting Portal",
+      "parentImage": "icon-r_brand fs-30 i_icon",
+      "path": "/stores"
+    },
+      selectedImage: '',
       headerName: '',
       domainTitle: '',
       dropData: [],
@@ -656,11 +662,11 @@ class Header extends Component {
 
   
 
-  handleSelectChange = (e) => {
+  handleSelectChange = (e, item, image) => {
     console.log(e.target.value);
     const domainName = sessionStorage.getItem("domainName");
     let parentPath;
-    this.setState({headertype: e.target.value});
+    this.setState({headertype: e.target.value, selectedCategory: item, selectedImage: image});
     eventBus.dispatch("subHeader", { message: e.target.value });
     console.log(this.state.moduleNames);
     this.state.moduleNames.forEach(ele => {
@@ -735,11 +741,28 @@ class Header extends Component {
             </div>
             <div className="col-6">
               <div className="module_select">
-                <img src={portal_icon} />
+              <Dropdown>
+                      {this.state.selectedCategory === ''? <Dropdown.Toggle className="drop-tog" variant="success">Select Module</Dropdown.Toggle>
+                       : <Dropdown.Toggle className="drop-tog" variant="success"><img src={this.state.selectedImage} /> {this.state.selectedCategory.name}</Dropdown.Toggle> }
+                      <Dropdown.Menu>
+                        {modules.map((item, i) => (                        
+                          <Dropdown.Item
+                            key={i}
+                            as="button"
+                            href={item.path}
+                            value={item.name}
+                            onClick={(e) => this.handleSelectChange(e, item, item.parentImage)}
+                          >
+                             <img src={item.parentImage} /> {item.name}
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown.Menu>
+                    </Dropdown>
+                {/* <img src={portal_icon} />
                 <select value={this.state.headertype} onChange={this.handleSelectChange}>
 
                   {modulesList}
-                </select >
+                </select > */}
 
                 {/* <Dropdown>
                     <Dropdown.Toggle className="drop-tog" variant="success">

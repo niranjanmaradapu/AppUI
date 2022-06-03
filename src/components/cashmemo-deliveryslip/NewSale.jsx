@@ -387,7 +387,7 @@ export default class NewSale extends Component {
 
         "userId": this.state.userId ? this.state.userId : null,
         "createdBy": this.state.createdBy,
-        "sgst": this.state.centralGST,
+        "sgst": this.state.stateGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
         "recievedAmount": this.state.cashAmount,
@@ -810,7 +810,7 @@ export default class NewSale extends Component {
     //   this.setState({ stateGST: 70, centralGST: 70 });
     //   console.log("Checking the slab")
     // }
-    const grandTotal = this.state.netPayableAmount + this.state.centralGST + this.state.centralGST;
+    const grandTotal = this.state.netPayableAmount + this.state.centralGST + this.state.stateGST;
     this.setState({ grandNetAmount: grandTotal, totalAmount: grandTotal });
 
 
@@ -1104,7 +1104,7 @@ export default class NewSale extends Component {
 
         "userId": this.state.userId ? this.state.userId : null,
 
-        "sgst": this.state.centralGST,
+        "sgst": this.state.stateGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
         "lineItemsReVo": null,

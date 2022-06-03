@@ -145,7 +145,7 @@ class CeateDeliverySlip extends Component {
     let total = 0;
     if (e.key === "Enter") {
       const formValid = this.handleValidation();
-      if (!formValid) {
+      if (formValid) {
   
       this.setState({ copysmNumber: JSON.parse(JSON.stringify(this.state.smNumber)) });
       if (this.state.barCode && this.state.smNumber) {
@@ -157,9 +157,9 @@ class CeateDeliverySlip extends Component {
 
           if (res.data) {
             let count = false;
-            res.data.result.salesMan = this.state.copysmNumber;
+            // res.data.result.salesMan = this.state.copysmNumber;
             if(this.state.itemsList.length === 0){
-            this.state.itemsList.push(res.data.result);
+            this.state.itemsList.push(res.data);
             }
             else {
          

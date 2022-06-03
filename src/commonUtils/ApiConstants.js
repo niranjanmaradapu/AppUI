@@ -211,7 +211,9 @@ export const USER_MANAGEMENT_URL = {
     getGSTNumber: "/user-management/store/getgstDetails",
     getusersByRole: "/user-management/reports/usersByRole",
     getActiveUsers: "/user-management/reports/activeVsInactiveUsers",
-    getStoresVsEmployee: "/user-management/reports/storesVsEmployees"
+    getStoresVsEmployee: "/user-management/reports/storesVsEmployees",
+    deleteStore: "/user-management/store/deleteStore",
+    deleteUser:"/user-management/user/deleteUser"
 
 };
 

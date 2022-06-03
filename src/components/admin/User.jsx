@@ -74,6 +74,7 @@ export default class User extends Component {
         this.getUsers = this.getUsers.bind(this);
         this.handleValidation = this.handleValidation.bind(this);
         this.changePage = this.changePage.bind(this);
+        this.deleteUser=this.deleteUser.bind(this);
 
     }
     
@@ -148,7 +149,7 @@ export default class User extends Component {
 
     searchUser() {
         this.setState({isSearch: true});
-        const obj = {
+        const searchUser = {
             "id": 0,
             "phoneNo": null,
             "name": null,
@@ -156,17 +157,16 @@ export default class User extends Component {
             "inActive":this.state.userType === "InActive" ? "True" : "False",
             "roleName": this.state.searchRole ? this.state.searchRole.trim() : null,
             "storeName": this.state.searchStore ? this.state.searchStore.trim() : null,
-            "clientDomainId": this.state.clientId
+            "clientId": this.state.clientId
             }
 
-            URMService.getUserBySearch(obj).then(res => {
-                console.log(res);
+            URMService.getUserBySearch(searchUser).then(res => {
                 if(res) {
                     
                     res.data.result.content.forEach(element => {
                         element.roleName = element.role.roleName ? element.role.roleName : "";
                     });
-                    this.setState({usersList: res.data, isUser: true});
+                    this.setState({usersList: res.data.result, isUser: true});
                 } else {
                     this.setState({usersList: [], isUser: false});
                 }
@@ -257,6 +257,7 @@ export default class User extends Component {
     editUser(items) { 
         console.log(items);
         const obj = {
+            
             "id":items.id,
             "phoneNo":"",
             "name":"",
@@ -264,7 +265,7 @@ export default class User extends Component {
             "inActive": "False",
             "roleName": "",
             "storeName": "",
-            "clientDomainId": this.state.clientId,
+            "clientId": this.state.clientId,
             }
         URMService.getUserBySearch(obj).then(res=> {
             console.log(res);
@@ -305,7 +306,43 @@ export default class User extends Component {
         
     }
 
-
+    deleteUser(items) {
+        
+        URMService.deleteUser(items.id).then(
+          (res) => {
+            if (res.data && res.data.isSuccess === "true") {
+              toast.success(res.data.result);
+              this.props.history.push("/users");
+              this.stateReset();
+              this.getUsers(0);
+            //   this.getUsers(0)
+              console.log(".....userId", items.id);
+            } else {
+              toast.error(res.data.message);
+            }
+          }
+        );
+      }
+    stateReset(){
+        this.setState({
+        id:"",
+        userName:"",
+        roleName:"",
+        createdBy:"",
+        // "domian:0,
+        email:"",
+        createdDate:"",
+        isActive:false,
+        address: "",
+        createdBy: "",
+        createdDate: "",
+        dob: "",
+        email: "",
+        gender: "",
+        roleName: "",
+        })
+    }
+       
     handleValidation() {
         let errors = {};
         let formIsValid = true;
@@ -539,7 +576,7 @@ export default class User extends Component {
                         </td>
                     <td className="col-1">
                     {!isSuperAdmin ? <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} name="image" /> : <img src={edit} className="w-12 m-r-2 pb-2" name="image" />}
-                        <i className="icon-delete" name="icondel"></i></td>
+                    <i className="icon-delete"onClick={(e) => this.deleteUser(items)}></i></td>
                 </tr>
 
 
@@ -649,7 +686,7 @@ export default class User extends Component {
           this.state.domain = "";
           this.state.storeName = [];
           this.state.domainsList = [];
-          this.state.rolesList = [];
+         //  this.state.rolesList = [];
           this.state.role = "";
           this.setState({adminRole: 'super_admin' });
         //   this.getPrivilegesByDomainId()
@@ -703,6 +740,13 @@ export default class User extends Component {
                 this.getAllRolesList();
         });
 }
+capitalization= () => {
+    const { name } = this.state;
+     const store_name =   name[0].toLocaleUpperCase() + name.substring(1);
+    this.setState({
+        name: store_name
+    })
+  }
 
 
     render() {
@@ -813,6 +857,7 @@ export default class User extends Component {
                                             value={this.state.name} disabled={this.state.isEdit}
                                             maxLength={errorLengthMax.name}
                                             onChange={(e) => this.setState({ name: e.target.value })}
+                                            onBlur={() => this.capitalization()}
                                             autoComplete="off" />
                                              <div>
                                             <span style={{ color: "red" }}>{this.state.errors["name"]}</span>
@@ -985,7 +1030,6 @@ export default class User extends Component {
                                             <option>Store Manager</option>
                                         </select> */}
                                         <select className="form-control" name="setrole" value={this.state.role}  
-                                         disabled={this.state.isSuperAdmin}
                                             onChange={this.setRoles}>
                                                 
                                             {rolesList}

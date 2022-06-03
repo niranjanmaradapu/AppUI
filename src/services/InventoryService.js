@@ -121,7 +121,7 @@ class InventoryService {
         if(storeId && !fromdate && !todate) {
             param = '?storeId='+ storeId;
         } else if(storeId && fromdate) {
-           param = `?storeId=${storeId}&fromDate=${fromdate ? fromdate : null}&toDate=${todate ? todate : null}`;
+           param = `?storeId=${storeId}&fromDate=${fromdate ? fromdate : null}`;
         } else {
             param = `?storeId=${storeId}&fromDate=${fromdate ? fromdate : null}&toDate=${todate ? todate : null}`;
         }        

@@ -170,6 +170,7 @@ export default class ListOfPools extends Component {
           this.setState({ selectedOption: obj }, () => this.getDomainsList());
         }
       });
+      this.getPoolList();
       // this.getDomainsList();
   }
   getAllColumns(clientId) {

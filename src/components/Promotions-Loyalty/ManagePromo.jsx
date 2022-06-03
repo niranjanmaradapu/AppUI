@@ -215,6 +215,7 @@ export default class ManagePromo extends Component {
           this.setState({ selectedOption: obj }, () => {this.getDomainsList()});
         }
       });
+    this.getPromoList();
     this.getAllStorePromos();
   }
 

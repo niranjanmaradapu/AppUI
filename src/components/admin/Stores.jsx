@@ -52,6 +52,7 @@ export default class Stores extends Component {
         this.validation = this.validation.bind(this);
         this.searchStore = this.searchStore.bind(this);
         this.getAllStores = this.getAllStores.bind(this);
+        this.deleteStore = this.deleteStore.bind(this);
         this.handleValidation = this.handleValidation.bind(this);
     }
 
@@ -239,8 +240,6 @@ export default class Stores extends Component {
     saveStores() {
 
         const formValid = this.handleValidation();
-     
-      
         console.log(this.state.loggedUser);
         if (formValid) {
             let saveObj;
@@ -326,6 +325,49 @@ export default class Stores extends Component {
             this.getDistricts();
         });
     }
+    deleteStore(items) {
+        console.log(">>>>item", items.id);
+
+    
+        URMService.deleteStore(items.id).then(
+          (res) => {
+            if (res.data && res.data.isSuccess === "true") {
+              toast.success(res.data.result);
+              this.props.history.push("/stores");
+            //   this.stateReset();
+              this.getAllStores(0);
+              console.log(".....storeId", items.id);
+            } else {
+              toast.error(res.data.message);
+            }
+          }
+        );
+      }
+      stateReset(){
+        this.setState({
+            address: "",
+        area: "",
+        cityId: "",
+        clientId: "",
+        createdBy:"",
+        createdDate: "",
+        districtId: "",
+        domainId: "",
+        domainName: "",
+        gstNumber: "",
+        id: "",
+        isActive:false,
+        lastModifyedDate: null,
+        name: "",
+        phoneNumber: "",
+        stateCode: "",
+        stateId: "",
+        storeOwner: "",
+        userName: "",
+          })
+
+
+    }    
 
     getTableData() {
         return this.state.storesList.map((items, index) => {
@@ -336,12 +378,12 @@ export default class Stores extends Component {
                     <td className="col-1">{index + 1}</td>
                     <td className="col-2">{items.name}</td>
                     <td className="col-2">{items.cityId}</td>
-                    <td className="col-2">{items.domainName}</td>
+                    {/* <td className="col-2">{items.domainName}</td> */}
                     <td className="col-2">{items.userName}</td>
                     <td className="col-2">{items.createdDate}</td>
                     <td className="col-1">
                         <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editStore(items)} />
-                        <i className="icon-delete"></i></td>
+                        <i className="icon-delete"onClick={(e) => this.deleteStore(items)}></i></td>
                 </tr>
 
             );
@@ -361,9 +403,10 @@ export default class Stores extends Component {
                                 <th className="col-1">Store ID </th>
                                 <th className="col-2">Store Name</th>
                                 <th className="col-2">Location</th>
-                                <th className="col-2">Domain</th>
+                                {/* <th className="col-2">Domain</th> */}
                                 <th className="col-2">Created By</th>
                                 <th className="col-2">Created Date</th>
+                                {/* <th className='col-2'>Status</th> */}
                                 <th className="col-1"></th>
                             </tr>
                         </thead>

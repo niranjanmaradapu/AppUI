@@ -48,6 +48,8 @@ export default class ManagePromo extends Component {
       listOfGetPools: [],
       selectedPools: [],
       applicability: '',
+      isApplicability: false,
+      isPromoApplyType:false,
       description: '',
       printNameOnBill: '',
       promoName: '',
@@ -215,7 +217,9 @@ export default class ManagePromo extends Component {
           this.setState({ selectedOption: obj }, () => {this.getDomainsList()});
         }
       });
-    this.getPromoList();
+    // this.getPromoList();
+    // this.getPoolList();
+   //  this.getDomainsList();
     this.getAllStorePromos();
   }
 
@@ -403,7 +407,10 @@ export default class ManagePromo extends Component {
         });
        this.setState({ 
          listOfPools: result,
-         listOfGetPools: listOfGetPools
+         listOfGetPools: listOfGetPools,
+         isApplicability:false,
+         isPromoApplyType:false,
+
         });    
       }     
      });
@@ -420,6 +427,8 @@ export default class ManagePromo extends Component {
           isPromoEdit: false,
           promoId: '',
           applicability: '',
+          isApplicability:false,
+          isPromoApplyType:false,
           buyAny: '',
           description: '',
           createdBy: '',
@@ -683,7 +692,6 @@ export default class ManagePromo extends Component {
     const obj = {
       startDate: updatePromoStartDate,
       endDate: updatePromoEndDate,
-      promotionStatus: updatePromoStatus,
       id: checkedItem.id
     }
       console.log(">>>", updatePromoStartDate, updatePromoEndDate);
@@ -697,8 +705,6 @@ export default class ManagePromo extends Component {
             promotionUpdate: false,
             isPramotionChecked: false,
             updatePromoStartDate: '',
-            updatePromoEndDate: '',
-            updatePromoStatus: '', 
             checkedItem: ''
           });
           this.getAllStorePromos();
@@ -775,6 +781,8 @@ export default class ManagePromo extends Component {
 
   closePromotionPopup() {
     this.setState({ deletePromoConformation: false });
+    // this.setState({ ispromoApplyType: false });
+
   }
   handleDeletPromo() {
     const { selectedItem } = this.state;
@@ -842,6 +850,8 @@ export default class ManagePromo extends Component {
   handelApplicability(e) {
     this.state.errors["applicability"] = '';
     this.setState({ applicability: e.target.value });
+    // this.setState({ isApplicability: false });
+    
   }
   handelIsTaxExtra(e) {
     this.state.errors["isTaxExtra"] = '';
@@ -850,6 +860,7 @@ export default class ManagePromo extends Component {
   handlePromoApplyType(e) {
     this.state.errors["promoApplyType"] = '';
     this.setState({ promoApplyType: e.target.value });
+    // this.setState({ isPromoApplyType: false });
   }
   handlePrintNameOnBill(e) {
     this.state.errors["printNameOnBill"] = '';
@@ -1023,6 +1034,8 @@ export default class ManagePromo extends Component {
       promoId: promo.promoId,
       isAddPromo: true,
       isPromoEdit: true,
+      isApplicability:true,
+      isPromoApplyType:true,
       // editedPromo: promo
         applicability: promo.applicability,
         buyAny: promo.buyItemsFromPool,
@@ -1158,6 +1171,8 @@ handleBenefitFormData() {
       applicability,
       description,
       printNameOnBill,
+      // isApplicability,
+      // isPromoApplyType,
       promoName,
       promoApplyType,
       isTaxExtra,
@@ -1257,6 +1272,8 @@ handleBenefitFormData() {
             this.setState({
               selectedPools: [],
               applicability: '',
+              isApplicability:true,
+              isPromoApplyType:true,
               description: '',
               printNameOnBill: '',
               promoName: '',
@@ -1622,7 +1639,11 @@ handleBenefitFormData() {
               <div className="col-3 mt-3">
                 <div className="form-group">
                   <label>Applicability <span className="text-red font-bold" name="bold">*</span></label>
-                    <select value={this.state.applicability} onChange={(e) => this.handelApplicability(e)} className="form-control">
+                    <select value={this.state.applicability}
+                    disabled={this.state.isApplicability}
+                    onChange={(e) => this.handelApplicability(e)}
+                  
+                     className="form-control">
                       <option>Select</option>
                         { 
                             this.state.applicabilies &&
@@ -1637,7 +1658,10 @@ handleBenefitFormData() {
                 <div className="form-group">
                   <label className="">Promotion Apply Type <span className="text-red font-bold" name="bold">*</span></label>
                   {this.state.applicability === 'promotionForWholeBill' ?  
-                  <select value={this.state.promoApplyType} onChange={(e) => this.handlePromoApplyType(e)} className="form-control">
+                  <select value={this.state.promoApplyType} 
+                  disabled={this.state.isPromoApplyType}
+                  onChange={(e) => this.handlePromoApplyType(e)} className="form-control">
+                    
                     <option>Select</option>
                         { 
                           this.state.promoApplyTypesForWholeBill &&
@@ -1646,7 +1670,9 @@ handleBenefitFormData() {
                         }
                   </select>
                   : 
-                  <select value={this.state.promoApplyType} onChange={(e) => this.handlePromoApplyType(e)} className="form-control">
+                  <select value={this.state.promoApplyType} 
+                  disabled={this.state.isPromoApplyType} 
+                  onChange={(e) => this.handlePromoApplyType(e)} className="form-control">
                     <option>Select</option>
                         { 
                           this.state.promoApplyTypes &&
@@ -1915,35 +1941,20 @@ handleBenefitFormData() {
             </button>
           </ModalFooter>
         </Modal>
-        <Modal isOpen={this.state.promotionUpdate} size="xl">
+        <Modal isOpen={this.state.promotionUpdate} size="md">
           <ModalHeader>Modify Promo Validity</ModalHeader>
           <ModalBody>
           <div className="row">
-              <div className="col-3 mt-3">
+              <div className="col-6">
                 <div className="form-group">
                   <label>Start Date <span className="text-red font-bold" name="bold">*</span></label>
                   <input value={this.state.updatePromoStartDate} onChange={(e) => this.updatePromoStartDate(e)} type="date" className="form-control" />
                 </div>
               </div>
-              <div className="col-3 mt-3">
+              <div className="col-6">
                 <div className="form-group">
                   <label>End Date <span className="text-red font-bold" name="bold">*</span></label>
-                  <input value={this.state.updatePromoEndDate}   onChange={(e) => this.updatePromoEndDate(e)} type="date" className="form-control"/>
-                  <div></div>
-                  
-                </div>
-              </div>
-              <div className="col-3 mt-3">
-                <div className="form-group">
-                  <label>Status</label>
-                  <select value={this.state.updatePromoStatus} onChange={(e) => this.updatePromoStatus(e)} className="form-control">
-                    <option>Select Status</option>
-                    { 
-                      this.state.promoStatuses &&
-                      this.state.promoStatuses.map((item, i) => 
-                      (<option key={i} value={item.value}>{item.label}</option>))
-                    }
-                  </select>
+                  <input value={this.state.updatePromoEndDate}   onChange={(e) => this.updatePromoEndDate(e)} type="date" className="form-control"/> 
                 </div>
               </div>
             </div>
@@ -1954,8 +1965,7 @@ handleBenefitFormData() {
             </button>
             <button
               className="btn-unic active fs-12"
-              onClick={this.updatePromoDates}
-            >
+              onClick={this.updatePromoDates}>
               Save
             </button>
           </ModalFooter>

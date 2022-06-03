@@ -94,8 +94,18 @@ export default class Rebarcoding extends Component {
   openEditBarcode(barcodeId) {
     this.setState({ isAddBarcode: true });
     this.setState({ isEdit: true });
+    this.setDropdowns(false);
+    this.stateReset();
     this.getbarcodeDetails(barcodeId);
   }
+  clearBar = () => {
+    this.setState({ 
+      Rebarcoding: [],
+      fromDate: '',
+      toDate: '' ,
+      RebarcodeId:'',    
+     }, () => this.getAllBarcodes());
+    }
 
   componentWillMount() {
     // this.state.domainDetails = JSON.parse(
@@ -1168,15 +1178,12 @@ export default class Rebarcoding extends Component {
               >
                 SEARCH
               </button>
-              {/* <button
+              <button
                 className="btn-unic-search active m-r-2 mt-2"
-                onClick={() => {
-                  this.stateReset();
-                  this.getAllBarcodes(0);
-                }}
-              >
+                onClick={this.clearBar}
+                >
                 CLEAR
-              </button> */}
+              </button>
             </div>
            
           </div>

@@ -686,7 +686,7 @@ export default class User extends Component {
           this.state.domain = "";
           this.state.storeName = [];
           this.state.domainsList = [];
-          this.state.rolesList = [];
+         //  this.state.rolesList = [];
           this.state.role = "";
           this.setState({adminRole: 'super_admin' });
         //   this.getPrivilegesByDomainId()
@@ -740,6 +740,13 @@ export default class User extends Component {
                 this.getAllRolesList();
         });
 }
+capitalization= () => {
+    const { name } = this.state;
+     const store_name =   name[0].toLocaleUpperCase() + name.substring(1);
+    this.setState({
+        name: store_name
+    })
+  }
 
 
     render() {
@@ -850,6 +857,7 @@ export default class User extends Component {
                                             value={this.state.name} disabled={this.state.isEdit}
                                             maxLength={errorLengthMax.name}
                                             onChange={(e) => this.setState({ name: e.target.value })}
+                                            onBlur={() => this.capitalization()}
                                             autoComplete="off" />
                                              <div>
                                             <span style={{ color: "red" }}>{this.state.errors["name"]}</span>
@@ -1022,7 +1030,6 @@ export default class User extends Component {
                                             <option>Store Manager</option>
                                         </select> */}
                                         <select className="form-control" name="setrole" value={this.state.role}  
-                                         disabled={this.state.isSuperAdmin}
                                             onChange={this.setRoles}>
                                                 
                                             {rolesList}

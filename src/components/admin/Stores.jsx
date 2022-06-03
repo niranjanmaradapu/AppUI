@@ -518,6 +518,14 @@ export default class Stores extends Component {
 
     }
 
+    capitalization= () => {
+      const { storeName } = this.state;
+       const store_name =   storeName[0].toLocaleUpperCase() + storeName.substring(1);
+      this.setState({
+        storeName: store_name
+      })
+    }
+
 
 
     render() {
@@ -588,7 +596,6 @@ export default class Stores extends Component {
                                 </div>
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
-                                    <placeholder>Select</placeholder>
                                         <label>State<span className="text-red font-bold">*</span></label>
                                         {/* <select className="form-control" value={this.state.stateName}
                                             onChange={(e) => this.setState({ stateName: e.target.value })}
@@ -743,7 +750,8 @@ export default class Stores extends Component {
                                         <input type="text" className="form-control"
                                             value={this.state.storeName}
                                             maxLength ={errorLengthMax.storeName}
-                                            onChange={(e) => this.setState({ storeName: e.target.value })} />
+                                            onBlur={() => this.capitalization()}
+                                            onChange={(e) => this.setState({ storeName: e.target.value })} />                                            
                                         
                                     </div>
                                     <div>

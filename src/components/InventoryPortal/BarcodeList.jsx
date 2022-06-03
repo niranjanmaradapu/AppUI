@@ -151,6 +151,14 @@ export default class BarcodeList extends Component {
     this.setState({ isEdit: true });
     this.getbarcodeDetails(barcodeId);
   }
+  clear = () => {
+    this.setState({ 
+      BarcodeList: [],
+      fromDate: '',
+      toDate: '' ,
+      barcodeId:'',
+     }, () => this.getAllBarcodes());
+  }
 
   componentWillMount() {
     this.state.domainDetailsObj = undefined;
@@ -1711,6 +1719,10 @@ export default class BarcodeList extends Component {
               >
                 SEARCH
               </button>
+              <button className="btn-unic-search active m-r-2 mt-2"
+              onClick={this.clear}
+               >
+                 CLEAR</button>
               <button
                 className="btn-unic-redbdr mt-2 m-r-2"
                 onClick={this.openBarcode}

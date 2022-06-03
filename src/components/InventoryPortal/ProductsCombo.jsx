@@ -170,7 +170,7 @@ handleChange (){
     InventoryService.getAllProductBundleList(fromDate, toDate, selectedStoreId).then((res) => {
       if(res) {
         this.setState({
-          listOfProductBundle: res.data.result
+          listOfProductBundle: res.data.result.content
         
         });
       }

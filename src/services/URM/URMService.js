@@ -25,6 +25,10 @@ class URMService {
     editStore(saveObj) {
         return axios.put(BASE_URL+USER_MANAGEMENT_URL.editStore, saveObj);
     }
+    deleteStore(id){
+        const param = '?id=' + id;
+        return axios.delete(BASE_URL+USER_MANAGEMENT_URL.deleteStore + param);
+    }
 
    
 
@@ -60,6 +64,10 @@ class URMService {
 
     editUser(saveObj) {
         return axios.put(BASE_URL+USER_MANAGEMENT_URL.editUser, saveObj);
+    }
+    deleteUser(id){
+        const param = '?id=' + id;
+        return axios.delete(BASE_URL+USER_MANAGEMENT_URL.deleteUser + param);
     }
 
     saveRole(saveObj) {

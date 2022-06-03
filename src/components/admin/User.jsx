@@ -149,7 +149,7 @@ export default class User extends Component {
 
     searchUser() {
         this.setState({isSearch: true});
-        const obj = {
+        const searchUser = {
             "id": 0,
             "phoneNo": null,
             "name": null,
@@ -157,17 +157,16 @@ export default class User extends Component {
             "inActive":this.state.userType === "InActive" ? "True" : "False",
             "roleName": this.state.searchRole ? this.state.searchRole.trim() : null,
             "storeName": this.state.searchStore ? this.state.searchStore.trim() : null,
-            "clientDomainId": this.state.clientId
+            "clientId": this.state.clientId
             }
 
-            URMService.getUserBySearch(obj).then(res => {
-                console.log(res);
+            URMService.getUserBySearch(searchUser).then(res => {
                 if(res) {
                     
                     res.data.result.content.forEach(element => {
                         element.roleName = element.role.roleName ? element.role.roleName : "";
                     });
-                    this.setState({usersList: res.data, isUser: true});
+                    this.setState({usersList: res.data.result, isUser: true});
                 } else {
                     this.setState({usersList: [], isUser: false});
                 }

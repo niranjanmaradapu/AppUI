@@ -4,7 +4,6 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
 import { errorLengthMin , errorLengthMax , account_err_msg} from "../../commonUtils/Errors";
 import URMService from '../../services/URM/URMService';
-import { parseTwoDigitYear } from 'moment';
 
 
 export default class Stores extends Component {
@@ -53,6 +52,7 @@ export default class Stores extends Component {
         this.validation = this.validation.bind(this);
         this.searchStore = this.searchStore.bind(this);
         this.getAllStores = this.getAllStores.bind(this);
+        this.deleteStore = this.deleteStore.bind(this);
         this.handleValidation = this.handleValidation.bind(this);
     }
 
@@ -125,8 +125,7 @@ export default class Stores extends Component {
     getStates() {
         URMService.getStates().then(res => {
             if (res && res.data.result.length > 0) {
-                this.setState({ stateList: res.data.result, stateName: res.data.result[0].stateCode
-                 }, ()=>{
+                this.setState({ stateList: res.data.result, stateName: res.data.result[0].stateCode }, ()=>{
                   
                     const obj = {
                         stateCode: "Select",
@@ -237,17 +236,11 @@ export default class Stores extends Component {
         });
     }
 
-    dateFormat = (d) => {
-        let date = new Date(d)
-        return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
-    }
-       
 
     saveStores() {
 
         const formValid = this.handleValidation();
-// console.log(Date.toLocaleString());
-
+        console.log(this.state.loggedUser);
         if (formValid) {
             let saveObj;
             if (this.state.isEdit) {
@@ -332,30 +325,65 @@ export default class Stores extends Component {
             this.getDistricts();
         });
     }
+    deleteStore(items) {
+        console.log(">>>>item", items.id);
+
+    
+        URMService.deleteStore(items.id).then(
+          (res) => {
+            if (res.data && res.data.isSuccess === "true") {
+              toast.success(res.data.result);
+              this.props.history.push("/stores");
+            //   this.stateReset();
+              this.getAllStores(0);
+              console.log(".....storeId", items.id);
+            } else {
+              toast.error(res.data.message);
+            }
+          }
+        );
+      }
+      stateReset(){
+        this.setState({
+            address: "",
+        area: "",
+        cityId: "",
+        clientId: "",
+        createdBy:"",
+        createdDate: "",
+        districtId: "",
+        domainId: "",
+        domainName: "",
+        gstNumber: "",
+        id: "",
+        isActive:false,
+        lastModifyedDate: null,
+        name: "",
+        phoneNumber: "",
+        stateCode: "",
+        stateId: "",
+        storeOwner: "",
+        userName: "",
+          })
+
+
+    }    
 
     getTableData() {
         return this.state.storesList.map((items, index) => {
             // const { storeManager, createdDate,clientDomianlId["domaiName"], createdBy, cityId, name, domain } = items;
-            let date = this.dateFormat(items.createdDate);
-           
             return (
 
                 <tr className="" key={index}>
                     <td className="col-1">{index + 1}</td>
                     <td className="col-2">{items.name}</td>
                     <td className="col-2">{items.cityId}</td>
-                    <td className="col-2">{items.domainName}</td>
+                    {/* <td className="col-2">{items.domainName}</td> */}
                     <td className="col-2">{items.userName}</td>
-                    <td className="col-2">{date}</td>
-
-                    {/* {(new Date()).toLocaleDateString('en-US')} */}
-                    {/* {(new Time()).toLocaleTimeString('en-US')} */}
-
-
-
+                    <td className="col-2">{items.createdDate}</td>
                     <td className="col-1">
                         <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editStore(items)} />
-                        <i className="icon-delete"></i></td>
+                        <i className="icon-delete"onClick={(e) => this.deleteStore(items)}></i></td>
                 </tr>
 
             );
@@ -375,9 +403,10 @@ export default class Stores extends Component {
                                 <th className="col-1">Store ID </th>
                                 <th className="col-2">Store Name</th>
                                 <th className="col-2">Location</th>
-                                <th className="col-2">Domain</th>
+                                {/* <th className="col-2">Domain</th> */}
                                 <th className="col-2">Created By</th>
                                 <th className="col-2">Created Date</th>
+                                {/* <th className='col-2'>Status</th> */}
                                 <th className="col-1"></th>
                             </tr>
                         </thead>
@@ -559,7 +588,7 @@ export default class Stores extends Component {
                                 </div>
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
-                                    {/* <placeholder>Select</placeholder> */}
+                                    <placeholder>Select</placeholder>
                                         <label>State<span className="text-red font-bold">*</span></label>
                                         {/* <select className="form-control" value={this.state.stateName}
                                             onChange={(e) => this.setState({ stateName: e.target.value })}

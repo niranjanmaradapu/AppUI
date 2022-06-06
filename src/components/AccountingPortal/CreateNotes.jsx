@@ -7,7 +7,7 @@ import AccountingPortalService from '../../services/AccountingPortal/AccountingP
 import ecommerce from "../../assets/images/ecommerce.svg";
 import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
-import { NEW_SALE_URL } from "../../commonUtils/ApiConstants";
+import { ACCOUNTING_PORTAL } from "../../commonUtils/ApiConstants";
 import {errorLengthMin, errorLengthMax, creditNotes_Err_Msg } from './Error';
 
 export default class CreateNotes extends Component {
@@ -250,7 +250,7 @@ export default class CreateNotes extends Component {
         toast.success("Payment Done Successfully");
         let status = true
         const param = '?razorPayId=' + response.razorpay_order_id + '&payStatus=' + status;
-        const result = axios.post(BASE_URL + NEW_SALE_URL.saveSale + param, {});
+        const result = axios.post(BASE_URL + ACCOUNTING_PORTAL.payconfirmation + param, {});
       },
       prefill: {
         name: "Kadali",
@@ -261,6 +261,7 @@ export default class CreateNotes extends Component {
     const paymentObject = new window.Razorpay(options);
     paymentObject.open();
     this.closeCredit();
+    this.getCreditNotes();
   });
 }
 

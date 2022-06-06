@@ -520,10 +520,13 @@ export default class Stores extends Component {
 
     capitalization= () => {
       const { storeName } = this.state;
-       const store_name =   storeName[0].toLocaleUpperCase() + storeName.substring(1);
-      this.setState({
-        storeName: store_name
-      })
+      if(storeName) {
+        const store_name =   storeName[0].toLocaleUpperCase() + storeName.substring(1);
+        this.setState({
+          storeName: store_name
+        })
+      }
+     
     }
 
 

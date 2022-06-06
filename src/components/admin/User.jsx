@@ -742,10 +742,12 @@ export default class User extends Component {
 }
 capitalization= () => {
     const { name } = this.state;
-     const store_name =   name[0].toLocaleUpperCase() + name.substring(1);
+   if(name) {
+    const store_name =   name[0].toLocaleUpperCase() + name.substring(1);
     this.setState({
         name: store_name
     })
+    }
   }
 
 

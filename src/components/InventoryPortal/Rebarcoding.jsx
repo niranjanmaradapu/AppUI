@@ -90,6 +90,8 @@ export default class Rebarcoding extends Component {
     this.setState({ isAddBarcode: false });
     this.stateReset();
   }
+  
+ 
 
   openEditBarcode(barcodeId) {
     this.setState({ isAddBarcode: true });
@@ -106,7 +108,7 @@ export default class Rebarcoding extends Component {
       RebarcodeId:'',    
      }, () => this.getAllBarcodes());
     }
-
+    
   componentWillMount() {
     // this.state.domainDetails = JSON.parse(
     //   sessionStorage.getItem("selectedDomain")
@@ -147,7 +149,7 @@ export default class Rebarcoding extends Component {
       );
     }
   }
-
+  
   getAllBarcodes(pageNumber) {
     let saveJson = {};
     // if (
@@ -367,6 +369,12 @@ export default class Rebarcoding extends Component {
       this.setState({ categoriesList: this.state.categoriesList });
     });
   }
+  dateFormat = (d) => {
+    let date = new Date(d)
+    
+    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
+}
+
 
   getAllStoresList() {
     URMService.getStoresByDomainId(this.state.clientId).then(
@@ -615,6 +623,7 @@ export default class Rebarcoding extends Component {
 
   barcodesListTableTextile() {
     return this.state.barcodesList?.content?.map((items, index) => {
+      let date = this.dateFormat(items.createdDate)
       const {
         currentBarcodeId,
         toBeBarcodeId,
@@ -628,7 +637,7 @@ export default class Rebarcoding extends Component {
           <td className="col-2 ">{currentBarcodeId}</td>
           <td className="col-2">{createdBy}</td>
           {/* <td className="col-2">-</td> */}
-          <td className="col-2">{createdDate}</td>
+          <td className="col-2">{date}</td>
           <td className="col-2 text-center">
             <img src={print} className="w-12 pb-2 m-r-2" />
             <img

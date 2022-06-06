@@ -48,7 +48,7 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     #nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   hosts:
-    - host: web.themadhire.com
+    - host: *.easyretailworld.com
       paths:
       - path: /
         backend:
@@ -57,7 +57,7 @@ ingress:
   tls:
     - secretName: app-ui-tls
       hosts:
-        - web.themadhire.com
+        - *.easyretailworld.com
 
 resources:
   limits:

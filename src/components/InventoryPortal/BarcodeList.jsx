@@ -750,7 +750,7 @@ export default class BarcodeList extends Component {
       <tr className="m-0 p-0">
         <th className="col-1">S.NO</th>
         <th className="col-3">BARCODE</th>
-        <th className="col-1">LIST PRICE</th>
+        <th className="col-1">MRP</th>
         <th className="col-2">CREATED DATE</th>
         <th className="col-1">QTY</th>
         <th className="col-1">VALUE</th>

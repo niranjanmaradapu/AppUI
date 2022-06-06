@@ -172,7 +172,7 @@ export default class User extends Component {
                 }
             })
     }
-
+   
     getAllStoresList() {
         URMService.getStoresByDomainId(this.state.clientId).then((res) =>{
             if(res) {
@@ -181,7 +181,7 @@ export default class User extends Component {
             }
         }); 
     }
-
+    
     getAllRolesList() {
         URMService.getRolesByDomainId(this.state.clientId).then((res) =>{
             if(res) {
@@ -202,9 +202,6 @@ export default class User extends Component {
          }); 
     }
 
-
-
-
     hideCreateUser() {
         this.setState({ showModal: false });
     }
@@ -216,7 +213,7 @@ export default class User extends Component {
     hideUser() {
         this.setState({ showCreate: false });
     }
-
+    
     componentDidMount() {
         const user = JSON.parse(sessionStorage.getItem('user'));
         this.setState({userName : user["cognito:username"], isEdit: false,loggedUserId: user["custom:userId"] });
@@ -229,6 +226,7 @@ export default class User extends Component {
        
     }
 
+   
     getUsers(pageNumber) {
         if(this.state.isSearch) {
             this.setState({
@@ -253,7 +251,7 @@ export default class User extends Component {
             }
         });
     }
-
+  
     editUser(items) { 
         console.log(items);
         const obj = {
@@ -305,6 +303,7 @@ export default class User extends Component {
 
         
     }
+  
 
     deleteUser(items) {
         
@@ -429,7 +428,8 @@ export default class User extends Component {
         return formIsValid;
 
     }
-
+  
+   
     addCreateUser() {
         if(this.state.email && this.state.mobileNumber && this.state.name){
         const formValid = this.handleValidation();
@@ -527,12 +527,12 @@ export default class User extends Component {
         // this.searchUser(pageNumber);
         this.getUsers(pageNumber); 
       }
-
+    
     getTableData() {
         
         return this.state.usersList.map((items, index) => {
-            
-            const {id, userName, roleName, stores, createdDate, active,isSuperAdmin } = items;
+            const {id, userName, roleName, stores, active,isSuperAdmin } = items;
+            let date = this.dateFormat(items.createdDate)
             return (
 
                 <tr className="" key={index}>
@@ -549,7 +549,8 @@ export default class User extends Component {
                          })
                      }
                     </td>
-                    <td className="col-2" name="createdata">{createdDate}</td>
+                    {/* <td className="col-2" name="createdata">{createdDate}</td> */}
+                    <td className="col-2" name="date">{date}</td>
                     {/* <td className="col-1">{address}</td> */}
                     <td className="col-1">
                         <div>
@@ -659,7 +660,11 @@ export default class User extends Component {
     closeStores() {
         this.setState({isAddStore: false});
     }
-
+    dateFormat = (d) => {
+        let date = new Date(d)
+        
+        return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
+    }
 
     setStoresList(e, value, storeName) {
         if (e.target.checked) {
@@ -742,10 +747,12 @@ export default class User extends Component {
 }
 capitalization= () => {
     const { name } = this.state;
-     const store_name =   name[0].toLocaleUpperCase() + name.substring(1);
+   if(name) {
+    const store_name =   name[0].toLocaleUpperCase() + name.substring(1);
     this.setState({
         name: store_name
     })
+    }
   }
 
 

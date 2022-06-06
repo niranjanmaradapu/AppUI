@@ -236,7 +236,13 @@ export default class Stores extends Component {
         });
     }
 
-
+    dateFormat = (d) => {
+        let date = new Date(d)
+        
+        return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
+    }
+    
+    
     saveStores() {
 
         const formValid = this.handleValidation();
@@ -371,6 +377,7 @@ export default class Stores extends Component {
 
     getTableData() {
         return this.state.storesList.map((items, index) => {
+            let date = this.dateFormat(items.createdDate)
             // const { storeManager, createdDate,clientDomianlId["domaiName"], createdBy, cityId, name, domain } = items;
             return (
 
@@ -380,7 +387,7 @@ export default class Stores extends Component {
                     <td className="col-2">{items.cityId}</td>
                     {/* <td className="col-2">{items.domainName}</td> */}
                     <td className="col-2">{items.userName}</td>
-                    <td className="col-2">{items.createdDate}</td>
+                    <td className="col-2">{date}</td>
                     <td className="col-1">
                         <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editStore(items)} />
                         <i className="icon-delete"onClick={(e) => this.deleteStore(items)}></i></td>

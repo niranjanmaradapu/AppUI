@@ -125,6 +125,7 @@ validation(e) {
     this.state.phoneNumber = "+91" + this.state.phoneNumber;
     CreateDeliveryService.addCustomer(this.state).then(res => {
       if (res) {
+        toast.success("AddCustomer Successfully");
         toast.success(res.data.result.body);
         this.setState({
           email: "",

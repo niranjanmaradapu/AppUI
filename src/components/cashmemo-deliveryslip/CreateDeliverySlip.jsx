@@ -166,7 +166,7 @@ class CeateDeliverySlip extends Component {
               for (let i = 0; i < this.state.itemsList.length; i++) {
                 if (
                     this.state.itemsList[i].barcode ===
-                    res.data.result.barcode
+                    res.data.barcode
                 ) {
                     count = true;
                     var items = [...this.state.itemsList]

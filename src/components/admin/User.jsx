@@ -176,8 +176,9 @@ export default class User extends Component {
     getAllStoresList() {
         URMService.getStoresByDomainId(this.state.clientId).then((res) =>{
             if(res) {
-               this.setState({storesList: res.data, storeName: this.state.isEdit ? this.state.storeName : []});
-             this.state.storesList = res.data;
+               this.setState({storesList: res.data.result, storeName: this.state.isEdit ? this.state.storeName : []});
+            //  this.state.storesList = res.data;
+            this.state.storesList = res.data.result;
             }
         }); 
     }
@@ -237,10 +238,10 @@ export default class User extends Component {
            
         }
         URMService.getUsers(this.state.clientId,pageNumber).then(res => {
-            
+            console.log("res",res)
             if(res) {
                 
-                this.state.usersList = res?.data?.content;
+                this.state.usersList = res?.data;
                this.setState({
                 //    usersList: res.data.result, 
                 usersList:  this.state.usersList, 
@@ -256,7 +257,8 @@ export default class User extends Component {
         console.log(items);
         const obj = {
             
-            "id":items.id,
+            // "id":items.id,
+            "id":items.userId,
             "phoneNo":"",
             "name":"",
             "active":"False",
@@ -268,23 +270,26 @@ export default class User extends Component {
         URMService.getUserBySearch(obj).then(res=> {
             console.log(res);
             if(res) {
-                const userDetails = res.data.result.content[0];
+                // const userDetails = res.data.result.content[0];
+                const userDetails = res.data?.result;
                 this.setState({
                     showModal: true,
                     name: userDetails.userName,
                     dob:  items.dob,
                     gender: userDetails.gender,
-                    mobileNumber: userDetails.phoneNumber.substring(3,13),
+                    // mobileNumber: userDetails.phoneNumber.substring(3,13),
+                    mobileNumber: userDetails.phoneNumber,
                     email: items.email,
                     address: items.address,
                     isAdmin: userDetails.superAdmin,
-                    domain: userDetails.clientDomians[0]?.id, 
+                    // domain: userDetails.clientDomians[0]?.id, 
                     role: userDetails.role?.roleName,
                     storeName: userDetails.stores,
                     isEdit: true,
                     isSearch: false,
                     isSuperAdmin: userDetails.superAdmin,
-                    userId: items.id,
+                    // userId: items.id,
+                    userId: items.userId,
                 }, () => {
                     this.state.isSuperAdmin = this.state.isAdmin;
                     const user = sessionStorage.getItem('domainName');
@@ -530,7 +535,7 @@ export default class User extends Component {
     
     getTableData() {
         
-        return this.state.usersList.map((items, index) => {
+        return this.state?.usersList?.content.map((items, index) => {
             const {id, userName, roleName, stores, active,isSuperAdmin } = items;
             let date = this.dateFormat(items.createdDate)
             return (

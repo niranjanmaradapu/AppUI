@@ -454,7 +454,7 @@ getSelectedPrivileges(parentsList, childList) {
     getRoleTable() {
         return this.state.rolesList.map((items, index) => {
             let date = this.dateFormat(items.createdDate)
-            const { roleName, createdBy, createdDate, description, usersCount } = items;
+            const { roleName, createdBy,  description, usersCount } = items;
 
             return (
                 

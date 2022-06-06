@@ -275,7 +275,11 @@ export default class Roles extends Component {
         this.setState({ showRole: false});
     }
 
-   
+    dateFormat = (d) => {
+        let date = new Date(d)
+        
+        return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
+    }
 
     setPrivileges(e, value, selectedNode, selectedChild) {
         selectedChild.checked = e.target.checked;
@@ -449,6 +453,7 @@ getSelectedPrivileges(parentsList, childList) {
 
     getRoleTable() {
         return this.state.rolesList.map((items, index) => {
+            let date = this.dateFormat(items.createdDate)
             const { roleName, createdBy, createdDate, description, usersCount } = items;
 
             return (
@@ -459,7 +464,7 @@ getSelectedPrivileges(parentsList, childList) {
                     <td className="col-2">{roleName}</td>
                     {/* <td className="col-2">{items?.clientDomainVo?.domaiName}</td> */}
                     <td className="col-2">{createdBy}</td>
-                    <td className="col-2">{createdDate}</td>
+                    <td className="col-2">{date}</td>
                     <td className="col-1">{usersCount}</td>
                     <td className="col-2">{description}</td>
                     <td className="col-1">
@@ -473,6 +478,7 @@ getSelectedPrivileges(parentsList, childList) {
 
     getRolesList() {
         return this.state.isRole && (
+
             <div>
                 <div className="col-12 mb-1 mt-3 scaling-center scaling-mb">
                     <h5 className='fs-18'>Roles List</h5>

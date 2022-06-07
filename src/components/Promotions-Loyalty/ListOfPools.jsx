@@ -150,7 +150,7 @@ export default class ListOfPools extends Component {
     this.handleConfirmation = this.handleConfirmation.bind(this);
     this.handleDeleteConfirmation = this.handleDeleteConfirmation.bind(this);
     this.getPoolList = this.getPoolList.bind(this);
-    this.getDomainsList = this.getDomainsList.bind(this);
+    // this.getDomainsList = this.getDomainsList.bind(this);
     this.handleRemovePool = this.handleRemovePool.bind(this);
     this.modifyPool = this.modifyPool.bind(this);
     this.paginate = this.paginate.bind(this);
@@ -159,17 +159,6 @@ export default class ListOfPools extends Component {
     this.toggleClass = this.toggleClass.bind(this);
   }  
   componentDidMount() {
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    const clientDomainId = user["custom:clientDomians"].split(",")[0];
-      URMService.getDomainName(clientDomainId).then(res => {
-        if(res) {
-          const obj  = {
-            value: clientDomainId,
-            label: res.data.result.domaiName
-          }
-          this.setState({ selectedOption: obj }, () => this.getDomainsList());
-        }
-      });
       this.getPoolList();
       // this.getDomainsList();
   }
@@ -202,20 +191,20 @@ export default class ListOfPools extends Component {
       });
     });
   }
-  getDomainsList() {
-    const { selectedOption } = this.state;   
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    // const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
-     URMService.getDomainsList(user["custom:clientId1"]).then((res) => {
-         if(res) {
-           if(selectedOption.label === 'Textile') {
-             this.setState({ clientId:  1 /* res.data.result[1].domain[0].id */}, () => this.getPoolList());
-           } else {
-             this.setState({ clientId: 2 /* res.data.result[0].domain[0].id */ }, () => this.getPoolList());
-           }            
-         }       
-     });
-   }
+  // getDomainsList() {
+  //   const { selectedOption } = this.state;   
+  //   const user = JSON.parse(sessionStorage.getItem('user'));
+  //   // const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
+  //    URMService.getDomainsList(user["custom:clientId1"]).then((res) => {
+  //        if(res) {
+  //          if(selectedOption.label === 'Textile') {
+  //            this.setState({ clientId:  1 /* res.data.result[1].domain[0].id */}, () => this.getPoolList());
+  //          } else {
+  //            this.setState({ clientId: 2 /* res.data.result[0].domain[0].id */ }, () => this.getPoolList());
+  //          }            
+  //        }       
+  //    });
+  //  }
   getPoolList() {
     const { clientId } = this.state;
     this.getAllColumns(this.state.clientId);

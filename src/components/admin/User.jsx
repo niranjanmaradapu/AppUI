@@ -237,10 +237,10 @@ export default class User extends Component {
            
         }
         URMService.getUsers(this.state.clientId,pageNumber).then(res => {
-            
+            console.log("ressss",res)
             if(res) {
                 
-                this.state.usersList = res?.data?.content;
+                this.state.usersList = res.data;
                this.setState({
                 //    usersList: res.data.result, 
                 usersList:  this.state.usersList, 
@@ -268,17 +268,19 @@ export default class User extends Component {
         URMService.getUserBySearch(obj).then(res=> {
             console.log(res);
             if(res) {
-                const userDetails = res.data.result.content[0];
+                // const userDetails = res.data.result.content[0];
+                const userDetails = res?.data?.result;
                 this.setState({
                     showModal: true,
                     name: userDetails.userName,
                     dob:  items.dob,
                     gender: userDetails.gender,
-                    mobileNumber: userDetails.phoneNumber.substring(3,13),
+                    // mobileNumber: userDetails.phoneNumber.substring(3,13),
+                    mobileNumber: userDetails.phoneNumber,
                     email: items.email,
                     address: items.address,
                     isAdmin: userDetails.superAdmin,
-                    domain: userDetails.clientDomians[0]?.id, 
+                    // domain: userDetails.clientDomians[0]?.id, 
                     role: userDetails.role?.roleName,
                     storeName: userDetails.stores,
                     isEdit: true,
@@ -530,7 +532,7 @@ export default class User extends Component {
     
     getTableData() {
         
-        return this.state.usersList.map((items, index) => {
+        return this.state?.usersList?.content.map((items, index) => {
             let date = this.dateFormat(items.createdDate)
             const {id, userName, roleName, stores, active,isSuperAdmin } = items;
             return (

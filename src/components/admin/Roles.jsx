@@ -243,7 +243,7 @@ export default class Roles extends Component {
 
         URMService.getAllPrivileges().then(res => {
             if (res) {
-                this.setState({ productsList: res.data.mobilePrivileges});
+                this.setState({ productsList: res.data.webPrivileges});
                 this.state.productsList.forEach((element, index) => {
                     if (element.subPrivileges && element.subPrivileges.length > 0) {
                         element.subPrivileges.forEach((child, index) => {

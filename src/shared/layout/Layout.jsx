@@ -32,6 +32,7 @@ import DebitNotes from '../../components/AccountingPortal/DebitNotes';
 import ListOfPools from '../../components/Promotions-Loyalty/ListOfPools';
 import LoyaltyPoints from '../../components/Promotions-Loyalty/LoyaltyPoints';
 import ManagePromo from '../../components/Promotions-Loyalty/ManagePromo';
+import ListOfPromos from '../../components/Promotions-Loyalty/ListOfPromos';
 import HRPortal from '../../components/HRPortal/HRPortal';
 import Footer from '../footer/Footer';
 import AccountingDashboard from '../../components/AccountingPortal/AccountingDashboard';
@@ -258,7 +259,11 @@ export default class Layout extends Component {
                                     exact={true}
                                     component={ManagePromo}
                                 />
-                                
+                                 <PrivateRoute
+                                    path='/listOfPromos'
+                                    exact={true}
+                                    component={ListOfPromos}
+                                />                                
 
                                 <PrivateRoute
                                     path='/hrPortal'

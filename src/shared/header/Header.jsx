@@ -813,13 +813,13 @@ class Header extends Component {
           <div className="row">
             <div className="col-sm-7">
               <div className='head-text'>
-                  Role : <span> {this.state.roleName}</span>
+                  Role : <span> {this.state.roleName[0].toUpperCase()+this.state.roleName.substring(1)}</span>
               </div>
               {
             this.state.storenameFlag  && (<div className='head-text'>
                 
                 
-                Store : <span> {this.state?.storeName}</span>
+                Store : <span> {this.state?.storeName[0].toUpperCase()+this.state?.storeName.substring(1)}</span>
               
               </div>)
            }
@@ -848,7 +848,7 @@ class Header extends Component {
                       </div>
                       <div className="itemMain-right text-left">
                         <div className='text_parent'>
-                        <span className="text-left p-l-2 mb-0 ellipsis">{this.state.user}</span>
+                        <span className="text-left p-l-2 mb-0 ellipsis">{this.state.user[0].toUpperCase()+this.state.user.substring(1)}</span>
                         </div>
                         <Select className="align drop_select"
                           value={this.state.selectedOption} // set selected value

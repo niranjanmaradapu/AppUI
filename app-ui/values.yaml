@@ -54,10 +54,10 @@ ingress:
         backend:
           serviceName: app-ui
           servicePort: 3000
-  tls:
-    - secretName: app-ui-tls
-      hosts:
-        - easyretailworld.com
+  # tls:
+    # - secretName: app-ui-tls
+      # hosts:
+        # - easyretailworld.com
 
 resources:
   limits:

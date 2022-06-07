@@ -103,7 +103,7 @@ export const INVENTORY_URLS = {
     getReBarcodeTextileBarcodeDetails: '/inventory/inventory-management/adjustments/filter',
     getEmpNameByEmpId: "/user-management/user/getUser",
     savebulkTextile: "/inventory/inventoryTextile/saveProductTextileList",
-    addBulkTextile: "/inventory/inventoryTextile/add-bulk-products",
+    addBulkTextile: "/inventory/inventory-management/add-bulk-products",
     addProductBundle: "/inventory/productBundle/add",
     getAllProductBundleList: "/inventory/productBundle/all"
 };

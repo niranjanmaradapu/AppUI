@@ -127,19 +127,19 @@ class InventoryService {
         }
         return axios.post(BASE_URL + INVENTORY_URLS.getAllProductBundleList + param);
     }
-    saveBulkData(uploadFile, store) {
-        //  const param2 ='?storeId='+ store;
+    saveBulkData(uploadFile, storeId) {
+         const param2 ='?storeId='+ storeId;
         let token = JSON.parse(sessionStorage.getItem('token'));
         let formData = new FormData();
         formData.append('file', uploadFile)
         //     addBulkTextile   BASE_URL+INVENTORY_URLS.addBulkTextile     "storeId":store
         //   let commonUrl = "http://10.80.1.39:9097/inventory/inventoryTextile/add-bulk-products"
         const uninterceptedAxiosInstance = axios.create();
-        return uninterceptedAxiosInstance.post(BASE_URL + INVENTORY_URLS.addBulkTextile, formData,
+        return uninterceptedAxiosInstance.post(BASE_URL + INVENTORY_URLS.addBulkTextile +param2, formData,
             {
                 headers: {
                     "Authorization": 'Bearer' + ' ' + token,
-                    "storeId": store
+                  
                 },
             })
 

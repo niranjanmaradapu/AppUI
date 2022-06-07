@@ -59,6 +59,10 @@ class PromotionsService {
     updatePromotionDates(obj) {
         return axios.put(BASE_URL + PROMOTIONS_URL.updatePromotionDates, obj);
     }
+    updatePromoStatus(id, status) {
+        const param = `?id=${id}&isActive=${status}`;
+        return axios.put(BASE_URL + PROMOTIONS_URL.updatePromoStatus+param);
+    }
     clonePromotionByStore(obj) {
         return axios.post(BASE_URL + PROMOTIONS_URL.clonePromotionByStore, obj);
     }

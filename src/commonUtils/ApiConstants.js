@@ -242,7 +242,8 @@ export const PROMOTIONS_URL = {
     getAllColumns: "/connection-pool/promo/allcolumnnames",
     getAllStorePromos: "/connection-pool/promo/getAllStorePromos",
     promotionsSearching: "/connection-pool/promo/promotionsSearching",
-    anyMatchingData: "/connection-pool/promo/anyMatchingData"
+    anyMatchingData: "/connection-pool/promo/anyMatchingData",
+    updatePromoStatus:  "/connection-pool/promo/updatePromoStatus"
 };
 
 export const ACCOUNTING_PORTAL = {

@@ -185,17 +185,6 @@ export default class ManagePromo extends Component {
     this.handleStoreData = this.handleStoreData.bind(this);
   }
   componentDidMount() {
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    const clientDomainId = user["custom:clientDomians"].split(",")[0];
-      URMService.getDomainName(clientDomainId).then(res => {
-        if(res) {
-          const obj  = {
-            value: clientDomainId,
-            label: res.data.result.domaiName
-          }
-          this.setState({ selectedOption: obj });
-        }
-      });
     this.getPromoList();
     this.getAllStorePromos();
     this.getAllStoresList()

@@ -729,8 +729,8 @@ export default class BarcodeList extends Component {
     });
   }
 
-  deleteBarcode(barcodeId) {
-    InventoryService.deleteBarcode(barcodeId, this.state.domainDetailsObj).then(
+  deleteBarcode(id) {
+    InventoryService.deleteBarcode(id, this.state.domainDetailsObj).then(
       (res) => {
         if (res.data && res.data) {
           toast.success(res.data.result);
@@ -778,7 +778,8 @@ export default class BarcodeList extends Component {
   barcodesListTable() {
     return this.state.barcodesList.map((items, index) => {
       const {
-        barcodeId,
+        // barcodeId,
+        id,
         listPrice,
         storeId,
         storeName,
@@ -790,7 +791,8 @@ export default class BarcodeList extends Component {
       return (
         <tr key={index}>
           <td className="col-1 geeks">{index + 1}</td>
-          <td className="col-3 ">{barcodeId}</td>
+          {/* <td className="col-3 ">{barcodeId}</td> */}
+          <td className="col-3 ">{id}</td>
           <td className="col-1">₹ {listPrice}</td>
           <td className="col-2">{originalBarcodeCreatedAt}</td>
           <td className="col-1">{stockValue}</td>
@@ -801,11 +803,11 @@ export default class BarcodeList extends Component {
             <img
               src={edit}
               className="w-12 pb-2"
-              onClick={() => this.openEditBarcode(barcodeId)}
+              onClick={() => this.openEditBarcode(id)}
             />
             <i
               className="icon-delete m-l-2 fs-16"
-              onClick={() => this.deleteBarcode(barcodeId)}
+              onClick={() => this.deleteBarcode(items?.id)}
             ></i>
           </td>
         </tr>

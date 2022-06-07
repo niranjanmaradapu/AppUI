@@ -352,13 +352,16 @@ export default class NewSale extends Component {
   }
 
   saveCCAmount() {
+    console.log("+++++++++++++++++conirm_+++++++++++")
 
     this.state.discType = this.state.dropValue;
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
     const storeId = sessionStorage.getItem("storeId");
+    
+    console.log("+++++++++++++++++conirm2+++++++++++")
     let obj;
-    if (this.state.isTextile) {
+    // if (this.state.isTextile) {
       obj = {
 
         "natureOfSale": "InStore",
@@ -404,10 +407,12 @@ export default class NewSale extends Component {
           }
 
         ]
+        
+    
 
       }
 
-
+      console.log("+++++++++++++++++conirm3+++++++++++")
 
       NewSaleService.saveSale(obj).then((res) => {
         if (res) {
@@ -453,7 +458,7 @@ export default class NewSale extends Component {
         }
       });
 
-    }
+    // }
 
   }
 
@@ -1590,6 +1595,7 @@ export default class NewSale extends Component {
                       if (this.state.ccCollectedCash < this.state.grandNetAmount) {
                         let ccReturn = this.state.grandNetAmount - this.state.ccCollectedCash;
                         this.setState({ ccCardCash: ccReturn });
+                        console.log("+++++++++++++++++"+ccReturn);
 
                       }
                     })

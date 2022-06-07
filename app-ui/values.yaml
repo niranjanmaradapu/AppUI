@@ -45,7 +45,7 @@ ingress:
   enabled: true # Enable ingress : true 
   annotations:
     kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+#    cert-manager.io/cluster-issuer: letsencrypt-prod
     #nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   hosts:
     - host: easyretailworld.com

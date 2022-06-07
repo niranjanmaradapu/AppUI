@@ -531,8 +531,8 @@ export default class User extends Component {
     getTableData() {
         
         return this.state.usersList.map((items, index) => {
-            const {id, userName, roleName, stores, active,isSuperAdmin } = items;
             let date = this.dateFormat(items.createdDate)
+            const {id, userName, roleName, stores, active,isSuperAdmin } = items;
             return (
 
                 <tr className="" key={index}>
@@ -1017,13 +1017,6 @@ capitalization= () => {
                                         <div>
                                         {this.state.isSuperAdmin ? '' : <span style={{ color: "red" }}>{this.state.errors["storeName"]}</span>}
                                         </div>
-
-
-
-
-
-
-
 
                                     </div>
                                 </div>

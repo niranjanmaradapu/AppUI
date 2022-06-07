@@ -6,7 +6,7 @@ class PromotionsService {
 
     getPoolList(domainId, customClientId) {
         // const param = `?isActive=All&domainId=${domainId}`;
-        const param = `?isActive=true&domainId=${domainId}&clientId=${customClientId}`;
+        const param = `?isActive=true&clientId=${customClientId}`;
         // const param = '?isActive=All';
         return axios.get(BASE_URL + PROMOTIONS_URL.getPoolList + param);
     }
@@ -26,7 +26,7 @@ class PromotionsService {
         return axios.post(BASE_URL + PROMOTIONS_URL.searchPool, obj);
     }
     getPromoList(domainId, customClientId) {
-        const param = `?flag=true&domainId=${domainId}&clientId=${customClientId}`;
+        const param = `?flag=true&clientId=${customClientId}`;
         //  const param = '?flag=All';
         return axios.get(BASE_URL + PROMOTIONS_URL.getPromoList + param);
     }

@@ -176,9 +176,9 @@ export default class User extends Component {
     getAllStoresList() {
         URMService.getStoresByDomainId(this.state.clientId).then((res) =>{
             if(res) {
-               this.setState({storesList: res.data.result, storeName: this.state.isEdit ? this.state.storeName : []});
+               this.setState({storesList: res.data, storeName: this.state.isEdit ? this.state.storeName : []});
             //  this.state.storesList = res.data;
-            this.state.storesList = res.data.result;
+            this.state.storesList = res.data;
             }
         }); 
     }

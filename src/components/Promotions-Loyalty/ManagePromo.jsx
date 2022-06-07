@@ -214,13 +214,13 @@ export default class ManagePromo extends Component {
             value: clientDomainId,
             label: res.data.result.domaiName
           }
-          this.setState({ selectedOption: obj }, () => {this.getDomainsList()});
+          this.setState({ selectedOption: obj });
         }
       });
-    // this.getPromoList();
-    // this.getPoolList();
-   //  this.getDomainsList();
+    this.getPromoList();
+    this.getPoolList();
     this.getAllStorePromos();
+    this.getAllStoresList()
   }
 
    dateCompare = (endDate) => {
@@ -233,35 +233,14 @@ export default class ManagePromo extends Component {
     if(endDate < currentDate) {
        return true;
     }
-    //  else if(endDate === currentDate) {
-    //    return false;
-    // } else 
-    // if( endDate > currentDate) {
-    //   return false;
-    // }
-}
-  getDomainsList() {
-    const { selectedOption } = this.state;    
-     const user = JSON.parse(sessionStorage.getItem('user'));
-     const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));  
-     if(selectedOption.label === 'Textile') {
-      this.setState({ clientDomainaId: user["custom:clientId1"], 
-                      clientId: 1 // res.data.result[1].domain[0].id
-                    }, () =>  {this.getPromoList(); this.getAllStoresList();});
-    } else {
-      this.setState({ clientDomainaId: user["custom:clientId1"], 
-                      clientId: 2 // res.data.result[0].domain[0].id 
-                    }, () =>  { this.getPromoList(); this.getAllStoresList();});
-       }      
-    }
+  }
+ 
     getAllStoresList() {
-      const { selectedOption } = this.state;
-      const user = JSON.parse(sessionStorage.getItem('user'));
-      // const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain')); 
-      // URMService.getStoresByDomainId(user["custom:domianId1"]).then((res) => { 
-        URMService.getStoresByDomainId(selectedOption.value).then((res) => { 
+     const user = JSON.parse(sessionStorage.getItem('user'));
+     let domainId =  user["custom:clientId1"];
+      URMService.getStoresByDomainId(domainId).then((res) => {
           if(res) {
-            const result = res.data.result.map((item) => {
+            const result = res.data.map((item) => {
               const obj = {};
                 obj.value = item.id;
                 obj.label = item.name;

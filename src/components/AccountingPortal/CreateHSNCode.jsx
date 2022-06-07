@@ -406,7 +406,7 @@ slabValidation() {
                 </div>             
                 {(this.state.taxAppliedType  === '' || this.state.taxAppliedType  === 'Hsncode') && <div className="col-4 mt-3">
                 <div className="form-group">
-                  <label>TAX Label <span className="text-red font-bold" name="bold">*</span></label>
+                  <label> Label <span className="text-red font-bold" name="bold">*</span></label>
                   <select value={this.state.taxId} onChange={(e) => this.handleSelectChangeAllTax(e)} className="form-control">
                       <option>Select Tax Label</option>
                         { 

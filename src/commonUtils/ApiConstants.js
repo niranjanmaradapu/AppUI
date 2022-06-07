@@ -265,5 +265,6 @@ export const ACCOUNTING_PORTAL = {
     saveHsnCode: "/hsn-details/hsn-details/save",
     deleteHsn: "/hsn-details/hsn-details/deleteHsn",
     updateHsn: "/hsn-details/hsn-details/updateHsn",
-    creditdebitOrder: "paymentgateway/create_creditdebit_order"
+    creditdebitOrder: "paymentgateway/create_creditdebit_order",
+    payconfirmation: "/hsn-details/accounting/payconfirmation"
 };

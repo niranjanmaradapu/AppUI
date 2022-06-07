@@ -40,6 +40,8 @@ export default class Stores extends Component {
             isSearch: false,
             gstNumber: "",
             isGstNumber: false,
+            isState:false,
+            isDistrict:false,
             loggedUser:"",
             searchDistrict:0
         }
@@ -72,6 +74,8 @@ export default class Stores extends Component {
             isEdit: false,
             isSearch: false,
             isGstNumber: false,
+            isState:false,
+            isDistrict:false,
             gstNumber:"",
           
 
@@ -324,6 +328,8 @@ export default class Stores extends Component {
             domain: items.domainId, storeName: items.name,
             gstNumber:items.gstNumber,
             isGstNumber:true,
+            isState:true,
+            isDistrict:true,
             isEdit: true,
             selectedStore: items,
             isSearch: false
@@ -607,6 +613,7 @@ export default class Stores extends Component {
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>State<span className="text-red font-bold">*</span></label>
+                                      
                                         {/* <select className="form-control" value={this.state.stateName}
                                             onChange={(e) => this.setState({ stateName: e.target.value })}
                                         >
@@ -618,8 +625,9 @@ export default class Stores extends Component {
                                         {/* <span style={{ color: "red" }}>{this.state.errors["stateName"]}</span> */}
 
                                         <select className="form-control" value={this.state.stateName}
-
-                                            onChange={(e) => this.setState({ stateName: e.target.value, isGstNumber:false, gstNumber:"" }, () => {
+                                        disabled={this.state.isState}
+                                            onChange={(e) => this.setState({ stateName: e.target.value, isGstNumber:false,isState:false,
+                                                isDistrict:false, gstNumber:"" }, () => {
                                                 this.getDistricts();
                                                 this.getGSTNumber();
                                             })}>
@@ -638,6 +646,7 @@ export default class Stores extends Component {
                                     <div className="form-group">
                                         
                                         <label>District<span className="text-red font-bold">*</span></label>
+                                      
                                         {/* <select className="form-control" value={this.state.district}
                                             onChange={(e) => this.setState({ district: e.target.value })}>
                                             <option> Select </option>
@@ -647,6 +656,7 @@ export default class Stores extends Component {
                                         </select> */}
 
                                         <select className="form-control" value={this.state.district}
+                                          disabled={this.state.isDistrict}
                                             onChange={(e) => this.setState({ district: e.target.value })}>
                                             
                                             {districtList}

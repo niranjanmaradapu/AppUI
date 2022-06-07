@@ -166,9 +166,9 @@ class CeateDeliverySlip extends Component {
               for (let i = 0; i < this.state.itemsList.length; i++) {
                 if (
                     this.state.itemsList[i].barcode ===
-                    res.data.result.barcode
+                    res.data.barcode
                 ) {
-                    count = true
+                    count = true;
                     var items = [...this.state.itemsList]
                     if (parseInt(items[i].quantity) + 1 <= parseInt(items[i].qty)) {
                         let addItem = parseInt(items[i].quantity) + 1;
@@ -193,11 +193,14 @@ class CeateDeliverySlip extends Component {
 
 
             this.setState({ barList: this.state.itemsList, barCode: '' }, () => {
+              console.log('++++++++++barList++++++++++++++', this.state.barList);
               this.state.barList.forEach((element) => {
                 element.itemDiscount = 0;
-                element.cgst = element.taxValues.cgstValue;
-                element.sgst = element.taxValues.sgstValue;
-                element.taxValue = element.taxValues.cgstValue + element.taxValues.sgstValue;
+                if(element.taxValues) {
+                  element.cgst = element.taxValues.cgstValue;
+                  element.sgst = element.taxValues.sgstValue;
+                  element.taxValue = element.taxValues.cgstValue + element.taxValues.sgstValue;
+                }               
                 if (element.quantity > 1) {
                 } else {
                   element.totalMrp = element.itemMrp;

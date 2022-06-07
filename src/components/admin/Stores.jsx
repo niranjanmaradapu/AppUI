@@ -626,6 +626,7 @@ export default class Stores extends Component {
 
                                         <select className="form-control" value={this.state.stateName}
                                         disabled={this.state.isState}
+                                        
                                             onChange={(e) => this.setState({ stateName: e.target.value, isGstNumber:false,isState:false,
                                                 isDistrict:false, gstNumber:"" }, () => {
                                                 this.getDistricts();

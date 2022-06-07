@@ -1647,7 +1647,6 @@ export default class BarcodeList extends Component {
             </button>
             <button className={this.state.selectedDomain ? "btn-unic active fs-12" : "btn-selection fs-12"}
             disabled={!this.state.selectedDomain}
-              // onClick={this.state.isEdit ? this.editBarcode : this.addBarcode}
               onClick={this.checkForMandatory || this.handleDomainChange}
             >
               Save

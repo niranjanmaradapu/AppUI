@@ -542,7 +542,7 @@ export default class User extends Component {
 
                 <tr className="" key={index}>
                     <td className="col-1">{id}</td>
-                    <td className="col-2">{userName}</td>
+                    <td className="col-2">{userName[0].toLocaleUpperCase() + userName.substring(1)}</td>
                     {/* <td className="col-2">{email}</td> */}
                     <td className="col-1">{roleName}</td>
                     <td className="col-3">
@@ -869,7 +869,6 @@ capitalization= () => {
                                             value={this.state.name} disabled={this.state.isEdit}
                                             maxLength={errorLengthMax.name}
                                             onChange={(e) => this.setState({ name: e.target.value })}
-                                            onBlur={() => this.capitalization()}
                                             autoComplete="off" />
                                              <div>
                                             <span style={{ color: "red" }}>{this.state.errors["name"]}</span>

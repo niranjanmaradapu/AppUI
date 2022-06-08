@@ -578,6 +578,7 @@ getSelectedPrivileges(parentsList, childList) {
 
                                     </div>
                                 </div>
+                                
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>Description<span className="text-red font-bold">*</span></label>

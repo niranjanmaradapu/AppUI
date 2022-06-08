@@ -249,7 +249,7 @@ export default class ListOfReturnSlips extends Component {
         <tr className="" key={index}>
           <td className="col-1">{index + 1}</td>
           <td className="col-2">{barcode}</td>
-          <td className="col-2">{storeName}</td>
+          {/* <td className="col-2">{storeName}</td> */}
           <td className="col-2">{empId}</td>
           <td className="col-1">{qty}</td>
           <td className="col-2">₹ {itemMrp}</td>
@@ -383,16 +383,12 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-2 mt-2 mb-2">
+          {/* <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
               <label>Store</label>
               <select
                 className="form-control"
                 value={this.state.storeId}
-                // onChange={(e) => {
-                //   this.handleSelect(e);
-                // }}
-
                 onChange={(e) => {
                   const selectedValue = this.state.storeList.filter((item) => {
                     return item.id == e.target.value;
@@ -412,7 +408,8 @@ export default class ListOfReturnSlips extends Component {
                 })}
               </select>
             </div>
-          </div>
+          </div> */}
+
           <div className="col-6 col-sm-2 mt-2">
             <div className="form-group">
               <label>EMP ID</label>
@@ -477,7 +474,7 @@ export default class ListOfReturnSlips extends Component {
                 <tr className="m-0 p-0">
                   <th className="col-1">S.NO</th>
                   <th className="col-2">Barcode</th>
-                  <th className="col-2">Barcode Store</th>
+                  {/* <th className="col-2">Barcode Store</th> */}
                   <th className="col-2">EMP ID</th>
                   <th className="col-1">QTY</th>
                   <th className="col-2">BARCODE MRP</th>
@@ -500,12 +497,15 @@ export default class ListOfReturnSlips extends Component {
              </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
               {console.log(">>>.bclist", this.state.pageList)}
-              <ReactPageNation
-                {...this.state.pageList}
-                changePage={(pageNumber) => {
-                  this.changePage(pageNumber);
-                }}
-              />
+
+              {this.state.pageList?.content?.length > 10 ? null : (
+                <ReactPageNation
+                  {...this.state.pageList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                  }}
+                />
+              )}
             </table>
           </div>
         </div>

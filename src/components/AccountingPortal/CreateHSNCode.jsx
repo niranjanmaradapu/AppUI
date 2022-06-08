@@ -29,7 +29,9 @@ export default class CreateHSNCode extends Component {
       ],
       taxAppliedType: '',
       selectedTaxLabel: '',
-      slabValues: [{ priceFrom: '', priceTo: '', taxId : ''}]
+      slabValues: [],
+      isHSNCodeUpdateted: false,
+      hsnErrors: {}
     };
 
     this.addHSNCode = this.addHSNCode.bind(this);
@@ -39,6 +41,8 @@ export default class CreateHSNCode extends Component {
     this.getAllTaxes = this.getAllTaxes.bind(this);
     this.saveHSNCode = this.saveHSNCode.bind(this);
     this.getAllHsnCodes = this.getAllHsnCodes.bind(this);
+    this.handleHsnFormData = this.handleHsnFormData.bind(this);
+    this.slabValidation = this.slabValidation.bind(this);
   }
   componentWillMount() {
   this. getAllHsnCodes();
@@ -52,7 +56,7 @@ export default class CreateHSNCode extends Component {
   }
 
   closeHSNCode() {
-    this.setState({ isaddHSNCode: false, slabValues: [], taxAppliedType: '', hsnCode: '', taxId: '', });
+    this.setState({ isHSNCodeEdited: false, isaddHSNCode: false, slabValues: [], taxAppliedType: '', hsnCode: '', taxId: '', descprition: '', taxAppliesOn: '', hsnErrors: {} });
   }
   getAllHsnCodes(){
     AccountingPortalService.getAllHsnCodes().then(response => {
@@ -63,8 +67,8 @@ export default class CreateHSNCode extends Component {
     }); 
   }
   saveHSNCode(){
-    const { hsnCode, descprition, taxAppliesOn, taxAppliedType, slabValues, taxId } = this.state;
-    const obj = {
+    const { hsnCode, descprition, taxAppliesOn, taxAppliedType, slabValues, taxId, selectedHSNCode, hsnErrors} = this.state;
+    let obj = {
       description: descprition,
       hsnCode: hsnCode,
       taxAppliedType: taxAppliedType,
@@ -72,24 +76,29 @@ export default class CreateHSNCode extends Component {
       taxId: taxAppliedType === 'Hsncode' ? taxId : null,
       slabs: taxAppliedType === 'Priceslab' ? slabValues : [],
     }
-    if(!this.state.isHSNCodeEdited) {
-      AccountingPortalService.saveHsnCode(obj).then(response => {
-        if (response) {
-        toast.success(response.data.message);
-        this.closeHSNCode()
-        this.getAllHsnCodes()
-        }
-      });
-    } else {
-        obj = {...obj, id: this.state.selectedHSNCode.id};
+    const slabErrors = this.slabValidation();    
+    if(taxAppliedType === 'Priceslab' && slabValues.length === 0) {
+      toast.info('Add atleast one slab for the HSN Code');
+    } else if (slabErrors.length > 0){
+      toast.info('Add slab details');
+    } else if(!this.state.isHSNCodeEdited && this.handleHsnFormData()) {
         AccountingPortalService.saveHsnCode(obj).then(response => {
-          if (response.data.isSuccess === 'true') {
+          if (response) {
+          toast.success(response.data.message);
+          this.closeHSNCode()
+          this.getAllHsnCodes()
+          }
+        });       
+    } else if(this.handleHsnFormData()){
+        obj = {...obj, id: selectedHSNCode.id};
+        AccountingPortalService.updateHsn(obj).then(response => {
+          if (response) {
             toast.success(response.data.message);
             this.setState({
               selectedHSNCode: '',
               isaddHSNCode: false,
               isHSNCodeEdited: false
-            }, () => this.getAllHsnCodes());      
+            }, () => {this.getAllHsnCodes(); this.closeHSNCode()});      
           } else {
             toast.warn(response.data.message);
           }
@@ -119,7 +128,6 @@ export default class CreateHSNCode extends Component {
       slabValues
     });  
   }
-
   getDescriptionData(){
     AccountingPortalService.getDescrition().then(response => {
       if (response) {
@@ -129,7 +137,6 @@ export default class CreateHSNCode extends Component {
     });
   }
 getTaxAppliesOn(){
-  
   AccountingPortalService.getTaxAppliesOn().then(response => {
     if (response) {
       this.setState({ taxsAppliesOnList: response.data.result });
@@ -138,30 +145,37 @@ getTaxAppliesOn(){
   });
 }
 handleSelectChangeDesc = (e) => {
+  this.state.hsnErrors['descprition'] = '';
    let obj;
   obj = e.target.value;
    this.setState({ descprition: obj });
 }
 
 handleSelectChangeTaxList = (e) => {
+  this.state.hsnErrors['taxAppliesOn'] = '';
   let obj;
  obj = e.target.value;
   this.setState({ taxAppliesOn: obj });
 }
 handleSelectChangeAllTax = (e) => {
+  this.state.hsnErrors['taxId'] = '';
   this.setState({ taxId: e.target.value });
 }
 editHSNCode = (items) => {
-  this.getDescriptionData();
-  this.getTaxAppliesOn();
-  this.getAllTaxes();
   this.setState({
     selectedHSNCode: items,
     isHSNCodeEdited: true,
     isaddHSNCode: true,
     hsnCode: items.hsnCode,
-    priceTo: items.slabVos[0].priceTo,
-    priceFrom: items.slabVos[0].priceFrom
+    slabValues: items.slabs,
+    descprition: items.description, 
+    taxAppliesOn: items.taxAppliesOn,
+    taxAppliedType: items.taxAppliedType,
+    taxId: items.taxId
+  }, () => {
+    this.getDescriptionData();
+  this.getTaxAppliesOn();
+  this.getAllTaxes();
   });
 }
 deleteHSNCode = (items) => {
@@ -201,9 +215,12 @@ handleRemoveSlab = (idx) =>  {
   this.setState({ slabValues }) 
 }
 handelTaxAppliedType = (e) => {
+  this.state.hsnErrors['taxAppliedType'] = '';
   this.setState({ taxAppliedType: e.target.value });
 }
 handleAddRuleRow = () => { 
+  const errors = this.slabValidation();
+  if(errors.length == 0) {
     const item = {
       priceFrom: '',
       priceTo: '',
@@ -212,6 +229,9 @@ handleAddRuleRow = () => {
     this.setState({
       slabValues: [...this.state.slabValues, item]     
     });
+ } else {
+   toast.info('Enter slab dtails');
+ }  
 }
 deleteSlab(idx){
   const slabValues = [...this.state.slabValues]
@@ -224,15 +244,73 @@ handleTextChange = (idx, e) => {
   slabValues[idx][e.target.name] = e.target.value;
   this.setState({ slabValues });
 };
+handleHsnFormData() {
+  const { hsnCode, descprition, taxAppliedType, taxAppliesOn, taxId} = this.state;
+  let error = {};
+  let isFormValid = true;
+  
+  if(!hsnCode) {
+    error['hsnCode'] = 'Enter HSN Code';
+    isFormValid = false;
+  }
+  if(!descprition) {
+    error['descprition'] = 'Select Descprition';
+    isFormValid = false;
+  }
+  if(!taxAppliesOn) {
+    error['taxAppliesOn'] = 'Select Tax Applies On';
+    isFormValid = false;
+  }
+  if(!taxAppliedType) {
+    error['taxAppliedType'] = 'Select Tax Apply Type';
+    isFormValid = false;
+  }
+  if((taxAppliedType === '' || taxAppliedType === 'Hsncode') && !taxId) {
+    error['taxId'] = 'Select Tax';
+    isFormValid = false;
+  }
+  this.setState({
+    hsnErrors: error
+  }); 
+
+  return isFormValid;
+}
+
+slabValidation() {  
+  let slabErrorsArray = [];
+  const { slabValues } = this.state;
+  slabValues.forEach((item, index) => {
+    const slabErrors = {}
+    if(!item || !item.priceFrom) {
+      slabErrors.priceFrom = 'Enter From Price';
+      slabErrorsArray[index] = slabErrors;
+    }
+    if(!item || !item.priceTo) {
+     slabErrors.priceTo = 'Enter To Price';
+     slabErrorsArray[index] = slabErrors;
+    }
+    if(!item || !item.taxId) {
+      slabErrors.taxId = 'Select Tax';
+      slabErrorsArray[index] = slabErrors;
+     }
+  });
+ return slabErrorsArray;
+}
   render() {
     const description = this.state.descrptionList;
     let descDataList = description.length > 0
         && description.map((item, i) => {
             return (
-               
                 <option key={i} value={item.name}>{item.name}</option>
             )
         }, this);
+        // const taxApplyType = this.state.taxApplyTypeList;
+        // let taxApplyList = taxApplyType.length > 0
+        //     && taxApplyType.map((item, i) => {
+        //         return (
+        //             <option key={i} value={item.name}>{item.name}</option>
+        //         )
+        //     }, this);
         const taxApplies = this.state.taxsAppliesOnList;
         let taxAppliesList = taxApplies.length > 0
             && taxApplies.map((items, k) => {
@@ -279,39 +357,44 @@ handleTextChange = (idx, e) => {
                 </div>
                 <div className="col-4">
                 <div className="form-group">
-                  <label>HSN Code</label>
+                  <label>HSN Code <span className="text-red font-bold" name="bold">*</span></label>
                   <input type="text" className="form-control" placeholder="" value={this.state.hsnCode}
                     onChange={(e) => {
+                      this.state.hsnErrors['hsnCode'] = '';
                       this.setState({
                         hsnCode: e.target.value,
 
                       });
                     }} />
                 </div>
+                <span style={{ color: "red" }}>{this.state.hsnErrors["hsnCode"]}</span>
                 </div>
                 <div className="col-4">
                 <div className="form-group">
-                  <label>Description</label>
-                  <select className="form-control" onChange={this.handleSelectChangeDesc}>
+                  <label>Description <span className="text-red font-bold" name="bold">*</span></label>
+                  <select value={this.state.descprition} className="form-control" onChange={this.handleSelectChangeDesc}>
                   <option>Select Description</option>
                    {descDataList}
                   </select >
                 </div>
+                <span style={{ color: "red" }}>{this.state.hsnErrors["descprition"]}</span>
                 </div>
                 <div className="col-4">
                 <div className="form-group">
-                  <label>Tax Applies ON</label>                
-                  <select className="form-control" onChange={this.handleSelectChangeTaxList}>
+                  <label>Tax Applies ON <span className="text-red font-bold" name="bold">*</span></label>                
+                  <select value={this.state.taxAppliesOn} className="form-control" onChange={this.handleSelectChangeTaxList}>
                   <option>Select Tax Applies ON</option>
                     {taxAppliesList}
                   </select >                
                 </div>
+                <span style={{ color: "red" }}>{this.state.hsnErrors["taxAppliesOn"]}</span>
                 </div>
                 <div className="col-4 mt-3">
                 <div className="form-group">
-                    <label>Tax Apply Type</label>
+                    <label>Tax Apply Type <span className="text-red font-bold" name="bold">*</span></label>
                     <select value={this.state.taxAppliedType} onChange={(e) => this.handelTaxAppliedType(e)} className="form-control">
                       <option>Select Tax Apply Type</option>
+                      {/* {taxApplyList} */}
                         { 
                             this.state.taxAppliedTypes &&
                             this.state.taxAppliedTypes.map((item, i) => 
@@ -319,10 +402,11 @@ handleTextChange = (idx, e) => {
                           }
                     </select>
                 </div>
+                <span style={{ color: "red" }}>{this.state.hsnErrors["taxAppliedType"]}</span>
                 </div>             
                 {(this.state.taxAppliedType  === '' || this.state.taxAppliedType  === 'Hsncode') && <div className="col-4 mt-3">
                 <div className="form-group">
-                  <label>TAX Label</label>
+                  <label> Label <span className="text-red font-bold" name="bold">*</span></label>
                   <select value={this.state.taxId} onChange={(e) => this.handleSelectChangeAllTax(e)} className="form-control">
                       <option>Select Tax Label</option>
                         { 
@@ -337,6 +421,7 @@ handleTextChange = (idx, e) => {
                     value={this.state.selectedTaxLabel}
                   /> */}
                 </div>
+                <span style={{ color: "red" }}>{this.state.hsnErrors["taxId"]}</span>
                 </div>}
                 <div className="col-3 mt-3">
                 <div className="form-group">                 
@@ -348,7 +433,7 @@ handleTextChange = (idx, e) => {
                 </div>
                 </div>
                 
-               {this.state.taxAppliedType  === 'Priceslab' && <div className="col-12">
+               {this.state.taxAppliedType  === 'Priceslab' && <div className="col-12 mt-3">
                   <table className="table table-borderless mb-1 mt-2">
                     <thead>
                       <tr className="m-0 p-0">
@@ -452,10 +537,11 @@ handleTextChange = (idx, e) => {
               <td className="col-3 underline geeks">{items.hsnCode}</td>
               <td className="col-3">{items.description}</td>
               <td className="col-2">{items.taxAppliesOn}</td>
-              <td className="col-2">{items.slabBased}</td>
-              <td className="col-2 text-center">
-                <img src={edit} onClick={() => this.editHSNCode(items)} className="w-12 pb-2" />
-                <i onClick={() => this.deleteHSNCode(items)}className="icon-delete m-l-2 fs-16"></i></td>
+              <td className="col-2">{items.taxAppliedType === 'Priceslab' ? 'Yes' : 'No'}</td>
+              <td className="col-2 text-center">       
+                  <img src={edit} onClick={() => this.editHSNCode(items)} className="w-12 pb-2" />
+                {/* <i onClick={() => this.deleteHSNCode(items)}className="icon-delete m-l-2 fs-16"></i> */}
+              </td>
             </tr>
                         );
                       })}

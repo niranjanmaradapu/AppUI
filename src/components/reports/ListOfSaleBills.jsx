@@ -21,7 +21,30 @@ export default class ListOfSaleBills extends Component {
       rsData: [],
       isView: false,
       domainId: "",
-      storeId: ""
+      storeId: "",
+      status: null,
+      selectOption: [
+        {
+          name: "RT STATUS",
+          id: "RT STATUS",
+        },
+        {
+          name: "All",
+          id: "all",
+        },
+        {
+          name: "Setteled",
+          id: "setteled",
+        },
+        {
+          name: "Pending",
+          id: "pending",
+        },
+        {
+          name: "Cancelled",
+          id: "cancelled",
+        },
+      ],
     };
     this.getReturnSlips = this.getReturnSlips.bind(this);
     // this.viewReport = this.viewReport.bind(this);
@@ -32,24 +55,25 @@ export default class ListOfSaleBills extends Component {
   componentWillMount() {
     const storeId = sessionStorage.getItem("storeId");
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if(domainData.label == "Textile") {
-      this.setState({domainId: 1}); 
-    } else if(domainData.label == "Retail") {
-      this.setState({domainId: 2}); 
-    }
+    // if (domainData.label == "Textile") {
+    //   this.setState({ domainId: 1 });
+    // } else if (domainData.label == "Retail") {
+    //   this.setState({ domainId: 2 });
+    // }
 
-    this.setState({storeId: storeId});
-}
+    this.setState({ storeId: storeId });
+  }
 
   getReturnSlips() {
     const obj = {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
       dateTo: this.state.dateTo ? this.state.dateTo : undefined,
+      status: this.state.status ? this.state.status : undefined,
       createdBy: this.state.createdBy ? this.state.createdBy : undefined,
       rtNumber: this.state.rtNumber ? this.state.rtNumber : undefined,
       barcode: this.state.barcode ? this.state.barcode : undefined,
-      domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
-      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined
+      // domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
+      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
 
     ListOfReturnSlipsService.getReturnSlips(obj).then((res) => {
@@ -209,6 +233,14 @@ export default class ListOfSaleBills extends Component {
     }
   }
 
+  handleSelect(e) {
+    if (e.target.value != "RT STATUS") {
+      this.setState({
+        status: e.target.value,
+      });
+    }
+  }
+
   render() {
     return (
       <div className="maincontent">
@@ -313,7 +345,7 @@ export default class ListOfSaleBills extends Component {
         <div className="row">
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
-            <label>From Date</label>
+              <label>From Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -326,7 +358,7 @@ export default class ListOfSaleBills extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
-            <label>To Date</label>
+              <label>To Date</label>
               <input
                 type="date"
                 className="form-control"
@@ -338,32 +370,34 @@ export default class ListOfSaleBills extends Component {
           </div>
 
           <div className="col-12 col-sm-2 mt-2">
+            <label>RT Status</label>
             <div className="form-group">
-            <label>Return Slip No</label>
-              <input
-                type="text"
+              <select
                 className="form-control"
-                placeholder="RETURN SLIP NUMBER"
-                value={this.state.rtNumber}
-                onChange={(e) => this.setState({ rtNumber: e.target.value })}
-              />
+                value={this.state.status}
+                onChange={(e) => {
+                  this.handleSelect(e);
+                }}
+                // onChange={(e) => this.setState({ status: e.target.value })}
+              >
+                {this.state.selectOption.map((i) => {
+                  return (
+                    <option key={i.id} value={i.id}>
+                      {i.name}
+                    </option>
+                  );
+                })}
+                {/* <option>DS STATUS</option>
+                <option>Completed</option>
+                <option>Pending</option>
+                <option>Cancelled</option> */}
+              </select>
             </div>
           </div>
+
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
-            <label>Barecode</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="BARCODE"
-                value={this.state.barcode}
-                onChange={(e) => this.setState({ barcode: e.target.value })}
-              />
-            </div>
-          </div>
-          <div className="col-12 col-sm-2 mt-2">
-            <div className="form-group">
-            <label>EMP ID</label>
+              <label>EMP ID</label>
               <input
                 type="text"
                 className="form-control"

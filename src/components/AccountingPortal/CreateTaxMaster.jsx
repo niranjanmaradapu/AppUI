@@ -36,24 +36,32 @@ export default class CreateTaxMaster extends Component {
   }
 
   closeTaxMaster() {
-    this.setState({ isTaxMaster: false, isDeleteTaxMaster: false });
+    this.setState({ 
+    isTaxMaster: false, 
+    isDeleteTaxMaster: false, 
+    cess: "",
+    cgst: "",
+    igst: "",
+    sgst: "",
+    taxLabel: ""
+  });
   }
   saveTaxMaster(){
     let obj = {
-      "cess": parseInt(this.state.cess),
-      "cgst": parseInt(this.state.cgst),
-      "igst": parseInt(this.state.igst),
-      "sgst": parseInt(this.state.sgst),
+      "cess": this.state.cess,
+      "cgst": this.state.cgst,
+      "igst": this.state.igst,
+      "sgst": this.state.sgst,
       "taxLabel":  this.state.taxLabel
       // "customerName": this.state.customerData?.userName,
       // "mobileNumber": this.state.mobileNumber,
       // "storeId": this.state.storeId
     };
     if(!this.state.isTaxMasterEdited) {
-      AccountingPortalService.saveMasterTax(obj).then(response => {
-        if (response) {
-          toast.success(response.data.message);
-           this.getTaxDataList();
+      AccountingPortalService.saveMasterTax(obj).then(response => {        
+        if (response.status == 200) {
+          toast.success('Tax Master saved successfully');
+          this.getTaxDataList();
           this.closeTaxMaster();
         }
       });
@@ -65,7 +73,12 @@ export default class CreateTaxMaster extends Component {
           this.setState({
            selectedTaxMaster: '',
            isTaxMasterEdited: false,
-           isTaxMaster: false
+           isTaxMaster: false,
+           cess: "",
+            cgst: "",
+            igst: "",
+            sgst: "",
+            taxLabel: ""
           }, () => this.getTaxDataList());
         } else {
           toast.warn(response.data.message);
@@ -264,8 +277,9 @@ export default class CreateTaxMaster extends Component {
               <td className="col-2">{items.cess}</td>
               {/* <td className="col-2"><button className="btn-active">Default</button></td> */}
               <td className="col-2 text-center">
-                <img src={edit} onClick={() => this.editTaxMaster(items)} className="w-12 pb-2" />
-                <i onClick={() => this.deleteTaxMaster(items)} className="icon-delete m-l-2 fs-16"></i></td>
+                {/* <img src={edit} onClick={() => this.editTaxMaster(items)} className="w-12 pb-2" />
+                <i onClick={() => this.deleteTaxMaster(items)} className="icon-delete m-l-2 fs-16"></i> */}
+              </td>
             </tr>
             );
           })}

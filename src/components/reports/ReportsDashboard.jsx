@@ -61,7 +61,7 @@ export default class ReportsDashboard extends Component {
         console.log(this.state.storeId);
         ListOfReportsGraphsService.getInvoicesGenerated(this.state.storeId).then(response => {
             if (response) {
-                if (response.data.result !== "null" && response.data.result.length > 0) {
+                if (response.data.result !== null && response.data.result.length > 0) {
                     this.setState({ invoicesGenerated: response.data.result },
                         () => {
                             console.log('Invoices Generated', response);
@@ -104,7 +104,7 @@ export default class ReportsDashboard extends Component {
         ListOfReportsGraphsService.getTopFiveSales().then(response => {
             console.log('Top Five Sales', response.data);
             if (response) {
-                if (response.data.result !== "null" && response.data.result.length > 0) {
+                if (response.data.result !== null && response.data.result.length > 0) {
                     this.setState({ topSales: response.data.result },
                         () => {
                             let indexName = [];
@@ -152,7 +152,7 @@ export default class ReportsDashboard extends Component {
         ListOfReportsGraphsService.getActiveInactive().then(response => {
 
             if (response) {
-                if (response.data.result !== "null" && response.data.result.length > 0) {
+                if (response.data.result !== null && response.data.result.length > 0) {
                     console.log('Active Inactive Promos', response.data.result);
                     this.setState({ activeInactive: response.data.result },
                         () => {
@@ -196,7 +196,7 @@ export default class ReportsDashboard extends Component {
         ListOfReportsGraphsService.getSaleSummary().then(response => {
             console.log('Sales Summary', response.data);
             if (response) {
-                if (response.data.result !== "null" && response.data.result.length > 0) {
+                if (response.data.result !== null && response.data.result.length > 0) {
                     this.setState({ salesSummary: response.data.result },
                         () => {
                             let indexName = [];

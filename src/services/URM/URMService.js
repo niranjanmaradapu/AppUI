@@ -25,6 +25,10 @@ class URMService {
     editStore(saveObj) {
         return axios.put(BASE_URL+USER_MANAGEMENT_URL.editStore, saveObj);
     }
+    deleteStore(id){
+        const param = '?id=' + id;
+        return axios.delete(BASE_URL+USER_MANAGEMENT_URL.deleteStore + param);
+    }
 
    
 
@@ -44,14 +48,14 @@ class URMService {
         return axios.get(BASE_URL+USER_MANAGEMENT_URL.getAllRoles+param);
     }
 
-    getStoresByDomainId(domainId) {
-        const param = '?clientDomianId='+ domainId; 
-        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getStoresByDomainId+param);
+    getStoresByDomainId(clientId) {
+        const param = '?clientId='+ clientId; 
+        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getAllStores+param);
     }
 
-    getRolesByDomainId(domainId) {
-        const param = '/'+ domainId; 
-        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getRolesByDomainId+param);
+    getRolesByDomainId(clientId) {
+        const param = '/'+ clientId; 
+        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getAllRoles+param);
     }
 
     saveUser(saveObj) {
@@ -60,6 +64,10 @@ class URMService {
 
     editUser(saveObj) {
         return axios.put(BASE_URL+USER_MANAGEMENT_URL.editUser, saveObj);
+    }
+    deleteUser(id){
+        const param = '?id=' + id;
+        return axios.delete(BASE_URL+USER_MANAGEMENT_URL.deleteUser + param);
     }
 
     saveRole(saveObj) {
@@ -84,9 +92,15 @@ class URMService {
         return axios.get(BASE_URL+USER_MANAGEMENT_URL.getGSTNumber+param);
     }
 
-    getUsers(clientId) {
-        const param = '/'+ clientId; 
-        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getAllUsers+param);
+    // getUsers(clientId) {
+    //     const param = '/'+ clientId; 
+    //     return axios.get(BASE_URL+USER_MANAGEMENT_URL.getAllUsers+param);
+    // }
+
+    getUsers(clientId, pageNumber = 0) {
+        const param = '/' + clientId;
+        const param2 = '?page=' + pageNumber;
+        return axios.get(BASE_URL + USER_MANAGEMENT_URL.getAllUsers + param + param2 + '&size=10');
     }
 
     getSelectedPrivileges(domainName) {
@@ -109,9 +123,9 @@ class URMService {
         return axios.get(BASE_URL+USER_MANAGEMENT_URL.getDomainName+param);
     }
 
-    getAllPrivilegesbyDomain(domainId) {
-        const param = '/'+ domainId; 
-        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getPrivilegesByDomain+param);
+    getAllPrivileges(domainId) {
+        // const param = '/'+ domainId; 
+        return axios.get(BASE_URL+USER_MANAGEMENT_URL.getPrivileges);
     }
 
     getStoresBySearch(searchStore) {
@@ -124,8 +138,14 @@ class URMService {
         return axios.post(BASE_URL+USER_MANAGEMENT_URL.getRolesBySearch, searchRole);
     }
 
-    getUserBySearch(searchUser) {
-        return axios.post(BASE_URL+USER_MANAGEMENT_URL.getUserBySearch, searchUser);
+    // getUserBySearch(searchUser) {
+    //     return axios.post(BASE_URL+USER_MANAGEMENT_URL.getUserBySearch, searchUser);
+
+    // }
+
+    getUserBySearch(searchUser, pageNumber = 0) {
+        const param2 = '?page=' + pageNumber;
+        return axios.post(BASE_URL + USER_MANAGEMENT_URL.getUserBySearch + param2 + '&size=10', searchUser);
 
     }
 

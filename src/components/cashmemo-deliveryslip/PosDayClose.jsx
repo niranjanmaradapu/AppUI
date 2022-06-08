@@ -136,6 +136,7 @@ register today?</h6>
                     (!this.state.enableButton ? " btn-disable" : "")
                   }
                   onClick={this.closeDay}
+                  disabled={!this.state.enableButton}
                 >
                  Day closure
                 </button>

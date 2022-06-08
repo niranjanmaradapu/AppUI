@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import edit from '../../assets/images/edit.svg';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
+import { errorLengthMin , errorLengthMax , account_err_msg} from "../../commonUtils/Errors";
 import URMService from '../../services/URM/URMService';
 
 
@@ -39,6 +40,8 @@ export default class Stores extends Component {
             isSearch: false,
             gstNumber: "",
             isGstNumber: false,
+            isState:false,
+            isDistrict:false,
             loggedUser:"",
             searchDistrict:0
         }
@@ -51,6 +54,7 @@ export default class Stores extends Component {
         this.validation = this.validation.bind(this);
         this.searchStore = this.searchStore.bind(this);
         this.getAllStores = this.getAllStores.bind(this);
+        this.deleteStore = this.deleteStore.bind(this);
         this.handleValidation = this.handleValidation.bind(this);
     }
 
@@ -70,15 +74,17 @@ export default class Stores extends Component {
             isEdit: false,
             isSearch: false,
             isGstNumber: false,
+            isState:false,
+            isDistrict:false,
             gstNumber:"",
           
 
         });
-        this.getDomainsList();
+        // this.getDomainsList();
     }
 
     hideStores() {
-        this.getDomainsList();
+        // this.getDomainsList();
         this.setState({ showModal: false });
         this.setState({
             stateName:""
@@ -202,12 +208,12 @@ export default class Stores extends Component {
         }
         URMService.getAllStores(this.state.clientId).then(res => {
             if (res) {
-                this.setState({ storesList: res.data.result, isStore: true });
+                this.setState({ storesList: res.data, isStore: true });
             }
 
 
         });
-        this.getDomainsList();
+        // this.getDomainsList();
     }
 
 
@@ -234,12 +240,16 @@ export default class Stores extends Component {
         });
     }
 
-
+    dateFormat = (d) => {
+        let date = new Date(d)
+        
+        return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
+    }
+    
+    
     saveStores() {
 
         const formValid = this.handleValidation();
-     
-      
         console.log(this.state.loggedUser);
         if (formValid) {
             let saveObj;
@@ -253,12 +263,12 @@ export default class Stores extends Component {
                     "area": this.state.area,
                     "address": this.state.address,
                     "phoneNumber": this.state.phoneNumber,
-                    "domainId": parseInt(this.state.domain),
+                    // "domainId": parseInt(this.state.domain),
                     "createdBy": parseInt(this.state.loggedUser),
                     "createdDate": "",
                     "stateCode": this.state.stateName,
                     "gstNumber": parseInt(this.state.gstNumber),
-                    "clientId":parseInt(this.state.clientId),
+                    "clientId":parseInt(this.state.clientId)
 
                 }
 
@@ -278,7 +288,7 @@ export default class Stores extends Component {
                     "area": this.state.area,
                     "address": this.state.address,
                     "phoneNumber": this.state.phoneNumber,
-                    "domainId": parseInt(this.state.domain),
+                    // "domainId": parseInt(this.state.domain),
                     "createdBy":  parseInt(this.state.loggedUser),
                     "stateCode": this.state.stateName,
                     "gstNumber": this.state.gstNumber,
@@ -309,8 +319,8 @@ export default class Stores extends Component {
     }
 
     editStore(items) {
-        console.log(items.gstNumber);
-       
+        console.log(items);
+
         this.setState({
             showModal: true, stateName: items.stateCode, district: items.districtId.toString(), city: items.cityId,
             area: items.area, phoneNumber: items.phoneNumber,
@@ -318,6 +328,8 @@ export default class Stores extends Component {
             domain: items.domainId, storeName: items.name,
             gstNumber:items.gstNumber,
             isGstNumber:true,
+            isState:true,
+            isDistrict:true,
             isEdit: true,
             selectedStore: items,
             isSearch: false
@@ -325,9 +337,53 @@ export default class Stores extends Component {
             this.getDistricts();
         });
     }
+    deleteStore(items) {
+        console.log(">>>>item", items.id);
+
+    
+        URMService.deleteStore(items.id).then(
+          (res) => {
+            if (res.data && res.data.isSuccess === "true") {
+              toast.success(res.data.result);
+              this.props.history.push("/stores");
+            //   this.stateReset();
+              this.getAllStores(0);
+              console.log(".....storeId", items.id);
+            } else {
+              toast.error(res.data.message);
+            }
+          }
+        );
+      }
+      stateReset(){
+        this.setState({
+            address: "",
+        area: "",
+        cityId: "",
+        clientId: "",
+        createdBy:"",
+        createdDate: "",
+        districtId: "",
+        domainId: "",
+        domainName: "",
+        gstNumber: "",
+        id: "",
+        isActive:false,
+        lastModifyedDate: null,
+        name: "",
+        phoneNumber: "",
+        stateCode: "",
+        stateId: "",
+        storeOwner: "",
+        userName: "",
+          })
+
+
+    }    
 
     getTableData() {
         return this.state.storesList.map((items, index) => {
+            let date = this.dateFormat(items.createdDate)
             // const { storeManager, createdDate,clientDomianlId["domaiName"], createdBy, cityId, name, domain } = items;
             return (
 
@@ -335,12 +391,12 @@ export default class Stores extends Component {
                     <td className="col-1">{index + 1}</td>
                     <td className="col-2">{items.name}</td>
                     <td className="col-2">{items.cityId}</td>
-                    <td className="col-2">{items.domainName}</td>
+                    {/* <td className="col-2">{items.domainName}</td> */}
                     <td className="col-2">{items.userName}</td>
-                    <td className="col-2">{items.createdDate}</td>
+                    <td className="col-2">{date}</td>
                     <td className="col-1">
                         <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editStore(items)} />
-                        <i className="icon-delete"></i></td>
+                        <i className="icon-delete"onClick={(e) => this.deleteStore(items)}></i></td>
                 </tr>
 
             );
@@ -360,9 +416,10 @@ export default class Stores extends Component {
                                 <th className="col-1">Store ID </th>
                                 <th className="col-2">Store Name</th>
                                 <th className="col-2">Location</th>
-                                <th className="col-2">Domain</th>
+                                {/* <th className="col-2">Domain</th> */}
                                 <th className="col-2">Created By</th>
                                 <th className="col-2">Created Date</th>
+                                {/* <th className='col-2'>Status</th> */}
                                 <th className="col-1"></th>
                             </tr>
                         </thead>
@@ -411,31 +468,31 @@ export default class Stores extends Component {
         // }
 
         //Domain 
-        if (!this.state.domain) {
-            formIsValid = false;
-            errors["domain"] = "Enter Domain";
-        }
+        // if (!this.state.domain) {
+        //     formIsValid = false;
+        //     errors["domain"] = account_err_msg.domain;
+        // }
 
 
 
         // Store Name
 
-        if (!this.state.storeName) {
+        if (this.state.storeName.length < errorLengthMin.storeName) {
             formIsValid = false;
-            errors["storeName"] = "Please Enter Store Name";
+            errors["storeName"] = account_err_msg.storeName;
         }
-        if (this.state.storeName) {
-            let input = this.state.storeName;
-            const storeValid = input.length < 6 ;
-            const exstoreValid = input.length > 25 ;
-            if (this.state.storeName && storeValid) {
-              formIsValid = false;
-              errors["storeName"] = "Please enter Atlest 6 Characters";
-            }else if(this.state.storeName && exstoreValid){
-                formIsValid = false;
-                errors["storeName"] = "Please Enter Store Name Below 25 characters";
-            }
-          }
+        // if (this.state.storeName) {
+        //     let input = this.state.storeName;
+        //     const storeValid = input.length < 6 ;
+        //     const exstoreValid = input.length > 25 ;
+        //     if (this.state.storeName && storeValid) {
+        //       formIsValid = false;
+        //       errors["storeName"] = "Please enter Atlest 6 Characters";
+        //     }else if(this.state.storeName && exstoreValid){
+        //         formIsValid = false;
+        //         errors["storeName"] = "Please Enter Store Name Below 25 characters";
+        //     }
+        //   }
 
 
 
@@ -452,22 +509,19 @@ export default class Stores extends Component {
 
         if (!this.state.district) {
             formIsValid = false;
-            errors["districtName"] = "Select District Name";
+            errors["districtName"] = account_err_msg.districtName;
         }
 
         // gstNumber 
-        if (!this.state.gstNumber) {
-            formIsValid = false;
-            errors["gstNumber"] = "Enter GST Number ";
-        }
-        // if (this.state.gstNumber) {
-        //     let input = this.state.gstNumber;
-        //      const gstValid = input.length === 15 ;
-        //        if (this.state.gstNumber && !gstValid) {
-        //         formIsValid = false;
-        //         errors["gstNumber"] = "Enter Valid GST Number";
-        //     }
+        // gstNumber 
+        // if (!this.state.gstNumber) {
+        //     formIsValid = false;
+        //     errors["gstNumber"] =  account_err_msg.gstNumber;
         // }
+        if (this.state.gstNumber.length !== errorLengthMin.gstNumber) {
+            formIsValid = false;
+            errors["gstNumber"] = account_err_msg.gstNumber;
+    }
 
 
 
@@ -475,6 +529,17 @@ export default class Stores extends Component {
         this.setState({ errors: errors });
         return formIsValid;
 
+    }
+
+    capitalization= () => {
+      const { storeName } = this.state;
+      if(storeName) {
+        const store_name =   storeName[0].toLocaleUpperCase() + storeName.substring(1);
+        this.setState({
+          storeName: store_name
+        })
+      }
+     
     }
 
 
@@ -548,6 +613,7 @@ export default class Stores extends Component {
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>State<span className="text-red font-bold">*</span></label>
+                                      
                                         {/* <select className="form-control" value={this.state.stateName}
                                             onChange={(e) => this.setState({ stateName: e.target.value })}
                                         >
@@ -559,8 +625,10 @@ export default class Stores extends Component {
                                         {/* <span style={{ color: "red" }}>{this.state.errors["stateName"]}</span> */}
 
                                         <select className="form-control" value={this.state.stateName}
-
-                                            onChange={(e) => this.setState({ stateName: e.target.value, isGstNumber:false, gstNumber:"" }, () => {
+                                        disabled={this.state.isState}
+                                        
+                                            onChange={(e) => this.setState({ stateName: e.target.value, isGstNumber:false,isState:false,
+                                                isDistrict:false, gstNumber:"" }, () => {
                                                 this.getDistricts();
                                                 this.getGSTNumber();
                                             })}>
@@ -579,6 +647,7 @@ export default class Stores extends Component {
                                     <div className="form-group">
                                         
                                         <label>District<span className="text-red font-bold">*</span></label>
+                                      
                                         {/* <select className="form-control" value={this.state.district}
                                             onChange={(e) => this.setState({ district: e.target.value })}>
                                             <option> Select </option>
@@ -588,6 +657,7 @@ export default class Stores extends Component {
                                         </select> */}
 
                                         <select className="form-control" value={this.state.district}
+                                          disabled={this.state.isDistrict}
                                             onChange={(e) => this.setState({ district: e.target.value })}>
                                             
                                             {districtList}
@@ -664,7 +734,7 @@ export default class Stores extends Component {
                                     <div className="form-group">
                                         <label>Store Phone Number</label>
                                         <input type="text" className="form-control" minLength="10"
-                                            maxLength="10" placeholder="+91" value={this.state.phoneNumber}
+                                            maxLength={errorLengthMax.phoneNumber} placeholder="+91" value={this.state.phoneNumber}
                                             onChange={this.validation} />
                                         {/* <div>
                                             <span style={{ color: "red" }}>{this.state.errors["phoneNumber"]}</span>
@@ -681,7 +751,7 @@ export default class Stores extends Component {
                                 <div className="col-12 mt-4">
                                     <h6 className="text-red mb-1 fs-14 scaling-center scaling-mb">Store Info</h6>
                                 </div>
-                                <div className="col-4">
+                                {/* <div className="col-4">
                                     <div className="form-group">
                                         <label>Domain<span className="text-red font-bold">*</span></label>
                                         
@@ -693,17 +763,16 @@ export default class Stores extends Component {
                                         </div>
                                             {modulesList}
                                         </select >
-                                        {/* <div>
-                                            <span style={{ color: "red" }}>{this.state.errors["domain"]}</span>
-                                        </div> */}
                                     </div>
-                                </div>
+                                </div> */}
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>Store Name<span className="text-red font-bold">*</span></label>
                                         <input type="text" className="form-control"
                                             value={this.state.storeName}
-                                            onChange={(e) => this.setState({ storeName: e.target.value })} />
+                                            maxLength ={errorLengthMax.storeName}
+                                            onBlur={() => this.capitalization()}
+                                            onChange={(e) => this.setState({ storeName: e.target.value })} />                                            
                                         
                                     </div>
                                     <div>
@@ -712,22 +781,18 @@ export default class Stores extends Component {
                                 </div>
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
-                                    <label>GST Number<span className="text-red font-bold">*</span></label>
-                                    
-                                        
-                                            <input type="text"  className ="form-control" placeholder="Gst Number" 
-                                            disabled ={this.state.isGstNumber}
+                                        <label>GST Number<span className="text-red font-bold">*</span></label>
+                                        <input type="text" className="form-control" placeholder="Gst Number" 
                                             value={this.state.gstNumber}
-                                            maxLength="15" minLength="15"
+                                            disabled={this.state.isGstNumber}
+                                            maxLength={errorLengthMax.gstNumber}
                                             onChange={(e) => this.setState({ gstNumber: e.target.value })} 
                                             erorText="Please enter only 15 digits number"/>
-                                        
-                                        
                                             
                                     </div>
-                                    {/* <div>
+                                    <div>
                                             <span style={{ color: "red" }}>{this.state.errors["gstNumber"]}</span>
-                                        </div> */}
+                                        </div>
                                     
                                 </div>
                                 
@@ -775,7 +840,7 @@ export default class Stores extends Component {
                                 onChange={(e) => this.setState({ searchStoreId: e.target.value })} />
                         </div>
                     </div>
-                    <div className="col-sm-6 col-12 scaling-center scaling-mb mt-2 pt-4 p-l-0">
+                    <div className="col-sm-6 col-12 scaling-center scaling-mb mt-2  pt-4 p-l-0">
                         <button className="btn-unic-search active m-r-2" onClick={this.searchStore}>SEARCH </button>
                         <button className="btn-unic-search active m-r-2" onClick={this.getAllStores}>CLEAR </button>
                         <button className="btn-unic-search active" onClick={this.showStores}><i className="icon-retail mr-1"></i>  Add Store </button>

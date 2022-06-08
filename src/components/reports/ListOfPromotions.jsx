@@ -18,6 +18,7 @@ export default class ListOfPromotions extends Component {
       storeList: [],
     };
     this.getPromotions = this.getPromotions.bind(this);
+    this.preventMinus = this.preventMinus.bind(this);
   }
 
   getPromotions() {
@@ -147,6 +148,12 @@ export default class ListOfPromotions extends Component {
     });
   };
 
+  preventMinus = (e) => {
+    if (e.code === "Minus") {
+      e.preventDefault();
+    }
+  };
+
   render() {
     console.log("startdate", moment(new Date()).format("YYYY-DD-MM"));
     return (
@@ -154,7 +161,7 @@ export default class ListOfPromotions extends Component {
         <div className="row">
           <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
-            <label>From Date</label>
+              <label>From Date</label>
               {/* <input
                 type="date"
                 className="form-control"
@@ -184,7 +191,7 @@ export default class ListOfPromotions extends Component {
           </div>
           <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
-            <label>End Date</label>
+              <label>End Date</label>
               <input
                 type="date"
                 name="trip-start"
@@ -196,11 +203,12 @@ export default class ListOfPromotions extends Component {
           </div>
           <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
-            <label>Promo ID</label>
+              <label>Promo ID</label>
               <input
                 type="number"
+                min="0"
+                onKeyPress={this.preventMinus}
                 className="form-control"
-                min={0}
                 placeholder="PROMO ID"
                 value={this.state.promoId}
                 onChange={(e) => this.setState({ promoId: e.target.value })}
@@ -209,7 +217,7 @@ export default class ListOfPromotions extends Component {
           </div>
           <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
-            <label>Store</label>
+              <label>Store</label>
               <select
                 className="form-control"
                 value={this.state.storeId}

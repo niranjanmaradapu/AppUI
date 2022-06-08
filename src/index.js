@@ -57,7 +57,16 @@ ReactDOM.render(
   <React.StrictMode>
      <I18nextProvider i18n={i18n}>
      <App />
-     <ToastContainer />
+     <ToastContainer 
+     position="top-right"
+     autoClose={3000}
+     hideProgressBar={false}
+     newestOnTop={false}
+     closeOnClick
+     rtl={false}
+     pauseOnFocusLoss
+     draggable
+     pauseOnHover />
      </I18nextProvider>
   </React.StrictMode>,
   document.getElementById('root')

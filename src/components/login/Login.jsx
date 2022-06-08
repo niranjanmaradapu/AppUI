@@ -19,6 +19,9 @@ import notes from "../../assets/images/notes.svg";
 import notesadd from "../../assets/images/notes_add.svg";
 import adminImg from "../../assets/images/adminIMG1.svg";
 import { withTranslation } from "react-i18next";
+import { errorLengthMin , errorLengthMax , login_err_msg} from "../../commonUtils/Errors";
+import { forgot_err_msg} from "../../commonUtils/Errors";
+import { update_Pass_Err_Msg} from "../../commonUtils/Errors";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import URMService from "../../services/URM/URMService";
 
@@ -99,6 +102,7 @@ class Login extends Component {
 
 
   login = () => {
+    if(this.state.userName && this.state.password){
     const obj = {
       email: this.state.userName,
       password: this.state.password,
@@ -106,19 +110,20 @@ class Login extends Component {
 
     LoginService.getAuth(obj).then((res) => {
       console.log(res);
-      if (res && res.data && res.data.isSuccess === "true") {
-        if (res.data.result.authenticationResult) {
-          const token = res.data.result.authenticationResult.idToken;
+      if (res && res.data && res.status ===200) {
+        if (res.data.authenticationResult) {
+          const token = res.data.authenticationResult.idToken;
           sessionStorage.setItem("user", JSON.stringify(jwt_decode(token)));
           sessionStorage.setItem("token", JSON.stringify(token));
           // this.getDropdownList();
           const role = JSON.parse(sessionStorage.getItem("user"));
           if (role["cognito:groups"]) {
             if (role["cognito:groups"][0] === "super_admin") {
-              this.getModel();
+              // this.getModel();
+              this.getStores() 
             } else if (role["cognito:groups"][0] === "config_user") {
               sessionStorage.setItem("domainName", role["cognito:groups"][0]);
-              this.props.history.push("/domain");
+              this.props.history.push("/stores");
             } else {
               sessionStorage.setItem("domainName", role["cognito:groups"][0]);
               this.getStores();
@@ -142,16 +147,16 @@ class Login extends Component {
           //     const result = Object.values(table1);
           //     console.log(result);
         } else {
-          if (res.data.result.challengeName === "NEW_PASSWORD_REQUIRED") {
-            const roleData = res.data.result
-              ? JSON.parse(res.data.result.challengeParameters.userAttributes)
+          if (res.data.challengeName === "NEW_PASSWORD_REQUIRED") {
+            const roleData = res.data
+              ? JSON.parse(res.data.challengeParameters.userAttributes)
               : "";
             this.setState({
               isChangePassword: true,
               isRegister: false,
               isForgot: false,
               isLogin: false,
-              sessionData: res.data.result.session,
+              sessionData: res.data.session,
               roleName: roleData["custom:roleName"],
             });
 
@@ -170,18 +175,21 @@ class Login extends Component {
     });
 
     //  this.props.history.push("/domain");
+  }else{
+    toast.error("Please Enter UserName and Password");
+  }
   };
 
   getStores() {
     console.log("Stores List")
     const role = JSON.parse(sessionStorage.getItem("user"));
     if (role["custom:isSuperAdmin"] === "true") {
-      const domain = JSON.parse(sessionStorage.getItem('selectedDomain'));
-      URMService.getStoresByDomainId(domain.value).then(res => {
+      // const domain = JSON.parse(sessionStorage.getItem('selectedDomain'));
+      URMService.getStoresByDomainId(role["custom:clientId1"]).then(res => {
         if(res) {
           console.log(res);
           let store = [];
-          const storeData = res.data.result;
+          const storeData = res.data;
           storeData.forEach(storeData=>{
             const obj = {
               storeName: storeData.name,
@@ -243,11 +251,12 @@ class Login extends Component {
       } else if (role["cognito:groups"][0] === "config_user") {
         sessionStorage.setItem("domainName", role["cognito:groups"][0]);
         // sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
-        this.props.history.push("/domain");
+        this.props.history.push("/stores");
       } else {
         sessionStorage.setItem("domainName", role["cognito:groups"][0]);
         //  sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
-        this.props.history.push("/dashboard");
+        // this.props.history.push("/dashboard");
+      this.getPath()
       }
     } else if (role["custom:isSuperAdmin"] === "true") {
       // sessionStorage.setItem('selectedDomain', JSON.stringify(data2[0]));
@@ -258,7 +267,17 @@ class Login extends Component {
       // window.location.reload();
     }
   }
+getPath(){
+  const role = JSON.parse(sessionStorage.getItem("user"));
+  URMService.getSubPrivilegesbyRoleId(role["custom:roleName"]).then(res => {
+    if(res) {
+    //  this.setState({buttonsList: res.data.result});
+    const subPrivilegesList = res.data.subPrivileges;
+    this.props.history.push(subPrivilegesList[0].childPath)
 
+    }
+  });
+}
 
   changePasswordValidation(){
     let errors = {};
@@ -270,36 +289,17 @@ class Login extends Component {
     // if(!this.state.newPassword) {
     //   errors["newpassword"] = 'Please Enter Password';
     // }
-    if(this.state.newPassword){
-        let input = this.state.newPassword;
-        const newValid = input.length < 8 ;
-        const exnewValid = input.length > 25;
-        if(this.state.newPassword && newValid)
-        {
-          formIsValid = false;
-        errors["newpassword"]= 'Please Enter Atleast 8 Characters';
-    }else if (this.state.newPassword && exnewValid) {
+    if(this.state.newPassword.length < errorLengthMin.newPassword){
       formIsValid = false;
-      errors["newpassword"]= 'Password Should Less Than 15 Characters';
-    }
-  }
+    errors["newpassword"]= update_Pass_Err_Msg.newPassword;
+
+}
   
     // confirm password
-    // if (!this.state.confirmPassword) {
-    //   errors["currentpassword"] = "Please Enter Confirm Password ";
-    // }
-    if (this.state.confirmPassword) {
-      let input = this.state.confirmPassword;
-      const currpassValid = input.length < 8 ;
-      const excurrpassValid = input.length > 25;
-      if (this.state.confirmPassword && currpassValid) {
-        formIsValid = false;
-        errors["currentpassword"]= "Please Enter Atleast 8 Characters";
-      }else if (this.state.confirmPassword && excurrpassValid) {
-        formIsValid = false;
-        errors["currentpassword"]= "Confirm Password Should Less Than 25 Characters";
-      }
-    }
+    if (this.state.confirmPassword.length < errorLengthMin.confirmPassword) {
+      formIsValid = false;
+      errors["currentpassword"]= update_Pass_Err_Msg.confirmPassword
+  }
     this.setState({ errors: errors });
     return formIsValid;
 
@@ -460,6 +460,7 @@ class Login extends Component {
   }
 
   getConfirmationCode() {
+    if(this.state.userName){
     LoginService.getConfirmationCode(this.state.userName).then((res) => {
       if (res) {
         toast.success("Confirmation Code Sent To Mail");
@@ -476,6 +477,9 @@ class Login extends Component {
         });
       }
     });
+  }else{
+    toast.info("Please Enter UserName");
+  }
   }
 
 
@@ -484,36 +488,20 @@ class Login extends Component {
     let formIsValid = true;
 
     //newForgotPassword
-    if (!this.state.newForgotPassword) {
-      formIsValid = false;
-      errors["newforgotpassword"] = "Please Enter New Password";
-    }
-    if (this.state.newForgotPassword) {
-      let input = this.state.newForgotPassword;
-      const newforgotValid = input.length < 8 ;
-      const exnewforgotValid = input.length > 25;
-      if (this.state.newForgotPassword && newforgotValid) {
+   
+    if (this.state.newForgotPassword.length < errorLengthMin.newForgotPassword) {
         formIsValid = false;
-        errors["newforgotpassword"] = "Please Enter Atleast 8 Characters";
-      }else if(this.state.newForgotPassword && exnewforgotValid){
-        formIsValid = false;
-        errors["newforgotpassword"] = "Password Should Less Than 25 Characters";
-      }
+        errors["newforgotpassword"] = forgot_err_msg.newForgotPassword;
+      
     }
 
     //confirmationCode
-    if (!this.state.confirmationCode) {
-      formIsValid = false;
-      errors["confirmationcode"] = "Please Enter Confirmation Code";
-    }
-    if (this.state.confirmationCode) {
-      let input = this.state.confirmationCode;
-      const confirmValid = input.length === 6;
-      if (this.state.confirmationCode && !confirmValid) {
+    
+    if (this.state.confirmationCode.length !== errorLengthMin.confirmationCode) {
         formIsValid = false;
-        errors["confirmationcode"] = "Please Enter Valid Confirmation Code ";
+        errors["confirmationcode"] = forgot_err_msg.confirmationCode;
       }
-    }
+    
 
     this.setState({ errors: errors });
     return formIsValid;
@@ -554,7 +542,7 @@ class Login extends Component {
   }
 
   }else {
-    toast.info("Please Enter All Mandatory Fields");
+    toast.info("Please Enter Confirmation Code And New Password");
   }
 }
 
@@ -583,71 +571,47 @@ class Login extends Component {
     let formIsValid = true;
 
     //Name
-    if (!this.state.registerName) {
+    if (this.state.registerName.length < errorLengthMin.registerName) {
       formIsValid = false;
-      errors["registerName"] = "Please Enter Name";
-    }
-    if (this.state.registerName) {
-      let input = this.state.registerName;
-      const nameValid = input.length < 6;
-      const exnameValid =input.length > 25;
-      if (nameValid) {
-        formIsValid = false;
-        errors["registerName"] = "Please Enter Atleast 6 Characters";
-      }else if(exnameValid){
-        formIsValid = false;
-        errors["registerName"] = "Please Enter Name Below 25 Characters";
-      }
-    }
+      errors["registerName"] = login_err_msg.registerName;
+  }
 
     // Organisation
-    if (!this.state.registerOrganisation) {
+   
+    if (this.state.registerOrganisation.length < errorLengthMin.registerOrganisation) {
       formIsValid = false;
-      errors["registerOrganisation"] = "Please Enter Organisation";
+      errors["registerOrganisation"] = login_err_msg.registerOrganisation;
     }
-    if (this.state.registerOrganisation) {
-      let input = this.state.registerOrganisation;
-      const orgValid = input.length < 3;
-      const exorgValid =input.length > 25;
-      if (this.state.registerOrganisation && orgValid) {
-        formIsValid = false;
-        errors["registerOrganisation"] = "Please Enter Atleast 3 Characters";
-      }else if(this.state.registerOrganisation && exorgValid){
-        formIsValid = false;
-        errors["registerOrganisation"] = "Please Enter Organisation Below 25 Characters";
-      }
-    }
-
-    
 
 
     // Mobile
-    if (!this.state.registerMobile) {
+    const patternRegExp = (/^[0-9\b]+$/);
+    let input = this.state.registerMobile;
+    if (input.length !== errorLengthMin.registerMobile || patternRegExp.test(this.state.registerMobile) === false) {
     formIsValid = false;
-    errors["registermobile"] = "Please Enter Mobile Number";
+    errors["registermobile"] = login_err_msg.registerMobile;
    }
     
-if (this.state.registerMobile) {
- var pattern = new RegExp(/^[0-9\b]+$/);
-    if (pattern.test(this.state.registerMobile)) {
-       let input = this.state.registerMobile;
-      const mobValid= input.length === 10;
-          if(this.state.registerMobile && !mobValid){
-               formIsValid = false;
-                  errors["registermobile"] = "Please Enter Valid Mobile Number.";
- }
+// if (this.state.registerMobile) {
+//  var pattern = new RegExp(/^[0-9\b]+$/);
+//     if (pattern.test(this.state.registerMobile)) {
+//        let input = this.state.registerMobile;
+//       const mobValid= input.length === 10;
+//           if(this.state.registerMobile && !mobValid){
+//                formIsValid = false;
+//                   errors["registermobile"] = "Please Enter Valid Mobile Number.";
+//  }
 
- }
-}
+//  }
+// }
 
 
   
-  if (!this.state.registerEmail) {
-    errors["registeremail"] = 'Please Enter Email ';
-  } else if (!/\S+@\S+\.\S+/.test(this.state.registerEmail)) {
-    errors["registeremail"] = 'Please Enter Valid Email';
-  }
-
+const emailReg = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/;
+if (emailReg.test(this.state.registerEmail) === false) {
+  formIsValid = false;
+  errors["registeremail"] =login_err_msg.registeremail;
+}
    
 
     this.setState({ errors: errors });
@@ -675,7 +639,7 @@ if (this.state.registerMobile) {
   
         LoginService.registerUser(obj).then((res) => {
           if (res) {
-            const clientId = res.data.result.split(":");
+            const clientId = res.data.id;
             const clientObj = {
               email: this.state.registerEmail,
               phoneNumber: "+91".concat(this.state.registerMobile),
@@ -692,11 +656,11 @@ if (this.state.registerMobile) {
               },
               roleName: "config_user",
               stores: [],
-              clientId: clientId[1],
-              isConfigUser: "true",
+              clientId: clientId,
+              isConfigUser: true,
               clientDomain: [],
-              isSuperAdmin: "false",
-              createdBy: 0,
+              isSuperAdmin: false,
+              createdBy: "",
             };
   
             URMService.saveUser(clientObj).then((response) => {
@@ -850,7 +814,8 @@ if (this.state.registerMobile) {
               Cancel
             </button>
             <button className="btn-unic active fs-12 mt-3" onClick={(e) => {
-              this.props.history.push("/dashboard");
+              // this.props.history.push("/dashboard");
+              this.getPath()
             }
             }>
               OK

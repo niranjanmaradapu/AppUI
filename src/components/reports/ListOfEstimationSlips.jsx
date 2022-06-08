@@ -3,7 +3,9 @@ import print from "../../assets/images/print.svg";
 import view from "../../assets/images/view.svg";
 import ListOfEstimationSlipsService from "../../services/Reports/ListOfEstimationSlipsService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
+import { Toast } from "react-bootstrap";
 
 export default class ListOfEstimationSlips extends Component {
   constructor(props) {
@@ -22,6 +24,7 @@ export default class ListOfEstimationSlips extends Component {
       itemName: "",
       domainId: "",
       storeId: "",
+      errors: {},
       selectOption: [
         {
           name: "ES STATUS",
@@ -49,11 +52,11 @@ export default class ListOfEstimationSlips extends Component {
   componentWillMount() {
     const storeId = sessionStorage.getItem("storeId");
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if (domainData.label == "Textile") {
-      this.setState({ domainId: 1 });
-    } else if (domainData.label == "Retail") {
-      this.setState({ domainId: 2 });
-    }
+    // if (domainData.label == "Textile") {
+    //   this.setState({ domainId: 1 });
+    // } else if (domainData.label == "Retail") {
+    //   this.setState({ domainId: 2 });
+    // }
 
     this.setState({ storeId: storeId });
   }
@@ -65,7 +68,7 @@ export default class ListOfEstimationSlips extends Component {
       status: this.state.status ? this.state.status : undefined,
       barcode: this.state.barcode ? this.state.barcode : undefined,
       dsNumber: this.state.dsNumber ? this.state.dsNumber : undefined,
-      domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
+      // domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
 
@@ -274,7 +277,7 @@ export default class ListOfEstimationSlips extends Component {
 
         <div className="row">
           <div className="col-2 mt-2">
-          <label>From Date</label>
+            <label>From Date</label>
             <div className="form-group">
               <input
                 type="date"
@@ -292,7 +295,7 @@ if (startDate < endDate){
 // Do something
 } */}
           <div className="col-2 mt-2">
-          <label>To Date</label>
+            <label>To Date</label>
             <div className="form-group">
               <input
                 type="date"
@@ -308,7 +311,7 @@ if (startDate < endDate){
                     // console.log(">>>right");
                     // alert("right");
                   } else {
-                    alert("To date should be greater than From date ");
+                    toast.error("To date should be greater than From date ");
                     // console.log(">>>>wrong");
                   }
                 }}
@@ -317,7 +320,7 @@ if (startDate < endDate){
           </div>
 
           <div className="col-12 col-sm-2 mt-2">
-          <label>ES Status</label>
+            <label>ES Status</label>
             <div className="form-group">
               <select
                 className="form-control"
@@ -343,7 +346,7 @@ if (startDate < endDate){
           </div>
 
           <div className="col-2 mt-2">
-          <label>ES Number</label>
+            <label>ES Number</label>
             <div className="form-group">
               <input
                 type="text"
@@ -355,7 +358,7 @@ if (startDate < endDate){
             </div>
           </div>
           <div className="col-2 mt-2">
-          <label>Barcode</label>
+            <label>Barcode</label>
             <div className="form-group">
               <input
                 type="text"

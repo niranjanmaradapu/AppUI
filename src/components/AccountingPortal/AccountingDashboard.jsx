@@ -33,7 +33,7 @@ export default class AccountingDashboard extends Component {
         AccountsDashboardService.getDebitNotes().then(res => {
             console.log("Debit Notes", res.data.result);
             if (res) {
-                if (res.data.result !== "null" && res.data.result.length > 0) {
+                if (res.data.result !== null && res.data.result.length > 0) {
                     this.setState({ debitNotesByStore: res.data.result },
                         () => {
                             let indexName = [];
@@ -77,7 +77,7 @@ export default class AccountingDashboard extends Component {
         AccountsDashboardService.getUsedBalanced().then(res => {
             console.log("Used Balanced", res.data.result);
             if (res) {
-                if (res.data.result !== "null" && res.data.result.length > 0) {
+                if (res.data.result !== null && res.data.result.length > 0) {
                     this.setState({ usedBalancedAmount: res.data.result },
                         () => {
                             let indexName = [];

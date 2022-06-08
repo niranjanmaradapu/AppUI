@@ -7,13 +7,19 @@ class AccountingPortalService {
     saveCredit(saveCredit) {
         return axios.post(BASE_URL+ACCOUNTING_PORTAL.saveCredit, saveCredit);
     }
-    
-    getCreditNotes(creditNotes) {
-        return axios.post(BASE_URL+ACCOUNTING_PORTAL.getCreditNotes, creditNotes);
-    }
 
-    getDebitNotes(debitNotes) {
-        return axios.post(BASE_URL+ACCOUNTING_PORTAL.getDebitNotes, debitNotes);
+    saveDebit(saveCredit) {
+        return axios.post(BASE_URL+ACCOUNTING_PORTAL.saveDebit, saveCredit);
+    }
+    
+    getCreditNotes(obj) {
+        return axios.post(BASE_URL+ACCOUNTING_PORTAL.getCreditNotes, obj);
+    }
+    getAllLedgerLogs(obj) {
+        return axios.post(BASE_URL+ACCOUNTING_PORTAL.getAllLedgerLogs, obj);
+    }
+    getDebitNotes(obj) {
+        return axios.post(BASE_URL+ACCOUNTING_PORTAL.getCreditNotes, obj);
     }
     saveMasterTax(saveTax){
         return axios.post(BASE_URL+ACCOUNTING_PORTAL.saveMasterTax, saveTax);   
@@ -46,6 +52,14 @@ class AccountingPortalService {
     }
     saveHsnCode(saveHsnObj){
         return axios.post(BASE_URL+ACCOUNTING_PORTAL.saveHsnCode, saveHsnObj);
+    }
+    creditdebitOrder(reqObj) {
+        const URL= process.env.REACT_APP_BASE_URL+'/paymentgateway/paymentgateway/create_creditdebit_order';
+        return  axios.post(URL, reqObj, {
+         headers: {
+             'Content-Type': 'application/json',
+         }
+     });
     }
 }
 export default new AccountingPortalService()

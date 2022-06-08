@@ -4,6 +4,11 @@ import { Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import edit from '../../assets/images/edit.svg';
 import AccountingPortalService from '../../services/AccountingPortal/AccountingPortalService';
 import NewSaleService from '../../services/NewSaleService';
+import {errorLengthMin, errorLengthMax, debitNotes_Err_Msg } from './Error';
+import ecommerce from "../../assets/images/ecommerce.svg";
+import axios from 'axios';
+import { BASE_URL } from "../../commonUtils/Base";
+import { NEW_SALE_URL } from "../../commonUtils/ApiConstants";
 
 export default class DebitNotes extends Component {
 
@@ -16,14 +21,27 @@ export default class DebitNotes extends Component {
       userName: "",
       userId: "",
       debitAmount: "",
+      error: {},
       storeId: "",
       customerData: {},
-      debitData: []
+      debitData: [],
+      isEdit: false,
+      searchMobileNumber: '',
+      transactionType: '',
+      trasanctionTypes: [
+        {label: 'Card', value: 'Card'},
+        {label: 'Cash', value: 'Cash'}
+      ],
+      payableAmount: '',
+      isPayMore: false,
+      transactionHistory: [],
+      isShowAllTransactions: false
     };
 
     this.addDebit = this.addDebit.bind(this);
     this.closeDebit = this.closeDebit.bind(this);
     this.saveDebit = this.saveDebit.bind(this);
+    this.handleValidation = this.handleValidation.bind(this);
   }
 
 
@@ -32,33 +50,49 @@ export default class DebitNotes extends Component {
   }
 
   closeDebit() {
-    this.setState({ isDebit: false });
+    this.setState({ isDebit: false ,transactionType: '', payableAmount: '', comments: '', isEdit: false,error:{}});
   }
 
   componentWillMount() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     const selectedStore = JSON.parse(sessionStorage.getItem('selectedstoreData'));
-    this.setState({ storeName: selectedStore.storeName, storeId: selectedStore.storeId, userName: user["cognito:username"], userId: user["custom:userId"] });
-    this.getDebitNotes();
+    this.setState({ storeName: selectedStore.storeName, storeId: selectedStore.storeId, userName: user["cognito:username"], userId: user["custom:userId"] }, () => this.getDebitNotes());
   }
 
   getDebitNotes() {
-    const getDebit =
-    {
-      "fromDate": this.state.fromDate,
-      "mobileNumber": this.state.searchMobileNumber,
-      "storeId": "",
-      "toDate": this.state.toDate
-    };
-
-    AccountingPortalService.getDebitNotes(getDebit).then(response => {
+  const { storeId } = this.state;
+   const reqOb =  {
+      fromDate: null,
+      mobileNumber:null,
+      storeId: storeId,
+      toDate: null,
+      accountType: "DEBIT",
+      customerId: null
+    }
+    AccountingPortalService.getDebitNotes(reqOb).then(response => {
       if (response) {
-        this.setState({ debitData: response.data.result });
+        this.setState({ debitData: response.data.content });
       }
     });
   }
 
-  clearSearch() {
+  searchDebitNotes = () => {
+    const { storeId, fromDate, toDate, searchMobileNumber } = this.state;
+    const reqOb =  {
+      fromDate: fromDate,
+      mobileNumber: searchMobileNumber ? `+91${searchMobileNumber}` : null,
+      storeId: storeId,
+      toDate: toDate,
+      accountType: "DEBIT",
+      customerId: null
+    }
+    AccountingPortalService.getDebitNotes(reqOb).then(response => {
+      if (response) {
+        this.setState({ debitData: response.data.content });
+      }
+    });
+    }
+  clearSearch = () => {
     this.setState({ fromDate: "", toDate: "", searchMobileNumber: "" }, () => {
       this.getDebitNotes();
     });
@@ -66,25 +100,67 @@ export default class DebitNotes extends Component {
 
 
   saveDebit() {
+    const {customerData, comments, storeId, mobileNumber, payableAmount, transactionType} = this.state;
     const obj = {
-      "actualAmount": parseInt(this.state.debitAmount),
-      "transactionAmount": parseInt(this.state.debitAmount),
-      "approvedBy": parseInt(this.state.userId),
-      "comments": this.state.comments,
-      "creditDebit": "D",
-      "customerId": this.state.customerData?.userId,
-      "customerName": this.state.customerData?.userName,
-      "mobileNumber": this.state.mobileNumber,
-      "storeId": this.state.storeId
-    };
-    AccountingPortalService.saveCredit(obj).then(response => {
+      comments: comments,
+      amount: payableAmount,
+      customerId: customerData.userId,
+      // mobileNumber: mobileNumber,
+      storeId: storeId,
+      transactionType: "DEBIT",
+      accountType:"DEBIT",
+      paymentType: transactionType
+    }
+   if(this.handleValidation()) {
+    AccountingPortalService.saveDebit(obj).then(response => {
       if (response) {
+        if(transactionType === 'Card') {
+          this.savePayment(response.data.amount, response.data.referenceNumber);
+        }
         toast.success(response.data.message);
         this.getDebitNotes();
-        this.closeDebit();
+        if(transactionType === 'Cash') {
+           this.closeDebit();
+        }
+      
       }
     });
   }
+  }
+
+  savePayment = (cardAmount, referenceNumber) => {
+    const reqObj = {
+      amount: cardAmount,
+      type: "D",
+      referenceNumber : referenceNumber
+    }
+    AccountingPortalService.creditdebitOrder(reqObj).then((res) => {
+    const options = {
+     // process.env.RAZORPAY_KEY_ID
+      key: "rzp_test_z8jVsg0bBgLQer",
+      currency:"INR",
+      amount: res.data.result.amount ,
+      name: "OTSI",
+      description: "Transaction",
+      image: ecommerce,
+      order_id: res.data.result.razorPayId,
+      handler: function (response) {
+        toast.success("Payment Done Successfully");
+        let status = true
+        const param = '?razorPayId=' + response.razorpay_order_id + '&payStatus=' + status;
+        const result = axios.post(BASE_URL + NEW_SALE_URL.saveSale + param, {});
+      },
+      prefill: {
+        name: "Kadali",
+        email: "kadali@gmail.com",
+        contact: "9999999999",
+      },
+   };
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
+    this.closeDebit();
+  });
+}
 
   getCustomerDetails = (e) => {
     if (e.key === "Enter") {
@@ -100,6 +176,72 @@ export default class DebitNotes extends Component {
     }
   };
 
+  addMore = (item) => {
+    this.setState({
+      isDebit: true,
+      isPayMore: true,
+      debitAmount: item.amount,
+      selectedItem: item,
+      mobileNumber: item.mobileNumber,
+      customerData: { userName: item.customerName, userId: item.customerId }
+    });
+  }
+
+  handelTrasanctionTypes = (e) => {
+    this.state.error["transactionType"] = '';
+      this.setState({ transactionType: e.target.value 
+    });
+}
+
+handleValidation () {
+    let error= {};
+    let formIsValid= true;
+
+    //Payment type
+    if(!this.state.transactionType){
+      formIsValid = false;
+      error["transactionType"] = debitNotes_Err_Msg.transactionType;
+      }
+    // payable amount
+  if(this.state.transactionType && !this.state.payableAmount){
+    formIsValid = false;
+    error["payableAmount"] = debitNotes_Err_Msg.payableAmount;
+    }
+    this.setState({ error: error });               
+    return formIsValid;  
+  }
+  getAllLedgerLogs = () => {
+    const { selectedItem } = this.state;
+    const reqOb =  {
+      fromDate: null,
+      mobileNumber:null,
+      storeId: selectedItem.storeId,
+      toDate: null,
+      accountType: selectedItem.accountType,
+      customerId: selectedItem.customerId
+    }
+    AccountingPortalService.getAllLedgerLogs(reqOb).then(response => {
+      if (response) {
+        this.setState({
+          isShowAllTransactions: true,
+          transactionHistory: response.data.content
+        });
+      }
+    });
+  }
+  toggle = () => {
+    this.setState({
+      isShowAllTransactions: false,
+      transactionHistory: []
+    });
+  }
+  onPayableAmount = (e) => {
+    e.preventDefault();    
+    const { payableAmount, transactionType, comments } = this.state;
+    if(comments !== '' & payableAmount !== '' && transactionType === 'Card') {
+      this.saveDebit();
+    }  
+  }
   render() {
     return (
       <div className="maincontent">
@@ -113,12 +255,13 @@ export default class DebitNotes extends Component {
 
               <div className="col-4">
                 <div className="form-group">
-                  <label>Mobile Number</label>
-                  <input type="text" className="form-control" placeholder=""
-                    value={this.state.mobileNumber}
+                  <label>Mobile Number <span className="text-red font-bold" name="bold">*</span></label>
+                  <input type="text" className="form-control" placeholder="+91"
+                    value={this.state.mobileNumber} maxLength={errorLengthMax.mobileNumber}
                     onChange={(e) => {
                       const regex = /^[0-9\b]+$/;
                       const value = e.target.value;
+                      this.state.error["mobileNumber"]="";
                       if (value === '' || regex.test(value)) {
                         this.setState({
                           [e.target.id]: e.target.value, mobileNumber: e.target.value,
@@ -131,39 +274,32 @@ export default class DebitNotes extends Component {
                     }}
                     autoComplete="off"
                     minLength="10"
-                    maxLength="10"
+                    // maxLength="10"
                     onKeyPress={this.getCustomerDetails}
-
-
+                    disabled
                   />
                 </div>
               </div>
 
               <div className="col-4">
                 <div className="form-group">
-                  <label>Customer Name</label>
+                  <label>Customer Name <span className="text-red font-bold" name="bold">*</span></label>
                   <input type="text" className="form-control" placeholder=""
                     value={this.state.customerData?.userName} disabled
                   />
                 </div>
               </div>
 
-              <div className="col-4 ">
+              <div className="col-4">
                 <div className="form-group">
-                  <label>Customer ID</label>
-                  <input type="text" className="form-control" placeholder=""
-                    value={this.state.customerData?.userId} disabled
-                  />
-                </div>
-              </div>
-              <div className="col-4 mt-3">
-                <div className="form-group">
-                  <label>Debit Amount</label>
+                  <label>Debit Amount <span className="text-red font-bold" name="bold">*</span></label>
                   <input type="text" className="form-control" placeholder="₹"
                     value={this.state.debitAmount}
+                    disabled
                     onChange={(e) => {
                       const regex = /^[0-9]+/;
                       const value = e.target.value;
+                      this.state.error["debitAmount"]="";
                       if (value === '' || regex.test(value)) {
                         this.setState({
                           [e.target.id]: e.target.value, debitAmount: e.target.value,
@@ -192,20 +328,78 @@ export default class DebitNotes extends Component {
                   />
                 </div>
               </div>
+              <div className="col-4 mt-3">
+                <div className="form-group">
+                  <label>Payment Type <span className="text-red font-bold" name="bold">*</span></label>
+                  <select value={this.state.transactionType}  disabled={this.state.isEdit}
+                  onChange={(e) => this.handelTrasanctionTypes(e)} 
+                  className="form-control">
+                      <option>Select Payment Type</option>
+                        { 
+                            this.state.trasanctionTypes &&
+                            this.state.trasanctionTypes.map((item, i) => 
+                            (<option key={i} value={item.value}>{item.label}</option>))
+                          }
+                    </select>
+                </div>
+                <span style={{ color: "red" }}>{this.state.error["transactionType"]}</span>
+              </div>
 
+
+             {this.state.transactionType && <React.Fragment><div className="col-4 mt-3">
+                <div className="form-group">
+                  <label>Payable Amount <span className="text-red font-bold" name="bold">*</span></label>
+                  <input type="text" className="form-control" placeholder="₹"
+                    value={this.state.payableAmount} 
+                    onChange={(e) => { 
+                      const regex = /^[0-9]+/;
+                      const value = e.target.value;
+                      this.state.error["payableAmount"]="";
+                      if (value === '' || regex.test(value)) {
+                        this.setState({
+                          [e.target.id]: e.target.value, payableAmount: e.target.value,
+
+                        });
+                      }
+                     }}
+                  />
+                </div>
+                <span style={{ color: "red" }}>{this.state.error["payableAmount"]}</span>
+              </div>
+              <div className="col-4">
+              <div className="form-group">
+               
+              </div>
+            </div>
+            <div className="col-4">
+              <div className="form-group">
+               
+              </div>
+            </div> 
+          </React.Fragment>}
+
+              
+              
               <div className="col-4 mt-3">
                 <div className="form-group">
                   <label>Comments</label>
                   <textarea
                     value={this.state.comments}
                     onChange={(e) => this.setState({ comments: e.target.value })}
+                     onBlur={(e) => this.onPayableAmount(e)}
                   ></textarea>
                 </div>
               </div>
+              {this.state.isPayMore && <div className="col-4 mt-5">
+                <div className="form-group underline geeks">
+                <label></label>
+                  <a onClick={() => this.getAllLedgerLogs()}>Show All Transactions</a>
+                </div>
+              </div>}
             </div>
           </ModalBody>
           <ModalFooter>
-            <button className="btn-unic" onClick={this.closeCredit}>
+            <button className="btn-unic" onClick={this.closeDebit}>
               Cancel
             </button>
             <button
@@ -216,6 +410,44 @@ export default class DebitNotes extends Component {
             </button>
           </ModalFooter>
         </Modal>
+        <Modal isOpen={this.state.isShowAllTransactions}  size="lg" style={{maxWidth: '1000px', width: '100%'}}>
+        <ModalHeader toggle={() =>this.toggle()} charCode="close">All Transactions</ModalHeader>
+          <ModalBody>
+                  <div className="table-responsive p-0">                      
+                    <table className="table table-borderless mb-1 mt-2">
+                      {this.state.transactionHistory && <thead>
+                        <tr className="mt-1 p-0">
+                          <th className="col-2">#CRM ID</th>
+                          <th className="col-1">STORE</th>
+                          <th className="col-2">TRASANCTION TYPE</th>
+                          <th className="col-2">ACCOUNT TYPE</th>                          
+                          <th className="col-2">AMOUNT</th>
+                          <th className="col-3">DATE</th>
+                        </tr>
+                      </thead>}
+                      <tbody>
+                        {this.state.transactionHistory && this.state.transactionHistory.map((itm, ind) => {
+                            return (
+                              <tr key={ind}>
+                                <td className="col-2">{itm.customerId}</td>
+                                <td className="col-1">{itm.storeId}</td>
+                                <td className="col-2">{itm.transactionType}</td>
+                                <td className="col-2">{itm.accountType}</td>
+                                <td className="col-2">{itm.amount}</td>
+                                <td className="col-3">{itm.createdDate}</td>
+                              </tr>
+                              )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+            </ModalBody>
+            {/* <ModalFooter>
+            <button onClick={() => this.closeTransactionModel()} className="btn-unic" >
+              Cancel
+            </button>
+          </ModalFooter> */}
+          </Modal>
 
 
 
@@ -278,9 +510,9 @@ export default class DebitNotes extends Component {
             </div>
           </div>
           <div className="col-sm-6 col-12 scaling-mb scaling-center pt-4">
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.getDebitNotes}>SEARCH</button>
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchDebitNotes}>SEARCH</button>
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearSearch}>Clear</button>
-            <button className="btn-unic-search mt-2 active" onClick={this.addDebit}>Add Debit Notes</button>
+            {/* <button className="btn-unic-search mt-2 active" onClick={this.addDebit}>Add Debit Notes</button> */}
           </div>
         </div>
         <div className="row m-0 p-0 scaling-center">
@@ -292,11 +524,11 @@ export default class DebitNotes extends Component {
                   <th className="col-1">#CRM ID</th>
                   <th className="col-2">Customer Name</th>
                   <th className="col-1">Store</th>
-                  <th className="col-1">Date</th>
-                  <th className="col-2">Paid Amount</th>
+                  <th className="col-2">Date</th>
                   <th className="col-2">Balance</th>
                   <th className="col-2">Approved By</th>
                   <th className="col-2"></th>
+                  <th className="col-1"></th>
                 </tr>
               </thead>
               <tbody>
@@ -307,20 +539,18 @@ export default class DebitNotes extends Component {
                       <td className="col-1 underline geeks">{items.customerId}</td>
                       <td className="col-2">{items.customerName}</td>
                       <td className="col-1">{items.storeId}</td>
-                      <td className="col-1">{items.fromDate}</td>
-                      <td className="col-2">₹ {items.transactionAmount}</td>
-                      <td className="col-2">₹ {items.actualAmount}</td>
+                      <td className="col-2">{items.createdDate}</td>
+                      <td className="col-2">₹ {items.amount}</td>
                       <td className="col-2">{items.approvedBy}</td>
-                      {/* <td className="col-2"></td> */}
+                      <td className="col-2 underline geeks"><a onClick={() => this.addMore(items)}>Pay More</a></td>
                       <td className="col-1">
-                        <img src={edit} className="w-12 pb-2" />
-                        <i className="icon-delete m-l-2 fs-16"></i></td>
-
+                        {/* <img src={edit} className="w-12 pb-2" />
+                        <i className="icon-delete m-l-2 fs-16"></i> */}
+                      </td>
                     </tr>
                   );
                 })}
-
-
+                {this.state.debitData.length === 0 && <tr>No records found!</tr>}
               </tbody>
             </table>
           </div>

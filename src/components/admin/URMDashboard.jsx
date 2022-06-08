@@ -50,7 +50,7 @@ export default class URMDashboard extends Component {
     getActiveUsers() {
         URMService.getActiveUsers(this.state.clientId).then(response => {
             if (response) {
-                if (response.data.result !== "null" && response.data.result.length > 0) {
+                if (response.data.result !== null && response.data.result.length > 0) {
                     this.setState({ activeUsersData: response.data.result },
                         () => {
                             console.log("ActiveUsersVSInactiveUser", this.state.activeUsersData);
@@ -95,7 +95,7 @@ export default class URMDashboard extends Component {
     getStoresVsEmployees() {
         URMService.getStoresVsEmployees(this.state.clientId).then(response => {
             if (response) {
-                if (response.data.result !== "null" && response.data.result.length > 0) {
+                if (response.data.result !== null && response.data.result.length > 0) {
                     this.setState({ storesData: response.data.result },
                         () => {
                             console.log("StoresVsEmployees", this.state.storesData);
@@ -143,7 +143,7 @@ export default class URMDashboard extends Component {
         URMService.getusersByRole(this.state.clientId).then(res => {
 
             if (res) {
-                if (res.data.result !== "null" && res.data.result.length > 0) {
+                if (res.data.result !== null && res.data.result.length > 0) {
                     this.setState({ usersData: res.data.result },
                         () => {
                             console.log("usersByRole", this.state.usersData);

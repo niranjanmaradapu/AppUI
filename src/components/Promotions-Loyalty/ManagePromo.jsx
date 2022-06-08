@@ -204,8 +204,8 @@ export default class ManagePromo extends Component {
  
  getAllStoresList() {
   const user = JSON.parse(sessionStorage.getItem('user'));
-  let domainId =  user["custom:clientId1"];
-  URMService.getStoresByDomainId(domainId).then((res) => {
+  let clientId =  user["custom:clientId1"];
+  URMService.getStoresByDomainId(clientId).then((res) => {
       if(res) {
         const result = res.data.map((item) => {
           const obj = {};
@@ -548,19 +548,22 @@ export default class ManagePromo extends Component {
     });
   }
   searchPromo() {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const clientId = user['custom:clientId1'];
     const {promoStatus, searchByStoreName, endDate, startDate, promotionName } = this.state;
     const obj = {
-        promotionStartDate: startDate ? startDate : null,
-        promotionEndDate: endDate ? endDate : null,
+        startDate: startDate ? startDate : null,
+        endDate: endDate ? endDate : null,
         promotionName: promotionName ? promotionName : null,
-        isActive: promoStatus ? promoStatus : null,
-        storeName: searchByStoreName ? searchByStoreName.label : null
+        promotionStatus: promoStatus ? promoStatus : null,
+        storeName: searchByStoreName ? searchByStoreName.label : null,
+        clientId
     }
     // Need to handle search promotion
     PromotionsService.searchPromotion(obj).then((res) => {     
       if(res.data.isSuccess === 'true') {
         this.setState({
-          allStorePromos: res.data.result,
+          allStorePromos: res.data.result.content,
           promoStatus: '', 
           searchByStoreName: '',
           endDate: '', 
@@ -652,7 +655,24 @@ export default class ManagePromo extends Component {
   cloneStore() {
     this.setState({ closeClone: true });
   }
-
+  haandlePromoname(e) {
+    this.setState({
+      promotionName: e.target.value,
+    });
+  }
+  haandleEnddate(e) {
+    this.setState({
+      endDate: e.target.value
+    });
+  }
+  handlePromoStatus(e){
+    this.setState({promoStatus: e.target.value});
+  }
+  haandleStartdate(e) {
+    this.setState({
+      startDate: e.target.value
+    });
+  }
   closeClonePopup() {
     const { checkedItem, allStorePromos } = this.state;
     allStorePromos.forEach((item) => {

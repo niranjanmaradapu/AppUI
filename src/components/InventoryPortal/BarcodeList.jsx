@@ -146,12 +146,6 @@ export default class BarcodeList extends Component {
     this.setState({ isAddBarcode: false });
     this.stateReset();
   }
-  dateFormat = (d) => {
-    let date = new Date(d)
-    
-    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
-}
-
   openEditBarcode(barcodeId) {
     this.setState({ isAddBarcode: true });
     this.setState({ isEdit: true });
@@ -484,6 +478,12 @@ export default class BarcodeList extends Component {
       }
     });
   }
+  
+  dateFormat = (d) => {
+    let date = new Date(d)
+    console.log("+++date++++++",date);
+    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()
+}
 
   getAllStoresList() {
     URMService.getStoresByDomainId(this.state.clientId).then(
@@ -784,13 +784,14 @@ export default class BarcodeList extends Component {
 
   barcodesListTable() {
     return this.state.barcodesList.map((items, index) => {
-      let date = this.dateFormat(items.createdDate)
-      const {
+      {console.log('++++items++++++++++', items)}
+      const { 
         // barcodeId,
         id,
         listPrice,
         storeId,
         storeName,
+        createdDate,
         originalBarcodeCreatedAt,
         stockValue,
         value,
@@ -802,11 +803,10 @@ export default class BarcodeList extends Component {
           {/* <td className="col-3 ">{barcodeId}</td> */}
           <td className="col-3 ">{id}</td>
           <td className="col-1">₹ {listPrice}</td>
-          <td className="col-2">{originalBarcodeCreatedAt}</td>
+          {/* <td className="col-2">{originalBarcodeCreatedAt}</td> */}
           <td className="col-1">{stockValue}</td>
           <td className="col-1">{value}</td>
           <td className="col-1">{domainType}</td>
-          <td className="col-1">{date}</td>
           <td className="col-2 text-center">
             {/* <img src={edit} className="w-12 pb-2"  onClick={this.openEditBarcode}/> */}
             <img
@@ -837,12 +837,13 @@ export default class BarcodeList extends Component {
             id,
             domainType
           } = items;
+          let date = this.dateFormat(items.originalBarcodeCreatedAt);
           return (
             <tr key={index}>
               <td className="col-1 geeks">{index + 1}</td>
               <td className="col-3 ">{barcode}</td>
               <td className="col-1">₹ {itemMrp}</td>
-              <td className="col-2">{originalBarcodeCreatedAt}</td>
+              <td className="col-2">{date}</td>
               <td className="col-1">{qty}</td>
               <td className="col-1">{value}</td>
               <td className="col-1">{domainType}</td>

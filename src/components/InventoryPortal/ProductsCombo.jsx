@@ -57,6 +57,9 @@ export default class ProductsCombo extends Component {
   } 
   closeCombo() {
     this.setState({ isAddCombo : false,isEdit: false, listOfProducts: []});
+    this.setState({comboQuantity:"",
+    comboName:""
+  })
   }
   getBarcodeDetails() {
     const { selectedStoreId, domainDetails, dsNumber } = this.state;
@@ -65,12 +68,12 @@ export default class ProductsCombo extends Component {
           const { barcode, name, itemMrp, id } = res.data;
           const obj = { barcode, name, itemMrp, id, qty: 1};
           this.setState({
-            dsNumber: '',
+            dsNumber:"",
             listOfProducts: [...this.state.listOfProducts, obj ]
           });
         }
-      
     });
+   
     
   }
   getProductBundleList(selectedStoreId) {
@@ -232,6 +235,7 @@ handleChange (){
                   <input
                     type="text"
                     className="form-control"
+                    value={this.state.dsNumber}
                     placeholder="ENTER BARCODE"
                     onChange={(e) => this.setState({ dsNumber: e.target.value })}
                     />

@@ -482,7 +482,7 @@ class CeateDeliverySlip extends Component {
                     onChange={(e) => this.checkQuantity(e, index, items)}
                     className="form-control" />
                   </td>
-                  <td className="col-1">{items.salesMan}</td>
+                  <td className="col-1">{items.empId}</td>
                   <td className="col-1">₹{items.itemMrp}</td>
                   <td className="col-2"></td>
                   <td className="col-1"> {items?.itemDiscount}</td>

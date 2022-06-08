@@ -50,8 +50,12 @@ export default class User extends Component {
             userType:"",
             loggedUserId:null,
             pageNumber:0,
-            totalPages:0
-            
+            totalPages:0,
+            usersStatus: [
+                            { value: true, label: 'Active' },
+                            { value:  false, label: 'Inactive' },
+                        ],
+            userStatus: ''
 
         }
         this.setState({usersList: []})
@@ -461,7 +465,8 @@ export default class User extends Component {
                 "isConfigUser": false,
                 "clientDomain": [clientDomain],
                 "isSuperAdmin": JSON.stringify(this.state.isAdmin),
-                "createdBy" : this.state.loggedUserId
+                "createdBy" : this.state.loggedUserId,
+                "isActive": this.state.userStatus
             }
             URMService.editUser(saveObj).then((response) => {
                 if(response) {
@@ -493,7 +498,8 @@ export default class User extends Component {
                 "isConfigUser": false,
                 "clientDomain": [clientDomain],
                 "isSuperAdmin": JSON.stringify(this.state.isAdmin),
-                "createdBy" : this.state.loggedUserId
+                "createdBy" : this.state.loggedUserId,
+                "isActive": this.state.userStatus
     
                 }
 
@@ -555,31 +561,14 @@ export default class User extends Component {
                     <td className="col-2" name="date">{date}</td>
                     {/* <td className="col-1">{address}</td> */}
                     <td className="col-1">
-                        <div>
-                        {
-                            active === true && (
-                                <button type="button" className="btn-active" name="active">Active</button>
-                            )
-
-                           
-                             
-                        }
-                        </div>
-                        <div>
-                        {
-                            active === false && (
-                                <button type="button" className="btn-inactive" name="inactive">Inactive</button>
-                            )
-
-                           
-                             
-                        }
-                        </div>
-                       
-                        </td>
+                    {items.isActive ? 
+                      <button className="btn-active">Active</button> : 
+                      <button className="btn-inactive">Inactive</button>}
+                  </td>
                     <td className="col-1">
                     {!isSuperAdmin ? <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} name="image" /> : <img src={edit} className="w-12 m-r-2 pb-2" name="image" />}
-                    <i className="icon-delete"onClick={(e) => this.deleteUser(items)}></i></td>
+                    {/* <i className="icon-delete"onClick={(e) => this.deleteUser(items)}></i> */}
+                    </td>
                 </tr>
 
 
@@ -756,6 +745,9 @@ capitalization= () => {
     })
     }
   }
+  handleUserStatus(e){
+    this.setState({userStatus: e.target.value});
+  }
 
 
     render() {
@@ -866,7 +858,6 @@ capitalization= () => {
                                             value={this.state.name} disabled={this.state.isEdit}
                                             maxLength={errorLengthMax.name}
                                             onChange={(e) => this.setState({ name: e.target.value })}
-                                            onBlur={() => this.capitalization()}
                                             autoComplete="off" />
                                              <div>
                                             <span style={{ color: "red" }}>{this.state.errors["name"]}</span>
@@ -1036,6 +1027,22 @@ capitalization= () => {
                                                 
                                             {rolesList}
                                         </select >
+                                        <div>
+                                          <span style={{ color: "red" }}>{this.state.errors["role"]}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-12 col-sm-4 scaling-mb mt-2">
+                                    <div className="form-group">
+                                        <label>Status <span className="text-red font-bold">*</span></label>
+                                            <select value={this.state.userStatus} onChange={(e) =>  this.handleUserStatus(e)} className="form-control">
+                                                <option>Select Status</option>
+                                                { 
+                                                this.state.usersStatus &&
+                                                this.state.usersStatus.map((item, i) => 
+                                                (<option key={i} value={item.value}>{item.label}</option>))
+                                                }
+                                            </select>
                                         <div>
                                           <span style={{ color: "red" }}>{this.state.errors["role"]}</span>
                                         </div>

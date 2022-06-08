@@ -162,8 +162,9 @@ export default class ListOfPools extends Component {
       this.getPoolList();
       // this.getDomainsList();
   }
-  getAllColumns(clientId) {
-    PromotionsService.getAllColumns(clientId).then((res) => {
+  getAllColumns() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    PromotionsService.getAllColumns(user['custom:clientId1']).then((res) => {
       let columnsObj = {}
      //  const result =  res.data['result'].reduce((a, v) => ({ ...a, [v]: v}), {});
       const result =  [...new Set(res.data['result'].map((itm) => itm.columnName))];
@@ -207,7 +208,7 @@ export default class ListOfPools extends Component {
   //  }
   getPoolList() {
     const { clientId } = this.state;
-    this.getAllColumns(this.state.clientId);
+    this.getAllColumns();
     const user = JSON.parse(sessionStorage.getItem("user"));
     const selectedstoreData = JSON.parse(sessionStorage.getItem("selectedstoreData"));
     const storeId = selectedstoreData.storeId;

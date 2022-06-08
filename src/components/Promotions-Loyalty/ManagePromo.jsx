@@ -960,7 +960,7 @@ export default class ManagePromo extends Component {
                   <td className="col-2">{item.storeName}</td>
                   <td className="col-2">{item.priority}</td>
                   <td className="col-2">{date}</td>
-                  <td className="col-2">{item.endDate}</td>
+                  <td className="col-2">{date}</td>
                   <td className="col-1">
                     {item.promotionStatus ? 
                       <button onClick={() => this.updatePromotionStatus(item)} className="btn-active">Active</button> : 

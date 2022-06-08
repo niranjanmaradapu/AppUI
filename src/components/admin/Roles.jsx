@@ -550,7 +550,7 @@ getSelectedPrivileges(parentsList, childList) {
                     <ModalHeader>  {
                         !this.state.isEdit && (
                             <div>
-                                Create Role
+                                Add Role
                             </div>
 
                         )
@@ -578,6 +578,7 @@ getSelectedPrivileges(parentsList, childList) {
 
                                     </div>
                                 </div>
+                                
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>Description<span className="text-red font-bold">*</span></label>
@@ -626,7 +627,7 @@ getSelectedPrivileges(parentsList, childList) {
                             <div className="col-12 text-right">
                                 <button className="btn-unic m-r-2" onClick={this.hideRoles}>Cancel</button>
                                 <button
-                                    className="btn-unic active fs-12" onClick={this.addRoles}>Add Role</button>
+                                    className="btn-unic active fs-12" onClick={this.addRoles}>Save</button>
                             </div>
                         </div>
                     </ModalFooter>
@@ -657,7 +658,7 @@ getSelectedPrivileges(parentsList, childList) {
                     <div className="col-sm-6 pt-4 col-12 scaling-center scaling-mb mt-2 p-l-0 p-r-0">
                         <button className="btn-unic-search active m-r-2" onClick={this.searchRoles}>SEARCH </button>
                         <button className="btn-unic-search active m-r-2" onClick={this.getAllRoles}>Clear </button>
-                        <button className="btn-unic-search active" onClick={this.showRoles}><i className="icon-create_customer"></i> Create Role </button>
+                        <button className="btn-unic-search active" onClick={this.showRoles}><i className="icon-create_customer"></i> Add Role </button>
                     </div>
 
                 </div>

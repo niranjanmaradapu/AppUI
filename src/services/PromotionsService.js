@@ -90,13 +90,13 @@ class PromotionsService {
     getAllStorePromos() {
         return axios.get(BASE_URL + PROMOTIONS_URL.getAllStorePromos);
     }
-    // promotionsSearching(obj) {
-    //     return axios.post(BASE_URL+PROMOTIONS_URL.promotionsSearching, obj);  
-    // }
-    promotionsSearching(obj, pageNumber) {
-        const param2 = '?page=' + pageNumber;
-        return axios.post(BASE_URL + PROMOTIONS_URL.promotionsSearching + param2 + '&size=10', obj);
+    promotionsSearching(obj) {
+        return axios.post(BASE_URL+PROMOTIONS_URL.promotionsSearching, obj);  
     }
+    // promotionsSearching(obj, pageNumber) {
+    //     const param2 = '?page=' + pageNumber;
+    //     return axios.post(BASE_URL + PROMOTIONS_URL.promotionsSearching + param2 + '&size=10', obj);
+    // }
     anyMatchingData(columnName) {
         return axios.get(BASE_URL + PROMOTIONS_URL.anyMatchingData + `?columnName=${columnName}`);
     }

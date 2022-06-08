@@ -43,7 +43,12 @@ export default class Stores extends Component {
             isState:false,
             isDistrict:false,
             loggedUser:"",
-            searchDistrict:0
+            searchDistrict:0,
+            storesStatus: [
+                { value: true, label: 'Active' },
+                { value:  false, label: 'Inactive' },
+            ],
+            storeStatus: ''
         }
 
         this.showStores = this.showStores.bind(this);
@@ -124,6 +129,12 @@ export default class Stores extends Component {
         }
 
 
+    }
+
+    handleStoreStatus = (e) => {
+     this.setState({
+         storeStatus: e.target.value
+     })
     }
 
     getStates() {
@@ -268,7 +279,8 @@ export default class Stores extends Component {
                     "createdDate": "",
                     "stateCode": this.state.stateName,
                     "gstNumber": parseInt(this.state.gstNumber),
-                    "clientId":parseInt(this.state.clientId)
+                    "clientId":parseInt(this.state.clientId),
+                    "isActive": this.state.storeStatus
 
                 }
 
@@ -292,7 +304,8 @@ export default class Stores extends Component {
                     "createdBy":  parseInt(this.state.loggedUser),
                     "stateCode": this.state.stateName,
                     "gstNumber": this.state.gstNumber,
-                    "clientId":parseInt(this.state.clientId)
+                    "clientId":parseInt(this.state.clientId),
+                    "isActive": this.state.storeStatus
                 }
                 URMService.saveStore(saveObj).then(res => {
                     if (res) {
@@ -394,9 +407,15 @@ export default class Stores extends Component {
                     {/* <td className="col-2">{items.domainName}</td> */}
                     <td className="col-2">{items.userName}</td>
                     <td className="col-2">{date}</td>
+                    <td className="col-2">
+                    {items.isActive ? 
+                      <button className="btn-active">Active</button> : 
+                      <button className="btn-inactive">Inactive</button>}
+                    </td>
                     <td className="col-1">
                         <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editStore(items)} />
-                        <i className="icon-delete"onClick={(e) => this.deleteStore(items)}></i></td>
+                        {/* <i className="icon-delete"onClick={(e) => this.deleteStore(items)}></i> */}
+                    </td>
                 </tr>
 
             );
@@ -419,6 +438,7 @@ export default class Stores extends Component {
                                 {/* <th className="col-2">Domain</th> */}
                                 <th className="col-2">Created By</th>
                                 <th className="col-2">Created Date</th>
+                                <th className="col-2">Status</th>
                                 {/* <th className='col-2'>Status</th> */}
                                 <th className="col-1"></th>
                             </tr>
@@ -771,7 +791,6 @@ export default class Stores extends Component {
                                         <input type="text" className="form-control"
                                             value={this.state.storeName}
                                             maxLength ={errorLengthMax.storeName}
-                                            onBlur={() => this.capitalization()}
                                             onChange={(e) => this.setState({ storeName: e.target.value })} />                                            
                                         
                                     </div>
@@ -794,6 +813,22 @@ export default class Stores extends Component {
                                             <span style={{ color: "red" }}>{this.state.errors["gstNumber"]}</span>
                                         </div>
                                     
+                                </div>
+                                <div className="col-sm-4 col-12">
+                                    <div className="form-group">
+                                        <label>Status <span className="text-red font-bold">*</span></label>
+                                            <select value={this.state.storeStatus} onChange={(e) =>  this.handleStoreStatus(e)} className="form-control">
+                                                <option>Select Status</option>
+                                                { 
+                                                this.state.storesStatus &&
+                                                this.state.storesStatus.map((item, i) => 
+                                                (<option key={i} value={item.value}>{item.label}</option>))
+                                                }
+                                            </select>
+                                        <div>
+                                          <span style={{ color: "red" }}>{this.state.errors["role"]}</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 
 

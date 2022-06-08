@@ -146,7 +146,12 @@ export default class BarcodeList extends Component {
     this.setState({ isAddBarcode: false });
     this.stateReset();
   }
-  
+  dateFormat = (d) => {
+    let date = new Date(d)
+    
+    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
+}
+
   openEditBarcode(barcodeId) {
     this.setState({ isAddBarcode: true });
     this.setState({ isEdit: true });
@@ -577,7 +582,7 @@ export default class BarcodeList extends Component {
       this.getAllSubsections(this.state.section);
     }
   }
-
+ 
   addBarcode() {
     let domainInfo = this.state.domainDetailsObj;
     this.state.textileFieldsErr = false;
@@ -730,7 +735,7 @@ export default class BarcodeList extends Component {
       } 
     });
   }
-
+ 
   deleteBarcode(id) {
     InventoryService.deleteBarcode(id, this.state.domainDetailsObj).then(
       (res) => {
@@ -779,6 +784,7 @@ export default class BarcodeList extends Component {
 
   barcodesListTable() {
     return this.state.barcodesList.map((items, index) => {
+      let date = this.dateFormat(items.createdDate)
       const {
         // barcodeId,
         id,
@@ -800,6 +806,7 @@ export default class BarcodeList extends Component {
           <td className="col-1">{stockValue}</td>
           <td className="col-1">{value}</td>
           <td className="col-1">{domainType}</td>
+          <td className="col-1">{date}</td>
           <td className="col-2 text-center">
             {/* <img src={edit} className="w-12 pb-2"  onClick={this.openEditBarcode}/> */}
             <img

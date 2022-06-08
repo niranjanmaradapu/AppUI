@@ -1047,7 +1047,7 @@ capitalization= () => {
                     </ModalBody>
                     <ModalFooter>
                         <button className="btn-unic" onClick={this.hideCreateUser} name="cancel">Cancel</button>
-                        <button className="btn-unic active fs-12" onClick={this.addCreateUser} name="adduser">Add User</button>
+                        <button className="btn-unic active fs-12" onClick={this.addCreateUser} name="save">Save</button>
                     </ModalFooter>
                 </Modal>
                 <div className="row">

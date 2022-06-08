@@ -170,7 +170,7 @@ export default class User extends Component {
                     res.data.result.content.forEach(element => {
                         element.roleName = element.role.roleName ? element.role.roleName : "";
                     });
-                    this.setState({usersList: res.data.result, isUser: true});
+                    this.setState({usersList: res.data.result, totalPages: res.data.result.totalPages, isUser: true});
                 } else {
                     this.setState({usersList: [], isUser: false});
                 }
@@ -248,10 +248,10 @@ export default class User extends Component {
                this.setState({
                 //    usersList: res.data.result, 
                 usersList:  this.state.usersList, 
-                //    totalPages: res.data.result.totalPages,
+                   totalPages: res.data.totalPages,
                    isUser: true });
           
-                //    console.log("totalpages",this.state.totalPages);
+                   console.log("totalpages",this.state.totalPages);
             }
         });
     }
@@ -607,17 +607,17 @@ export default class User extends Component {
                 
                 <div className="row m-0 pb-3 mb-5 mt-3">
 
-                {/* {this.state.totalPages > 1 ? ( */}
-<div className="d-flex justify-content-center">
-<ReactPageNation
-  {...this.state.usersList}
-  changePage={(pageNumber) => {
-    this.changePage(pageNumber);
-  }}
-/>
-</div>
-  {/* ) : null} */}
-</div>
+                {this.state.totalPages > 1 ? (
+                <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.usersList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div>
+                  ) : null} 
+                   </div>
                 </div>
             </div>
         )

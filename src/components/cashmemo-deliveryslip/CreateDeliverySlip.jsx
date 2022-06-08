@@ -185,7 +185,7 @@ class CeateDeliverySlip extends Component {
             }
             
             if(!count){
-              this.state.itemsList.push(res.data.result);
+              this.state.itemsList.push(res.data);
             }
             
 

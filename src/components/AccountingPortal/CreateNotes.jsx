@@ -67,7 +67,11 @@ export default class CreateNotes extends Component {
     this.setState({ isCredit: false, isAddMore: false, mobileNumber: '', customerData: '', creditAmount: '', transactionType: '',isEdit: false,error:{}});
   }
 
-
+  dateFormat = (d) => {
+    let date = new Date(d)
+    
+    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
+}
   getCreditNotes() {
     const accountType ='CREDIT';
     const { storeId } = this.state;
@@ -518,12 +522,13 @@ export default class CreateNotes extends Component {
               </thead>
               <tbody>
                 {this.state.creditData.map((items, index) => {
+                  let date = this.dateFormat(items.createdDate)
                   return (
                     <tr key={index}>
                       <td className="col-1 underline geeks">{items.customerId}</td>
                       <td className="col-2">{items.customerName}</td>
                       <td className="col-1">{items.storeId}</td>
-                      <td className="col-1">{items.createdDate}</td>
+                      <td className="col-1">{date}</td>
                       <td className="col-2">₹ {items.usedAmount}</td>
                       <td className="col-1">₹ {items.amount}</td>
                       <td className="col-2">{items.createdBy}</td>

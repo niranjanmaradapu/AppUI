@@ -481,7 +481,6 @@ export default class BarcodeList extends Component {
   
   dateFormat = (d) => {
     let date = new Date(d)
-    console.log("+++date++++++",date);
     return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()
 }
 

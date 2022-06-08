@@ -837,6 +837,7 @@ export default class BarcodeList extends Component {
             domainType
           } = items;
           let date = this.dateFormat(items.originalBarcodeCreatedAt);
+          
           return (
             <tr key={index}>
               <td className="col-1 geeks">{index + 1}</td>

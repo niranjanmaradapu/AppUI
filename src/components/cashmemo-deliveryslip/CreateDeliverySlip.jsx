@@ -867,7 +867,8 @@ class CeateDeliverySlip extends Component {
                 </button> */}
                 <button
                   className={
-                    "btn-login btn-create" 
+                    "btn-login btn-create" +
+                    (!this.state.isCheckPromo ? " btn-disable" : "") 
                   }
                   onClick={this.checkPromo}
                   disabled={!this.state.isCheckPromo}

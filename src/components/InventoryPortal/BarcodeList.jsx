@@ -141,11 +141,12 @@ export default class BarcodeList extends Component {
     this.stateReset();
   }
 
+  
   closeBarcode() {
     this.setState({ isAddBarcode: false });
     this.stateReset();
   }
-
+  
   openEditBarcode(barcodeId) {
     this.setState({ isAddBarcode: true });
     this.setState({ isEdit: true });
@@ -626,6 +627,7 @@ export default class BarcodeList extends Component {
       saveJson,
       this.state.domainDetailsObj,
       this.state.isEdit
+
     ).then((res) => {
       if (res.data) {
         toast.success("Barcode added successfully");
@@ -1643,13 +1645,13 @@ export default class BarcodeList extends Component {
             <button className="btn-unic" onClick={this.closeBarcode}>
               Cancel
             </button>
-            <button
-              className="btn-unic active fs-12"
-              // onClick={this.state.isEdit ? this.editBarcode : this.addBarcode}
-              onClick={this.checkForMandatory}
+            <button className={this.state.selectedDomain ? "btn-unic active fs-12" : "btn-selection fs-12"}
+            disabled={!this.state.selectedDomain}
+              onClick={this.checkForMandatory || this.handleDomainChange}
             >
               Save
             </button>
+          
           </ModalFooter>
         </Modal>
         <div className="maincontent">

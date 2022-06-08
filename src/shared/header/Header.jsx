@@ -743,7 +743,7 @@ class Header extends Component {
               <div className="module_select">
               <Dropdown>
                       {this.state.selectedCategory === ''? <Dropdown.Toggle className="drop-tog" variant="success">Select Module</Dropdown.Toggle>
-                       : <Dropdown.Toggle className="drop-tog" variant="success"><img src={this.state.selectedImage} /> {this.state.selectedCategory.name}</Dropdown.Toggle> }
+                       : <Dropdown.Toggle className="drop-tog" variant="success">{this.state.selectedCategory.name}</Dropdown.Toggle> }
                       <Dropdown.Menu>
                         {modules.map((item, i) => (                        
                           <Dropdown.Item
@@ -753,7 +753,7 @@ class Header extends Component {
                             value={item.name}
                             onClick={(e) => this.handleSelectChange(e, item, item.parentImage)}
                           >
-                             <img src={item.parentImage} /> {item.name}
+                             {/* <img src={item.parentImage} />*/} {item.name} 
                           </Dropdown.Item>
                         ))}
                       </Dropdown.Menu>

@@ -1075,6 +1075,7 @@ capitalization= () => {
                                 onChange={(e) => this.setState({ searchRole: e.target.value })} />
                         </div>
                     </div>
+
                     <div className="col-12 col-sm-2 mt-2">
                         <div className="form-group">
                         <label>Store/Branch</label>
@@ -1082,6 +1083,7 @@ capitalization= () => {
                                 onChange={(e) => this.setState({ searchStore: e.target.value })} />
                         </div>
                     </div>
+                    
                     <div className="col-12 scaling-center scaling-mb col-sm-6 pt-4 mt-2 p-l-0">
                         <button className="btn-unic-search active m-r-2"  name="search" onClick={this.searchUser}>SEARCH </button>
                         <button className="btn-unic-search active m-r-2" name="clear" onClick={()=>{this.getUsers(0); this.setState({ pageNumber: 0 });}}>Clear </button>

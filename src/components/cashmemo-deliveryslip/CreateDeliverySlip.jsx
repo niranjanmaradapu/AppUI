@@ -688,6 +688,7 @@ class CeateDeliverySlip extends Component {
     CreateDeliveryService.saveDelivery(createObj).then(res => {
       if (res) {
         toast.success(res.data.message);
+           PrinterStatusBill('DSNUM',res.data.result) 
         this.setState({
           barCode: "",
           smNumber: "",

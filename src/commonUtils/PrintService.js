@@ -5,11 +5,10 @@ const PrinterStatusBill = (type,object) => {
   console.log(type);
   // 192.168.1.13  HOME
   // 10.80.2.50 OFC
-  const printerIPAddress = "10.80.2.50";
+  const printerIPAddress = "10.80.2.26";
   const printerPort = "8008";
 //   const [textToPrint, setTextToPrint] = useState("");
    let  connectionStatus ='';
-
   let ePosDevice;
   let  printer = {};
 
@@ -43,6 +42,8 @@ const PrinterStatusBill = (type,object) => {
               printer = devobj;
               connectionStatus = STATUS_CONNECTED;
               let prn =  devobj
+             
+               
               // var receiptString =
               // "======================\n" +
               // "|       Invoice      |\n" +
@@ -68,8 +69,32 @@ const PrinterStatusBill = (type,object) => {
               // prn.addCut(prn.CUT_FEED);
           
               // prn.send();
-          
+           
              // *************************PRINT BILL*****************************
+             if(type === "DSNUM"){
+               let dsnum= object
+              // prn.addTextPosition(212);
+              // prn.addTextVPosition(486);
+              // prn.addText('EASY RETAIL\n');
+              // prn.addTextPosition(240);
+              // prn.addText('ESTIMATION SLIP\n');
+              // prn.addText(' =============================================\n');
+              // prn.addTextPosition(3);
+              // prn.addBarcode('eh4545212121r', prn.BARCODE_CODE39, prn.HRI_BELOW, prn.FONT_B, 2, 90);
+              // prn.addText(' =============================================\n');
+              prn.addTextPosition(205);
+              prn.addText('EASY REATIL\n');
+              prn.addTextPosition(137);
+              prn.addTextVPosition(548);
+              prn.addText('ESTIMATION SLIP NUMBER\n');
+              // prn.addText(' =============================================\n');
+              prn.addTextVPosition(246);
+              prn.addBarcode(dsnum, prn.BARCODE_CODE39, prn.HRI_BELOW, prn.FONT_A, 2, 83);
+              // prn.addText(' =============================================\n');
+              prn.addTextPosition(211);
+              prn.addTextVPosition(208);
+              prn.addText('THANK YOU\n');
+             } else if(type ==='INVOICE'){
               prn.addTextPosition(212);
               prn.addTextVPosition(486);
               prn.addText('EASY RETAIL\n');
@@ -111,6 +136,9 @@ const PrinterStatusBill = (type,object) => {
               prn.addText(' ---------------------------------------------\n');
               // prn.addSymbol('http://www.google.com/', prn.SYMBOL_QRCODE_MODEL_1, prn.LEVEL_DEFAULT, 9, 8, 350);
               prn.addText(' ==================THANK YOU===================\n');
+             }
+            
+              
               prn.addCut(prn.CUT_FEED);
               // *************************PRINT BILL*****************************
              

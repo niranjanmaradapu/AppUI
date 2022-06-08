@@ -1250,7 +1250,7 @@ if (emailReg.test(this.state.registerEmail) === false) {
                         /> */}
                       </div>
 
-                      <div class="col d-flex">
+                      <div className="col d-flex">
                         <button
                           className="btn-login_v1 mt-3 m-r-2"
                           onClick={this.registerClient}

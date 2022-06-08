@@ -18,6 +18,7 @@ import CreateDeliveryService from "../../services/CreateDeliveryService";
 import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
 import { NEW_SALE_URL } from "../../commonUtils/ApiConstants";
+import PrinterStatusBill from "../../commonUtils/PrintService";
 
 
 
@@ -631,6 +632,8 @@ export default class NewSale extends Component {
             const param = '?razorPayId=' + response.razorpay_order_id + '&payStatus=' + status;
             const result = axios.post(BASE_URL + NEW_SALE_URL.saveSale + param, {});
 
+            PrinterStatusBill('INVOICE',data.amount)
+
 
           },
           prefill: {
@@ -1163,11 +1166,15 @@ export default class NewSale extends Component {
           sessionStorage.setItem("recentSale", res.data.result);
           toast.success(res.data.result);
           this.setState({ newSaleId: res.data.result });
+          // if(this.state.isCash){
+            PrinterStatusBill('INVOICE',null)
+          // }
           // this.pay()
           if (this.state.isCard || this.state.isUPIModel) {
             this.pay()
           }
         } else {
+         
           toast.error(res.data.result);
         }
       });

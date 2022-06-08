@@ -652,6 +652,10 @@ export default class ManagePromo extends Component {
   cloneStore() {
     this.setState({ closeClone: true });
   }
+  dateFormat = (d) => {
+    let date = new Date(d)
+    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()
+}
 
   closeClonePopup() {
     const { checkedItem, allStorePromos } = this.state;
@@ -940,13 +944,22 @@ export default class ManagePromo extends Component {
             </thead>
             <tbody>
             {this.state.allStorePromos.length > 0 && this.state.allStorePromos.map((item, index) => {
+            let date = this.dateFormat(item.startDate || item.endDate)
+            const {
+              promotionName,
+              storeName,
+              priority,
+              startDate,
+              endDate,
+              promoStatus,
+            } = item;
               return( 
               <tr key={index}>
                   <td className="col-1 underline geeks"> <input type="checkbox" checked={item.isCheckBoxChecked}  onChange={(e) => this.handleChange(e,index, item)}/> <span className="pt-0 mt-0">{item.id}</span> </td>
                   <td className="col-2">{item.promotionName}</td>
                   <td className="col-2">{item.storeName}</td>
                   <td className="col-2">{item.priority}</td>
-                  <td className="col-2">{item.startDate}</td>
+                  <td className="col-2">{date}</td>
                   <td className="col-2">{item.endDate}</td>
                   <td className="col-1">
                     {item.promotionStatus ? 

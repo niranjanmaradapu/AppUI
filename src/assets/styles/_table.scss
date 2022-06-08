@@ -1,6 +1,7 @@
 .table {
   border-collapse: collapse;
   display: block;
+  margin-bottom: 6% !important;
   & thead {
     display: block;
     & tr {
@@ -57,6 +58,16 @@
         background-color: #fafbfc;
         // box-shadow: 0px 0px 2px #0196FD0F;
         // border-radius: 6px !important;
+      }
+      & td:last-child{
+        padding-top: 14px;
+        & img{
+          cursor: pointer;
+        }
+        & i{
+          cursor: pointer;
+          font-size: 15px;
+        }
       }
     }
     & .geeks {

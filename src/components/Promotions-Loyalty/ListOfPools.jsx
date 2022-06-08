@@ -150,7 +150,7 @@ export default class ListOfPools extends Component {
     this.handleConfirmation = this.handleConfirmation.bind(this);
     this.handleDeleteConfirmation = this.handleDeleteConfirmation.bind(this);
     this.getPoolList = this.getPoolList.bind(this);
-    this.getDomainsList = this.getDomainsList.bind(this);
+    // this.getDomainsList = this.getDomainsList.bind(this);
     this.handleRemovePool = this.handleRemovePool.bind(this);
     this.modifyPool = this.modifyPool.bind(this);
     this.paginate = this.paginate.bind(this);
@@ -159,17 +159,7 @@ export default class ListOfPools extends Component {
     this.toggleClass = this.toggleClass.bind(this);
   }  
   componentDidMount() {
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    const clientDomainId = user["custom:clientDomians"].split(",")[0];
-      URMService.getDomainName(clientDomainId).then(res => {
-        if(res) {
-          const obj  = {
-            value: clientDomainId,
-            label: res.data.result.domaiName
-          }
-          this.setState({ selectedOption: obj }, () => this.getDomainsList());
-        }
-      });
+      this.getPoolList();
       // this.getDomainsList();
   }
   getAllColumns(clientId) {
@@ -181,13 +171,13 @@ export default class ListOfPools extends Component {
       columnsObj.CostPrice = result.CostPrice;
       columnsObj.Section = result.Section;
       columnsObj.SubSection = result.SubSection;
-      columnsObj.Dcode = result.Dcode;
+      // columnsObj.Dcode = result.Dcode;
       columnsObj.BarcodeCreatedOn = result.BarcodeCreatedOn;
-      columnsObj.StyleCode = result.StyleCode;
-      columnsObj.SubsectionId = result.SubsectionId;
+      // columnsObj.StyleCode = result.StyleCode;
+      // columnsObj.SubsectionId = result.SubsectionId;
       columnsObj.Uom = result.Uom;
       columnsObj.BatchNo = result.BatchNo;
-      columnsObj.DiscountType = result.DiscountType;
+      // columnsObj.DiscountType = result.DiscountType;
       columnsObj.Division = result.Division;
       const propertyNames = Object.keys(columnsObj);
       const columnNames = propertyNames.map((item) => {
@@ -201,20 +191,20 @@ export default class ListOfPools extends Component {
       });
     });
   }
-  getDomainsList() {
-    const { selectedOption } = this.state;   
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    // const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
-     URMService.getDomainsList(user["custom:clientId1"]).then((res) => {
-         if(res) {
-           if(selectedOption.label === 'Textile') {
-             this.setState({ clientId:  1 /* res.data.result[1].domain[0].id */}, () => this.getPoolList());
-           } else {
-             this.setState({ clientId: 2 /* res.data.result[0].domain[0].id */ }, () => this.getPoolList());
-           }            
-         }       
-     });
-   }
+  // getDomainsList() {
+  //   const { selectedOption } = this.state;   
+  //   const user = JSON.parse(sessionStorage.getItem('user'));
+  //   // const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
+  //    URMService.getDomainsList(user["custom:clientId1"]).then((res) => {
+  //        if(res) {
+  //          if(selectedOption.label === 'Textile') {
+  //            this.setState({ clientId:  1 /* res.data.result[1].domain[0].id */}, () => this.getPoolList());
+  //          } else {
+  //            this.setState({ clientId: 2 /* res.data.result[0].domain[0].id */ }, () => this.getPoolList());
+  //          }            
+  //        }       
+  //    });
+  //  }
   getPoolList() {
     const { clientId } = this.state;
     this.getAllColumns(this.state.clientId);
@@ -223,7 +213,7 @@ export default class ListOfPools extends Component {
     const storeId = selectedstoreData.storeId;
     const customClientId = user['custom:clientId1'];
     const domainId = clientId;
-    PromotionsService.getPoolList(domainId, customClientId, storeId).then((res) => {
+    PromotionsService.getPoolList(domainId, customClientId).then((res) => {
       if(res.data.isSuccess === 'true') {   
             var elements = res.data.result['poolvo'].reduce( (previous, current) => {
             var object = previous.filter(object => object.createdBy === current.createdBy);
@@ -287,7 +277,7 @@ export default class ListOfPools extends Component {
     const { addedIncludedPoolRules, addedExcludedPoolRules, activeTab, ruleNumber, isUpdatable} = this.state;
     let poolConditions = [];
     const user = JSON.parse(sessionStorage.getItem("user"));
-    const selectedstoreData = JSON.parse(sessionStorage.getItem("selectedstoreData"));    
+    const selectedstoreData = JSON.parse(sessionStorage.getItem("selectedstoreData"));     
     const createdBy = user['custom:userId'];
     delete this.state.addNewRule['valueList']
     if(this.state.isUpdatable) {
@@ -560,8 +550,8 @@ export default class ListOfPools extends Component {
       ruleNumber: '',
       addNewRule: [],
       updatedRuleVO: [],
-      // addedExcludedPoolRules: [],
-      // addedIncludedPoolRules: [],
+      addedExcludedPoolRules: [],
+      addedIncludedPoolRules: [],
       addNewRule: [{ columnName: '', givenValue: '', operatorSymbol : '' }]
     });
   }
@@ -584,11 +574,14 @@ export default class ListOfPools extends Component {
      }, () => this.getPoolList());
   }
   searchPool() {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const customClientId = user['custom:clientId1'];
     const { createdBy, poolType, poolStatus, createdByList} = this.state;
     const obj = {       
         createdBy: createdBy,
         poolType: poolType,
-        isActive: poolStatus
+        isActive: poolStatus,
+        clientId: customClientId
     }   
     this.setState({ 
       listOfPools: []
@@ -1147,7 +1140,7 @@ Tabs = () => {
                           </td>
                           {(this.state.addNewRule[idx].columnName === 'CostPrice'  || this.state.addNewRule[idx].columnName === 'Mrp' || this.state.addNewRule[idx].columnName === 'BarcodeCreatedOn') ? 
                           <td className='col-4 t-form'> <input
-                              type="text"
+                             type={this.state.addNewRule[idx].columnName === 'BarcodeCreatedOn' ? 'date' : 'text'}
                               name="givenValue"
                               value={this.state.addNewRule[idx].givenValue}
                               onChange={e => this.handleTextChange(idx, e)}
@@ -1294,12 +1287,10 @@ Tabs = () => {
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearPool}>CLEAR</button>
             <button className="btn-unic-redbdr mt-2" onClick={this.addPool}>Add Pool</button>
           </div>
-           {/*<div className="col-sm-2 col-12">
-            <div className="form-group mt-2 mb-3">
-            <button className="btn-unic-search active m-r-2 mt-4" onClick={this.clearPool}>CLEAR</button>
-            </div> 
-          </div>*/}
-         
+          {/* <div className="col-sm-3 col-12 text-right pt-4 scaling-center scaling-mb">
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>SEARCH</button>
+            <button className="btn-unic-redbdr mt-2" onClick={this.addPool}>Add Pool</button>
+          </div> */}
         </div>
         <div className="row m-0 p-0 scaling-center">
           <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Pools</h5>

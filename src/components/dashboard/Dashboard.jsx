@@ -100,7 +100,7 @@ export default class Dashboard extends Component {
         MainDashboardService.getTodaySale(this.state.storeId, this.state.domainId).then(response => {
             console.log("Todays Sale", response.data.result.amount);
             if (response) {
-                if (response.data.result !== "null") {
+                if (response.data.result !== null) {
                     this.setState({ todaysSale: response.data.result.amount });
                 }
             }
@@ -112,7 +112,7 @@ export default class Dashboard extends Component {
         MainDashboardService.getMonthlySale(this.state.storeId, this.state.domainId).then(response => {
             console.log("Monthly Sale", response.data.result.amount);
             if (response) {
-                if (response.data.result !== "null") {
+                if (response.data.result !== null) {
                     this.setState({ monthlySale: response.data.result.amount });
                 }
             }
@@ -123,7 +123,7 @@ export default class Dashboard extends Component {
         MainDashboardService.getLastVsThisMonthSale(this.state.storeId, this.state.domainId).then(response => {
             console.log("Last VS this Month", response.data);
             if (response) {
-                if (response.data.result !== "null") {
+                if (response.data.result !== null) {
                     this.setState({ lastVsThisSales: response.data.result.percentValue });
                 }
             }
@@ -134,7 +134,7 @@ export default class Dashboard extends Component {
         MainDashboardService.getTopFiveSalesRepresentatives(this.state.storeId, this.state.domainId).then(response => {
             if (response) {
                 console.log("Top 5 Sales Representative", response.data.result);
-                if (response.data.result !== "null" && response.data.result.length > 0) {
+                if (response.data.result !== null && response.data.result.length > 0) {
                     this.setState({ topSales: response.data.result },
                         () => {
                             let indexName = [];
@@ -177,7 +177,7 @@ export default class Dashboard extends Component {
     getSalesByCategory() {
         MainDashboardService.getSalesByCategory(this.state.storeId, this.state.domainId).then(response => {
             if (response) {
-                if (response.data.result !== "null" && response.data.result.length > 0) {
+                if (response.data.result !== null && response.data.result.length > 0) {
                     console.log("sales by category", response.data);
                     this.setState({ salesCategory: response.data.result },
                         () => {

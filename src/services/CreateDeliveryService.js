@@ -66,7 +66,17 @@ class CreateDeliveryService {
     saveGiftVoucher(saveobj) {
         return axios.post(BASE_URL + CREATE_DELIVERY_SLIP_URL.saveGiftVoucher, saveobj);
     }
+   // searchGiftVoucher(params){
+    //    console.log(">>>params",params)
+    //     return axios.get(BASE_URL+ CREATE_DELIVERY_SLIP_URL.searchGiftVoucher+"?"+params)
 
+    // }
+
+    searchGiftVoucher(obj){
+        console.log(">>>data",obj)
+         return axios.post(BASE_URL+ CREATE_DELIVERY_SLIP_URL.searchGiftVoucher,obj)
+ 
+     }
     saveGVNumber(gvObj, status) {
         const param = '?flag=' + status;
         return axios.put(BASE_URL + CREATE_DELIVERY_SLIP_URL.changeGvFlag + param, gvObj);

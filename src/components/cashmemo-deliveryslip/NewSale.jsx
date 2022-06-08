@@ -133,7 +133,7 @@ export default class NewSale extends Component {
       balanceCreditAmount: "",
       isreturnCreditCash: false,
       upiAmount:0,
-
+      isCheckPromo:false
       // open: false,
     };
 
@@ -171,17 +171,17 @@ export default class NewSale extends Component {
 
   componentWillMount() {
 
-    const clientId = JSON.parse(sessionStorage.getItem('selectedDomain'));
-    console.log(clientId.label);
+    // const clientId = JSON.parse(sessionStorage.getItem('selectedDomain'));
+    // console.log(clientId.label);
     const user = JSON.parse(sessionStorage.getItem('user'));
     this.setState({ createdBy: parseInt(user["custom:userId"]), idClient: user["custom:clientId1"] });
-    if (clientId.label === "Textile") {
-      this.setState({ isTextile: true, isRetail: false });
-    } else if (clientId.label === "Retail") {
-      this.setState({ isTextile: false, isRetail: true });
-    }
+    // if (clientId.label === "Textile") {
+    //   this.setState({ isTextile: true, isRetail: false });
+    // } else if (clientId.label === "Retail") {
+    //   this.setState({ isTextile: false, isRetail: true });
+    // }
 
-    this.getHsnDetails();
+    // this.getHsnDetails();
 
   }
 
@@ -218,12 +218,12 @@ export default class NewSale extends Component {
     });
 
     this.setState({
-      customerName: " ",
-      gender: " ",
-      dob: " ",
-      customerGST: " ",
-      address: " ",
-      mobilenumber: " ",
+      customerName: "",
+      gender: "",
+      dob: "",
+      customerGST: "",
+      address: "",
+      mobilenumber: "",
     });
   };
 
@@ -352,13 +352,16 @@ export default class NewSale extends Component {
   }
 
   saveCCAmount() {
+    console.log("+++++++++++++++++conirm_+++++++++++")
 
     this.state.discType = this.state.dropValue;
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
     const storeId = sessionStorage.getItem("storeId");
+    
+    console.log("+++++++++++++++++conirm2+++++++++++")
     let obj;
-    if (this.state.isTextile) {
+    // if (this.state.isTextile) {
       obj = {
 
         "natureOfSale": "InStore",
@@ -387,7 +390,7 @@ export default class NewSale extends Component {
 
         "userId": this.state.userId ? this.state.userId : null,
         "createdBy": this.state.createdBy,
-        "sgst": this.state.centralGST,
+        "sgst": this.state.stateGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
         "recievedAmount": this.state.cashAmount,
@@ -404,10 +407,12 @@ export default class NewSale extends Component {
           }
 
         ]
+        
+    
 
       }
 
-
+      console.log("+++++++++++++++++conirm3+++++++++++")
 
       NewSaleService.saveSale(obj).then((res) => {
         if (res) {
@@ -453,7 +458,7 @@ export default class NewSale extends Component {
         }
       });
 
-    }
+    // }
 
   }
 
@@ -711,7 +716,7 @@ export default class NewSale extends Component {
 
 
 
-  getDeliverySlipDetails() {
+  getDeliverySlipDetails= (e) => {
 
     this.setState({ showTable: false });
     let costPrice = 0;
@@ -724,7 +729,7 @@ export default class NewSale extends Component {
       "dsNumber": this.state.dsNumber.trim(),
     }
     this.state.dsNumberList.push(obj);
-
+    if (e.key === "Enter") {
     NewSaleService.getDeliverySlipDetails(this.state.dsNumber.trim()).then((res) => {
       this.setState({ showTable: true });
       this.state.dlslips.push(res.data.result);
@@ -742,14 +747,14 @@ export default class NewSale extends Component {
             lineStorage = [...lineStorage, ...lineItems];
           });
 
-          this.setState({ barCodeList: lineStorage });
+          this.setState({ barCodeList: lineStorage,dsNumber: '' });
 
         } else {
-          this.setState({ barCodeList: barList[0].lineItems });
+          this.setState({ barCodeList: barList[0].lineItems, dsNumber: ''  });
         }
 
       } else {
-        this.setState({ barCodeList: this.state.dlslips[0].lineItems });
+        this.setState({ barCodeList: this.state.dlslips[0].lineItems , dsNumber: ''});
         // this.state.barCodeList = this.state.dlslips.lineItems;
       }
 
@@ -774,35 +779,43 @@ export default class NewSale extends Component {
 
       this.getTaxAmount();
     });
-
+  }
 
   }
 
   getTaxAmount() {
     const taxDetails = JSON.parse(sessionStorage.getItem("HsnDetails"));
     let slabCheck = false;
-    taxDetails.forEach(taxData => {
-      if (this.state.netPayableAmount >= taxData[0].priceFrom && this.state.netPayableAmount <= taxData[0].priceTo) {
-        const taxPer = taxData[0].taxVo.taxLabel.split(' ')[1].split('%')[0];
-        const tax = parseInt(taxPer) / 100;
+    let totalTax = 0
+    let sgst =0
+    let cgst =0
+    this.state.barCodeList.forEach(barData => {
+      // if (this.state.netPayableAmount >= taxData[0].priceFrom && this.state.netPayableAmount <= taxData[0].priceTo) {
+      //   const taxPer = taxData[0].taxVo.taxLabel.split(' ')[1].split('%')[0];
+      //   const tax = parseInt(taxPer) / 100;
 
-        const totalTax = this.state.netPayableAmount * tax
+      //   const totalTax = this.state.netPayableAmount * tax
 
-        const central = totalTax / 2;
-        this.setState({ centralGST: Math.ceil(central) });
-        slabCheck = true;
+      //   const central = totalTax / 2;
+      //   this.setState({ centralGST: Math.ceil(central) });
+      //   slabCheck = true;
 
-      }
+      // }
+    
+       sgst= sgst+barData.sgst
+       cgst= cgst+barData.cgst
+       totalTax = sgst+cgst
 
     });
 
+    this.setState({ centralGST:cgst });
+    this.setState({ stateGST:sgst });
 
-
-    if (!slabCheck) {
-      this.setState({ stateGST: 70, centralGST: 70 });
-      console.log("Checking the slab")
-    }
-    const grandTotal = this.state.netPayableAmount + this.state.centralGST + this.state.centralGST;
+    // if (!slabCheck) {
+    //   this.setState({ stateGST: 70, centralGST: 70 });
+    //   console.log("Checking the slab")
+    // }
+    const grandTotal = this.state.netPayableAmount + this.state.centralGST + this.state.stateGST;
     this.setState({ grandNetAmount: grandTotal, totalAmount: grandTotal });
 
 
@@ -836,6 +849,10 @@ export default class NewSale extends Component {
     
   }
   getinvoiceLevelCheckPromo()  {
+    let costPrice = 0;
+    let discount = 0;
+    let total = 0;
+    let discAppliedTotal=0;
     console.log('*******************',this.state.barCodeList);
     const storeId = sessionStorage.getItem("storeId");
 
@@ -870,6 +887,29 @@ export default class NewSale extends Component {
         this.setState({
           barCodeList: res.data.result
         });
+        
+        this.state.barCodeList.forEach((barCode, index) => {
+          costPrice = costPrice + barCode.itemPrice;
+          discount = discount + barCode.discount;
+          total = total + barCode.netValue;
+        });
+  
+        discount = discount + this.state.manualDisc;
+        discAppliedTotal = this.state.grandNetAmount-discount;
+        console.log(discAppliedTotal)
+        this.setState({
+          netPayableAmount: total,
+          totalPromoDisc: discount,
+          grossAmount: costPrice,
+          grandNetAmount:discAppliedTotal
+        });
+        if (this.state.barCodeList.length > 0) {
+          this.setState({ enablePayment: true });
+        }
+  
+        // this.getTaxAmount();
+      }else {
+        this.toast.error("no Promo Available");
       }
     });
   }
@@ -905,8 +945,7 @@ export default class NewSale extends Component {
 
       if (Object.keys(this.state.selectedDisc).length !== 0 && this.state.manualDisc !== 0 && this.state.discApprovedBy !== '') {
         // this.state.netPayableAmount = 0;
-        const totalDisc =
-          this.state.totalPromoDisc + parseInt(this.state.manualDisc);
+        const totalDisc = parseInt(this.state.manualDisc);
         if (totalDisc < this.state.grandNetAmount) {
           const netPayableAmount = this.state.grandNetAmount - totalDisc;
           this.state.grandNetAmount = netPayableAmount;
@@ -975,9 +1014,15 @@ export default class NewSale extends Component {
     if (collectedCash > this.state.grandNetAmount) {
       this.state.returnCash = collectedCash - this.state.grandNetAmount;
       this.state.returnCash = Math.round(this.state.returnCash);
+      this.setState({payingAmount: this.state.grandNetAmount}, () => {
+        this.setState({grandNetAmount: 0})
+      } );
       this.setState({isCash: false});
     } else if (collectedCash == Math.round(this.state.grandNetAmount)) {
       this.setState({ isPayment: false,payingAmount: this.state.grandNetAmount, grandNetAmount: 0,});
+      this.setState({ isPayment: false,payingAmount: this.state.grandNetAmount}, () => {
+        this.setState({grandNetAmount: 0})
+      } );
       this.setState({isCash: false});
 
     } else if(collectedCash < this.state.grandNetAmount) {
@@ -1035,7 +1080,7 @@ export default class NewSale extends Component {
     const storeId = sessionStorage.getItem("storeId");
     
     let obj;
-    if (this.state.isTextile) {
+    //  if (this.state.isTextile) {
       obj = {
 
         "natureOfSale": "InStore",
@@ -1064,7 +1109,7 @@ export default class NewSale extends Component {
 
         "userId": this.state.userId ? this.state.userId : null,
 
-        "sgst": this.state.centralGST,
+        "sgst": this.state.stateGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
         "lineItemsReVo": null,
@@ -1127,125 +1172,127 @@ export default class NewSale extends Component {
         }
       });
 
-    } else if (this.state.isRetail) {
-      let lineItems = [];
-      this.state.retailBarCodeList.forEach((barCode, index) => {
-        const obj = {
-          "barCode": barCode.barcodeId,
-          "domainId": 2,
-          "itemPrice": barCode.listPrice,
-          "netValue": barCode.listPrice,
-          "quantity": 1
-        }
-        lineItems.push(obj);
-      });
-      CreateDeliveryService.getLineItem(lineItems, 2).then(res => {
-        if (res) {
-          let lineItemsList = [];
-          let dataResult = JSON.parse(res.data.result);
-          dataResult.forEach(element => {
-            const obj = {
-              "lineItemId": element
-            }
-            lineItemsList.push(obj);
-          });
+    // } 
+    
+    // else if (this.state.isRetail) {
+    //   let lineItems = [];
+    //   this.state.retailBarCodeList.forEach((barCode, index) => {
+    //     const obj = {
+    //       "barCode": barCode.barcodeId,
+    //       "domainId": 2,
+    //       "itemPrice": barCode.listPrice,
+    //       "netValue": barCode.listPrice,
+    //       "quantity": 1
+    //     }
+    //     lineItems.push(obj);
+    //   });
+    //   CreateDeliveryService.getLineItem(lineItems, 2).then(res => {
+    //     if (res) {
+    //       let lineItemsList = [];
+    //       let dataResult = JSON.parse(res.data.result);
+    //       dataResult.forEach(element => {
+    //         const obj = {
+    //           "lineItemId": element
+    //         }
+    //         lineItemsList.push(obj);
+    //       });
 
 
 
 
-          this.setState({ lineItemsList: lineItemsList }, () => {
+    //       this.setState({ lineItemsList: lineItemsList }, () => {
 
 
-            obj = {
+    //         obj = {
 
-              "natureOfSale": "InStore",
+    //           "natureOfSale": "InStore",
 
-              "domainId": 2,
+    //           "domainId": 2,
 
-              "storeId": parseInt(storeId),
+    //           "storeId": parseInt(storeId),
 
-              "grossAmount": this.state.grossAmount,
+    //           "grossAmount": this.state.grossAmount,
 
-              "totalPromoDisc": this.state.totalPromoDisc,
+    //           "totalPromoDisc": this.state.totalPromoDisc,
 
-              "totalManualDisc": parseInt(this.state.manualDisc),
+    //           "totalManualDisc": parseInt(this.state.manualDisc),
 
-              "taxAmount": this.state.taxAmount,
+    //           "taxAmount": this.state.taxAmount,
 
-              "discApprovedBy": this.state.discApprovedBy,
+    //           "discApprovedBy": this.state.discApprovedBy,
 
-              "discType": this.state.discType,
+    //           "discType": this.state.discType,
 
-              "approvedBy": null,
+    //           "approvedBy": null,
 
-              "netPayableAmount": this.state.netPayableAmount,
+    //           "netPayableAmount": this.state.netPayableAmount,
 
-              "offlineNumber": null,
+    //           "offlineNumber": null,
 
-              "userId": this.state.userId ? this.state.userId : null,
+    //           "userId": this.state.userId ? this.state.userId : null,
 
-              "dlSlip": null,
-              "lineItemsReVo": this.state.lineItemsList,
-              "sgst": this.state.centralGST,
-              "cgst": this.state.centralGST,
-              "createdBy": this.state.createdBy,
-              "recievedAmount": this.state.cashAmount,
-              "returnAmount": this.state.returnCash,
-              "paymentAmountType": [
-                {
-                  "paymentType": "Cash",
-                  "paymentAmount": this.state.cashAmount
-                },
-                {
-                  "paymentType": "PKTADVANCE",
-                  "paymentAmount": "2200"
-                }
-              ]
+    //           "dlSlip": null,
+    //           "lineItemsReVo": this.state.lineItemsList,
+    //           "sgst": this.state.centralGST,
+    //           "cgst": this.state.centralGST,
+    //           "createdBy": this.state.createdBy,
+    //           "recievedAmount": this.state.cashAmount,
+    //           "returnAmount": this.state.returnCash,
+    //           "paymentAmountType": [
+    //             {
+    //               "paymentType": "Cash",
+    //               "paymentAmount": this.state.cashAmount
+    //             },
+    //             {
+    //               "paymentType": "PKTADVANCE",
+    //               "paymentAmount": "2200"
+    //             }
+    //           ]
 
-            }
+    //         }
 
 
-            NewSaleService.saveSale(obj).then((res) => {
-              if (res) {
-                this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
-                this.setState({
-                  customerName: " ",
-                  gender: " ",
-                  dob: " ",
-                  customerGST: " ",
-                  address: " ",
-                  manualDisc: "",
-                  customerEmail: "",
-                  dsNumber: "",
-                  barcode: "",
-                  showTable: false,
-                  cashAmount: 0,
-                  stateGST: 0,
-                  centralGST: 0,
-                  barCodeRetailList: [],
-                  returnCash: 0,
-                  grandNetAmount: 0,
-                  totalAmount: 0,
-                  isCredit: false
+    //         NewSaleService.saveSale(obj).then((res) => {
+    //           if (res) {
+    //             this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
+    //             this.setState({
+    //               customerName: " ",
+    //               gender: " ",
+    //               dob: " ",
+    //               customerGST: " ",
+    //               address: " ",
+    //               manualDisc: "",
+    //               customerEmail: "",
+    //               dsNumber: "",
+    //               barcode: "",
+    //               showTable: false,
+    //               cashAmount: 0,
+    //               stateGST: 0,
+    //               centralGST: 0,
+    //               barCodeRetailList: [],
+    //               returnCash: 0,
+    //               grandNetAmount: 0,
+    //               totalAmount: 0,
+    //               isCredit: false
 
-                });
-                this.setState({ showDiscReason: false, isPayment: true });
-                sessionStorage.setItem("recentSale", res.data.result);
-                toast.success(res.data.result);
-                this.setState({ newSaleId: res.data.result });
+    //             });
+    //             this.setState({ showDiscReason: false, isPayment: true });
+    //             sessionStorage.setItem("recentSale", res.data.result);
+    //             toast.success(res.data.result);
+    //             this.setState({ newSaleId: res.data.result });
 
-                if (this.state.isCard) {
-                  this.pay();
-                }
-              } else {
-                toast.error(res.data.result);
-              }
-            });
-          });
-        }
-      });
+    //             if (this.state.isCard) {
+    //               this.pay();
+    //             }
+    //           } else {
+    //             toast.error(res.data.result);
+    //           }
+    //         });
+    //       });
+    //     }
+    //   });
 
-    }
+    // }
 
 
 
@@ -1349,18 +1396,20 @@ export default class NewSale extends Component {
 
     return this.state.showTable && (
       <div className="p-l-0">
-        {
-          this.state.isTextile && (
+        {/* {
+          this.state.isTextile && ( */}
             <div className="table-responsive">
               
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
                     <th className="col-1">S.NO</th>
-                    <th className="col-3">Item</th>
+                    <th className="col-2">Item</th>
                     <th className="col-2">Qty</th>
                     <th className="col-2">MRP</th>
                     <th className="col-2">Discount</th>
+                    <th className="col-1">Sgst</th>
+                    <th className="col-1">Cgst</th>
                     <th className="col-2">Gross Amount</th>
                   </tr>
                 </thead>
@@ -1373,10 +1422,12 @@ export default class NewSale extends Component {
                         <td className="col-1 geeks">
                           {index + 1}
                         </td>
-                        <td className="col-3"><p>#{items.barCode}</p></td>
+                        <td className="col-2"><p>#{items.barCode}</p></td>
                         <td className="col-2">{items.quantity}</td>
                         <td className="col-2">₹ {items.itemPrice}</td>
                         <td className="col-2">₹ {items.discount}</td>
+                        <td className="col-1">₹ {items.sgst}</td>
+                        <td className="col-1">₹ {items.cgst}</td>
                         <td className="col-2">₹ {items.netValue}</td>
                       </tr>
                     );
@@ -1387,8 +1438,8 @@ export default class NewSale extends Component {
               </table>
 
             </div>
-          )
-        }
+          {/* )
+        } */}
 
         {
           this.state.isRetail && (
@@ -1415,7 +1466,7 @@ export default class NewSale extends Component {
                         <td className="col-3"><p>#{items.barcodeId}</p></td>
                         <td className="col-2">{items.quantity}</td>
                         <td className="col-2">₹ {items.netValue}</td>
-                        <td className="col-2">₹ 0</td>
+                        <td className="col-2">₹ {items.discount}</td>
                         <td className="col-2">₹ {items.listPrice}</td>
                       </tr>
                     );
@@ -1544,6 +1595,7 @@ export default class NewSale extends Component {
                       if (this.state.ccCollectedCash < this.state.grandNetAmount) {
                         let ccReturn = this.state.grandNetAmount - this.state.ccCollectedCash;
                         this.setState({ ccCardCash: ccReturn });
+                        console.log("+++++++++++++++++"+ccReturn);
 
                       }
                     })
@@ -1855,23 +1907,35 @@ export default class NewSale extends Component {
                 <div className="col-12 col-sm-4">
                   <div className="form-group">
 
-                    {
-                      this.state.isTextile && (
+                    {/* {
+                      this.state.isTextile && ( */}
                         <div>
                            <label>ES Number</label>
-                          <input type="search" className="form-control frm-pr"
+                          {/* <input type="text" className="form-control frm-pr"
                             value={this.state.dsNumber}
-                            onChange={(e) => this.setState({ dsNumber: e.target.value })}
-
-                            placeholder="Enter ES Number" />
+                            onKeyPress={this.getDeliverySlipDetails}
+                            // onChange={(e) => this.setState({ dsNumber: e.target.value })}
+                            placeholder="Enter ES Number" /> */}
+                                            <input
+                  type="text"
+                  autoFocus
+                  className="form-control"
+                  value={this.state.dsNumber}
+                  onKeyPress={this.getDeliverySlipDetails}
+                  placeholder="ES Number"
+                  // onChange={(e) => this.setState({ dsNumber: e.target.value })}
+                  onChange={(e) => this.setState({ dsNumber: e.target.value }, () => { 
+                    this.getDeliverySlipDetails(e) 
+                  })}
+                />
                           <button type="button" className="scan" onClick={this.getDeliverySlipDetails}>
                             <img src={scan} /> SCAN
                           </button>
                         </div>
-                      )
-                    }
+                      {/* )
+                    } */}
 
-                    {
+                    {/* {
                       this.state.isRetail && (
                         <div>
                            <label>Barcode</label>
@@ -1885,7 +1949,7 @@ export default class NewSale extends Component {
                           </button>
                         </div>
                       )
-                    }
+                    } */}
 
 
 
@@ -1913,7 +1977,9 @@ export default class NewSale extends Component {
                       >Tag Customer </button>
                       <button
                         className={" m-r-2 scaling-mb " + (this.state.isBillLevel ? "btn-unic btn-disable" : "btn-unic active")}
-                        onClick={this.showDiscount} >Bill Level Discount</button>
+                        onClick={this.showDiscount}
+                        disabled={(this.state.isBillLevel )}
+                        >Bill Level Discount</button>
                         <button
                         type="button"
                         className="btn-unic m-r-2 active scaling-mb"
@@ -1949,7 +2015,7 @@ export default class NewSale extends Component {
                           </div>
                           <div className="col-3">
                             <label>Discount : <span className="font-bold"> ₹
-                              {this.state.promoDiscount}
+                              {this.state.totalPromoDisc}
                             </span> </label>
 
                           </div>
@@ -2033,7 +2099,7 @@ export default class NewSale extends Component {
                     <label>SGST</label>
                   </div>
                   <div className="col-7 text-right">
-                    <label className="font-bold">₹ {this.state.centralGST}</label>
+                    <label className="font-bold">₹ {this.state.stateGST}</label>
                   </div>
                 </div>
 
@@ -2046,6 +2112,14 @@ export default class NewSale extends Component {
                     </div>
                     <div className="col-7 p-l-0 pt-1 text-right">
                       <label className="font-bold">₹ {this.state.totalAmount}</label>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-5 p-r-0 pt-1">
+                      <label>Promo Discount</label>
+                    </div>
+                    <div className="col-7 p-l-0 pt-1 text-right">
+                      <label className="font-bold">₹ {this.state.totalPromoDisc}</label>
                     </div>
                   </div>
                   <div className="row">
@@ -2251,6 +2325,7 @@ export default class NewSale extends Component {
                   <button
                     className={"mt-1 w-100 " + (this.state.grandNetAmount !== 0 || this.state.totalAmount === 0 ? "btn-unic btn-disable" : "btn-unic active")} 
                     onClick={this.savePayment}
+                    disabled={(this.state.grandNetAmount !== 0 || this.state.totalAmount === 0 )}
                   >PROCEED TO CHECKOUT</button>
                   {/* <button className="btn-unic p-2 w-100">HOLD PAYMENT</button> */}
                 </div>

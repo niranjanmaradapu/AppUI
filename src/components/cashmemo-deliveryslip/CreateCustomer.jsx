@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { toast } from 'react-toastify';
 import CreateDeliveryService from '../../services/CreateDeliveryService';
-
+import { errorLengthMin , errorLengthMax , addCustomer_Err_Msg} from "../../commonUtils/Errors";
 export default class CreateCustomer extends Component {
 
   constructor(props) {
@@ -35,6 +35,7 @@ export default class CreateCustomer extends Component {
     };
 
     this.addCustomer = this.addCustomer.bind(this);
+    this.validation=this.validation.bind(this);
   }
 
   handleValidation() {
@@ -42,75 +43,49 @@ export default class CreateCustomer extends Component {
     let formIsValid = true;
 
     //Name
-    if (!this.state.name) {
-        formIsValid = false;
-        errors["name"] = " Please Enter Name ";
+    if (this.state.name.length < errorLengthMin.name) {
+      formIsValid = false;
+      errors["name"] = addCustomer_Err_Msg.name;
     }
-    if (this.state.name) {
-      let input = this.state.name;
-      const nameValid = input.length < 6 ;
-      const exnameValid = input.length > 25;
-      if (nameValid) {
-        formIsValid = false;
-        errors["name"] = "Please Enter Atleast 6 Characters";
-      }else if(exnameValid){
-        formIsValid = false;
-        errors["name"] = "Please Enter Name Below 25 characters";
-        }
-      }
   
   
 
    
 
 
-    // Mobile
-    // if (!this.state.phoneNumber) {
-    //     formIsValid = false;
-    //     errors["mobileNumber"] = " Please Enter Mobile Number";
-    // }
-
-    if (this.state.phoneNumber) {
-      let input = this.state.phoneNumber;
-          const mobileValid = input.length ===10
-          if(this.state.phoneNumber && !mobileValid){
-        if (!this.state.phoneNumber.match(/^[0-9\b]+$/)) {
-            formIsValid = false;
-            errors["mobileNumber"] = "Please Enter Valid Mobile Number";
-        }
-        }
-    }
+    
      // Mobile
-  //    
-  if (!this.state.phoneNumber) {
-            
-    formIsValid = false;
-    errors["mobileNumber"] = "Please Enter Mobile Number";
-}
-
-if (this.state.phoneNumber) {
-  var pattern = new RegExp(/^[0-9\b]+$/);
-  if (pattern.test(this.state.phoneNumber)) {
-    let input = this.state.phoneNumber;
-    const mobValid= input.length === 10;
-  if(this.state.phoneNumber && !mobValid){
-      formIsValid = false;
-    errors["mobileNumber"] = "Please Enter valid Mobile Number.";
-  }
- 
-  }
+     
+  const patternRegExp = (/^[0-9\b]+$/);
+  let input = this.state.phoneNumber;
+  if (input.length !== errorLengthMin.phoneNumber || patternRegExp.test(this.state.phoneNumber) === false) {
+  formIsValid = false;
+  errors["phoneNumber"] = addCustomer_Err_Msg.phoneNumber;
  }
+
+
  
     //email 
     // if (!this.state.email) {
     //     formIsValid = false;
     //     errors["email"] = " Please Enter Email";
     // }
-    if (!this.state.email) {
-      errors["email"] = 'Email address is required';
-    } else if (!/\S+@\S+\.\S+/.test(this.state.email)) {
-      errors["email"] = 'Please Enter Valid Email';
+    if(this.state.email.length>0){
+      const emailReg = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/;
+    if (emailReg.test(this.state.email) === false) {
+      formIsValid = false;
+      errors["email"] = addCustomer_Err_Msg.email;
     }
+  }
+  //Gst number
+  if(this.state.gstNumber.length>0){
+    let input = this.state.gstNumber;
+  const gstValid = input.length===15;
+  if (!gstValid) {
+    formIsValid = false;
+    errors["gstNumber"] = addCustomer_Err_Msg.gstNumber;
+  }
+}
 
     // if (typeof this.state.email !== "undefined") {
 
@@ -126,16 +101,31 @@ if (this.state.phoneNumber) {
     return formIsValid;
 
 }
+validation(e) {
+  console.log(e.target.value)
+  const regex = /^[0-9\b]+$/;
+  const value = e.target.value;
+  if (value === "" || regex.test(value)) {
+    this.setState({
+      [e.target.id]: e.target.value,
+      phoneNumber: e.target.value,
+    });
+  } else {
+    this.setState({phoneNumber: ""});
+    // toast.error("pls enter numbers")
+  }
+}
 
 
   addCustomer() {
     const formValid = this.handleValidation();
          if (formValid) {
-
+          if(this.state.name && this.state.phoneNumber){
 
     this.state.phoneNumber = "+91" + this.state.phoneNumber;
     CreateDeliveryService.addCustomer(this.state).then(res => {
       if (res) {
+        toast.success("AddCustomer Created Successfully");
         toast.success(res.data.result.body);
         this.setState({
           email: "",
@@ -164,6 +154,7 @@ if (this.state.phoneNumber) {
         })
       }
     });
+  }
   } else {
     toast.error("Please enter all mandatory fields");
   }
@@ -183,6 +174,7 @@ if (this.state.phoneNumber) {
                     <input type="text" className="form-control"
                       placeholder="CUSTOMER NAME " autoFocus
                       value={this.state.name}
+                      maxLength={errorLengthMax.name}
                       onChange={(e) => this.setState({ name: e.target.value, username: e.target.value })}
                       autoComplete="off" />
                     <div>
@@ -195,8 +187,9 @@ if (this.state.phoneNumber) {
                   <label>Mobile Number  <span className="text-red font-bold" name="bold">*</span></label>
                     <input type="text" className="form-control"
                       placeholder="MOBILE NUMBER " autoFocus
-                      value={this.state.phoneNumber} maxLength="10" minLength="10"
-                      onChange={(e) => this.setState({ phoneNumber: e.target.value })}
+                      value={this.state.phoneNumber} maxLength={errorLengthMax.phoneNumber}
+                      onChange={this.validation}
+                      // onChange={(e) => this.setState({ phoneNumber: e.target.value })}
                       autoComplete="off" />
                     <div>
                       <span style={{ color: "red" }}>{this.state.errors["mobileNumber"]}</span>
@@ -204,7 +197,8 @@ if (this.state.phoneNumber) {
                   </div>
                 </div>
                 <div className="col-sm-4 col-12 scaling-mb">
-                <label>Email <span className="text-red font-bold" name="bold">*</span></label>
+                {/* <label>Email <span className="text-red font-bold" name="bold">*</span></label> */}
+                <label>Email</label>
                   <div className="form-group">
                     <input type="email" className="form-control"
                       placeholder="EMAIL *" autoFocus
@@ -233,7 +227,21 @@ if (this.state.phoneNumber) {
                       onChange={(e) => this.setState({ address: e.target.value })} autoComplete="off" />
                   </div>
                 </div>
+                <div className="col-sm-4 col-12 mt-4">
+                 <label>GST NUMBER</label>
+                  <div className="form-group">
+                    <input type="text" className="form-control"
+                    minLength={15} maxLength={15}
+                      placeholder="GST NUMBER" value={this.state.gstNumber}
+                      onChange={(e) => this.setState({ gstNumber: e.target.value })} autoComplete="off"
+                    />
+                     <div>
+                      <span style={{ color: "red" }}>{this.state.errors["gstNumber"]}</span>
+                    </div>
+                    </div>
+                  </div>
               </div>
+              
               {/* <h5 className="mt-4 mb-2">Business Information(Optional) </h5> */}
               <div className="row mt-3">
                 {/* <div className="col-sm-4 col-12 scaling-mb">

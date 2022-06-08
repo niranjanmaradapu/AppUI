@@ -20,6 +20,8 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { withTranslation } from 'react-i18next';
 import { saveDataInIndexDB, getDataFromIndexDB } from '../../utility.js';
 import NewSaleService from "../../services/NewSaleService";
+import PrinterStatusBill from "../../commonUtils/PrintService";
+import { errorLengthMin , errorLengthMax , createDelivery_Err_Msg} from "../../commonUtils/Errors";
 class CeateDeliverySlip extends Component {
   constructor(props) {
     super(props);
@@ -29,11 +31,13 @@ class CeateDeliverySlip extends Component {
       dsNumber: "",
       qunatity: 1,
       itemsList: [],
+      tempList:[],
       barList: [],
       isSMDisable: false,
       isDeliveryCreated: false,
       btnDisable: true,
       isRemember: true,
+      isgetLineItems : false,
       mrpAmount: 0,
       promoDisc: 0,
       totalAmount: 0,
@@ -70,7 +74,7 @@ class CeateDeliverySlip extends Component {
     this.hideModal = this.hideModal.bind(this);
     this.generateNew = this.generateNew.bind(this);
     this.getLineItems = this.getLineItems.bind(this);
-    // this.handleValidation=this.handleValidation.bind(this);
+    this.handleValidation=this.handleValidation.bind(this);
     //  this.deleteTableRow = this.deleteTableRow.bind(this);
 
 
@@ -133,17 +137,16 @@ class CeateDeliverySlip extends Component {
   };
 
   getDeliverySlips = (e) => {
-    // const formValid = this.handleValidation();
-    // if (formValid) {
-
+   
     const storeId = sessionStorage.getItem("storeId");
     this.setState({ type: this.state.selectedType.label });
     let mrp = 0;
     let promo = 0;
     let total = 0;
     if (e.key === "Enter") {
-      
-
+      const formValid = this.handleValidation();
+      if (formValid) {
+  
       this.setState({ copysmNumber: JSON.parse(JSON.stringify(this.state.smNumber)) });
       if (this.state.barCode && this.state.smNumber) {
         CreateDeliveryService.getBarCodeList(
@@ -153,33 +156,51 @@ class CeateDeliverySlip extends Component {
         ).then((res) => {
 
           if (res.data) {
-            res.data.result.salesMan = this.state.copysmNumber;
-            this.state.itemsList.push(res.data.result);
-            if (this.state.itemsList.length > 1) {
-
-
-              for (let i = 0; i < this.state.itemsList.length - 1; i++) {
+            let count = false;
+            // res.data.result.salesMan = this.state.copysmNumber;
+            if(this.state.itemsList.length === 0){
+            this.state.itemsList.push(res.data);
+            }
+            else {
+         
+              for (let i = 0; i < this.state.itemsList.length; i++) {
                 if (
-                  this.state.itemsList[i].barcode ===
-                  this.state.itemsList[i + 1].barcode
+                    this.state.itemsList[i].barcode ===
+                    res.data.barcode
                 ) {
-                  this.state.itemsList.splice(i, 1);
-                  toast.info("Barcode already entered");
-
-                  break;
+                    count = true;
+                    var items = [...this.state.itemsList]
+                    if (parseInt(items[i].quantity) + 1 <= parseInt(items[i].qty)) {
+                        let addItem = parseInt(items[i].quantity) + 1;
+                        items[i].quantity = addItem.toString()
+                        let totalcostMrp = items[i].itemMrp * parseInt(items[i].quantity)
+                        items[i].totalMrp = totalcostMrp
+                        break;
+                    } else {
+                        // count = false
+                        toast.info("Insufficient Quantity")
+                        break;
+                    }
                 }
-              }
-
+            }
+            
+            if(!count){
+              this.state.itemsList.push(res.data);
+            }
+            
 
             }
 
 
-            this.setState({ barList: this.state.itemsList }, () => {
+            this.setState({ barList: this.state.itemsList, barCode: '' }, () => {
+              console.log('++++++++++barList++++++++++++++', this.state.barList);
               this.state.barList.forEach((element) => {
                 element.itemDiscount = 0;
-                element.cgst = 0;
-                element.sgst = 0;
-                element.taxValue = 0;
+                if(element.taxValues) {
+                  element.cgst = element.taxValues.cgstValue;
+                  element.sgst = element.taxValues.sgstValue;
+                  element.taxValue = element.taxValues.cgstValue + element.taxValues.sgstValue;
+                }               
                 if (element.quantity > 1) {
                 } else {
                   element.totalMrp = element.itemMrp;
@@ -189,11 +210,14 @@ class CeateDeliverySlip extends Component {
               });
               this.calculateTotal();
             });
-            this.setState({ barCode: "" });
+            // this.setState({ barCode: "" });
             // this.setState({ itemsList: items.data });
             this.setState({ btnDisable: false });
             this.setState({ isDeliveryCreated: false });
-
+            if(this.state.barList.length > 0){
+              this.setState({isgetLineItems :true})
+              
+            } 
           } else {
             toast.error(res.data.body);
           }
@@ -212,9 +236,12 @@ class CeateDeliverySlip extends Component {
       }
     }
 
-  // }
+  }
   };
-
+  removeDuplicates(array, key) {
+    const lookup = new Set();
+    return array.filter(obj => !lookup.has(obj[key]) && lookup.add(obj[key]));
+}
   remberSalesMan(e) {
     if (e.target.checked) {
       if (this.state.smNumber) {
@@ -295,6 +322,11 @@ class CeateDeliverySlip extends Component {
       }
 
     });
+
+
+
+    // PRINT SERVICE
+    // PrinterStatusBill('DSNUM',null);
   }
 
   // generateEstimationSlip(){
@@ -348,7 +380,17 @@ class CeateDeliverySlip extends Component {
           <div className="col-12 col-sm-6 pt-1 p-r-0 pb-3 text-right scaling-center">
             {/* <button className="btn-unic m-r-2 scaling-mb">Clear Promotion</button> */}
             {/* <button className="btn-unic m-r-2 scaling-mb">Hold Estimation Slip</button> */}
-            <button className="btn-unic m-r-2 scaling-mb active" onClick={this.getLineItems}>Generate Estimation Slip</button>
+            {/* <button className="btn-unic m-r-2 scaling-mb active" onClick={this.getLineItems}>Generate Estimation Slip</button> */}
+            <button
+                  className={ "btn-unic m-r-2 scaling-ptop active"+
+                    "btn-login btn-create" +
+                    (!this.state.isgetLineItems ? " btn-disable" : "")
+                  }
+                  onClick={this.generateEstimationSlip}
+                  disabled={!this.state.isgetLineItems}
+                >
+                  Generate Estimation Slip
+                </button>
           </div>
 
           <div className="p-0 pb-3 pt-2">
@@ -440,7 +482,7 @@ class CeateDeliverySlip extends Component {
                     onChange={(e) => this.checkQuantity(e, index, items)}
                     className="form-control" />
                   </td>
-                  <td className="col-1">{items.salesMan}</td>
+                  <td className="col-1">{items.empId}</td>
                   <td className="col-1">₹{items.itemMrp}</td>
                   <td className="col-2"></td>
                   <td className="col-1"> {items?.itemDiscount}</td>
@@ -472,10 +514,11 @@ class CeateDeliverySlip extends Component {
 
 
   checkQuantity(e, index, item) {
+    this.setState({isgetLineItems :true})
     if (e.target.value !== "") {
       item.quantity =  parseInt(e.target.value);
       let qty = item.quantity;
-      if (parseInt(e.target.value) <= item.qty) {
+      if (item.quantity <= item.qty) {
         this.setState({ qty: e.target.value });
 
 
@@ -485,6 +528,7 @@ class CeateDeliverySlip extends Component {
         item.totalMrp = totalcostMrp
 
       } else {
+        this.setState({isgetLineItems :false})
         toast.info("Insufficient Quantity");
       }
     } else {
@@ -503,6 +547,20 @@ class CeateDeliverySlip extends Component {
     this.setState({ mrpAmount: grandTotal, totalQuantity: totalqty, promoDisc: promoDiscount });
 
 
+  }
+  handleValidation() {
+    let errors = {};
+    let formIsValid = true;
+    //sm number
+   
+  if (this.state.smNumber.length !== errorLengthMin.smNumber) {
+        formIsValid = false;
+        errors["smNumber"] = createDelivery_Err_Msg.smNumber;
+      }
+  
+
+    this.setState({ errors: errors });
+    return formIsValid;
   }
 
   // checkQuantity(e,index,item) {
@@ -530,20 +588,20 @@ class CeateDeliverySlip extends Component {
   }
   // handleValidation() {
   //   let errors = {};
-  //   let formIsValid = true;
+  //   let formIsValid = false;
   //   //sm number
-  //   if (!this.state.smNumber) {
-  //     formIsValid = false;
-  //     errors["smNumber"] = "Please Enter SM Number";
-  // }
-  // if (this.state.smNumber) {
-  //     let input = this.state.smNumber;
-  //     const smnumValid = input.length < 4 ;
-  //     if (this.state.smNumber && !smnumValid) {
-  //       formIsValid = false;
-  //       errors["smNumber"] = "SM Number Must Have 4 Digits";
-  //     }
-  //   }
+  // //   if (!this.state.smNumber) {
+  // //     formIsValid = false;
+  // //     errors["smNumber"] = "Please Enter SM Number";
+  // // }
+  // // if (this.state.smNumber) {
+  // //     let input = this.state.smNumber;
+  // //     const smnumValid = input.length === 4 ;
+  // //     if (this.state.smNumber && !smnumValid) {
+  // //       formIsValid = false;
+  // //       errors["smNumber"] = "SM Number Must Have 4 Digits";
+  // //     }
+  // //   }
 
   //   this.setState({ errors: errors });
   //   return formIsValid;
@@ -587,13 +645,13 @@ class CeateDeliverySlip extends Component {
         "userId": parseInt(element.salesMan),
         "hsnCode": element.hsnCode,
         "actualValue": element.itemMrp,
-        "taxValue": null,
-        "cgst": null,
-        "sgst": null,
+        "taxValue": element.taxValue,
+        "cgst": element.cgst,
+        "sgst": element.sgst,
         "discount": (isNaN(element.itemDiscount) ? 0 : (parseInt(element.itemDiscount)))
 
       }
-      this.getTaxAmount(obj);
+      // this.getTaxAmount(obj);
       lineItem.push(obj);
     });
 
@@ -734,6 +792,27 @@ class CeateDeliverySlip extends Component {
                 {this.props.disabled}
               </div>
             </div>
+            <div className="col-sm-3 col-6 scaling-mtop">
+            <label>SM Number<span className="text-red font-bold">*</span></label>
+              <div className="form-group">
+                <input
+                  type="text"
+                  autoFocus
+                  className="form-control"
+                  value={this.state.smNumber}
+                  onKeyPress={this.getDeliverySlips}
+                  placeholder="SM Number"
+                  maxLength={errorLengthMax.smNumber}
+                  onChange={(e) => this.setState({ smNumber: e.target.value })}
+                />
+              </div>
+              <div>
+                             <span style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
+                                                        </div>
+              {/* <div>
+                <span style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
+                                        </div> */}
+            </div>
             <div className="col-6 col-sm-3">
             <label>Barcode</label>
               <div className="form-group">
@@ -744,9 +823,10 @@ class CeateDeliverySlip extends Component {
                   type="text"
                   name="barCode"
                   className="form-control frm-pr"
-                  autoFocus
                   value={this.state.barCode}
-                  onChange={(e) => this.setState({ barCode: e.target.value })}
+                  onChange={(e) => this.setState({ barCode: e.target.value }, () => { 
+                    this.getDeliverySlips(e) 
+                  })}
                   autoComplete="off"
                   onKeyPress={this.getDeliverySlips}
                   placeholder="ENTER BARCODE"
@@ -759,25 +839,7 @@ class CeateDeliverySlip extends Component {
                <span style={{ color: "red" }}>{this.state.errors["barCode"]}</span>
                                         </div> */}
             </div>
-            <div className="col-sm-3 col-6 scaling-mtop">
-            <label>SM Number<span className="text-red font-bold">*</span></label>
-              <div className="form-group">
-                <input
-                  type="text"
-                  className="form-control"
-                  value={this.state.smNumber}
-                  onKeyPress={this.getDeliverySlips}
-                  placeholder="SM Number"
-                  onChange={(e) => this.setState({ smNumber: e.target.value })}
-                />
-              </div>
-              {/* <div>
-                             <span style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
-                                                        </div> */}
-              {/* <div>
-                <span style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
-                                        </div> */}
-            </div>
+          
             {/* <div className="col-sm-3 col-6 scaling-mtop">
               <div className="form-group">
                 <input
@@ -794,12 +856,21 @@ class CeateDeliverySlip extends Component {
               <div className="form-group">
 
                 {/* onClick={this.checkPromo} */}
-                <button
+                {/* <button
                   className={
                     "btn-login btn-create" +
                     (!this.state.isCheckPromo ? " btn-disable" : "")
                   }
                   onClick={this.checkPromo}
+                >
+                  Check Promo Discount
+                </button> */}
+                <button
+                  className={
+                    "btn-login btn-create" 
+                  }
+                  onClick={this.checkPromo}
+                  disabled={!this.state.isCheckPromo}
                 >
                   Check Promo Discount
                 </button>

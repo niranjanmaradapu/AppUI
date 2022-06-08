@@ -13,7 +13,8 @@ class ReactPageNation extends React.Component {
         pageLimit: 10,
         items:[],
         totalRows:0,
-        perPage:10
+        perPage:10,
+        pageDistance:5
         };
     }
    
@@ -25,22 +26,25 @@ if(!this.props || !this.props.totalPages) return null;
 
 return(
 
- 
+ <div>
+   
   <Pagination>
     {
-    this.props.number+1 == this.props.totalPages && this.props?.content?.length >=10 ?null:
-    <Pagination.First onClick={()=>this.props.changePage(0)}/>
+    this.props.number+1 == this.props.totalPages && this.props?.content?.length >10 ?null:
+    this.props.number+1 > 1 ?<Pagination.First onClick={()=>this.props.changePage(0)}/>:''
  }
  {/* {console.log(">>length con",this.props?.content?.length >=10,this.props?.content?.length)} */}
     {
-    this.props.number+1 == this.props.totalPages && this.props?.content?.length >=10 ? null :
-    <Pagination.Prev onClick={()=>this.props.changePage(this.props.number-1)}/>
+    this.props.number+1 == this.props.totalPages && this.props?.content?.length >10 ? null :
+    this.props.number+1 > 1 ? <Pagination.Prev onClick={()=>this.props.changePage(this.props.number-1)}/> : ''
   }
  
  {
-    this.props.number+1 == this.props.totalPages && this.props?.content?.length >=10 ?null:
+    this.props.number+1  == this.props.totalPages && this.props?.content?.length >10 ?null:
     <>
+  
     {Array.from({length:this.props.totalPages}).map((item,index)=>(
+     
       <Pagination.Item key={item} active={this.props.number==index} onClick={()=>this.props.changePage(index)}>{index+1}</Pagination.Item>
     ))}
     </>
@@ -53,14 +57,16 @@ return(
 
  }
  {
-    this.props.number+1 == this.props.totalPages ?null:
+    this.props.number+1 == this.props.totalPages?null:
   <Pagination.Last onClick={()=>this.props.changePage(this.props.totalPages-1)}/>
 
  }
    
 
 </Pagination>
-);
+</div>
+    );
         }
   }
+
   export default ReactPageNation;

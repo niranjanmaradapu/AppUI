@@ -340,6 +340,7 @@ label, .col-form-label{
       -webkit-appearance: none;
       height: 30px;
       appearance: none;
+      cursor: pointer;
       border-radius: 0.25rem;
       transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
@@ -394,4 +395,9 @@ label, .col-form-label{
 }
 
 
+}
+
+select {
+  word-wrap: normal;
+  cursor: pointer;
 }

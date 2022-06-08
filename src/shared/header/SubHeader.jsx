@@ -297,10 +297,10 @@ class SubHeader extends Component {
         {
           parentName: "Accounting Portal",
           id:'2',
-          path: "/domain",
+          path: "/stores",
           parentImage: "icon-r_brand fs-30 i_icon",
           children: [
-            { name: "Domain", childImage: "deliveryslip", childPath: "/domain" },
+            // { name: "Domain", childImage: "deliveryslip", childPath: "/domain" },
             { name: "Stores", childImage: "deliveryslip", childPath: "/stores" },
            ],
         },
@@ -312,7 +312,7 @@ class SubHeader extends Component {
           children: [
             { name: "Users", childImage: "deliveryslip", childPath: "/users" },
             { name: "Roles", childImage: "sale", childPath: "/roles" },
-            { name: "Payment", childImage: "sale", childPath: "/payment" },
+            // { name: "Payment", childImage: "sale", childPath: "/payment" },
           ],
         },
         {
@@ -355,7 +355,7 @@ setHeaders() {
   const domainName = sessionStorage.getItem("domainName");
   if( user["custom:isConfigUser"] === "true") { 
     this.state.moduleConfigheader.forEach(ele => {
-      if(ele.parentName == this.state.message) {
+      if(ele.id == this.state.message) {
           this.setState({buttonsList: ele.children}, ()=>{
             this.setState({selectedChildName: this.state.buttonsList[0].name});
             this.props.history.push(this.state.buttonsList[0].childPath);
@@ -377,10 +377,10 @@ setHeaders() {
       URMService.getSubPrivilegesbyRoleId(user["custom:roleName"]).then(res => {
         if(res) {
         //  this.setState({buttonsList: res.data.result});
-        const subPrivilegesList = res.data.result?.subPrivilages;
+        const subPrivilegesList = res.data.subPrivileges;
         let subList = [];
         subPrivilegesList.forEach((element,index)=> {
-          if(element.parentPrivillageId == this.state.message) {
+          if(element.parentPrivilegeId == this.state.message) {
             subList.push(element);
           }
         });
@@ -419,7 +419,7 @@ return array.filter(obj=>!lookup.has(obj[key])&&lookup.add(obj[key]));
     return this.state.buttonsList.map((items, index) => {
       const { name, childPath } = items;
       return name && (
-        <button key={index} className={`btn-unic m-r-2 ${this.state.selectedChildName == name ? 'active m-r-2 ' : ''}`}
+        <button key={index} className={`btn-nav ${this.state.selectedChildName == name ? 'active ' : ''}`}
           onClick={() => this.handleNavigationChange(index, childPath, name)}>{name}</button>
       );
     });

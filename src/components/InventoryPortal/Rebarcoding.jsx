@@ -8,7 +8,14 @@ import { toast } from "react-toastify";
 import { number } from "prop-types";
 import { stringify } from "querystring";
 import ReactPageNation from "../../commonUtils/Pagination";
+const data1 = [
+  "Textile",
 
+ "Retail",
+
+ "Electronics"
+
+];
 export default class Rebarcoding extends Component {
   constructor(props) {
     super(props);
@@ -58,6 +65,7 @@ export default class Rebarcoding extends Component {
       batchNo: "",
       colour: "",
       hsnCode: "",
+      domainDetailsObj:"",
       commonFieldsErr: false,
       retailFieldsErr: false,
       textileFieldsErr: false,
@@ -67,7 +75,7 @@ export default class Rebarcoding extends Component {
         { id: 0, label: "NO", value: "NO" },
       ],
     };
-    this.addBarcode = this.addBarcode.bind(this);
+    // this.addBarcode = this.addBarcode.bind(this);
     this.getAllBarcodes = this.getAllBarcodes.bind(this);
     this.openEditBarcode = this.openEditBarcode.bind(this);
     this.closeBarcode = this.closeBarcode.bind(this);
@@ -75,24 +83,37 @@ export default class Rebarcoding extends Component {
     this.setDropdowns = this.setDropdowns.bind(this);
     this.setEmployeeNames = this.setEmployeeNames.bind(this);
     this.storeNameMap = this.storeNameMap.bind(this);
+    this.changePage = this.changePage.bind(this);
   }
 
   closeBarcode() {
     this.setState({ isAddBarcode: false });
     this.stateReset();
   }
+  
+ 
 
   openEditBarcode(barcodeId) {
     this.setState({ isAddBarcode: true });
     this.setState({ isEdit: true });
+    this.setDropdowns(false);
+    this.stateReset();
     this.getbarcodeDetails(barcodeId);
   }
-
+  clearBar = () => {
+    this.setState({ 
+      Rebarcoding: [],
+      fromDate: '',
+      toDate: '' ,
+      RebarcodeId:'',    
+     }, () => this.getAllBarcodes());
+    }
+    
   componentWillMount() {
-    this.state.domainDetails = JSON.parse(
-      sessionStorage.getItem("selectedDomain")
-    );
-    this.setState({ domainDetails: this.state.domainDetails });
+    // this.state.domainDetails = JSON.parse(
+    //   sessionStorage.getItem("selectedDomain")
+    // );
+    // this.setState({ domainDetails: this.state.domainDetails });
     const user = JSON.parse(sessionStorage.getItem("user"));
     this.setState({
       selectedStoreId: JSON.parse(sessionStorage.getItem("storeId")),
@@ -104,7 +125,7 @@ export default class Rebarcoding extends Component {
         },
         () => {
           this.getAllBarcodes();
-          this.getAllStoresList();
+           this.getAllStoresList();
           this.getAllUoms();
           this.getAllDivisions();
           this.getHsnDetails();
@@ -118,7 +139,7 @@ export default class Rebarcoding extends Component {
           // domainId: user["custom:domianId1"]
         },
         () => {
-          this.getAllStoresList();
+           this.getAllStoresList();
           this.getAllBarcodes();
           this.getAllUoms();
           this.getAllDivisions();
@@ -128,26 +149,26 @@ export default class Rebarcoding extends Component {
       );
     }
   }
-
+  
   getAllBarcodes(pageNumber) {
     let saveJson = {};
-    if (
-      this.state.domainDetails &&
-      this.state.domainDetails.label === "Retail"
-    ) {
-      saveJson = {
-        fromDate: this.state.fromDate,
-        toDate: this.state.toDate,
-        currentBarcodeId: this.state.barcodeSearchId,
-      };
-    } else {
+    // if (
+    //   this.state.domainDetails &&
+    //   this.state.domainDetails.label === "Retail"
+    // ) {
+    //   saveJson = {
+    //     fromDate: this.state.fromDate,
+    //     toDate: this.state.toDate,
+    //     currentBarcodeId: this.state.barcodeSearchId,
+    //   };
+    // } else {
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,
         currentBarcodeId: this.state.barcodeSearchId,
         storeId: this.state.selectedStoreId,
       };
-    }
+    // }
 
     InventoryService.getReBarcodeDetails(
       saveJson,
@@ -155,9 +176,12 @@ export default class Rebarcoding extends Component {
       pageNumber
     )
       .then((res) => {
-        if (res.data && res.data.isSuccess === "true") {
-          this.state.barcodesList = res.data.result;
-          this.setState({ barcodesList: this.state.barcodesList });
+        if (res.data) {
+          this.state.barcodesList = res.data;
+          this.setState({
+            barcodesList: this.state.barcodesList,
+            totalPages: res.data.result.totalPages,
+          });
           // this.setEmployeeNames();
         } else {
           this.setState({ barcodesList: [] });
@@ -179,18 +203,18 @@ export default class Rebarcoding extends Component {
 
   setEmployeeNames() {
     this.state.barcodesList.forEach((ele, index) => {
-      if (
-        this.state.domainDetails &&
-        this.state.domainDetails.label === "Retail"
-      ) {
+      // if (
+      //   this.state.domainDetails &&
+      //   this.state.domainDetails.label === "Retail"
+      // ) {
+      //   if (ele.createdBy) {
+      //     this.state.sortedStoreIds.push(JSON.stringify(ele.createdBy));
+      //   }
+      // } else {
         if (ele.createdBy) {
           this.state.sortedStoreIds.push(JSON.stringify(ele.createdBy));
         }
-      } else {
-        if (ele.createdBy) {
-          this.state.sortedStoreIds.push(JSON.stringify(ele.createdBy));
-        }
-      }
+      // }
     });
     this.setState({ sortedStoreIds: this.state.sortedStoreIds });
     this.setState({ storeIds: this.uniq() });
@@ -226,8 +250,7 @@ export default class Rebarcoding extends Component {
       this.state.barcodesList.forEach((ele, index) => {
         this.state.sortedStoreIds.forEach((ele1, index1) => {
           if (
-            this.state.domainDetails &&
-            this.state.domainDetails.label === "Retail"
+                 this.state.domainDetailsObj === "Retail"
           ) {
             if (ele.storeId === ele1.id) {
               this.state.barcodesList[index].storeName = ele1.value;
@@ -246,7 +269,7 @@ export default class Rebarcoding extends Component {
 
   getAllUoms() {
     InventoryService.getUOMs().then((res) => {
-      res.data.result.forEach((ele, index) => {
+      res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
           value: ele.uomName,
@@ -274,7 +297,7 @@ export default class Rebarcoding extends Component {
 
   getAllDivisions() {
     InventoryService.getAllDivisions().then((res) => {
-      res.data.result.forEach((ele, index) => {
+      res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
           value: ele.name,
@@ -307,7 +330,7 @@ export default class Rebarcoding extends Component {
 
   getAllSections(id) {
     InventoryService.getAllSections(id).then((res) => {
-      res.data.result.forEach((ele, index) => {
+      res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
           value: ele.name,
@@ -321,7 +344,7 @@ export default class Rebarcoding extends Component {
 
   getAllSubsections(id) {
     InventoryService.getAllSections(id).then((res) => {
-      res.data.result.forEach((ele, index) => {
+      res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
           value: ele.name,
@@ -335,7 +358,7 @@ export default class Rebarcoding extends Component {
 
   getAllCategories() {
     InventoryService.getAllCategories().then((res) => {
-      res.data.result.forEach((ele, index) => {
+      res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
           value: ele.name,
@@ -346,12 +369,18 @@ export default class Rebarcoding extends Component {
       this.setState({ categoriesList: this.state.categoriesList });
     });
   }
+  dateFormat = (d) => {
+    let date = new Date(d)
+    
+    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
+}
+
 
   getAllStoresList() {
-    URMService.getStoresByDomainId(this.state.domainDetails.value).then(
+    URMService.getStoresByDomainId(this.state.clientId).then(
       (res) => {
         if (res) {
-          res.data.result.forEach((ele, index) => {
+          res.data.forEach((ele, index) => {
             const obj = {
               id: ele.id,
               value: ele.name,
@@ -383,31 +412,32 @@ export default class Rebarcoding extends Component {
       this.state.domainDetails,
       this.state.selectedStoreId
     ).then((res) => {
-      const barcode = res.data.result;
-      if (res && res.data.isSuccess === "true") {
-        if (
-          this.state.domainDetails &&
-          this.state.domainDetails.label === "Retail"
-        ) {
+      const barcode = res.data;
+      if (res && res.data) {
+        // if (
+        //   this.state.domainDetails &&
+        //   this.state.domainDetails.label === "Retail"
+        // ) {
+        //   this.setState({
+        //     status: barcode.status,
+        //     stockValue: barcode.stockValue ? barcode.stockValue : "",
+        //     qty: barcode.qty ? barcode.qty : 0,
+        //     barcodeId: barcode.barcodeId,
+        //     name: barcode.name,
+        //     colour: barcode.colour,
+        //     costPrice: barcode.costPrice,
+        //     listPrice: barcode.listPrice,
+        //     productValidity: barcode.productValidity,
+        //     storeId: barcode.storeId,
+        //     empId: barcode.empId,
+        //     uom: barcode.uom,
+        //     productItemId: barcode.productItemId,
+        //     hsnCode: barcode.hsnCode,
+        //     batchNo: barcode.batchNo,
+        //   });
+        // } else {
           this.setState({
-            status: barcode.status,
-            stockValue: barcode.stockValue ? barcode.stockValue : "",
-            qty: barcode.qty ? barcode.qty : 0,
-            barcodeId: barcode.barcodeId,
-            name: barcode.name,
-            colour: barcode.colour,
-            costPrice: barcode.costPrice,
-            listPrice: barcode.listPrice,
-            productValidity: barcode.productValidity,
-            storeId: barcode.storeId,
-            empId: barcode.empId,
-            uom: barcode.uom,
-            productItemId: barcode.productItemId,
-            hsnCode: barcode.hsnCode,
-            batchNo: barcode.batchNo,
-          });
-        } else {
-          this.setState({
+            domainDetailsObj:barcode.domainType,
             status: barcode.status,
             stockValue: barcode.stockValue ? barcode.stockValue : "",
             // qty: barcode.productTextile.qty ? barcode.productTextile.qty : 0,
@@ -430,7 +460,7 @@ export default class Rebarcoding extends Component {
             hsnCode: barcode.hsnCode,
             name: barcode.name,
           });
-        }
+        // }
         this.setDropdowns(true);
       } else {
         toast.error(res.data.message);
@@ -445,73 +475,73 @@ export default class Rebarcoding extends Component {
     }
   }
 
-  addBarcode() {
-    let domainInfo = this.state.domainDetails;
-    let saveJson = {};
-    if (domainInfo && domainInfo.label === "Retail") {
-      saveJson = {
-        status: this.state.status,
-        stockValue: this.state.stockValue,
-        costPrice: this.state.costPrice,
-        listPrice: this.state.listPrice,
-        productValidity: this.state.productValidity,
-        storeId: this.state.storeId,
-        empId: this.state.empId,
-        uom: this.state.uom,
-        isBarcode: false,
-        domainDataId: this.state.domainId,
-        name: this.state.name,
-        hsnCode: this.state.hsnCode,
-        batchNo: this.state.batchNo,
-        colour: this.state.colour,
-      };
-    } else {
-      saveJson = {
-        division: parseInt(this.state.division),
-        section: parseInt(this.state.section),
-        subSection: parseInt(this.state.subSection),
-        category: parseInt(this.state.category),
-        name: this.state.name,
-        batchNo: this.state.batchNo,
-        colour: this.state.colour,
-        // productTextile: {
-        //   qty: this.state.qty,
-        //   costPrice: this.state.costPrice,
-        //   itemMrp: this.state.listPrice,
-        //   storeId: this.state.storeId,
-        //   empId: this.state.empId,
-        //   uom: this.state.uom,
-        //   // hsnMasterId: parseInt(this.state.hsnCode),
-        //   hsnCode: parseInt(this.state.hsnCode),
-        // },
-        qty: this.state.qty,
-        costPrice: this.state.costPrice,
-        itemMrp: this.state.listPrice,
-        storeId: this.state.storeId,
-        empId: this.state.empId,
-        uom: this.state.uom,
-        domainDataId: parseInt(this.state.domainDetails.value),
-        // hsnMasterId: parseInt(this.state.hsnCode),
-        hsnCode: parseInt(this.state.hsnCode),
-      };
-    }
+  // addBarcode() {
+  //   let domainInfo = this.state.domainDetails;
+  //   let saveJson = {};
+  //   if (domainInfo && domainInfo.label === "Retail") {
+  //     saveJson = {
+  //       status: this.state.status,
+  //       stockValue: this.state.stockValue,
+  //       costPrice: this.state.costPrice,
+  //       listPrice: this.state.listPrice,
+  //       productValidity: this.state.productValidity,
+  //       storeId: this.state.storeId,
+  //       empId: this.state.empId,
+  //       uom: this.state.uom,
+  //       isBarcode: false,
+  //       domainDataId: this.state.domainId,
+  //       name: this.state.name,
+  //       hsnCode: this.state.hsnCode,
+  //       batchNo: this.state.batchNo,
+  //       colour: this.state.colour,
+  //     };
+  //   } else {
+  //     saveJson = {
+  //       division: parseInt(this.state.division),
+  //       section: parseInt(this.state.section),
+  //       subSection: parseInt(this.state.subSection),
+  //       category: parseInt(this.state.category),
+  //       name: this.state.name,
+  //       batchNo: this.state.batchNo,
+  //       colour: this.state.colour,
+  //       // productTextile: {
+  //       //   qty: this.state.qty,
+  //       //   costPrice: this.state.costPrice,
+  //       //   itemMrp: this.state.listPrice,
+  //       //   storeId: this.state.storeId,
+  //       //   empId: this.state.empId,
+  //       //   uom: this.state.uom,
+  //       //   // hsnMasterId: parseInt(this.state.hsnCode),
+  //       //   hsnCode: parseInt(this.state.hsnCode),
+  //       // },
+  //       qty: this.state.qty,
+  //       costPrice: this.state.costPrice,
+  //       itemMrp: this.state.listPrice,
+  //       storeId: this.state.storeId,
+  //       empId: this.state.empId,
+  //       uom: this.state.uom,
+  //       domainDataId: parseInt(this.state.domainDetails.value),
+  //       // hsnMasterId: parseInt(this.state.hsnCode),
+  //       hsnCode: parseInt(this.state.hsnCode),
+  //     };
+  //   }
 
-    InventoryService.addBarcode(
-      saveJson,
-      this.state.domainDetails,
-      this.state.isEdit
-    ).then((res) => {
-      if (res.data && res.data.isSuccess === "true") {
-        toast.success(res.data.result);
-        this.setState({ isAddBarcode: false });
-        this.props.history.push("/barcodeList");
-        this.getAllBarcodes();
-        this.stateReset();
-      } else {
-        toast.error(res.data.message);
-      }
-    });
-  }
+  //   InventoryService.addBarcode(
+  //     saveJson,
+  //     this.state.domainDetails,
+  //     this.state.isEdit
+  //   ).then((res) => {
+  //     if (res.data && res.data.isSuccess === "true") {
+  //       toast.success(res.data.result);
+  //       this.setState({ isAddBarcode: false });
+  //       this.props.history.push("/barcodeList");
+  //       this.getAllBarcodes();
+  //       this.stateReset();
+  //     } else {
+  //       toast.error(res.data.message);
+  //     }
+  //   });
+  // }
 
   stateReset() {
     this.setState({
@@ -532,6 +562,8 @@ export default class Rebarcoding extends Component {
       batchNo: "",
       hsnCode: "",
       colour: "",
+      barcodeSearchId:'',
+      domainDetailsObj:"",
       qty: null,
       retailFieldsErr: false,
       textileFieldsErr: false,
@@ -554,26 +586,26 @@ export default class Rebarcoding extends Component {
     );
   }
 
-  barcodesListTable() {
-    return this.state.barcodesList.map((items, index) => {
-      const { barcodeId, listPrice, storeId, storeName, stockValue, value } =
-        items;
-      return (
-        <tr key={index}>
-          {/* 
-          <td className="col-3 underline">{barcodeId}</td>
-          <td className="col-3 underline">{barcodeId}</td>
-          <td className="col-2">₹ {listPrice}</td>
-          <td className="col-3">{storeName}</td>
-          <td className="col-1">{stockValue}</td>
-          <td className="col-2 text-center">
-            <img src={edit} className="w-12 pb-2" onClick={() => this.openEditBarcode(barcodeId)} />
-            <i className="icon-delete m-l-2 fs-16" onClick={() => this.deleteBarcode(barcodeId)}></i>
-          </td> */}
-        </tr>
-      );
-    });
-  }
+  // barcodesListTable() {
+  //   return this.state.barcodesList.map((items, index) => {
+  //     const { barcodeId, listPrice, storeId, storeName, stockValue, value } =
+  //       items;
+  //     return (
+  //       <tr key={index}>
+  //         {/* 
+  //         <td className="col-3 underline">{barcodeId}</td>
+  //         <td className="col-3 underline">{barcodeId}</td>
+  //         <td className="col-2">₹ {listPrice}</td>
+  //         <td className="col-3">{storeName}</td>
+  //         <td className="col-1">{stockValue}</td>
+  //         <td className="col-2 text-center">
+  //           <img src={edit} className="w-12 pb-2" onClick={() => this.openEditBarcode(barcodeId)} />
+  //           <i className="icon-delete m-l-2 fs-16" onClick={() => this.deleteBarcode(barcodeId)}></i>
+  //         </td> */}
+  //       </tr>
+  //     );
+  //   });
+  // }
 
   barcodesTextileHeader() {
     return (
@@ -591,14 +623,21 @@ export default class Rebarcoding extends Component {
 
   barcodesListTableTextile() {
     return this.state.barcodesList?.content?.map((items, index) => {
-      const { currentBarcodeId, toBeBarcodeId, createdBy, fromDate } = items;
+      let date = this.dateFormat(items.createdDate)
+      const {
+        currentBarcodeId,
+        toBeBarcodeId,
+        createdBy,
+        fromDate,
+        createdDate,
+      } = items;
       return (
         <tr key={index}>
           <td className="col-2 ">{toBeBarcodeId}</td>
           <td className="col-2 ">{currentBarcodeId}</td>
           <td className="col-2">{createdBy}</td>
           {/* <td className="col-2">-</td> */}
-          <td className="col-2">{fromDate}</td>
+          <td className="col-2">{date}</td>
           <td className="col-2 text-center">
             <img src={print} className="w-12 pb-2 m-r-2" />
             <img
@@ -852,6 +891,26 @@ export default class Rebarcoding extends Component {
               <div className="col-12 scaling-center scaling-mb">
                 <h6 className="text-red mb-3">Re-Barcode Details</h6>
               </div>
+              <div className="row">
+                <div className="col-sm-4 col-12">
+                  <div className="form-group">
+                    <label>
+                      Domain
+                      <span className="text-red font-bold">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder=""
+                      value={this.state.domainDetailsObj}
+                      disabled={true}
+                    />
+                    {/* {this.state.commonFieldsErr && !this.state.colour
+                      ? this.errorDiv("colourErr")
+                      : null} */}
+                  </div>
+                </div>
+              </div>
               {/* <div className="col-4">
                 <div className="form-group">
                   <label>Barcode</label>
@@ -865,12 +924,10 @@ export default class Rebarcoding extends Component {
                 </div>
               </div> */}
 
-              {this.state.domainDetails &&
-              this.state.domainDetails.label === "Retail"
+              {this.state.domainDetailsObj === "Retail"
                 ? null
                 : this.categoriesDiv()}
-              {this.state.domainDetails &&
-              this.state.domainDetails.label === "Retail"
+              {this.state.domainDetailsObj  === "Retail"
                 ? this.nameDiv()
                 : null}
               <div class="row">
@@ -1036,16 +1093,13 @@ export default class Rebarcoding extends Component {
                     </select>
                   </div>
                 </div>
-                {this.state.domainDetails &&
-                this.state.domainDetails.label === "Retail"
+                {this.state.domainDetailsObj === "Retail"
                   ? this.stockDiv()
                   : this.qtyDiv()}
-                {this.state.domainDetails &&
-                this.state.domainDetails.label === "Retail"
+                {this.state.domainDetailsObj === "Retail"
                   ? this.statusDiv()
                   : null}
-                {this.state.domainDetails &&
-                this.state.domainDetails.label === "Retail"
+                {this.state.domainDetailsObj === "Retail"
                   ? this.stockDate()
                   : null}
               </div>
@@ -1133,33 +1187,40 @@ export default class Rebarcoding extends Component {
               >
                 SEARCH
               </button>
+              <button
+                className="btn-unic-search active m-r-2 mt-2"
+                onClick={this.clearBar}
+                >
+                CLEAR
+              </button>
             </div>
+           
           </div>
           <div className="row m-0 p-0 scaling-center">
             <h5 className="mb-2 fs-18 p-l-0 mt-3">List of Re-Barcodings</h5>
             <div className="table-responsive p-0">
               <table className="table table-borderless mb-1">
                 <thead>
-                  {this.state.domainDetails &&
-                  this.state.domainDetails.label === "Retail"
-                    ? null
-                    : this.barcodesTextileHeader()}
+                 {this.barcodesTextileHeader()}
                 </thead>
                 <tbody>
-                  {/* <tr> */}
-                  {this.state.domainDetails &&
-                  this.state.domainDetails.label === "Retail"
-                    ? null
-                    : this.barcodesListTableTextile()}
+                 
+                  {this.barcodesListTableTextile()}
                   {/* </tr> */}
                 </tbody>
 
-                <ReactPageNation
-                  {...this.state.barcodesList}
-                  changePage={(pageNumber) => {
-                    this.changePage(pageNumber);
-                  }}
-                />
+                <div className="row m-0 pb-3 mb-5 mt-3">
+                  {this.state.totalPages > 1 ? (
+                    <div className="d-flex justify-content-center">
+                      <ReactPageNation
+                        {...this.state.barcodesList}
+                        changePage={(pageNumber) => {
+                          this.changePage(pageNumber);
+                        }}
+                      />
+                    </div>
+                  ) : null}
+                </div>
               </table>
             </div>
           </div>

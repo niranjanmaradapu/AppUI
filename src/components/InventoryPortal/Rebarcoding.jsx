@@ -930,7 +930,7 @@ export default class Rebarcoding extends Component {
               {this.state.domainDetailsObj  === "Retail"
                 ? this.nameDiv()
                 : null}
-              <div class="row">
+              <div className="row">
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
                     <label>

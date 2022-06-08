@@ -661,7 +661,7 @@ export default class ListOfPromos extends Component {
         selectedPools: result,
         printNameOnBill: promo.printNameOnBill,
         priority: null,
-        domainId: promo.clientId,
+        // domainId: promo.clientId,
         promoApplyType: promo.promoApplyType,
         promoName: promo.promotionName,
         promoType: promo.promoType
@@ -813,7 +813,7 @@ handleBenefitFormData() {
         promotionSlabVo:( promoApplyType === 'FixedQuantity' || promoApplyType === 'AnyQuantity') ? [] : benfitsPayload,
         printNameOnBill: printNameOnBill,
         priority: null,
-        domainId: clientId,
+        // domainId: clientId,
         promoApplyType: promoApplyType,
         promotionName: promoName
       //  promoType: promoType
@@ -838,7 +838,7 @@ handleBenefitFormData() {
         poolVo: result,
         printNameOnBill: printNameOnBill,
         // priority: null,
-        domainId: clientId,
+        // domainId: clientId,
         storeId: selectedstoreData.storeId,
         clientId: user['custom:clientId1'],
         promoApplyType: promoApplyType,

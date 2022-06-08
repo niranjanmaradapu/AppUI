@@ -237,7 +237,7 @@ export const PROMOTIONS_URL = {
     getAllLoyaltyPoints: "/new-sale/newsale/getAllLoyaltyPoints",
     searchLoyaltyPoints: "/new-sale/newsale/searchLoyaltyPoints",
     addBenfit: "/connection-pool/promo/addbenfit",
-    getValuesFromProductTextileColumns: "/inventory/inventoryTextile/getValuesFromProductTextileColumns",
+    getValuesFromProductTextileColumns: "/inventory/inventory-management/getValuesFromProductTextileColumns",
     // getValuesFromBarcodeTextileColumns: "/inventory/inventoryTextile/getValuesFromBarcodeTextileColumns",
     getAllColumns: "/connection-pool/promo/allcolumnnames",
     getAllStorePromos: "/connection-pool/promo/getAllStorePromos",

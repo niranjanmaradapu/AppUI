@@ -858,7 +858,6 @@ capitalization= () => {
                                             value={this.state.name} disabled={this.state.isEdit}
                                             maxLength={errorLengthMax.name}
                                             onChange={(e) => this.setState({ name: e.target.value })}
-                                            onBlur={() => this.capitalization()}
                                             autoComplete="off" />
                                              <div>
                                             <span style={{ color: "red" }}>{this.state.errors["name"]}</span>

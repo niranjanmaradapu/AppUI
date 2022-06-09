@@ -286,7 +286,7 @@ export default class Stores extends Component {
 
                 URMService.editStore(saveObj).then(res => {
                     if (res) {
-                        toast.success("Store Saved Successfully");
+                        toast.success("Store updated Successfully");
                         this.getAllStores();
                     }
 

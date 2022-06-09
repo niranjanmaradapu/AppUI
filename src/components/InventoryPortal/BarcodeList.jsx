@@ -9,6 +9,7 @@ import { number } from "prop-types";
 import { stringify } from "querystring";
 import * as xlsx from "xlsx";
 import ReactPageNation from "../../commonUtils/Pagination";
+import PrintBarcode from "../../commonUtils/checkPrinter";
 // import paginationFactory, {
 //   PaginationProvider,
 //   SizePerPageDropdownStandalone,
@@ -635,6 +636,7 @@ export default class BarcodeList extends Component {
     ).then((res) => {
       if (res.data) {
         toast.success("Barcode added successfully");
+        PrintBarcode('BARCODE',res.data);
         this.setState({ isAddBarcode: false });
         this.props.history.push("/barcodeList");
         this.getAllBarcodes(0);

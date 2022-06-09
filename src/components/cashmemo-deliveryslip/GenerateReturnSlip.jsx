@@ -333,9 +333,9 @@ export default class GenerateReturnSlip extends Component {
             <div className="row p-3">
               <div className="col-12">
                 <h6 className="fs-14 mb-4 mt-1">
-                  Please provide customer phone number{" "}
+                  Please provide customer mobile number{" "}
                 </h6>
-                <label>Phone Number</label>
+                <label>Mobile Number</label>
                 <input
                   type="text"
                   name="mobile"
@@ -406,12 +406,12 @@ export default class GenerateReturnSlip extends Component {
                 </div>
               </div>
               <div className="col-12 col-sm-4">
-                <label>Customer Phone Number</label>
+                <label>Customer Mobile Number</label>
                 <div className="form-group scaling-mb">
                   <input
                     type="search"
                     className="form-control"
-                    placeholder="CUSTMER PHONE NUMBER"
+                    placeholder="CUSTMER Mobile NUMBER"
                     maxLength="10"
                     // value={this.state.mobileNo}
                     value={this.state.mobileNumber}

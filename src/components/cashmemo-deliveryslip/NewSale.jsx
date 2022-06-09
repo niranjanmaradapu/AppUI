@@ -631,8 +631,8 @@ export default class NewSale extends Component {
             let status = true
             const param = '?razorPayId=' + response.razorpay_order_id + '&payStatus=' + status;
             const result = axios.post(BASE_URL + NEW_SALE_URL.saveSale + param, {});
-
-            PrinterStatusBill('INVOICE',data.amount)
+            // Printer Service used for Testing
+            // PrinterStatusBill('INVOICE',data.amount)
 
 
           },
@@ -1167,7 +1167,8 @@ export default class NewSale extends Component {
           toast.success(res.data.result);
           this.setState({ newSaleId: res.data.result });
           // if(this.state.isCash){
-            PrinterStatusBill('INVOICE',null)
+            // Printer Service used for Testing
+            // PrinterStatusBill('INVOICE',null)
           // }
           // this.pay()
           if (this.state.isCard || this.state.isUPIModel) {

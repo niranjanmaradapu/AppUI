@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import edit from '../../assets/images/edit.svg';
+import view from "../../assets/images/view.svg";
 import scan from '../../assets/images/scan.svg';
 import InventoryService from '../../services/InventoryService';
 import { toast } from "react-toastify";
@@ -167,7 +168,14 @@ handleChange (){
     listOfProducts.splice(idx, 1)
     this.setState({ listOfProducts })
   }
-  
+  editProductCombo = (item) => {
+  this.setState({
+    isAddCombo : true,
+    comboName: item.name, 
+    comboQuantity: item.bundleQuantity, 
+    listOfProducts: item.productTextiles
+  });
+  }
   searchCombo = () => {
     const {toDate, fromDate, selectedStoreId } = this.state;
     InventoryService.getAllProductBundleList(fromDate, toDate, selectedStoreId).then((res) => {
@@ -366,6 +374,7 @@ handleChange (){
                   <th className="col-2">Combo Name</th>
                   <th className="col-2">No.of Items</th>
                   <th className="col-2">Unit Price</th>
+                  <th className="col-2"></th>                 
                </tr>
                 </thead>
                 <tbody>
@@ -378,6 +387,13 @@ handleChange (){
                           <td className="col-2">{itm.name}</td>
                           <td className="col-2">{itm.bundleQuantity}</td>
                           <td className="col-2">{itm.value}</td>
+                          <td className="col-1">
+                          <img
+                              src={view}
+                              className="w-12 pb-2"
+                              onClick={() => this.editProductCombo(itm)}
+                            />
+                          </td>                          
                         </tr>
                         )
                   })}

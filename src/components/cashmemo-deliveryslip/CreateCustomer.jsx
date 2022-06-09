@@ -47,12 +47,6 @@ export default class CreateCustomer extends Component {
       formIsValid = false;
       errors["name"] = addCustomer_Err_Msg.name;
     }
-  
-  
-
-   
-
-
     
      // Mobile
      
@@ -192,7 +186,7 @@ validation(e) {
                       // onChange={(e) => this.setState({ phoneNumber: e.target.value })}
                       autoComplete="off" />
                     <div>
-                      <span style={{ color: "red" }}>{this.state.errors["mobileNumber"]}</span>
+                      <span style={{ color: "red" }}>{this.state.errors["phoneNumber"]}</span>
                     </div>
                   </div>
                 </div>

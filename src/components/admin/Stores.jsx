@@ -345,7 +345,8 @@ export default class Stores extends Component {
             isDistrict:true,
             isEdit: true,
             selectedStore: items,
-            isSearch: false
+            isSearch: false,
+            storeStatus: items.isActive
         }, () => {
             this.getDistricts();
         });

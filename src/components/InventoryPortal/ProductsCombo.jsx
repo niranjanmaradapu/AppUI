@@ -170,6 +170,7 @@ handleChange (){
   }
   editProductCombo = (item) => {
   this.setState({
+    isEdit: true,
     isAddCombo : true,
     comboName: item.name, 
     comboQuantity: item.bundleQuantity, 
@@ -284,6 +285,7 @@ handleChange (){
                                             className="form-control"
                                             name="qty"
                                             min="1"
+                                            disabled={this.state.isEdit}
                                             placeholder=""
                                             value={this.state.listOfProducts[index].qty}
                                             onChange={e => this.handleQtyChange(index, e)}

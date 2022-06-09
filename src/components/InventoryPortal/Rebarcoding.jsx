@@ -1149,8 +1149,10 @@ export default class Rebarcoding extends Component {
                       this.setState({ toDate: e.target.value });
                       // console.log(">>>right");
                       // alert("right");
-                    } else {
-                      toast.error("To date should be greater than From date ");
+                    } 
+                    else
+                     {
+                      toast.error("Please select from date");
                       // alert("To date should be greater than From date ");
                       // console.log(">>>>wrong");
                     }

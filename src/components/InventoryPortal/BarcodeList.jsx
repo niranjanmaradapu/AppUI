@@ -286,13 +286,14 @@ export default class BarcodeList extends Component {
     )
       .then((res) => {
         // console.log("...", pageNumber);
-        if (res.data) {
+        if (res.data.content.length !== 0) {
           this.state.barcodesList = res?.data;
           this.setState({ barcodesList: this.state.barcodesList,
             totalPages: res.data.totalPages,});
           this.setStoreNames();
         } else {
-          this.setState({ barcodesList: null });
+          // this.setState({ barcodesList: null });
+          toast.error("No Record Found");
         }
       })
       .catch((error) => {
@@ -1671,6 +1672,17 @@ export default class BarcodeList extends Component {
                   placeholder="FROM DATE"
                   value={this.state.fromDate}
                   onChange={(e) => this.setState({ fromDate: e.target.value })}
+                  // onChange={(e) => {
+                  //   this.setState({ fromDate: e.target.value });
+                  //   var currentDate = new Date(this.state.fromDate);
+                  //   var endDate = new Date(this.state.endDate);
+                  //   console.log(">>>", currentDate,endDate);
+                  //   if (currentDate <= endDate ) {
+                  //   } else {
+                  //     toast.error("No Record Found");
+                    
+                  //   }
+                  // }}
                 />
               </div>
             </div>
@@ -1693,7 +1705,7 @@ export default class BarcodeList extends Component {
                       // alert("right");
                     } else {
                       // alert("To date should be greater than From date ");
-                      toast.error("To date should be greater than From date ");
+                      toast.error("Please select from date");
                       // console.log(">>>>wrong");
                     }
                   }}

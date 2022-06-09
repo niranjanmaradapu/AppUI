@@ -289,12 +289,13 @@ export default class BarcodeList extends Component {
         if (res.data.content.length !== 0) {
           this.state.barcodesList = res?.data;
           this.setState({ barcodesList: this.state.barcodesList,
-            totalPages: res.data.totalPages,});
+          totalPages: res.data.totalPages,});
           this.setStoreNames();
         } else {
           // this.setState({ barcodesList: null });
           toast.error("No Record Found");
         }
+        
       })
       .catch((error) => {
         if (error.response && error.response.data.isSuccess === "false") {

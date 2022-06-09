@@ -386,7 +386,7 @@ handleChange (){
                           <td className="col-2">{itm.storeId}</td>
                           <td className="col-2">{itm.name}</td>
                           <td className="col-2">{itm.bundleQuantity}</td>
-                          <td className="col-2">{itm.value}</td>
+                          <td className="col-2">{itm.itemMrp}</td>
                           <td className="col-1">
                           <img
                               src={view}

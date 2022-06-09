@@ -637,7 +637,8 @@ export default class BarcodeList extends Component {
     ).then((res) => {
       if (res.data) {
         toast.success("Barcode added successfully");
-        PrintBarcode('BARCODE',res.data);
+        // Printer Barcode used for Testing
+        // PrintBarcode('BARCODE',res.data);
         this.setState({ isAddBarcode: false });
         this.props.history.push("/barcodeList");
         this.getAllBarcodes(0);

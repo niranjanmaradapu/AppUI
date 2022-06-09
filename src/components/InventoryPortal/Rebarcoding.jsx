@@ -1150,7 +1150,7 @@ export default class Rebarcoding extends Component {
                       // console.log(">>>right");
                       // alert("right");
                     } else {
-                      toast.error("To date should be greater than From date ");
+                      toast.error("Please select from date");
                       // alert("To date should be greater than From date ");
                       // console.log(">>>>wrong");
                     }

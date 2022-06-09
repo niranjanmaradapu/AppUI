@@ -1135,10 +1135,6 @@ export default class BarcodeList extends Component {
               Name
               <span className="text-red font-bold">*</span>
             </label>
-
-            {/* <input type="text" className="form-control" placeholder="" value={this.state.productName} disabled={this.state.isEdit}
-                      onChange={(e) =>
-                        this.setState({ colour: e.target.productName })} /> */}
             <input
               type="text"
               className="form-control"
@@ -1147,7 +1143,7 @@ export default class BarcodeList extends Component {
               disabled={this.state.isEdit}
               onChange={(e) => this.setState({ name: e.target.value })}
             />
-            {this.textileFieldsErr && !this.state.name
+            {this.state.textileFieldsErr && !this.state.name
               ? this.errorDiv("nameErr")
               : null}
             {/* {(this.state.textileFieldsErr && !this.state.productName) ? this.errorDiv('productName') : null} */}
@@ -1163,7 +1159,7 @@ export default class BarcodeList extends Component {
     this.state.errors["batchErr"] = "please enter the Batch";
     this.state.errors["listErr"] = "please enter the List Price";
     this.state.errors["uomErr"] = "please select the Uom";
-    // this.state.errors["empErr"] = "please enter the Emp ID";
+    this.state.errors["empErr"] = "please enter the Emp ID";
     this.state.errors["storeErr"] = "please select the Store";
     this.state.errors["qtyErr"] = "please enter the Qty";
     this.state.errors["stockDateErr"] = "please select the Date";
@@ -1173,7 +1169,7 @@ export default class BarcodeList extends Component {
     this.state.errors["sectionErr"] = "please select the Section";
     this.state.errors["subSectionnErr"] = "please select the Sub Section";
     this.state.errors["categoryErr"] = "please select the Category";
-    this.state.errors["hsnErr"] = "please enter the Hsn Code";
+    this.state.errors["hsnErr"] = "please select the Hsn Code";
     this.setState({ errors: this.state.errors });
   }
 

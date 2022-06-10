@@ -253,6 +253,7 @@ export default class ManagePromo extends Component {
     let storeIds = [];
     const user = JSON.parse(sessionStorage.getItem("user"));    
     const createdBy = user['custom:userId'];
+    const clientId = user['custom:clientId1'];
     const formDate = this.handleStoreData();
     if(formDate) {
     if(searchStoreName.length > 0) {
@@ -289,7 +290,8 @@ export default class ManagePromo extends Component {
         startDate: storeStartDate,
         priority: null,
         createdBy: createdBy,
-        promotionStatus: true
+        promotionStatus: true,
+        clientId
     }
     PromotionsService.addPromoToStore(requestObj).then((res) => {
       if(res.data.isSuccess === 'true') {

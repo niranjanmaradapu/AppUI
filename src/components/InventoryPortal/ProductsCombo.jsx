@@ -62,6 +62,14 @@ export default class ProductsCombo extends Component {
     comboName:""
   })
   }
+  clear = () => {
+    this.setState({ 
+      ProductsCombo: [],
+      fromDate: '',
+      toDate: '' ,
+     }, () => this.searchCombo());
+  }
+
   getBarcodeDetails() {
     const { selectedStoreId, domainDetails, dsNumber } = this.state;
     InventoryService.getBarcodeDetails(dsNumber, domainDetails, selectedStoreId).then((res) => {
@@ -351,16 +359,24 @@ handleChange (){
             />
           </div>
         </div> */}
-        <div className='col-sm-3 col-12 mt-3 pt-2 scaling-center scaling-mb scaling-mtop'>
+        <div className='col-sm-6 col-12 mt-3 pt-2 scaling-center scaling-mb scaling-mtop'>
         <button 
                  onClick={this.searchCombo}
                 className="btn-unic-search active m-r-2 mt-1"
               >
                 SEARCH
               </button>
+              <button className="btn-unic-search active m-r-2 mt-2"
+              onClick={this.clear}
+               >
+                 CLEAR
+                 </button>
+
+
               <button
                 className="btn-unic-redbdr mt-2 m-r-2"
-                onClick={this.addCombo}>
+                onClick={this.addCombo}
+              >
                 Add Combo
               </button>
         </div>

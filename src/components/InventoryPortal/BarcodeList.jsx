@@ -154,11 +154,13 @@ export default class BarcodeList extends Component {
   }
   clear = () => {
     this.setState({ 
-      BarcodeList: [],
       fromDate: '',
-      toDate: '' ,
-      barcodeId:'',
-     }, () => this.getAllBarcodes());
+      toDate: '',
+      barcodeSearchId:''
+     }, () => {
+       this.getAllBarcodes(0);
+      });
+       
   }
 
   componentWillMount() {
@@ -274,7 +276,7 @@ export default class BarcodeList extends Component {
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,
-        barcode: this.state.barcodeSearchId,
+        barcode: this.state.barcodeSearchId.trim(),
         storeId: this.state.selectedStoreId,
       };
     // }
@@ -291,15 +293,17 @@ export default class BarcodeList extends Component {
           this.setState({ barcodesList: this.state.barcodesList,
           totalPages: res.data.totalPages,});
           this.setStoreNames();
+    
         } else {
-          // this.setState({ barcodesList: null });
+          this.setState({ barcodesList: [] });
           toast.error("No Record Found");
         }
         
       })
       .catch((error) => {
         if (error.response && error.response.data.isSuccess === "false") {
-          this.setState({ barcodesList: null });
+          this.setState({ barcodesList: [] });
+          toast.error("Please enter valid Barcode details ");
         }
       });
   }
@@ -484,7 +488,7 @@ export default class BarcodeList extends Component {
   
   dateFormat = (d) => {
     let date = new Date(d)
-    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()
+    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
 }
 
   getAllStoresList() {
@@ -1674,17 +1678,6 @@ export default class BarcodeList extends Component {
                   placeholder="FROM DATE"
                   value={this.state.fromDate}
                   onChange={(e) => this.setState({ fromDate: e.target.value })}
-                  // onChange={(e) => {
-                  //   this.setState({ fromDate: e.target.value });
-                  //   var currentDate = new Date(this.state.fromDate);
-                  //   var endDate = new Date(this.state.endDate);
-                  //   console.log(">>>", currentDate,endDate);
-                  //   if (currentDate <= endDate ) {
-                  //   } else {
-                  //     toast.error("No Record Found");
-                    
-                  //   }
-                  // }}
                 />
               </div>
             </div>
@@ -1744,7 +1737,7 @@ export default class BarcodeList extends Component {
                 SEARCH
               </button>
               <button className="btn-unic-search active m-r-2 mt-2"
-              onClick={this.clear}
+               onClick={this.clear}
                >
                  CLEAR</button>
               <button

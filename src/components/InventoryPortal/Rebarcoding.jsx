@@ -105,7 +105,7 @@ export default class Rebarcoding extends Component {
       Rebarcoding: [],
       fromDate: '',
       toDate: '' ,
-      RebarcodeId:'',    
+      barcodeSearchId:'',    
      }, () => this.getAllBarcodes());
     }
     
@@ -165,8 +165,9 @@ export default class Rebarcoding extends Component {
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,
-        currentBarcodeId: this.state.barcodeSearchId,
+        currentBarcodeId: this.state.barcodeSearchId.trim(),
         storeId: this.state.selectedStoreId,
+        
       };
     // }
 
@@ -1161,7 +1162,7 @@ export default class Rebarcoding extends Component {
                 />
               </div>
             </div>
-            <div className="col-sm-3 col-12">
+            <div className="col-sm-2 col-12">
               <div className="form-group mt-2">
                 <label>Re-Barcode ID</label>
                 <input

@@ -946,13 +946,14 @@ export default class ManagePromo extends Component {
             </thead>
             <tbody>
             {this.state.allStorePromos.length > 0 && this.state.allStorePromos.map((item, index) => {
-            let date = this.dateFormat(item.startDate || item.endDate)
+            let date = this.dateFormat(item.startDate);
+            let endDate = this.dateFormat(item.endDate);
             const {
               promotionName,
               storeName,
               priority,
               startDate,
-              endDate,
+              // endDate,
               promoStatus,
             } = item;
               return( 
@@ -962,7 +963,7 @@ export default class ManagePromo extends Component {
                   <td className="col-2">{item.storeName}</td>
                   <td className="col-2">{item.priority}</td>
                   <td className="col-2">{date}</td>
-                  <td className="col-2">{date}</td>
+                  <td className="col-2">{endDate}</td>
                   <td className="col-1">
                     {item.promotionStatus ? 
                       <button onClick={() => this.updatePromotionStatus(item)} className="btn-active">Active</button> : 

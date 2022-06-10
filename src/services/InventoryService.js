@@ -120,7 +120,7 @@ class InventoryService {
         let param = '';
         if (storeId && !fromdate && !todate) {
             param = '?storeId=' + storeId;
-        } else if (storeId && fromdate) {
+        } else if (storeId && fromdate && !todate) {
             param = `?storeId=${storeId}&fromDate=${fromdate ? fromdate : null}`;
         } else {
             param = `?storeId=${storeId}&fromDate=${fromdate ? fromdate : null}&toDate=${todate ? todate : null}`;

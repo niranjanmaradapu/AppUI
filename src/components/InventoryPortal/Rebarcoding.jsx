@@ -227,7 +227,6 @@ export default class Rebarcoding extends Component {
     return Array.from(new Set(this.state.sortedStoreIds));
   }
 
-
   getStoreNamesById() {
     let obj = {};
     this.setState({ sortedStoreIds: [] });

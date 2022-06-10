@@ -44,9 +44,9 @@ service:
 ingress:
   enabled: true # Enable ingress : true 
   annotations:
-#    kubernetes.io/ingress.class: nginx
-#    kubernetes.io/ssl-passthrough: "false"
-#    kubernetes.io/secure-backends: "true"
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ssl-passthrough: "false"
+    kubernetes.io/secure-backends: "true"
 #    cert-manager.io/cluster-issuer: letsencrypt-prod
     #nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   hosts:

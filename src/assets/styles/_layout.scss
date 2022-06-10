@@ -1,9 +1,10 @@
 body{
     overflow: hidden;
+   
 }
 .mainbody{
     width:100%;
-    height:100vh;
+    height:80vh;
     // float: right;
     // display: table;
     position: relative;
@@ -18,6 +19,8 @@ body{
     padding-left: 3%;
     padding-right: 3%;
     margin-bottom:6%;
+    max-height: 77vh;
+    overflow-y: auto;
     & h5{
         font-size:22px;
         font-weight: bold;

@@ -1166,10 +1166,10 @@ export default class NewSale extends Component {
           sessionStorage.setItem("recentSale", res.data.result);
           toast.success(res.data.result);
           this.setState({ newSaleId: res.data.result });
-          // if(this.state.isCash){
+          if(!this.state.isCard){
             // Printer Service used for Testing
-            // PrinterStatusBill('INVOICE',null)
-          // }
+            PrinterStatusBill('INVOICE',null)
+          }
           // this.pay()
           if (this.state.isCard || this.state.isUPIModel) {
             this.pay()

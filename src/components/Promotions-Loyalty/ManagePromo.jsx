@@ -454,7 +454,9 @@ export default class ManagePromo extends Component {
     this.setState({ priority: e.target.value });
   }
   getAllStorePromos() {
-    PromotionsService.getAllStorePromos().then((res) => {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const customClientId = user['custom:clientId1'];
+    PromotionsService.getAllStorePromos(customClientId).then((res) => {
       if(res.data.isSuccess === 'true') {   
         res.data.result.forEach((item) => {
           if(this.dateCompare(item.endDate)){

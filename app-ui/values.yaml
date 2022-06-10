@@ -44,14 +44,14 @@ service:
 ingress:
   enabled: true # Enable ingress : true 
   annotations:
-#    kubernetes.io/ingress.class: nginx
-    kubernetes.io/ingress.class: "alb"
+    kubernetes.io/ingress.class: nginx
+  #  kubernetes.io/ingress.class: "alb"
     # Health Check Settings
-    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP 
-    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    ingress.kubernetes.io/healthcheck-protocol: HTTP 
+    ingress.kubernetes.io/healthcheck-port: traffic-port
     ## SSL Settings
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:604430719928:certificate/acb1bbd7-9d7a-469f-a61e-2ed16551be73
+    ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+    ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:604430719928:certificate/acb1bbd7-9d7a-469f-a61e-2ed16551be73
 #    ingress.kubernetes.io/ssl-passthrough: "false"
 #    ingress.kubernetes.io/secure-backends: "true"
 

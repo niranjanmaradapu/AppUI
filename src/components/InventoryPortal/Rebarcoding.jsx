@@ -176,7 +176,7 @@ export default class Rebarcoding extends Component {
       pageNumber
     )
       .then((res) => {
-        if (res.data) {
+        if (res.data.content.length !== 0) {
           this.state.barcodesList = res.data;
           this.setState({
             barcodesList: this.state.barcodesList,
@@ -185,6 +185,7 @@ export default class Rebarcoding extends Component {
           // this.setEmployeeNames();
         } else {
           this.setState({ barcodesList: [] });
+          toast.error("No Record Found");
         }
       })
       .catch((error) => {

@@ -910,10 +910,10 @@ export default class ManagePromo extends Component {
               </select>
             </div>
           </div>
-          <div className="col-sm-2 col-6 mt-2 pt-4">
-          <button className="btn-unic-redbdr" onClick={this.searchPromo}>SEARCH</button>
+          <div className="col-sm-2 col-6 mt-2 pt-4 p-0">
+          <button className="btn-unic-redbdr m-r-2" onClick={this.searchPromo}>SEARCH</button>
           <button
-              className="btn-unic-search active mt-1"
+              className="btn-unic-search active"
               onClick={this.addStore}
             >
               <i className="icon-retail p-r-1"></i> Add Store

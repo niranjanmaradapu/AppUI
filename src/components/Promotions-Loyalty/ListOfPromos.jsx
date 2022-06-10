@@ -1462,7 +1462,7 @@ handleBenefitFormData() {
         </div>}
 
         {!this.state.displayPromotions && <div className="row">
-          <div className="col-sm-2 col-6 mt-2">
+          <div className="col-sm-3 col-6 mt-2">
             <div className="form-group mb-3">
             <label>Promo Type</label>
               <select value={this.state.searchPromotionType} onChange={ (e) => this.haandleSearchPromotionType(e)} className="form-control">
@@ -1475,10 +1475,10 @@ handleBenefitFormData() {
                 </select>
             </div>
           </div>
-          <div className="col-sm-2 col-6 mt-2 pt-4">
-          <button className="btn-unic-redbdr" onClick={this.searchPromotion}>SEARCH</button>
+          <div className="col-sm-4 col-6 mt-2 pt-3">
+          <button className="btn-unic-redbdr m-r-2 " onClick={this.searchPromotion}>SEARCH</button>
           <button
-              className="btn-unic-search active m-r-2 mt-1"
+              className="btn-unic-search active mt-2" 
               onClick={this.addPromo}
             >
               <i className="icon-sale p-r-1"></i>Add Promo

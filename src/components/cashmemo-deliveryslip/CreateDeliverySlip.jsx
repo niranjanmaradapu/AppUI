@@ -302,13 +302,15 @@ class CeateDeliverySlip extends Component {
         this.state.barList.forEach(barCodeData => {
           this.state.promoDiscount.forEach(promo => {
             if (barCodeData.barcode === promo.barcode) {
-              if (promo.calculatedDiscountsVo.discountAvailable) {
-                barCodeData.itemDiscount = parseInt(promo.calculatedDiscountsVo.calculatedDiscount);
-                barCodeData.totalMrp = barCodeData.totalMrp - barCodeData.itemDiscount;
+              if(promo.calculatedDiscountsVo) {
+                if (promo.calculatedDiscountsVo.discountAvailable) {
+                  barCodeData.itemDiscount = parseInt(promo.calculatedDiscountsVo.calculatedDiscount);
+                  barCodeData.totalMrp = barCodeData.totalMrp - barCodeData.itemDiscount;
+                }
+              } else {
+                 barCodeData.itemDiscount = "No discount"
               }
-            } else {
-              barCodeData.itemDiscount = "No discount"
-            }
+            }            
           });
         });
 

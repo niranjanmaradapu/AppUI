@@ -50,7 +50,7 @@ ingress:
 #    cert-manager.io/cluster-issuer: letsencrypt-prod
     #nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   hosts:
-    - host: easyretailworld.com
+    - host: www.easyretailworld.com
       paths:
       - path: /
         backend:
@@ -59,7 +59,7 @@ ingress:
   tls:
    - secretName: easyretailworld-tls
      hosts:
-       - easyretailworld.com
+       - www.easyretailworld.com
 
 resources:
   limits:

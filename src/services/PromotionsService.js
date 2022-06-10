@@ -87,8 +87,8 @@ class PromotionsService {
         const domainId = `?domainId=${Id}`;
         return axios.get(BASE_URL + PROMOTIONS_URL.getAllColumns + domainId);
     }
-    getAllStorePromos() {
-        return axios.get(BASE_URL + PROMOTIONS_URL.getAllStorePromos);
+    getAllStorePromos(customClientId) {
+        return axios.get(BASE_URL + PROMOTIONS_URL.getAllStorePromos+`?clientId=${customClientId}`);
     }
     promotionsSearching(obj) {
         return axios.post(BASE_URL+PROMOTIONS_URL.promotionsSearching, obj);  

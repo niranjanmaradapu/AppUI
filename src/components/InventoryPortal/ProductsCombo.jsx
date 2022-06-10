@@ -25,7 +25,8 @@ export default class ProductsCombo extends Component {
       commonFieldsErr:false,
       isEdit:false,
       fromDate: '',
-      toDate: ''
+      toDate: '',
+      comboPrice: ''
     }
   this.addCombo = this.addCombo.bind(this);
   this.closeCombo = this.closeCombo.bind(this);
@@ -95,7 +96,7 @@ export default class ProductsCombo extends Component {
     });
   }
   saveProductBundle() {
-    const { listOfProducts, comboName, comboQuantity, comboDescription, selectedDomainId, selectedStoreId,isEdit} = this.state;
+    const { listOfProducts, comboName, comboQuantity, comboDescription, selectedDomainId, selectedStoreId,comboPrice} = this.state;
     const comboProductList = listOfProducts.map((itm) => {
       const obj = {};
       obj.id = itm.id;
@@ -111,8 +112,9 @@ export default class ProductsCombo extends Component {
       description: comboDescription,
       domainId: selectedDomainId,
       name: comboName,
-     isEdit: false,
-      productTextiles: comboProductList
+      isEdit: false,
+      productTextiles: comboProductList,
+      itemMrp: comboPrice
     }
   
     if(this.handleValidation()){  
@@ -127,6 +129,7 @@ export default class ProductsCombo extends Component {
               comboQuantity: '',
               comboDescription: '',
               isEdit: false,
+              comboPrice: '',
               selectedStoreId: selectedStoreId
             }, () => this.getProductBundleList(selectedStoreId));
           } else {
@@ -159,6 +162,10 @@ handleChange (){
       formIsValid = false;
       error["comboName"] = 'Enter Combo Name';
       }
+      if(!this.state.comboPrice){
+        formIsValid = false;
+        error["comboPrice"] = 'Enter Combo Name';
+        }
      //combo quantity
       if(!this.state.comboQuantity){
         formIsValid = false;
@@ -182,7 +189,8 @@ handleChange (){
     isAddCombo : true,
     comboName: item.name, 
     comboQuantity: item.bundleQuantity, 
-    listOfProducts: item.productTextiles
+    listOfProducts: item.productTextiles,
+    comboPrice: item.itemMrp
   });
   }
   searchCombo = () => {
@@ -231,7 +239,7 @@ handleChange (){
                 </div>
                 <span style={{ color: "red" }}>{this.state.error["comboName"]}</span>
               </div>
-              <div className="col-3">
+              <div className="col-2">
                 <div className="form-group">
                   <label>Combo Quantity <span className="text-red font-bold" name="bold">*</span></label>
                   <input 
@@ -244,6 +252,20 @@ handleChange (){
                    /> 
                 </div>
                 <span style={{ color: "red" }}>{this.state.error["comboQuantity"]}</span>
+              </div>
+              <div className="col-2">
+                <div className="form-group">
+                  <label>Combo Price <span className="text-red font-bold" name="bold">*</span></label>
+                  <input 
+                    className="form-control"
+                      type="number" id="quantity"  min="0" max="unlimit"
+                      placeholder="Combo Price"
+                      disabled={this.state.isEdit}
+                      value={this.state.comboPrice}
+                      onChange={(e) => this.setState({ comboPrice: e.target.value })}
+                   /> 
+                </div>
+                <span style={{ color: "red" }}>{this.state.error["comboPrice"]}</span>
               </div>
         
               <div className="col-4">
@@ -415,6 +437,7 @@ handleChange (){
                         </tr>
                         )
                   })}
+                  {this.state.listOfProductBundle.length === 0 && <tr>No records found!</tr>}
                   </tbody>
               </table>
           </div>        

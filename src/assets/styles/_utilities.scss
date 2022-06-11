@@ -310,3 +310,38 @@ textarea {
     }
     
 }
+.Tabs{
+    & ul.nav {
+        width: 50%;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 0px solid #353c40 !important;
+        border-radius: 5px;
+    }
+    & ul.nav li {
+        width: 50%;
+        padding: 0.5rem;
+        list-style: none;
+        text-align: center;
+        background-color: $grey-ultralight;
+        /* border-radius: 5px; */
+        cursor: pointer;
+        transition: all 0.7s;
+        border-bottom-left-radius: 5px;
+        border-top-left-radius: 5px;
+        font-weight: 500;
+        font-size: 12px;
+    }
+    & ul.nav li:nth-child(2) {
+        border-radius: 0;
+        border-bottom-right-radius: 5px;
+        border-top-right-radius: 5px;
+        background-color:$grey-ultralight;
+    }
+    & ul.nav li:hover {
+        background: $primary-color;
+        color: $white;
+    }
+}

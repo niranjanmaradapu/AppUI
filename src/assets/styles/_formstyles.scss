@@ -322,7 +322,11 @@ label, .col-form-label{
   font-size: 12px;
 }
 
-
+.fm{
+  &-height{
+    height: 70px;
+  }
+}
 
 .t{
   &-form{

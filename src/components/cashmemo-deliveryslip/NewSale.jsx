@@ -353,16 +353,13 @@ export default class NewSale extends Component {
   }
 
   saveCCAmount() {
-    console.log("+++++++++++++++++conirm_+++++++++++")
 
     this.state.discType = this.state.dropValue;
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
     const storeId = sessionStorage.getItem("storeId");
-    
-    console.log("+++++++++++++++++conirm2+++++++++++")
     let obj;
-    // if (this.state.isTextile) {
+    //if (this.state.isTextile) {
       obj = {
 
         "natureOfSale": "InStore",
@@ -408,8 +405,6 @@ export default class NewSale extends Component {
           }
 
         ]
-        
-    
 
       }
 
@@ -1175,7 +1170,6 @@ export default class NewSale extends Component {
             this.pay()
           }
         } else {
-         
           toast.error(res.data.result);
         }
       });
@@ -1418,7 +1412,7 @@ export default class NewSale extends Component {
                     <th className="col-2">Discount</th>
                     <th className="col-1">Sgst</th>
                     <th className="col-1">Cgst</th>
-                    <th className="col-2">Gross Amount</th>
+                    <th className="col-2">Gross</th>
                   </tr>
                 </thead>
 
@@ -1511,7 +1505,7 @@ export default class NewSale extends Component {
     };
     return (
 
-      <div className="maincontent">
+      <div className="maincontent pt-0">
 
 
         <Modal isOpen={this.state.isUPIModel} size="lg">
@@ -1898,22 +1892,13 @@ export default class NewSale extends Component {
             </button>
           </ModalFooter>
         </Modal>
-
-        <div className="row">
-          <div className="col-6 pt-2">
-
-          </div>
-          <div className="col-6 text-right pb-2">
-
-          </div>
-        </div>
-
-        <div className="">
           <div className="row">
-            <div className="col-sm-8 col-12">
-              <div className="row">
+            <div className="newsale-body p-r-1">
+                   <div className="newsale-body-left">
+                   <div className="">
+              <div className="row m-r-0">
                 <div className="col-12 col-sm-4">
-                  <div className="form-group">
+                  <div className="form-group fm-height">
 
                     {/* {
                       this.state.isTextile && ( */}
@@ -1963,24 +1948,15 @@ export default class NewSale extends Component {
 
                   </div>
                 </div>
-
-              </div>
-              <div className="row m-0 p-0">
-                <div className="col-12 col-sm-4 scaling-center p-l-0">
-                  <h5 className="mt-1 fs-18 mb-3">
-                    Order Details
-                  </h5>
-                </div>
-
                 {
                   this.state.showTable && (
 
 
-                    <div className="col-12 col-sm-8 scaling-center text-right p-r-0">
+                    <div className="col-12 col-sm-8 scaling-center p-t-5 text-right p-r-0">
 
                       <button
                         type="button"
-                        className={"m-r-2  scaling-mb" + (this.state.isCredit ? "btn-unic btn-disable" : "btn-unic active")}
+                        className={"m-r-2  scaling-mb " + (this.state.isCredit ? " btn-unic btn-disable" : " btn-unic active")}
                         onClick={this.toggleModal}
                       >Tag Customer </button>
                       <button
@@ -2003,12 +1979,21 @@ export default class NewSale extends Component {
                   )
                 }
 
+              </div>
+              <div className="row m-0 p-0">
+                <div className="col-12 col-sm-4 scaling-center p-l-0">
+                  <h5 className="fs-18">
+                    Order Details
+                  </h5>
+                </div>
 
-                <div>{this.showOrderDetails()}</div>
+            
+
+                <div className="p-l-0">{this.showOrderDetails()}</div>
                 {
                   this.state.showTable && (
 
-                    <div>
+                    <div className="p-l-0">
                       <div className="rect-cardred m-0">
                         <div className="row">
                           <div className="col-2 text-center">
@@ -2037,12 +2022,12 @@ export default class NewSale extends Component {
 
                       <div className="row p-0 m-0 mt-2">
                         <div className="col-6 p-l-0">
-                          <h5 className="mt-2">
+                          <h5 className="mb-0 mt-2 fs-18">
                             Customer Details
                           </h5>
                         </div>
                         <div className="col-6"></div>
-                        <table className="table table-borderless mb-1 mt-2">
+                        <table className="table table-borderless mb-0 mt-2 p-l-0 p-r-0">
                           <thead>
                             <tr className="m-0 p-0">
                               <th className="col-3">NAME</th>
@@ -2053,7 +2038,7 @@ export default class NewSale extends Component {
                             </tr>
                           </thead>
                         </table>
-                        <table className="table table-borderless gfg mb-0">
+                        <table className="table table-borderless gfg mb-0 p-l-0 p-r-0">
                           <tbody>
                             <tr>
                               <td className="col-3 geeks">
@@ -2080,190 +2065,11 @@ export default class NewSale extends Component {
 
                   )
                 }
-
-              </div>
-            </div>
-            <div className="col-sm-4 col-12">
-              <div className="rect-grey pb-3">
-                <h5 className="m-b-5">Billing summary</h5>
-                <div className="row">
-                  <div className="col-5">
-                    <label>Total Amount</label>
-                  </div>
-                  <div className="col-7 text-right">
-                    <label className="font-bold">₹ {this.state.netPayableAmount}</label>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-5">
-                    <label>CGST</label>
-                  </div>
-                  <div className="col-7 text-right">
-                    <label className="font-bold">₹ {this.state.centralGST}</label>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-5">
-                    <label>SGST</label>
-                  </div>
-                  <div className="col-7 text-right">
-                    <label className="font-bold">₹ {this.state.stateGST}</label>
-                  </div>
-                </div>
-
-
-
-                <div className="payment">
-                <div className="row">
-                    <div className="col-5 p-r-0 pt-1">
-                      <label>Total Amount</label>
-                    </div>
-                    <div className="col-7 p-l-0 pt-1 text-right">
-                      <label className="font-bold">₹ {this.state.totalAmount}</label>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-5 p-r-0 pt-1">
-                      <label>Promo Discount</label>
-                    </div>
-                    <div className="col-7 p-l-0 pt-1 text-right">
-                      <label className="font-bold">₹ {this.state.totalPromoDisc}</label>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-5 p-r-0 pt-1">
-                      <label>Payable Amount</label>
-                    </div>
-                    <div className="col-7 p-l-0 pt-1 text-right">
-                      <label className="font-bold">₹ {this.state.grandNetAmount}</label>
-                    </div>
-                  </div>
-
-                 
-                {
-                  this.state.isBillingDiscount && (
-                    <div className="row">
-                    <div className="col-5">
-                      <label>Billing Discount</label>
-                    </div>
-                    <div className="col-7 text-right">
-                      <label className="font-bold">₹ {this.state.manualDisc}</label>
-                    </div>
-                  </div>
-                  )
-                }
-
-                  {
-                    this.state.isCreditAmount && (
-                      <div>
-                            <div className="row">
-                      <div className="col-5">
-                        <label>Credit Amount</label>
-                      </div>
-                      <div className="col-7 text-right">
-                        <label className="font-bold">₹ {this.state.creditAmount}</label>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-5">
-                        <label>Payed Amount</label>
-                      </div>
-                      <div className="col-7 text-right">
-                        <label className="font-bold">₹ {this.state.payCreditAmount}</label>
-                      </div>
-                    </div>
-                      </div>
-                      
-                  
-                    
-                    )
-                  }
-
-
-
-                  {
-                    this.state.isreturnCreditCash && (
-                      <div className="row">
-                        <div className="col-5 p-r-0 pt-1">
-                          <label>Balance Amount</label>
-                        </div>
-                        <div className="col-7 p-l-0 pt-1 text-right">
-                          <label className="font-bold">₹ {this.state.balanceCreditAmount}</label>
-                        </div>
-                      </div>
-                    )
-                  }
-
-
-                  {
-                    this.state.returnCash >= 0  && (
-                      <div> 
-                        <div className="row">
-                        <div className="col-5 p-r-0 pt-1">
-                          <label>Collected Amount</label>
-                        </div>
-                        <div className="col-7 p-l-0 pt-1 text-right">
-                          <label className="font-bold">₹ {this.state.cashAmount}</label>
-                        </div>
-                      </div>
-                      <div className="row">
-                        <div className="col-5 p-r-0 pt-1">
-                          <label>Return Amount</label>
-                        </div>
-                        <div className="col-7 p-l-0 pt-1 text-right">
-                          <label className="font-bold">₹ {this.state.returnCash}</label>
-                        </div>
-                      </div>
-                      </div>
-                      
-                    )
-                  }
-
-{
-                    this.state.couponAmount > 0 && (
-                      <div className="row">
-                      <div className="col-5">
-                        <label>Coupon Applied</label>
-                      </div>
-                      <div className="col-7 text-right">
-                        <label className="font-bold">₹ {this.state.couponAmount}</label>
-                      </div>
-                    </div>
-                    )
-                  }
-
-                  
-
-
-
-                </div>
-                {
-                  this.state.grandNetAmount > 0 && (
-                    <div>
-                      <div className="form-group apply_btn">
-                        <button type="button" className=""> Apply</button>
-                        <input type="text" className="form-control" placeholder="ENTER RT NUMBER" />
-                      </div>
-                      {
-                        this.state.isCouponApplied && (
-                          <div className="form-group apply_btn mb-2">
-                            <button type="button" className="" onClick={this.onCouponCode}> Apply</button>
-                            <input type="text" className="form-control" placeholder="COUPON CODE" value={this.state.couponCode}
-                              onChange={(e) => this.setState({ couponCode: e.target.value })}
-                            />
-                          </div>
-                        )
-                      }
-
-                    </div>
-                  )
-                }
-
-                {
+       
+       {
                   this.state.enablePayment && (
-                    <div>
-                      <label className="fs-18 pt-3">Payment Type</label>
-                      <div className="list row">
+                    <div className="pay p-l-0">
+                      <h5 className="fs-18 mb-2 font-bold pt-3">Payment Type</h5>
                         <ul>
                           <li>
                             <span>
@@ -2322,14 +2128,194 @@ export default class NewSale extends Component {
 
 
                         </ul>
+                    </div>
+                  )
+                }
+              </div>
+            </div>
+                  </div>
+                  <div className="newsale-body-right">
+                  <div className="">
+              <div className="billing pb-3">
+                <h5 className="">Billing summary</h5>
+                <div className="row">
+                  <div className="col-5">
+                    <label>Total Amount</label>
+                  </div>
+                  <div className="col-7 text-right">
+                    <label className="font-bold">₹ {this.state.netPayableAmount}</label>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-5">
+                    <label>CGST</label>
+                  </div>
+                  <div className="col-7 text-right">
+                    <label className="font-bold">₹ {this.state.centralGST}</label>
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-5">
+                    <label>SGST</label>
+                  </div>
+                  <div className="col-7 text-right">
+                    <label className="font-bold">₹ {this.state.stateGST}</label>
+                  </div>
+                </div>
+
+
+
+                <div className="payment">
+                <div className="row">
+                    <div className="col-5 p-r-0 pt-1">
+                      <label className="text-secondary">Total Amount</label>
+                    </div>
+                    <div className="col-7 p-l-0 pt-1 text-right">
+                      <label className="font-bold text-secondary">₹ {this.state.totalAmount}</label>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-5 p-r-0 pt-1">
+                      <label className="text-green">Promo Discount</label>
+                    </div>
+                    <div className="col-7 p-l-0 pt-1 text-right">
+                      <label className="font-bold text-green">₹ {this.state.totalPromoDisc}</label>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-5 p-r-0 pt-1">
+                      <label className="text-secondary">Payable Amount</label>
+                    </div>
+                    <div className="col-7 p-l-0 pt-1 text-right">
+                      <label className="font-bold text-secondary">₹ {this.state.grandNetAmount}</label>
+                    </div>
+                  </div>
+
+                 
+                {
+                  this.state.isBillingDiscount && (
+                    <div className="row">
+                    <div className="col-5">
+                      <label className="text-secondary">Billing Discount</label>
+                    </div>
+                    <div className="col-7 text-right">
+                      <label className="font-bold text-secondary">₹ {this.state.manualDisc}</label>
+                    </div>
+                  </div>
+                  )
+                }
+
+                  {
+                    this.state.isCreditAmount && (
+                      <div>
+                            <div className="row">
+                      <div className="col-5">
+                        <label className="text-secondary">Credit Amount</label>
                       </div>
+                      <div className="col-7 text-right">
+                        <label className="font-bold text-secondary">₹ {this.state.creditAmount}</label>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col-5">
+                        <label className="text-secondary">Payed Amount</label>
+                      </div>
+                      <div className="col-7 text-right">
+                        <label className="font-bold text-secondary">₹ {this.state.payCreditAmount}</label>
+                      </div>
+                    </div>
+                      </div>
+                      
+                  
+                    
+                    )
+                  }
+
+
+
+                  {
+                    this.state.isreturnCreditCash && (
+                      <div className="row">
+                        <div className="col-5 p-r-0 pt-1">
+                          <label className="text-secondary">Balance Amount</label>
+                        </div>
+                        <div className="col-7 p-l-0 pt-1 text-right">
+                          <label className="font-bold text-secondary">₹ {this.state.balanceCreditAmount}</label>
+                        </div>
+                      </div>
+                    )
+                  }
+
+
+                  {
+                    this.state.returnCash >= 0  && (
+                      <div> 
+                        <div className="row">
+                        <div className="col-5 p-r-0 pt-1">
+                          <label className="text-secondary">Collected Amount</label>
+                        </div>
+                        <div className="col-7 p-l-0 pt-1 text-right">
+                          <label className="font-bold text-secondary">₹ {this.state.cashAmount}</label>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-5 p-r-0 pt-1">
+                          <label className="text-orange">Return Amount</label>
+                        </div>
+                        <div className="col-7 p-l-0 pt-1 text-right">
+                          <label className="font-bold text-orange">₹ {this.state.returnCash}</label>
+                        </div>
+                      </div>
+                      </div>
+                      
+                    )
+                  }
+
+{
+                    this.state.couponAmount > 0 && (
+                      <div className="row">
+                      <div className="col-5">
+                        <label className="text-green">Coupon Applied</label>
+                      </div>
+                      <div className="col-7 text-right">
+                        <label className="font-bold text-green">₹ {this.state.couponAmount}</label>
+                      </div>
+                    </div>
+                    )
+                  }
+
+                  
+
+
+
+                </div>
+                {
+                  this.state.grandNetAmount > 0 && (
+                    <div>
+                      <div className="form-group apply_btn">
+                        <button type="button" className=""> Apply</button>
+                        <input type="text" className="form-control" placeholder="ENTER RT NUMBER" />
+                      </div>
+                      {
+                        this.state.isCouponApplied && (
+                          <div className="form-group apply_btn mb-2">
+                            <button type="button" className="" onClick={this.onCouponCode}> Apply</button>
+                            <input type="text" className="form-control" placeholder="COUPON CODE" value={this.state.couponCode}
+                              onChange={(e) => this.setState({ couponCode: e.target.value })}
+                            />
+                          </div>
+                        )
+                      }
+
                     </div>
                   )
                 }
 
 
 
-                <div className="mt-3">
+
+
+                <div className="p-t-3">
                   <button
                     className={"mt-1 w-100 " + (this.state.grandNetAmount !== 0 || this.state.totalAmount === 0 ? "btn-unic btn-disable" : "btn-unic active")} 
                     onClick={this.savePayment}
@@ -2339,9 +2325,10 @@ export default class NewSale extends Component {
                 </div>
               </div>
             </div>
-
-          </div>
+                  </div>
+            </div>
         </div>
+      
 
 
       </div>

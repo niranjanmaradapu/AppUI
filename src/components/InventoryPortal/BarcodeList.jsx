@@ -1791,7 +1791,7 @@ export default class BarcodeList extends Component {
 
 
               </table>
-              <div className="row m-0 pb-3 mb-5 mt-3">
+              <div className="row m-0 mt-2">
                 {/* {this.state.barcodesList?.content?.length < 10 ? null : ( */}
                 {console.log(
                   "++++++++++@@@++++++++",

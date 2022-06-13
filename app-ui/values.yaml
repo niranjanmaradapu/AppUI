@@ -51,7 +51,7 @@ ingress:
   #  ingress.kubernetes.io/healthcheck-port: traffic-port
     ## SSL Settings
     alb.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
-    alb.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:604430719928:certificate/acb1bbd7-9d7a-469f-a61e-2ed16551be73
+    alb.kubernetes.io/certificate-arn: arn:aws:iam::604430719928:server-certificate/easyretailworldcert
 #    ingress.kubernetes.io/ssl-passthrough: "false"
 #    ingress.kubernetes.io/secure-backends: "true"
 

@@ -224,6 +224,7 @@ export default class BarcodeList extends Component {
     //  this.getHsnDetails();
     //  this.getAllCategories();
     //  this.loadErrorMsgs();
+    
   }
   handleChange = (e) => {
     this.setState({ uom: e.target.value });
@@ -273,7 +274,7 @@ export default class BarcodeList extends Component {
     //     storeId: this.state.selectedStoreId,
     //   };
     // } else {
-      
+
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,

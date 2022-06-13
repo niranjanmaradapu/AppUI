@@ -86,12 +86,13 @@ export default class Rebarcoding extends Component {
     this.changePage = this.changePage.bind(this);
   }
 
+  
   closeBarcode() {
     this.setState({ isAddBarcode: false });
     this.stateReset();
   }
   
- 
+
 
   openEditBarcode(barcodeId) {
     this.setState({ isAddBarcode: true });

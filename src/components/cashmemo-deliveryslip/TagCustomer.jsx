@@ -19,6 +19,10 @@ export default class TagCustomer extends Component {
       mobileData: {
         customerId: "",
         name: "",
+        statusbar:"",
+        startDate:"",
+        endDate:"",
+        gvNumber1:"",
         mobileNumber: "",
         gstNumber: "",
         address: "",
@@ -284,9 +288,9 @@ export default class TagCustomer extends Component {
     //   "&gvNumber=GV" +
     //   this.state.gvNumber;
     const obj = {
-      fromDate: this.state.fromDate ? this.state.fromDate : undefined,
-      toDate: this.state.toDate ? this.state.toDate : undefined,
-      gvNumber: this.state.gvNumber ? this.state.gvNumber : undefined,
+      fromDate: this.state.startDate ? this.state.startDate : undefined,
+      toDate: this.state.endDate ? this.state.endDate : undefined,
+      gvNumber: this.state.gvNumber1 ? this.state.gvNumber1 : undefined,
     };
     console.log(">>>>>paramsss", obj);
     CreateDeliveryService.searchGiftVoucher(obj).then((res) => {
@@ -300,9 +304,9 @@ export default class TagCustomer extends Component {
   clearSearch() {
     this.setState({
       gvSearchList: [],
-      fromDate: "",
-      toDate: "",
-      gvNumber: "",
+      startDate: "",
+      endDate: "",
+      gvNumber1: "",
     });
   }
 
@@ -334,10 +338,10 @@ export default class TagCustomer extends Component {
                 id="start"
                 className="form-control"
                 name="trip-start"
-                value={this.state.fromDate}
+                value={this.state.startDate}
                 onChange={(e) =>
                   this.setState({
-                    fromDate: e.target.value,
+                    startDate: e.target.value,
                   })
                 }
               />
@@ -350,8 +354,8 @@ export default class TagCustomer extends Component {
                 type="date"
                 name="trip-start"
                 className="form-control"
-                value={this.state.toDate}
-                onChange={(e) => this.setState({ toDate: e.target.value })}
+                value={this.state.endDate}
+                onChange={(e) => this.setState({ endDate: e.target.value })}
               />
             </div>
           </div>
@@ -363,8 +367,8 @@ export default class TagCustomer extends Component {
                 className="form-control"
                 min={0}
                 placeholder="GV NUMBER"
-                value={this.state.gvNumber}
-                onChange={(e) => this.setState({ gvNumber: e.target.value })}
+                value={this.state.gvNumber1}
+                onChange={(e) => this.setState({ gvNumber1: e.target.value })}
               />
             </div>
           </div>

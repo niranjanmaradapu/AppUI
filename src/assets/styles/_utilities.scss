@@ -85,8 +85,43 @@ hr{
 }
 .sele{
     & .css-g1d714-ValueContainer{
-        height:38px !important;
+        height:35px !important;
         line-height: 3 !important;
+    }
+    & .css-tlfecz-indicatorContainer {
+        color: hsl(0, 0%, 80%);
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        padding: 7px;
+        -webkit-transition: color 150ms;
+        transition: color 150ms;
+        box-sizing: border-box;
+    }
+    & .css-1wa3eu0-placeholder {
+        color: hsl(0, 0%, 50%);
+        margin-left: 2px;
+        margin-right: 2px;
+        position: absolute;
+        top: 52%;
+        font-size: 14px;
+        -webkit-transform: translateY(-50%);
+        -moz-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+        box-sizing: border-box;
+    }
+    & .css-1rhbuit-multiValue {
+        background-color: hsl(0, 0%, 90%);
+        border-radius: 2px;
+        display: -webkit-box;
+        display: -webkit-flex;
+        display: -ms-flexbox;
+        display: flex;
+        margin: -3px;
+        min-width: 0;
+        box-sizing: border-box;
     }
 }
 
@@ -295,9 +330,17 @@ textarea {
         & a{
             color: $secondary-color !important;
         }
+        &:first-child .page-link {
+            border-top-left-radius: 0.25rem;
+            border-bottom-left-radius: 0.25rem;
+            /* text-align: center; */
+            /* padding-left: 0px !important; */
+            margin-left: 0px;
+        }
     }
  
 }
+
   
 .text_parent{
         width: 150px;
@@ -309,4 +352,39 @@ textarea {
       overflow: hidden;
     }
     
+}
+.Tabs{
+    & ul.nav {
+        width: 50%;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 0px solid #353c40 !important;
+        border-radius: 5px;
+    }
+    & ul.nav li {
+        width: 50%;
+        padding: 0.5rem;
+        list-style: none;
+        text-align: center;
+        background-color: $grey-ultralight;
+        /* border-radius: 5px; */
+        cursor: pointer;
+        transition: all 0.7s;
+        border-bottom-left-radius: 5px;
+        border-top-left-radius: 5px;
+        font-weight: 500;
+        font-size: 12px;
+    }
+    & ul.nav li:nth-child(2) {
+        border-radius: 0;
+        border-bottom-right-radius: 5px;
+        border-top-right-radius: 5px;
+        background-color:$grey-ultralight;
+    }
+    & ul.nav li:hover {
+        background: $primary-color;
+        color: $white;
+    }
 }

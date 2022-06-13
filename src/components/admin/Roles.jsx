@@ -367,11 +367,11 @@ getSelectedPrivileges(parentsList, childList) {
                                     <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-15">
                                         {
                                             child.name && (
-                                                <div>
-                                                    <input type="checkbox" className="form-check-input filled-in mt-1" id="remember{{index}}"
+                                                <div className="cursor">
+                                                    <input type="checkbox" className=" cursor form-check-input filled-in mt-1" id="remember{{index}}"
                                                         name="child{{i}}" checked={child.checked}
                                                         onChange={(e) => this.setPrivileges(e, i, node, child)} />
-                                                    <label className="form-check-label" htmlFor="remember">  {child.name}</label>
+                                                    <label className="cursor form-check-label" htmlFor="remember">  {child.name}</label>
 
                                                 </div>
                                             )
@@ -528,10 +528,12 @@ getSelectedPrivileges(parentsList, childList) {
                 <Modal isOpen={this.state.showRole} size="lg">
                     <ModalHeader>Privileges </ModalHeader>
                     <ModalBody>
-                        <div className="maincontent p-0">
-                            <table className="table table-borderless">
+                        <div className="maincontent p-0 mb-0">
+                            <table className="table table-borderless mb-0">
                                 <thead>
-
+                                    <tr className="m-0 p-0">
+                                    <th>Privilege Name</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
 

@@ -855,7 +855,7 @@ export default class ManagePromo extends Component {
         </Modal>
         <div className="row">
           <div className="col-sm-2 col-6">
-            <div className="form-group mt-2 mb-3">
+            <div className="form-group mt-2 mb-1">
                <label>Store Name</label>
               <Select
                 // isMulti
@@ -867,7 +867,7 @@ export default class ManagePromo extends Component {
           </div>
 
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
             <label>Promotion Name</label>
               <select value={this.state.promotionName} onChange={ (e) => this.haandlePromoname(e)} className="form-control">
                 <option>Select Promotion</option>
@@ -880,7 +880,7 @@ export default class ManagePromo extends Component {
             </div>
           </div>
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
                 <label>Start Date</label>
               <input type="date" className="form-control"
                   value={this.state.startDate}
@@ -889,7 +889,7 @@ export default class ManagePromo extends Component {
             </div>
           </div>
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
             <label>End Date</label>
             <input type="date" className="form-control"  
                 value={this.state.endDate}
@@ -898,7 +898,7 @@ export default class ManagePromo extends Component {
             </div>
           </div>
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
             <label>Status</label>
             <select value={this.state.promoStatus} onChange={(e) =>  this.handlePromoStatus(e)} className="form-control">
                 <option>Select Status</option>
@@ -910,10 +910,10 @@ export default class ManagePromo extends Component {
               </select>
             </div>
           </div>
-          <div className="col-sm-2 col-6 mt-2 pt-4">
-          <button className="btn-unic-redbdr" onClick={this.searchPromo}>SEARCH</button>
+          <div className="col-sm-2 col-6 mt-2 pt-4 p-0">
+          <button className="btn-unic-redbdr m-r-2" onClick={this.searchPromo}>SEARCH</button>
           <button
-              className="btn-unic-search active mt-1"
+              className="btn-unic-search active"
               onClick={this.addStore}
             >
               <i className="icon-retail p-r-1"></i> Add Store

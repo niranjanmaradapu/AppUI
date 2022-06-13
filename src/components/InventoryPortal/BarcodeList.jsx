@@ -273,6 +273,7 @@ export default class BarcodeList extends Component {
     //     storeId: this.state.selectedStoreId,
     //   };
     // } else {
+      
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,

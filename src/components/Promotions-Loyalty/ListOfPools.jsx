@@ -1030,7 +1030,7 @@ Tabs = () => {
       <div>
      
         {this.state.activeTab === "INCLUDED" ? this.FirstTab() : this.SecondTab()}
-        <button type="button" className="btn-unic-redbdr w-100 mt-4" onClick={this.handleAddRow}>Add Pool Rule</button>
+        <button type="button" className="btn-unic-redbdr mt-4" onClick={this.handleAddRow}>Add Pool Rule</button>
       </div>
     </div>
   );

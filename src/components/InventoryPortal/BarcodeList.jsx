@@ -1719,7 +1719,7 @@ export default class BarcodeList extends Component {
                 <label>Barcode ID</label>
                 <input
                   type="text"
-                  className="form-control frm-pr"
+                  className="form-control"
                   placeholder="BARCODE ID"
                   value={this.state.barcodeSearchId}
                   onChange={(e) =>

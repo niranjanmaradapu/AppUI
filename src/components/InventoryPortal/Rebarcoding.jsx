@@ -222,7 +222,7 @@ export default class Rebarcoding extends Component {
     this.setState({ storeIds: this.uniq() });
     this.getStoreNamesById();
   }
-
+  
   uniq() {
     return Array.from(new Set(this.state.sortedStoreIds));
   }

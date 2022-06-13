@@ -1295,7 +1295,7 @@ handleBenefitFormData() {
                 </div>
               </div>
               <div className="col-3 mt-3">
-              <div className="form-group">
+              <div className="form-group sele">
                  <label className="">Add Buy Pools <span className="text-red font-bold" name="bold">*</span></label> 
                     <Select
                       isMulti

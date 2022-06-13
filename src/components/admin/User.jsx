@@ -448,7 +448,7 @@ export default class User extends Component {
             saveObj = {
                 "id": this.state.userId,
                 "email":this.state.email,	
-                "phoneNumber": "+91".concat(this.state.mobileNumber),
+                "phoneNumber":(this.state.mobileNumber),
                 "birthDate": this.state.dob,
                 "gender":this.state.gender,
                 "name":this.state.name,
@@ -481,7 +481,7 @@ export default class User extends Component {
         } else {
             saveObj = {
                 "email":this.state.email,	
-                "phoneNumber": "+91".concat(this.state.mobileNumber),
+                "phoneNumber":"+91".concat(this.state.mobileNumber),
                 "birthDate": this.state.dob,
                 "gender":this.state.gender,
                 "name":this.state.name,
@@ -892,7 +892,7 @@ capitalization= () => {
                                 <div className="col-12 col-sm-4 mt-3">
                                     <div className="form-group">
                                         <label>Mobile <span className="text-red font-bold">*</span></label>
-                                        <input type="text" className="form-control" placeholder="+91 " name="number"
+                                        <input type="text" className="form-control" placeholder="" name="number"
                                             value={this.state.mobileNumber} maxLength={errorLengthMax.mobileNumber}
                                             onChange={this.validation}
                                             autoComplete="off" />

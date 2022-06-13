@@ -29,7 +29,24 @@
 }
 
 }
-
+.form{
+  &-group{
+    & input[type="date"]:before {
+      color: transparent;
+      background: none;
+      display: block;
+      font-size: 18px;
+      font-family: 'FontAwesome';
+      content: '\f073' !important;
+      /* This is the calendar icon in FontAwesome */
+      width: 15px;
+      height: 20px;
+      position: absolute;
+      top: 12px;
+      right: 6px;
+    }
+  }
+}
 .form-control {
   display: block;
   width: 100%;
@@ -322,7 +339,11 @@ label, .col-form-label{
   font-size: 12px;
 }
 
-
+.fm{
+  &-height{
+    height: 70px;
+  }
+}
 
 .t{
   &-form{

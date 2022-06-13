@@ -1028,7 +1028,9 @@ Tabs = () => {
          >EXCLUDED</li>
       </ul>
       <div>
+     
         {this.state.activeTab === "INCLUDED" ? this.FirstTab() : this.SecondTab()}
+        <button type="button" className="btn-unic-redbdr mt-4" onClick={this.handleAddRow}>Add Pool Rule</button>
       </div>
     </div>
   );
@@ -1235,7 +1237,7 @@ Tabs = () => {
                 </div>
                 <div className="col-4 outlet">
                 
-                    <button type="button" className="btn-unic-redbdr mt-4" onClick={this.handleAddRow}>Add Pool Rule</button>
+                    {/* <button type="button" className="btn-unic-redbdr mt-4" onClick={this.handleAddRow}>Add Pool Rule</button> */}
                 
                 </div>
                 <div className="App">

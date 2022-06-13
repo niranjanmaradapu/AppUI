@@ -125,8 +125,8 @@ register today?</h6>
         </Modal>
 
         <div className="row mb-2 scaling-center">
-          <div className="col-sm-6 mt-2 col-12 scaling-mb"><h5>List Of Pending Delivery Slips</h5></div>
-          <div className="col-sn-6 col-12 text-right scaling-mb"> 
+          <div className="col-sm-6 mt-2 col-12 scaling-mb"><h5 className='mt-1 fs-18'>List Of Pending Delivery Slips</h5></div>
+          <div className="col-sm-6 col-12 text-right scaling-mb"> 
           {/* <button  className="btn-unic-search mt-2  "
           //  disabled = {this.state.dayCloserList && this.state.dayCloserList.length > 0 }
                 onClick={this.closeDay}>Day closuer</button> */}

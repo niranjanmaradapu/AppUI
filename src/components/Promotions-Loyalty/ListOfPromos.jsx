@@ -1295,7 +1295,7 @@ handleBenefitFormData() {
                 </div>
               </div>
               <div className="col-3 mt-3">
-              <div className="form-group">
+              <div className="form-group sele">
                  <label className="">Add Buy Pools <span className="text-red font-bold" name="bold">*</span></label> 
                     <Select
                       isMulti
@@ -1331,7 +1331,7 @@ handleBenefitFormData() {
                   </div>
                   <span style={{ color: "red" }}>{this.state.slabErrors["toSlabValue"]}</span>
                 </div>
-                <div className="col-3 mt-3 pt-2">
+                <div className="col-3 mt-4 pt-2 p-l-0">
                   <button className="btn-nobdr text-red p-t-3" type="button" onClick={this.addSlab}>+ Add Slab</button>
                 </div>
                 <div className="col-12">
@@ -1462,7 +1462,7 @@ handleBenefitFormData() {
         </div>}
 
         {!this.state.displayPromotions && <div className="row">
-          <div className="col-sm-2 col-6 mt-2">
+          <div className="col-sm-3 col-6 mt-2">
             <div className="form-group mb-3">
             <label>Promo Type</label>
               <select value={this.state.searchPromotionType} onChange={ (e) => this.haandleSearchPromotionType(e)} className="form-control">
@@ -1475,10 +1475,10 @@ handleBenefitFormData() {
                 </select>
             </div>
           </div>
-          <div className="col-sm-2 col-6 mt-2 pt-4">
-          <button className="btn-unic-redbdr" onClick={this.searchPromotion}>SEARCH</button>
+          <div className="col-sm-4 col-6 mt-2 pt-3">
+          <button className="btn-unic-redbdr m-r-2 " onClick={this.searchPromotion}>SEARCH</button>
           <button
-              className="btn-unic-search active m-r-2 mt-1"
+              className="btn-unic-search active mt-2  " 
               onClick={this.addPromo}
             >
               <i className="icon-sale p-r-1"></i>Add Promo
@@ -1489,7 +1489,7 @@ handleBenefitFormData() {
           <div className="col-6 p-l-0">
             <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Promotions</h5>
           </div>
-          <div className="col-6 text-right p-r-0 mt-4 align-self-center">
+          <div className="col-6 text-right p-r-0 mt-0 align-self-center">
             <span className="mt-3 ">Show on page </span><span className="font-bold fs-14"> 1-10</span><span> out of 11</span><button className="btn-transparent" type="button"><img src={left} /></button><button className="btn-transparent" type="button"><img src={right} /></button>
           </div>
           <div className="table-responsive p-0">

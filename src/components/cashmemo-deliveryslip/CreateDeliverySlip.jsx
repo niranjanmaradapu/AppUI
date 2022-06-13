@@ -302,13 +302,15 @@ class CeateDeliverySlip extends Component {
         this.state.barList.forEach(barCodeData => {
           this.state.promoDiscount.forEach(promo => {
             if (barCodeData.barcode === promo.barcode) {
-              if (promo.calculatedDiscountsVo.discountAvailable) {
-                barCodeData.itemDiscount = parseInt(promo.calculatedDiscountsVo.calculatedDiscount);
-                barCodeData.totalMrp = barCodeData.totalMrp - barCodeData.itemDiscount;
+              if(promo.calculatedDiscountsVo) {
+                if (promo.calculatedDiscountsVo.discountAvailable) {
+                  barCodeData.itemDiscount = parseInt(promo.calculatedDiscountsVo.calculatedDiscount);
+                  barCodeData.totalMrp = barCodeData.totalMrp - barCodeData.itemDiscount;
+                }
+              } else {
+                 barCodeData.itemDiscount = "No discount"
               }
-            } else {
-              barCodeData.itemDiscount = "No discount"
-            }
+            }            
           });
         });
 
@@ -373,16 +375,16 @@ class CeateDeliverySlip extends Component {
       this.state.showTable && (
         <div className="row m-0 p-0 scaling-center">
           <div className="col-12 col-sm-6 p-l-0">
-            <h5 className="mt-4">
+            <h5 className="mt-3 fs-18">
               Total Scanned Items: {this.state.barList.length}
             </h5>
           </div>
-          <div className="col-12 col-sm-6 pt-1 p-r-0 pb-3 text-right scaling-center">
+          <div className="col-12 col-sm-6 pt-1 p-r-0 text-right scaling-center">
             {/* <button className="btn-unic m-r-2 scaling-mb">Clear Promotion</button> */}
             {/* <button className="btn-unic m-r-2 scaling-mb">Hold Estimation Slip</button> */}
             {/* <button className="btn-unic m-r-2 scaling-mb active" onClick={this.getLineItems}>Generate Estimation Slip</button> */}
             <button
-                  className={ "btn-unic m-r-2 scaling-ptop active"+
+                  className={ "btn-unic scaling-ptop active"+
                     "btn-login btn-create" +
                     (!this.state.isgetLineItems ? " btn-disable" : "")
                   }
@@ -406,7 +408,8 @@ class CeateDeliverySlip extends Component {
             <div>{this.renderDivData()}</div>
             <div className="rect-cardred m-0">
               <div className="row">
-                <div className="col-3 text-center">
+                <div className="col-3"></div>
+                <div className="col-2 text-center">
                   <label>TOTAL QTY</label>
                   <h6 className="pt-2">{this.state.totalQuantity}</h6>
                 </div>
@@ -415,11 +418,13 @@ class CeateDeliverySlip extends Component {
                   <label>MRP</label>
                   <h6 className="pt-2">{this.state.mrpAmount} ₹</h6>
                 </div> */}
-                <div className="col-3">
+                <div className="col-2"></div>
+                <div className="col-2">
                   <label>PROMO DISCOUNT</label>
                   <h6 className="pt-2">{this.state.promoDisc} ₹</h6>
                 </div>
-                <div className="col-2 text-right pt-2 text-center text-red p-r-4">
+                <div className="col-1"></div>
+                <div className="col-2  pt-2  text-red p-r-4">
                   <label className="text-red ">GRAND TOTAL</label>
                   <h6 className="fs-16 text-red ">{this.state.mrpAmount} ₹</h6>
                 </div>
@@ -439,21 +444,22 @@ class CeateDeliverySlip extends Component {
       <div className="table-responsive">
         <table className="table table-borderless mb-1">
           <thead>
-            <tr className="m-0 p-0">
+            <tr>
               {/* <th className="col-1"> </th> */}
               <th className="col-3">ITEM</th>
               {/* <th className="col-1">DIVISION</th>
               <th className="col-1">Size</th> */}
-              <th className="col-1">Qty</th>
+              <th className="col-2">Qty</th>
               <th className="col-1">sm</th>
               <th className="col-1">mrp</th>
               <th className="col-2">Discount Type</th>
-              <th className="col-1">Discount</th>
+              <th className="col-">Discount</th>
               {/* <th className="col-4">Description</th> */}
-              <th className="col-1">Total</th>
+              <th className="col-2">Total</th>
             </tr>
           </thead>
-
+</table>
+      <table className="table table-borderless mb-1 gfg">
           <tbody>
             {this.state.barList.map((items, index) => {
               return (
@@ -464,18 +470,18 @@ class CeateDeliverySlip extends Component {
                         {/* <input className="custom-control-input" type="checkbox" id="check1" /> */}
                         {/* <label className="custom-control-label V1_custom-control-label p-t-0 fs-14"
                       htmlFor="check1"></label> */}
-                        <img src={dress1} />
+                        <img src={dress1} className="mt-2" />
                       </div>
                       <div className="td_align ">
                         {/* <label>{items.productTextile.itemCode}</label> */}
-                        <label>{items.barcode}</label>
+                        <label className="pt-3">{items.barcode}</label>
                       </div>
 
                     </div>
                   </td>
                   {/* <td className="col-1"></td>
               <td className="col-1"></td> */}
-                  <td className="col-1"><input type="number"
+                  <td className="col-2"><input type="number"
                     value={items.quantity}
                     min="1"
                     max={items.qty}
@@ -486,7 +492,7 @@ class CeateDeliverySlip extends Component {
                   <td className="col-1">₹{items.itemMrp}</td>
                   <td className="col-2"></td>
                   <td className="col-1"> {items?.itemDiscount}</td>
-                  <td className="col-1 w-100">₹ {items.totalMrp}
+                  <td className="col-2 w-100">₹ {items.totalMrp}
                     <i className="icon-delete m-l-2"
                       onClick={(e) => {
                         this.state.itemsList.splice(index, 1);

@@ -71,11 +71,11 @@ export default class ListOfPromotions extends Component {
     this.setState({ storeId: storeId });
     console.log("user", user);
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if (domainData.label == "Textile") {
-      this.setState({ domaindataId: 1 });
-    } else if (domainData.label == "Retail") {
-      this.setState({ domaindataId: 2 });
-    }
+    // if (domainData.label == "Textile") {
+    //   this.setState({ domaindataId: 1 });
+    // } else if (domainData.label == "Retail") {
+    //   this.setState({ domaindataId: 2 });
+    // }
     if (user["custom:isSuperAdmin"] === "true") {
       this.state.domainDetails = JSON.parse(
         sessionStorage.getItem("selectedDomain")
@@ -119,7 +119,7 @@ export default class ListOfPromotions extends Component {
         },
         () => {
           console.log(this.state);
-          this.getStoreNames(user["custom:domianId1"]);
+          this.getStoreNames(user["custom:clientId1"]);
         }
       );
     }

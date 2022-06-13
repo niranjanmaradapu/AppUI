@@ -52,7 +52,7 @@ export const NEW_SALE_URL = {
     getMobileData: "/new-sale/newsale/getcustomerdetailsbymobilenuber",
     getNetAmount: "/new-sale/newsale/getHsnDetails",
     getDiscountReasons: "/new-sale/newsale/discTypes",
-    getCreditNotes: "/hsn-details/credit-debit-notes/getCreditNotes",
+    getCreditNotes: "/hsn-details/accounting/getCreditNotes",
     saveSale: "/new-sale/newsale/sale",
     getCoupons: "/new-sale/newsale/getGv",
     // getHsnDetails: "/hsn-details/hsnDetails/getHsnDetails",

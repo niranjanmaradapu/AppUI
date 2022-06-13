@@ -380,9 +380,9 @@ if (startDate < endDate){
             </div>
           </div>
         </div>
-        <h5 className="pl-4 mt-3">List Of Estimation Slips</h5>
+        <h5 className="pl-4 mt-3 mb-1 fs-18">List Of Estimation Slips</h5>
         <div className="row m-0 p-0 mb-3">
-          <table className="table table-borderless mb-1 mt-2">
+          <table className="table table-borderless mb-1 mt-2 p-0">
             <thead>
               <tr className="m-0 p-0">
                 <th className="col-1">S.NO</th>

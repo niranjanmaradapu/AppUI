@@ -253,6 +253,7 @@ export default class ManagePromo extends Component {
     let storeIds = [];
     const user = JSON.parse(sessionStorage.getItem("user"));    
     const createdBy = user['custom:userId'];
+    const clientId = user['custom:clientId1'];
     const formDate = this.handleStoreData();
     if(formDate) {
     if(searchStoreName.length > 0) {
@@ -289,7 +290,8 @@ export default class ManagePromo extends Component {
         startDate: storeStartDate,
         priority: null,
         createdBy: createdBy,
-        promotionStatus: true
+        promotionStatus: true,
+        clientId
     }
     PromotionsService.addPromoToStore(requestObj).then((res) => {
       if(res.data.isSuccess === 'true') {
@@ -452,7 +454,9 @@ export default class ManagePromo extends Component {
     this.setState({ priority: e.target.value });
   }
   getAllStorePromos() {
-    PromotionsService.getAllStorePromos().then((res) => {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const customClientId = user['custom:clientId1'];
+    PromotionsService.getAllStorePromos(customClientId).then((res) => {
       if(res.data.isSuccess === 'true') {   
         res.data.result.forEach((item) => {
           if(this.dateCompare(item.endDate)){
@@ -851,7 +855,7 @@ export default class ManagePromo extends Component {
         </Modal>
         <div className="row">
           <div className="col-sm-2 col-6">
-            <div className="form-group mt-2 mb-3">
+            <div className="form-group mt-2 mb-1">
                <label>Store Name</label>
               <Select
                 // isMulti
@@ -863,7 +867,7 @@ export default class ManagePromo extends Component {
           </div>
 
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
             <label>Promotion Name</label>
               <select value={this.state.promotionName} onChange={ (e) => this.haandlePromoname(e)} className="form-control">
                 <option>Select Promotion</option>
@@ -876,7 +880,7 @@ export default class ManagePromo extends Component {
             </div>
           </div>
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
                 <label>Start Date</label>
               <input type="date" className="form-control"
                   value={this.state.startDate}
@@ -885,7 +889,7 @@ export default class ManagePromo extends Component {
             </div>
           </div>
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
             <label>End Date</label>
             <input type="date" className="form-control"  
                 value={this.state.endDate}
@@ -894,7 +898,7 @@ export default class ManagePromo extends Component {
             </div>
           </div>
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
             <label>Status</label>
             <select value={this.state.promoStatus} onChange={(e) =>  this.handlePromoStatus(e)} className="form-control">
                 <option>Select Status</option>
@@ -906,10 +910,10 @@ export default class ManagePromo extends Component {
               </select>
             </div>
           </div>
-          <div className="col-sm-2 col-6 mt-2 pt-4">
-          <button className="btn-unic-redbdr" onClick={this.searchPromo}>SEARCH</button>
+          <div className="col-sm-2 col-6 mt-2 pt-4 p-0">
+          <button className="btn-unic-redbdr m-r-2" onClick={this.searchPromo}>SEARCH</button>
           <button
-              className="btn-unic-search active mt-1"
+              className="btn-unic-search active"
               onClick={this.addStore}
             >
               <i className="icon-retail p-r-1"></i> Add Store
@@ -944,13 +948,14 @@ export default class ManagePromo extends Component {
             </thead>
             <tbody>
             {this.state.allStorePromos.length > 0 && this.state.allStorePromos.map((item, index) => {
-            let date = this.dateFormat(item.startDate || item.endDate)
+            let date = this.dateFormat(item.startDate);
+            let endDate = this.dateFormat(item.endDate);
             const {
               promotionName,
               storeName,
               priority,
               startDate,
-              endDate,
+              // endDate,
               promoStatus,
             } = item;
               return( 
@@ -960,7 +965,7 @@ export default class ManagePromo extends Component {
                   <td className="col-2">{item.storeName}</td>
                   <td className="col-2">{item.priority}</td>
                   <td className="col-2">{date}</td>
-                  <td className="col-2">{date}</td>
+                  <td className="col-2">{endDate}</td>
                   <td className="col-1">
                     {item.promotionStatus ? 
                       <button onClick={() => this.updatePromotionStatus(item)} className="btn-active">Active</button> : 

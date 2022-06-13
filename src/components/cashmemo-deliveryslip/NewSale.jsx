@@ -1151,6 +1151,7 @@ export default class NewSale extends Component {
             totalAmount:0,
             couponAmount:0,
             isCredit: false,
+            enablePayment: false
             
 
 

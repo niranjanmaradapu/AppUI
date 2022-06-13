@@ -206,6 +206,7 @@ export default class BarcodeList extends Component {
       );
     }
   }
+  
   handleDomainChange = (event) => {
     // this.setState({selectedDomain: event.target.value });
     // console.log(this.state.selectedDomain)
@@ -224,7 +225,7 @@ export default class BarcodeList extends Component {
     //  this.getHsnDetails();
     //  this.getAllCategories();
     //  this.loadErrorMsgs();
-    
+
   }
   handleChange = (e) => {
     this.setState({ uom: e.target.value });

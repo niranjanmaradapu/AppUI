@@ -142,7 +142,6 @@ export default class BarcodeList extends Component {
     this.stateReset();
   }
 
-  
   closeBarcode() {
     this.setState({ isAddBarcode: false });
     this.stateReset();
@@ -206,7 +205,6 @@ export default class BarcodeList extends Component {
       );
     }
   }
-  
   handleDomainChange = (event) => {
     // this.setState({selectedDomain: event.target.value });
     // console.log(this.state.selectedDomain)
@@ -275,7 +273,6 @@ export default class BarcodeList extends Component {
     //     storeId: this.state.selectedStoreId,
     //   };
     // } else {
-
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,

@@ -1105,6 +1105,8 @@ export default class NewSale extends Component {
 
         "offlineNumber": null,
 
+        "mobileNumber": this.state.mobileData.mobileNumber,
+
         "userId": this.state.userId ? this.state.userId : null,
 
         "sgst": this.state.stateGST,

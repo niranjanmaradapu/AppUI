@@ -448,7 +448,7 @@ export default class User extends Component {
             saveObj = {
                 "id": this.state.userId,
                 "email":this.state.email,	
-                "phoneNumber": (this.state.mobileNumber),
+                "phoneNumber":(this.state.mobileNumber),
                 "birthDate": this.state.dob,
                 "gender":this.state.gender,
                 "name":this.state.name,
@@ -481,7 +481,7 @@ export default class User extends Component {
         } else {
             saveObj = {
                 "email":this.state.email,	
-                "phoneNumber": this.state.mobileNumber,
+                "phoneNumber":"+91".concat(this.state.mobileNumber),
                 "birthDate": this.state.dob,
                 "gender":this.state.gender,
                 "name":this.state.name,

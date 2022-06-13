@@ -1343,7 +1343,7 @@ export default class NewSale extends Component {
           if (response) {
             console.log(response);
             if (response.data.result && response.data.result.length > 0) {
-              this.setState({ isCredit: true, creditAmount: response.data.result[0].actualAmount });
+              this.setState({ isCredit: true, creditAmount: response.data.result[0].amount });
             }
           }
         });

@@ -532,7 +532,7 @@ export default class CreateNotes extends Component {
                       <td className="col-2">₹ {items.usedAmount}</td>
                       <td className="col-1">₹ {items.amount}</td>
                       <td className="col-2">{items.createdBy}</td>
-                      <td className="col-1 underline geeks"><a onClick={() => this.addMore(items)}>Pay More</a></td>
+                      <td className="col-1 underline geeks"><a onClick={() => this.addMore(items)}>Add Credit</a></td>
                       <td className="col-1">
                         {/* <img src={edit} className="w-12 pb-2" />
                         <i className="icon-delete m-l-2 fs-16"></i> */}

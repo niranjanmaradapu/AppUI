@@ -104,7 +104,7 @@ export default class TagCustomer extends Component {
       formIsValid = false;
       errors["amount"] = tagCustomer_Err_Msg.amount;
     }
-
+    
     // if (typeof this.state.email !== "undefined") {
 
     //     if (!this.state.email.match(/^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{4,})$/i)) {

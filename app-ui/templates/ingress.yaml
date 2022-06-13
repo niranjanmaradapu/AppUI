@@ -1,33 +1,33 @@
+#07-ALB-Ingress-SSL.yml
+# Annotations Reference:  https://kubernetes-sigs.github.io/aws-alb-ingress-controller/guide/ingress/annotation/
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: easyretailworld-tls
+  name: app-ui-ingress
+  #labels:
+  #  app: usermgmt-restapp
   annotations:
     # Ingress Core Settings  
     kubernetes.io/ingress.class: "alb"
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    # Health Check Settings
-    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP 
-    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
-    #Important Note:  Need to add health check path annotations in service level if we are planning to use multiple targets in a load balancer    
-    #alb.ingress.kubernetes.io/healthcheck-path: /usermgmt/health-status
-    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
-    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
-    alb.ingress.kubernetes.io/success-codes: '200'
-    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
-    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+    ingress.kubernetes.io/ssl-redirect: "true"
+    alb.ingress.kubernetes.io/ssl-redirect: "true"
+    alb.ingress.kubernetes.io/force-ssl-redirect: "true"
     ## SSL Settings
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:iam::604430719928:server-certificate/easyretailworldcertxx
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:iam::604430719928:server-certificate/easyretailworldcert
     #alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS-1-1-2017-01 #Optional (Picks default if not used)    
+
 spec:
+  tls:
+    hosts:
+      - easyretailworld.com 
+    secretName: easyretailworld-tls
   rules:
     #- host: ssldemo.kubeoncloud.com    # SSL Setting (Optional only if we are not using certificate-arn annotation)
     - http:
         paths:
-          - path: /
+          - path: /*
             backend:
-              serviceName: app-ui
-              servicePort: 3000                     
-                     
-# Important Note-1: In path based routing order is very important, if we are going to use  "/*", try to use it at the end of all rules.         
+              serviceName: apigateway
+              servicePort: 9097                        
+          -

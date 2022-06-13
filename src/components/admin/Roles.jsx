@@ -212,8 +212,10 @@ export default class Roles extends Component {
 
                 URMService.saveRole(saveObj).then((res) => {
                     if (res) {
+                        toast.success("Roles updated Successfully");
                         toast.success(res.data.result);
                         this.getAllRoles()
+                        this.getPrivilegesList()
                         this.hideRoles();
                     }
                 });

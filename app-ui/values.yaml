@@ -43,15 +43,15 @@ service:
 
 ingress:
   enabled: true # Enable ingress : true 
-  annotations:
+  # annotations:
   #  kubernetes.io/ingress.class: nginx
-    kubernetes.io/ingress.class: "alb"
+  #  kubernetes.io/ingress.class: "alb"
     # Health Check Settings
   #  ingress.kubernetes.io/healthcheck-protocol: HTTP 
   #  ingress.kubernetes.io/healthcheck-port: traffic-port
     ## SSL Settings
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:iam::604430719928:server-certificate/easyretailworldcert
+  #  alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+  #  alb.ingress.kubernetes.io/certificate-arn: arn:aws:iam::604430719928:server-certificate/easyretailworldcert
 #    ingress.kubernetes.io/ssl-passthrough: "false"
 #    ingress.kubernetes.io/secure-backends: "true"
 

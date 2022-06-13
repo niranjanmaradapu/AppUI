@@ -48,7 +48,7 @@ ingress:
   hosts:
     - host: easyretailworld.com
       paths:
-      - path: /
+      - path: /*
         backend:
           serviceName: app-ui
           servicePort: 3000

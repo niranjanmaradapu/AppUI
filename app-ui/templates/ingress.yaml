@@ -30,4 +30,4 @@ spec:
             backend:
               serviceName: apigateway
               servicePort: 9097                        
-          -
+          

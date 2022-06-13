@@ -19,9 +19,9 @@ metadata:
 
 spec:
   tls:
-    hosts:
+   - hosts:
       - easyretailworld.com 
-    secretName: easyretailworld-tls
+     secretName: easyretailworld-tls
   rules:
     #- host: ssldemo.kubeoncloud.com    # SSL Setting (Optional only if we are not using certificate-arn annotation)
     - http:

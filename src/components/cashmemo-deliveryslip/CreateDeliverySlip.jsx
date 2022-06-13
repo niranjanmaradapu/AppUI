@@ -375,7 +375,7 @@ class CeateDeliverySlip extends Component {
       this.state.showTable && (
         <div className="row m-0 p-0 scaling-center">
           <div className="col-12 col-sm-6 p-l-0">
-            <h5 className="mt-2 fs-18 mb-1">
+            <h5 className="mt-3 fs-18">
               Total Scanned Items: {this.state.barList.length}
             </h5>
           </div>

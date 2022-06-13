@@ -16,7 +16,6 @@ import Table from 'react-bootstrap/Table';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
-import {  withHotKeys } from "react-hotkeys";
 import Hotkeys from 'react-hot-keys';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { withTranslation } from 'react-i18next';

@@ -55,7 +55,7 @@ ingress:
           serviceName: app-ui
           servicePort: 3000
   tls:
-   - secretName: app-ui-tls
+   - secretName: appui-tls
      hosts:
       - web.themadhire.com
 

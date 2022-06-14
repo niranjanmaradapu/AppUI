@@ -9,7 +9,6 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
-  #name: app-ui-ingress
   namespace: {{ .Values.namespace.name }}
   labels:
     {{- include "app-ui.labels" . | nindent 4 }}

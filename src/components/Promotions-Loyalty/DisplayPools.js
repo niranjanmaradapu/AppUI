@@ -16,7 +16,7 @@ function DisplayPools({
                 <th className="col-1">Type</th>
                 <th className="col-2">Created By</th>
                 <th className="col-2">Created On</th>
-                <th className="col-1">Status</th>
+                <th className="col-1"></th>
                 <th className="col-1"></th>
               </tr>
             </thead>
@@ -30,9 +30,9 @@ function DisplayPools({
                 <td className="col-2">{item.createdBy}</td>
                 <td className="col-2">{item.createdDate}</td>
                 <td className="col-1">
-                  {item.isActive ? 
+                  {/* {item.isActive ? 
                      <button className="btn-active">Active</button> : 
-                     <button className="btn-inactive">Inactive</button>}
+                     <button className="btn-inactive">Inactive</button>} */}
                 </td>
                 <td className="col-1">
                   <img onClick={() => modifyPool(item)} src={edit} className="w-12 pb-2" />

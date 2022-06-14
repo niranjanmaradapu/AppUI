@@ -43,7 +43,11 @@ service:
 
 ingress:
   enabled: true # Enable ingress : true 
-  annotations: []
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    ingress.kubernetes.io/ssl-passthrough: "false"
+    ingress.kubernetes.io/secure-backends: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 
   hosts:
     - host: easyretailworld.com
@@ -53,7 +57,7 @@ ingress:
           serviceName: app-ui
           servicePort: 3000
   tls:
-   - secretName: easyretailworld-tls
+   - secretName: app-ui-tls
      hosts:
        - easyretailworld.com
 

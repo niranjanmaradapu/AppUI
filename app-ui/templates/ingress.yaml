@@ -1,33 +1,42 @@
-#07-ALB-Ingress-SSL.yml
-# Annotations Reference:  https://kubernetes-sigs.github.io/aws-alb-ingress-controller/guide/ingress/annotation/
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "app-ui.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
 apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
-  name: app-ui-ingress
-  #labels:
-  #  app: usermgmt-restapp
+  name: {{ $fullName }}
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    {{- include "app-ui.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    # Ingress Core Settings  
-    kubernetes.io/ingress.class: "alb"
-    ingress.kubernetes.io/ssl-redirect: "true"
-    alb.ingress.kubernetes.io/ssl-redirect: "true"
-    alb.ingress.kubernetes.io/force-ssl-redirect: "true"
-    ## SSL Settings
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:iam::604430719928:server-certificate/easyretailworldcert
-    #alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS-1-1-2017-01 #Optional (Picks default if not used)    
-
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+  {{- if .Values.ingress.tls }}
   tls:
-   - hosts:
-      - easyretailworld.com 
-     secretName: easyretailworld-tls
+    {{- range .Values.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
   rules:
-    #- host: ssldemo.kubeoncloud.com    # SSL Setting (Optional only if we are not using certificate-arn annotation)
-    - http:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
         paths:
-          - path: /*
+          {{- range .paths }}
+          - path: {{ .path }}
             backend:
-              serviceName: apigateway
-              servicePort: 9097                        
-          
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+          {{- end }}
+    {{- end }}
+  {{- end }}

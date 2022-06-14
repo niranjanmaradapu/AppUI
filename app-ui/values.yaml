@@ -45,11 +45,11 @@ ingress:
   enabled: true # Enable ingress : true 
   annotations:
     kubernetes.io/ingress.class: nginx
-    ingress.kubernetes.io/ssl-passthrough: "false"
-    ingress.kubernetes.io/secure-backends: "true"
-    cert-manager.io/cluster-issuer: easyretailworld-tls
-    ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
-    ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:604430719928:certificate/acb1bbd7-9d7a-469f-a61e-2ed16551be73
+    #ingress.kubernetes.io/ssl-passthrough: "false"
+    #ingress.kubernetes.io/secure-backends: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    #ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+    #ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:604430719928:certificate/acb1bbd7-9d7a-469f-a61e-2ed16551be73
 
   hosts:
     - host: easyretailworld.com
@@ -59,9 +59,9 @@ ingress:
           serviceName: app-ui
           servicePort: 3000
   tls:
-   - secretName: easyretailworld-tls
+   - secretName: app-ui-tls
      hosts:
-       - easyretailworld.com
+      - easyretailworld.com
 
 resources:
   limits:

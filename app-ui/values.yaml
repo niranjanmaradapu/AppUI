@@ -42,7 +42,7 @@ service:
   port: 3000
 
 ingress:
-  enabled: true # Enable ingress : true 
+  enabled: "false" # Enable ingress : true 
   annotations:
     kubernetes.io/ingress.class: nginx
     ingress.kubernetes.io/ssl-passthrough: "false"

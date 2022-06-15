@@ -122,7 +122,7 @@ class CeateDeliverySlip extends Component {
     });
 
 
-
+    
     if (!slabCheck) {
       lineItem.cgst = 6;
       lineItem.sgst = 6;

@@ -34,14 +34,14 @@ export default class SalesReport extends Component {
 
   componentWillMount() {
     const storeId = sessionStorage.getItem("storeId");
-    const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
+    // const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
     // if (domainData.label == "Textile") {
     //   this.setState({ domainId: 1 });
     // } else if (domainData.label == "Retail") {
     //   this.setState({ domainId: 2 });
     // }
 
-    this.setState({ storeId: storeId });
+    // this.setState({ storeId: storeId });
   }
 
   getSaleBills() {

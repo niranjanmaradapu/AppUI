@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types';
 import edit from '../../assets/images/edit.svg';
 
+
 function DisplayPools({ 
     listOfPools,
     modifyPool,
+    // dateFormat,
     handleRemovePool
 }) {
     return (
@@ -22,13 +24,14 @@ function DisplayPools({
             </thead>
             <tbody>
               {listOfPools.length > 0 && listOfPools.map((item, index) => {
+                // let date=this.dateFormat(item.createdDate)
                return( 
                <tr key={index}>
                 <td className="col-1 underline geeks">{item.poolId}</td>
                 <td className="col-2">{item.poolName}</td>
                 <td className="col-1">{item.poolType}</td>
                 <td className="col-2">{item.createdBy}</td>
-                <td className="col-2">{item.createdDate}</td>
+                {/* <td className="col-2">{date}</td> */}
                 <td className="col-1">
                   {item.isActive ? 
                      <button className="btn-active">Active</button> : 
@@ -51,5 +54,6 @@ export default DisplayPools;
 DisplayPools.propTypes = {
     listOfPools: PropTypes.array,
     modifyPool: PropTypes.func,
-    handleRemovePool: PropTypes.func
+    handleRemovePool: PropTypes.func,
+// dateFormat: PropTypes.func,
   };

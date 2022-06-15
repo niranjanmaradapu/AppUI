@@ -15,6 +15,7 @@ export default class Roles extends Component {
             showModal: false,
             showRole: false,
             roleName: "",
+            searchCreatedby:"",
             descriptionName: "",
             selectedPrivilegesList: [],
             userName: "",
@@ -43,6 +44,7 @@ export default class Roles extends Component {
         this.addedRoles = this.addedRoles.bind(this);
         this.addRoles = this.addRoles.bind(this);
         this.searchRoles = this.searchRoles.bind(this);
+        this.validation = this.validation.bind(this);
         this.handleValidation = this.handleValidation.bind(this);
         this.getAllRoles = this.getAllRoles.bind(this);
         this.savePrivilege = this.savePrivilege.bind(this);
@@ -101,6 +103,20 @@ export default class Roles extends Component {
         }
 
     }
+
+    validation(e) {
+        // console.log(e.target.value)
+        const regex = /^[0-9\b]+$/;
+        const value = e.target.value;
+        if (value === "" || regex.test(value)) {
+          this.setState({
+            [e.target.id]: e.target.value,searchCreatedby: e.target.value,
+          });
+        } else {
+        //   this.setState({searchCreatedby: ""});
+          // toast.error("pls enter numbers")
+        }
+      }
    
 
     handleValidation() {
@@ -152,6 +168,7 @@ export default class Roles extends Component {
         this.setState({
             showModal: true,
             roleName: "",
+            searchCreatedby:"",
             descriptionName: "",
             childList: [],
             parentsList: [],
@@ -180,6 +197,7 @@ export default class Roles extends Component {
             if (this.state.isEdit) {
                 const saveObj = {
                     "roleName": this.state.roleName,
+                    "searchCreatedBy": this.state.searchCreatedBy,
                     "description": this.state.descriptionName,
                     "clientId": parseInt(this.state.clientId),
                     "createdBy": parseInt(this.state.loggedUser),
@@ -203,6 +221,7 @@ export default class Roles extends Component {
             } else {
                 const saveObj = {
                     "roleName": this.state.roleName,
+                    "searchCreatedBy": this.state.searchCreatedBy,
                     "description": this.state.descriptionName,
                      "clientId": parseInt(this.state.clientId),
                     "createdBy": parseInt(this.state.loggedUser),
@@ -438,6 +457,7 @@ getSelectedPrivileges(parentsList, childList) {
             showModal: true,
             roleName: items.roleName,
             isEdit: true,
+            searchCreatedBy: items.searchCreatedBy,
             descriptionName: items.description,
             childList: items.subPrivilege,
             parentsList: items.parentPrivilege,
@@ -649,7 +669,13 @@ getSelectedPrivileges(parentsList, childList) {
                         <div className="form-group">
                             <label>Created By</label>
                             <input type="text" className="form-control" placeholder="Created By" value={this.state.searchCreatedby}
-                                onChange={(e) => this.setState({ searchCreatedby: e.target.value })} />
+                                // onChange={(e) => this.setState({ searchCreatedby: e.target.value },() =>
+                                // {
+                                //     this.validation();
+                                // }) }
+                                onChange ={this.validation}
+                                
+                                 />
                         </div>
                     </div>
                     <div className="col-sm-2 col-12 mt-2">

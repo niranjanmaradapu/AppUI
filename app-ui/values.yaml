@@ -48,16 +48,16 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   hosts:
-    - host: web.themadhire.com
+    - host: easyretailworld.com
       paths:
       - path: /
         backend:
           serviceName: app-ui
           servicePort: 3000
   tls:
-   - secretName: appui-tls
+   - secretName: frontend-tls
      hosts:
-      - web.themadhire.com
+      - easyretailworld.com
 
 resources:
   limits:

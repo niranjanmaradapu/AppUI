@@ -745,7 +745,7 @@ export default class NewSale extends Component {
     if (e.key === "Enter") {
     NewSaleService.getDeliverySlipDetails(this.state.dsNumber.trim()).then((res) => {
       this.setState({ showTable: true });
-      this.state.dlslips.push(res.data.result);
+      this.state.dlslips.push(res.data);
       if (this.state.dlslips.length > 1) {
         const barList = this.state.dlslips.filter(
           (test, index, array) =>

@@ -176,8 +176,8 @@ export default class ListOfPools extends Component {
       columnsObj.BarcodeCreatedOn = result.BarcodeCreatedOn;
       // columnsObj.StyleCode = result.StyleCode;
       // columnsObj.SubsectionId = result.SubsectionId;
-      columnsObj.Uom = result.Uom;
-      columnsObj.BatchNo = result.BatchNo;
+      // columnsObj.Uom = result.Uom;
+      // columnsObj.BatchNo = result.BatchNo;
       // columnsObj.DiscountType = result.DiscountType;
       columnsObj.Division = result.Division;
       const propertyNames = Object.keys(columnsObj);
@@ -445,8 +445,8 @@ export default class ListOfPools extends Component {
       if (res.data.isSuccess === 'true') {
         const columnNames = res.data['result'].map((item) => {
           const obj = {};
-            obj.label = item;
-            obj.value = item;
+            obj.label = item.name;
+            obj.value = item.id;
             return obj;
         });
         this.state.addNewRule[idx].valueList = columnNames;

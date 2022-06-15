@@ -1491,9 +1491,6 @@ handleBenefitFormData() {
           <div className="col-6 p-l-0">
             <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Promotions</h5>
           </div>
-          <div className="col-6 text-right p-r-0 mt-0 align-self-center">
-            <span className="mt-3 ">Show on page </span><span className="font-bold fs-14"> 1-10</span><span> out of 11</span><button className="btn-transparent" type="button"><img src={left} /></button><button className="btn-transparent" type="button"><img src={right} /></button>
-          </div>
           <div className="table-responsive p-0">
             <table className="table table-borderless mb-1 mt-2">
               <thead>

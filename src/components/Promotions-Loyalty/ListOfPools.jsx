@@ -1296,16 +1296,6 @@ Tabs = () => {
         </div>
         <div className="row m-0 p-0 scaling-center">
           <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Pools</h5>
-          {this.state.listOfPools.length > 10 && <div className="col-11 text-right p-r-0 mt-2 align-self-center">
-            <span style={{float: 'right'}}>
-              <Pagination 
-                poolsPerPage={this.state.poolsPerPage}
-                totalPools={this.state.listOfPools.length}
-                paginate={this.paginate}          
-              />
-            </span>
-            <span className="mt-3 ">Show on page </span><span className="font-bold fs-14"> {this.state.currentPage}-{ this.state.poolsPerPage * this.state.currentPage}</span><span> Out of </span><span className="font-bold fs-14">{this.state.listOfPools.length}</span>
-          </div>}
           <DisplayPools 
               listOfPools={this.state.currentPools}
               handleRemovePool={this.handleRemovePool}

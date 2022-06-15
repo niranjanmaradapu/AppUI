@@ -929,9 +929,9 @@ export default class ManagePromo extends Component {
              <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.cloneStore}>Clone</button>
             <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.savePriorityPopUp}>Change Promo Priority</button>
           </div>
-          <div className="col-6 text-right p-r-0 mt-4 align-self-center">
+          {/* <div className="col-6 text-right p-r-0 mt-4 align-self-center">
             <span className="mt-3 ">Show on page </span><span className="font-bold fs-14"> 1-10</span><span> out of 11</span><button className="btn-transparent" type="button"><img src={left} /></button><button className="btn-transparent" type="button"><img src={right} /></button>
-          </div>
+          </div> */}
           <div className="table-responsive p-0">
             <table className="table table-borderless mb-1 mt-2">
             <thead>

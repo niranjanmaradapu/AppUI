@@ -297,6 +297,7 @@ export default class ListOfPromos extends Component {
       discountOn: obj.benfitVo.discount,
       item: obj.benfitVo.discountSubType,
       getPoolValue: obj.benfitVo.itemValue,
+      buyPoolValue: obj.benfitVo.itemValue,
       selectedPoolValue: poolObj,
       promoBenfitId: obj.benfitVo.benfitId,
       numOfItemsFromGetPool: obj.benfitVo.numOfItemsFromGetPool,

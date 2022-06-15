@@ -660,6 +660,27 @@ export default class ManagePromo extends Component {
     let date = new Date(d)
     return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()
 }
+handlePromoStatus(e){
+  this.setState({promoStatus: e.target.value});
+}
+handleStore(e){
+  this.setState({store: e.target.value});
+}
+haandlePromoname(e) {
+  this.setState({
+    promotionName: e.target.value,
+  });
+}
+haandleEnddate(e) {
+  this.setState({
+    endDate: e.target.value
+  });
+}
+haandleStartdate(e) {
+  this.setState({
+    startDate: e.target.value
+  });
+}
 
   closeClonePopup() {
     const { checkedItem, allStorePromos } = this.state;

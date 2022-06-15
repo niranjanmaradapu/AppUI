@@ -127,7 +127,7 @@ export default class ListOfPools extends Component {
     isAddRule: false,
     addedIncludedPoolRules: [],
     addedExcludedPoolRules: [],
-    ruleNumber: 0,
+    // ruleNumber: 0,
     isPoolRuleUpdated: false,
     editedRuleNumber: '',
     activeIndex: null,
@@ -176,8 +176,8 @@ export default class ListOfPools extends Component {
       columnsObj.BarcodeCreatedOn = result.BarcodeCreatedOn;
       // columnsObj.StyleCode = result.StyleCode;
       // columnsObj.SubsectionId = result.SubsectionId;
-      columnsObj.Uom = result.Uom;
-      columnsObj.BatchNo = result.BatchNo;
+      // columnsObj.Uom = result.Uom;
+      // columnsObj.BatchNo = result.BatchNo;
       // columnsObj.DiscountType = result.DiscountType;
       columnsObj.Division = result.Division;
       const propertyNames = Object.keys(columnsObj);
@@ -327,18 +327,15 @@ export default class ListOfPools extends Component {
           }
       });
     } else {
-    const finalAddedRules = [addedIncludedPoolRules, addedExcludedPoolRules];
-    this.groupByMultipleProperties(finalAddedRules);
-    finalAddedRules.forEach(item => {
-      item.forEach((itm) => {
-        delete itm.valueList;
-        delete itm.ruleNumber;
-        poolConditions.push(itm.rules);
-      }); 
-    });
-    let conditionArray = [];
-    poolConditions.forEach((rule) => {
-       rule.forEach((condition) => conditionArray.push(condition)) 
+    const finalAddedRules = [...addedIncludedPoolRules, ...addedExcludedPoolRules];
+    finalAddedRules.forEach(item => {    
+    item.ruleNumber = item.ruleNumber;
+      item.rules.forEach((itm) => {
+        itm.ruleNumber = item.ruleNumber;
+        delete itm.oparatorsList;
+        delete itm.selectedPoolValues;
+        poolConditions.push(itm);
+      });
     });
     const obj = {
       isActive: true,
@@ -349,9 +346,9 @@ export default class ListOfPools extends Component {
       clientId: user['custom:clientId1'],
       createdBy: createdBy,
       domainId: this.state.clientId,
-      pool_RuleVo: this.groupByMultipleProperties(conditionArray)
+      pool_RuleVo: this.groupByMultipleProperties(poolConditions)
     }
-    if(conditionArray.length === 0) {
+    if(poolConditions.length === 0) {
       this.handlePoolData();
       toast.info('Add Pool Rule');
     } else if(this.handlePoolData()) {
@@ -375,18 +372,12 @@ export default class ListOfPools extends Component {
   }
   }
   handleAddRow = () => {
-    const { ruleNumber, activeTab, addNewRule } = this.state;
-      let ruleNum = '';
-      if(activeTab === 'INCLUDED') {
-        ruleNum = ruleNumber + 1;
-      } else {
-        ruleNum = ruleNumber
-      }        
+    const { ruleNumber, activeTab, addNewRule } = this.state;     
       this.setState({
         isPoolRuleUpdated: false,
         isAddRule: true,
         addNewRule: [],
-        ruleNumber: ruleNum, 
+        // ruleNumber: ruleNum, 
         // addNewRule
       });
   };
@@ -454,8 +445,8 @@ export default class ListOfPools extends Component {
       if (res.data.isSuccess === 'true') {
         const columnNames = res.data['result'].map((item) => {
           const obj = {};
-            obj.label = item;
-            obj.value = item;
+            obj.label = item.name;
+            obj.value = item.id;
             return obj;
         });
         this.state.addNewRule[idx].valueList = columnNames;
@@ -512,7 +503,7 @@ export default class ListOfPools extends Component {
     const conditionsList = this.conditionsList(pool.pool_RuleVo);
     this.setState({
         // getting max rule num
-         ruleNumber: Math.max(...conditionsList.map(item => item.ruleNumber)),
+         // ruleNumber: Math.max(...conditionsList.map(item => item.ruleNumber)),
          isUpdatable: true,
          isAddPool: true,
          poolId: pool.poolId,
@@ -671,7 +662,7 @@ export default class ListOfPools extends Component {
       if(activeTab === 'INCLUDED') {
         let includeConditions = [];
         addedIncludedPoolRules.forEach(item => {
-          delete item.ruleNumber;
+          // delete item.ruleNumber;
           item.rules.forEach(itm => {
             includeConditions.push(itm);
           });
@@ -686,7 +677,7 @@ export default class ListOfPools extends Component {
       } else {
         let excludeConditions = [];
         addedExcludedPoolRules.forEach(item => {
-          delete item.ruleNumber;
+          // delete item.ruleNumber;
           item.rules.forEach(itm => {
             excludeConditions.push(itm);
           });
@@ -752,6 +743,7 @@ export default class ListOfPools extends Component {
   }
   addRule = () => {
     const { addNewRule, editedRuleNumber, activeTab, addedExcludedPoolRules, addedIncludedPoolRules, isUpdatable, isPoolRuleUpdated } = this.state;
+  
     const conditionErrors = this.conditionValidation();
     if(addNewRule.length === 0) {
       toast.info('Add At Least One Condition');
@@ -774,7 +766,7 @@ export default class ListOfPools extends Component {
             } else {
               const finalIncludedRules = addedNewRules.map((item) => { 
                 item.ruleType = 'Include';
-                item.ruleNumber = this.state.ruleNumber
+                // item.ruleNumber = this.state.ruleNumber
                 return item; 
               });
               const groupedRules = this.groupByRuleNumber(finalIncludedRules);
@@ -782,14 +774,14 @@ export default class ListOfPools extends Component {
             }
             let includeConditions = [];
             addedIncludedPoolRules1.forEach(item => {
-              delete item.ruleNumber;
+              // delete item.ruleNumber;
               item.rules.forEach(itm => {
                 includeConditions.push(itm);
               });
             });
             this.setState({
               isPoolRuleUpdated: false,
-              ruleNumber: this.state.ruleNumber,
+              // ruleNumber: this.state.ruleNumber,
               isAddRule: false,
               addedIncludedPoolRules: this.groupByRuleNumber(includeConditions),
               addNewRule: []
@@ -801,7 +793,7 @@ export default class ListOfPools extends Component {
               } else {
                 const finalExcludedRules = addedNewRules.map((item) => { 
                   item.ruleType = 'Include';
-                  item.ruleNumber = this.state.ruleNumber
+                  // item.ruleNumber = this.state.ruleNumber
                   return item; 
                 });
                 const groupedRules = this.groupByRuleNumber(finalExcludedRules);
@@ -822,7 +814,7 @@ export default class ListOfPools extends Component {
           }
       } else {
           const addedNewRules = addNewRule.map((item) => {
-            item.ruleNumber = this.state.ruleNumber;
+            // item.ruleNumber = this.state.ruleNumber;
             if(isUpdatable) {
               item.isForEdit = true;
             } else {
@@ -836,9 +828,13 @@ export default class ListOfPools extends Component {
             item.ruleType = 'Include';
             return item; 
           });
-          const groupedRules = this.groupByRuleNumber(finalIncludedRules);
-          const includeRules = [...addedIncludedPoolRules, ...groupedRules];
-          this.setState({
+         
+         const groupedRules = this.groupByRuleNumber(finalIncludedRules);
+         const includeRules = [...addedIncludedPoolRules, ...groupedRules];
+         includeRules.forEach((item, index) => {
+            item.ruleNumber = index + 1;
+          });
+         this.setState({
             isAddRule: false,
           // addedIncludedPoolRules: finalIncludedRules,
             addedIncludedPoolRules: includeRules,
@@ -852,6 +848,9 @@ export default class ListOfPools extends Component {
           });
           const groupedRules = this.groupByRuleNumber(finalExcludedRules);
           const excludeRules = [...addedExcludedPoolRules, ...groupedRules];
+          excludeRules.forEach((item, index) => {
+            item.ruleNumber = index + 1;
+          });
           this.setState({
             isAddRule: false,
             addedExcludedPoolRules: excludeRules,
@@ -914,8 +913,8 @@ FirstTab = () => {
                       <table className="table table-borderless mb-1 mt-2">
                       <thead>
                           <tr key={index}> 
-                            <td className="col-10"><h6>Rule - {item.ruleNumber}</h6></td>
-                            <td><img onClick={() => this.editPoolRule(item.ruleNumber, index)} src={edit} className="w-12 pb-2" /> </td>
+                            <td className="col-10"><h6>Rule - {index + 1}</h6></td>
+                            <td><img onClick={() => this.editPoolRule(index + 1, index)} src={edit} className="w-12 pb-2" /> </td>
                             <td> <i onClick= {() => this.handleRemoveSpecificRule(index)} className="icon-delete m-l-2 fs-16"></i></td>
                             <td><i onClick={this.toggleClass.bind(this, index)}>{this.moreLess(index)}</i></td>
                           </tr>
@@ -961,8 +960,8 @@ SecondTab = () => {
                   <table className="table table-borderless mb-1 mt-2">
                     <thead>
                         <tr key={index}> 
-                        <td className="col-10"><h6>Rule - {item.ruleNumber}</h6></td>
-                        <td><img onClick={() => this.editPoolRule(item.ruleNumber, index)} src={edit} className="w-12 pb-2" /> </td>
+                        <td className="col-10"><h6>Rule - {index + 1}</h6></td>
+                        <td><img onClick={() => this.editPoolRule(index + 1, index)} src={edit} className="w-12 pb-2" /> </td>
                         <td> <i onClick= {() => this.handleRemoveSpecificRule(index)} className="icon-delete m-l-2 fs-16"></i></td>
                         <td><i onClick={this.toggleClass.bind(this, index)}>{this.moreLess(index)}</i></td>
                         </tr>
@@ -1001,14 +1000,14 @@ SecondTab = () => {
 handleInclude = () => {
   this.setState({
     activeTab: 'INCLUDED',
-    ruleNumber: this.state.ruleNumber,
+    // ruleNumber: this.state.ruleNumber,
     addNewRule: []
   });
 };
 handleExclude = () => {
   this.setState({
     activeTab: 'EXCLUDED',
-    ruleNumber: this.state.ruleNumber,
+    // ruleNumber: this.state.ruleNumber,
     addNewRule: []
   });
 };

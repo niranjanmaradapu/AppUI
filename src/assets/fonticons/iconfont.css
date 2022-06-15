@@ -3,11 +3,11 @@ iconfont Webfont
 */
 @font-face {
 	font-family: 'iconfont';
-	src: url('iconfont.eot?1630565503799');
-	src: url('iconfont.eot?#iefix-1630565503799') format('embedded-opentype'),
-		url('iconfont.woff2?1630565503799') format('woff2'),
-		url('iconfont.woff?1630565503799') format('woff'),
-		url('iconfont.ttf?1630565503799') format('truetype');
+	src: url('iconfont.eot?1655120337057');
+	src: url('iconfont.eot?#iefix-1655120337057') format('embedded-opentype'),
+		url('iconfont.woff2?1655120337057') format('woff2'),
+		url('iconfont.woff?1655120337057') format('woff'),
+		url('iconfont.ttf?1655120337057') format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -33,31 +33,32 @@ iconfont Webfont
 Glyphs list
 */
 
-.icon-Final-Logo-Colour-and-Proportion:before {
+.icon-accounting_graph1:before {
 	content: '\ea01';
 }
 
-.icon-add_btn:before {
+.icon-accounting_graph2:before {
 	content: '\ea02';
 }
 
-.icon-add_course:before {
+.icon-accounting_portal:before {
 	content: '\ea03';
 }
 
-.icon-add_group:before {
+.icon-active_promotions:before {
 	content: '\ea04';
 }
 
-.icon-add_ic:before {
+.icon-add_btn:before {
 	content: '\ea05';
+	padding-top: 23px;
 }
 
-.icon-add_user:before {
+.icon-adminimg:before {
 	content: '\ea06';
 }
 
-.icon-add_video:before {
+.icon-adminIMG1:before {
 	content: '\ea07';
 }
 
@@ -85,162 +86,356 @@ Glyphs list
 	content: '\ea0d';
 }
 
-.icon-branches:before {
+.icon-barcode_s:before {
 	content: '\ea0e';
 }
 
-.icon-cash_memo:before {
+.icon-bg_customer:before {
 	content: '\ea0f';
 }
 
-.icon-chart:before {
+.icon-bg_domain:before {
 	content: '\ea10';
 }
 
-.icon-circle_arrow:before {
+.icon-card:before {
 	content: '\ea11';
 }
 
-.icon-close:before {
+.icon-cash:before {
 	content: '\ea12';
 }
 
-.icon-create_customer:before {
+.icon-cash_memo:before {
 	content: '\ea13';
 }
 
-.icon-create_delivery_slip:before {
+.icon-chart:before {
 	content: '\ea14';
 }
 
-.icon-delete:before {
+.icon-circle_arrow:before {
 	content: '\ea15';
 }
 
-.icon-ecommerce:before {
+.icon-close:before {
 	content: '\ea16';
 }
 
-.icon-electrical:before {
+.icon-coupon:before {
 	content: '\ea17';
 }
 
-.icon-electronics:before {
+.icon-create_customer:before {
 	content: '\ea18';
+	padding-top: 23px;
 }
 
-.icon-hsn:before {
+.icon-create_delivery_slip:before {
 	content: '\ea19';
 }
 
-.icon-locked:before {
+.icon-c_portal:before {
 	content: '\ea1a';
 }
 
-.icon-login_bg:before {
+.icon-c_portal_dark:before {
 	content: '\ea1b';
 }
 
-.icon-login_bg_circle:before {
+.icon-c_portal_white:before {
 	content: '\ea1c';
 }
 
-.icon-login_circle_big:before {
+.icon-delete:before {
 	content: '\ea1d';
 }
 
-.icon-logo_01:before {
+.icon-down_arrow:before {
 	content: '\ea1e';
 }
 
-.icon-logo_otsi:before {
+.icon-easy_retail_logo:before {
 	content: '\ea1f';
 }
 
-.icon-loyalty_promo:before {
+.icon-ecommerce:before {
 	content: '\ea20';
 }
 
-.icon-mail:before {
+.icon-edit:before {
 	content: '\ea21';
 }
 
-.icon-management:before {
+.icon-electrical:before {
 	content: '\ea22';
 }
 
-.icon-midi_blue:before {
+.icon-electrical_electronics:before {
 	content: '\ea23';
 }
 
-.icon-midi_bluenew:before {
+.icon-error:before {
 	content: '\ea24';
 }
 
-.icon-midi_dress:before {
+.icon-eye:before {
 	content: '\ea25';
 }
 
-.icon-notes:before {
+.icon-Final-Logo-Colour-and-Proportion:before {
 	content: '\ea26';
 }
 
-.icon-notes_add:before {
+.icon-gift_v:before {
 	content: '\ea27';
 }
 
-.icon-pramotions:before {
+.icon-HR_portal:before {
 	content: '\ea28';
 }
 
-.icon-profile:before {
+.icon-hsn:before {
 	content: '\ea29';
 }
 
-.icon-promo:before {
+.icon-inactive_promo:before {
 	content: '\ea2a';
 }
 
-.icon-r_brand:before {
+.icon-inventory_portal:before {
 	content: '\ea2b';
 }
 
-.icon-rebarcoading:before {
+.icon-jewellary:before {
 	content: '\ea2c';
 }
 
-.icon-retail:before {
+.icon-khata:before {
 	content: '\ea2d';
 }
 
-.icon-return_slip:before {
+.icon-last_month_sale:before {
 	content: '\ea2e';
 }
 
-.icon-sale:before {
+.icon-locked:before {
 	content: '\ea2f';
 }
 
-.icon-saree:before {
+.icon-login_bg:before {
 	content: '\ea30';
 }
 
-.icon-stock:before {
+.icon-login_bg_circle:before {
 	content: '\ea31';
 }
 
-.icon-tag_customer:before {
+.icon-login_circle_big:before {
 	content: '\ea32';
 }
 
-.icon-textile:before {
+.icon-login_main_bg:before {
 	content: '\ea33';
 }
 
-.icon-transfer:before {
+.icon-logo_01:before {
 	content: '\ea34';
 }
 
-.icon-user_privileges:before {
+.icon-logo_icon:before {
 	content: '\ea35';
-}
+}
+
+.icon-logo_otsi:before {
+	content: '\ea36';
+}
+
+.icon-loyalty_promo:before {
+	content: '\ea37';
+}
+
+.icon-mail:before {
+	content: '\ea38';
+}
+
+.icon-management:before {
+	content: '\ea39';
+}
+
+.icon-midi_blue:before {
+	content: '\ea3a';
+}
+
+.icon-midi_bluenew:before {
+	content: '\ea3b';
+}
+
+.icon-midi_dress:before {
+	content: '\ea3c';
+}
+
+.icon-monthly_sale:before {
+	content: '\ea3d';
+}
+
+.icon-notes:before {
+	content: '\ea3e';
+}
+
+.icon-notes_add:before {
+	content: '\ea3f';
+}
+
+.icon-pramotions:before {
+	content: '\ea40';
+}
+
+.icon-print:before {
+	content: '\ea41';
+}
+
+.icon-profile:before {
+	content: '\ea42';
+}
+
+.icon-promo:before {
+	content: '\ea43';
+}
+
+.icon-promotions_loyal:before {
+	content: '\ea44';
+}
+
+.icon-qr_new:before {
+	content: '\ea45';
+}
+
+.icon-rebarcoading:before {
+	content: '\ea46';
+}
+
+.icon-reports_chart:before {
+	content: '\ea47';
+}
+
+.icon-retail_logo:before {
+	content: '\ea48';
+}
+
+.icon-return_slip:before {
+	content: '\ea49';
+}
+
+.icon-r_brand:before {
+	content: '\ea4a';
+}
+
+.icon-R_logo:before {
+	content: '\ea4b';
+}
+
+.icon-sale:before {
+	content: '\ea4c';
+}
+
+.icon-sales_graph:before {
+	content: '\ea4d';
+}
+
+.icon-sales_graph_2:before {
+	content: '\ea4e';
+}
+
+.icon-sales_report_graph1:before {
+	content: '\ea4f';
+}
+
+.icon-sales_report_graph2:before {
+	content: '\ea50';
+}
+
+.icon-sales_report_graph3:before {
+	content: '\ea51';
+}
+
+.icon-sales_report_graph4:before {
+	content: '\ea52';
+}
+
+.icon-sales_report_graph5:before {
+	content: '\ea53';
+}
+
+.icon-sanitary:before {
+	content: '\ea54';
+}
+
+.icon-saree:before {
+	content: '\ea55';
+}
+
+.icon-scan:before {
+	content: '\ea56';
+	padding-top: 23px;
+}
+
+.icon-search:before {
+	content: '\ea57';
+}
+
+.icon-stock:before {
+	content: '\ea58';
+}
+
+.icon-table_arrow_left:before {
+	content: '\ea59';
+}
+
+.icon-table_arrow_right:before {
+	content: '\ea5a';
+}
+
+.icon-tag_customer:before {
+	content: '\ea5b';
+}
+
+.icon-textile:before {
+	content: '\ea5c';
+}
+
+.icon-transfer:before {
+	content: '\ea5d';
+}
+
+.icon-upi:before {
+	content: '\ea5e';
+}
+
+.icon-up_arrow:before {
+	content: '\ea5f';
+}
+
+.icon-urm_graph1:before {
+	content: '\ea60';
+}
+
+.icon-urm_graph2:before {
+	content: '\ea61';
+}
+
+.icon-urm_graph3:before {
+	content: '\ea62';
+}
+
+.icon-URM_portal:before {
+	content: '\ea63';
+}
+
+.icon-user_privileges:before {
+	content: '\ea64';
+}
+
+.icon-view:before {
+	content: '\ea65';
+}

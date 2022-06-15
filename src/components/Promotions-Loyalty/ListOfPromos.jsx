@@ -297,6 +297,7 @@ export default class ListOfPromos extends Component {
       discountOn: obj.benfitVo.discount,
       item: obj.benfitVo.discountSubType,
       getPoolValue: obj.benfitVo.itemValue,
+      buyPoolValue: obj.benfitVo.itemValue,
       selectedPoolValue: poolObj,
       promoBenfitId: obj.benfitVo.benfitId,
       numOfItemsFromGetPool: obj.benfitVo.numOfItemsFromGetPool,
@@ -1481,7 +1482,8 @@ handleBenefitFormData() {
               className="btn-unic-search active mt-2  " 
               onClick={this.addPromo}
             >
-              <i className="icon-sale p-r-1"></i>Add Promo
+              <i className="icon-add_btn"></i> Add Promo
+              {/* <i className="icon-sale p-r-1"></i>Add Promo */}
             </button>
           </div>
         </div>}

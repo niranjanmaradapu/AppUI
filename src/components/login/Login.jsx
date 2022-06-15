@@ -24,7 +24,7 @@ import { forgot_err_msg} from "../../commonUtils/Errors";
 import { update_Pass_Err_Msg} from "../../commonUtils/Errors";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import URMService from "../../services/URM/URMService";
-
+// import font from "../../assets/fonticons"
 class Login extends Component {
   constructor(props) {
     super(props);

@@ -77,15 +77,43 @@ export default class ProductsCombo extends Component {
       if (res) {
           const { barcode, name, itemMrp, id } = res.data;
           const obj = { barcode, name, itemMrp, id, qty: 1};
-          this.setState({
-            dsNumber:"",
-            listOfProducts: [...this.state.listOfProducts, obj ]
-          });
+          // let count = false;
+          // this.setState({
+          //   dsNumber:"",
+          //   listOfProducts: [...this.state.listOfProducts, obj ]
+          // });
+          let count = false;
+          if(this.state.listOfProducts.length === 0){
+            this.setState({
+                  listOfProducts: [...this.state.listOfProducts, obj ]
+                });
+         } else {
+          for (let i = 0; i < this.state.listOfProducts.length; i++) {
+            if (this.state.listOfProducts[i].barcode === res.data.barcode) {
+              count = true
+            
+            this.state.listOfProducts[i].qty++;
+          
+          }
         }
+        
+      } this.setState({ barList: this.state.listOfProducts, barCode: '' }, () => {
+        this.state.barList.forEach((element) => {
+          if (element.quantity > 1) {
+          } else {
+            element.totalMrp = element.itemMrp;
+            element.quantity = parseInt("1");
+          }
+
+        });
+      });
+    }
+
     });
+  }
    
     
-  }
+  
   getProductBundleList(selectedStoreId) {
     InventoryService.getAllProductBundleList('', '', selectedStoreId).then((res) => {
     if(res) {
@@ -217,10 +245,13 @@ handleChange (){
   };
 
   render() {
+    {/* {this.state.barList.map((items, index) => { */}
     
     return (
+      
+      
       <div className="maincontent">
-
+      {/* {this.state.barList.map((items, index) => { */}
         <Modal isOpen={this.state.isAddCombo} size="lg" style={{maxWidth: '1000px', width: '100%'}}>
         <ModalHeader>Add Combo</ModalHeader>
           <ModalBody>
@@ -266,7 +297,9 @@ handleChange (){
                    /> 
                 </div>
                 <span style={{ color: "red" }}>{this.state.error["comboPrice"]}</span>
+              {/* })} */}
               </div>
+      
         
               <div className="col-4">
                 <div className="form-group">

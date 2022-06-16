@@ -552,13 +552,17 @@ export default class ManagePromo extends Component {
     });
   }
   searchPromo() {
-    const {promoStatus, searchByStoreName, endDate, startDate, promotionName } = this.state;
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const customClientId = user['custom:clientId1'];
+    const {promoStatus,searchByStoreName, startDate ,endDate,promotionName} = this.state;
     const obj = {
-        promotionStartDate: startDate ? startDate : null,
-        promotionEndDate: endDate ? endDate : null,
+        startDate: startDate ? startDate : null,
+        endDate: endDate ? endDate : null,
         promotionName: promotionName ? promotionName : null,
-        isActive: promoStatus ? promoStatus : null,
-        storeName: searchByStoreName ? searchByStoreName.label : null
+        promotionStatus: promoStatus ? promoStatus : null,
+        storeName: searchByStoreName ? searchByStoreName.label : null,
+        clientId: customClientId ? customClientId  : null
+       
     }
     // Need to handle search promotion
     PromotionsService.searchPromotion(obj).then((res) => {     

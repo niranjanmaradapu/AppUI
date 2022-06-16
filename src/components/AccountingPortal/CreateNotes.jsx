@@ -9,6 +9,7 @@ import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
 import { ACCOUNTING_PORTAL } from "../../commonUtils/ApiConstants";
 import {errorLengthMin, errorLengthMax, creditNotes_Err_Msg } from './Error';
+import ReactPageNation from "../../commonUtils/Pagination";
 
 export default class CreateNotes extends Component {
 
@@ -16,6 +17,8 @@ export default class CreateNotes extends Component {
     super(props);
     this.state = {
       isCredit: false,
+      pageNumber:0,
+      totalPages:0,
       mobileNumber: "",
       storeName: "",
       userName: "",
@@ -48,6 +51,7 @@ export default class CreateNotes extends Component {
     this.saveCredit = this.saveCredit.bind(this);
     this.getCreditNotes = this.getCreditNotes.bind(this);
     this.handleValidation = this.handleValidation.bind(this);
+    this.changePage = this.changePage.bind(this);
   }
 
   componentWillMount() {
@@ -85,12 +89,13 @@ export default class CreateNotes extends Component {
     }
     AccountingPortalService.getCreditNotes(reqOb).then(response => {
       if (response) {
-        this.setState({ creditData: response.data.content });
+        // this.setState({ creditData: response.data.content });
+        this.setState({ creditData: response.data,totalPages: response.data.totalPages });
       }
     });
   }
 
-  searchCreditNotes = () => {
+  searchCreditNotes = (pageNumber) => {
     const { storeId, fromDate, toDate, searchMobileNumber } = this.state;
    const reqOb =  {
       fromDate: fromDate,
@@ -100,9 +105,9 @@ export default class CreateNotes extends Component {
       accountType: "CREDIT",
       customerId: null
     }
-    AccountingPortalService.getCreditNotes(reqOb).then(response => {
+    AccountingPortalService.getCreditNotes(reqOb,pageNumber).then(response => {
       if (response) {
-          this.setState({ creditData: response.data.content });
+          this.setState({ creditData: response.data, totalPages: response.data.totalPages });
       }
     });
   }
@@ -267,6 +272,16 @@ export default class CreateNotes extends Component {
     this.closeCredit();
     this.getCreditNotes();
   });
+}
+
+
+changePage(pageNumber) {
+  console.log(">>>page", pageNumber);
+  let pageNo = pageNumber + 1;
+  this.setState({ pageNumber: pageNo });
+  // this.getUserBySearch(pageNumber);
+  // this.searchUser(pageNumber);
+  this.searchCreditNotes(pageNumber); 
 }
 
   render() {
@@ -498,7 +513,8 @@ export default class CreateNotes extends Component {
             </div>
           </div>
           <div className="col-sm-6 col-12 scaling-mb scaling-center pt-4">
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchCreditNotes}>SEARCH</button>
+            {/* <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchCreditNotes}>SEARCH</button> */}
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={()=>{this.searchCreditNotes(0); this.setState({ pageNumber: 0 });}}>SEARCH</button>
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearCreditNotes}>Clear</button>
             <button className="btn-unic-search mt-2 active" onClick={this.addCredit}>Add Credit Notes</button>
           </div>
@@ -521,7 +537,7 @@ export default class CreateNotes extends Component {
                 </tr>
               </thead>
               <tbody>
-                {this.state.creditData.map((items, index) => {
+                {this.state.creditData?.content?.map((items, index) => {
                   let date = this.dateFormat(items.createdDate)
                   return (
                     <tr key={index}>
@@ -541,10 +557,26 @@ export default class CreateNotes extends Component {
                     </tr>
                   );
                 })}
-                {this.state.creditData.length === 0 && <tr>No records found!</tr>}
+                {/* {this.state.creditData.length === 0 && <tr>No records found!</tr>} */}
               </tbody>
            
             </table>
+
+            <div className="row m-0 pb-3 mb-5 mt-3">
+
+{this.state.totalPages > 1 ? (
+            <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.creditData}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div>
+                   ) : null} 
+                   </div>
+
+
           </div>
 
         </div>

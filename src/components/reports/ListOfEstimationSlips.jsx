@@ -6,6 +6,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import { Toast } from "react-bootstrap";
+import ReactPageNation from "../../commonUtils/Pagination";
 
 export default class ListOfEstimationSlips extends Component {
   constructor(props) {
@@ -15,6 +16,8 @@ export default class ListOfEstimationSlips extends Component {
       dateTo: moment(new Date()).format("YYYY-MM-DD").toString(),
       // dateFrom: "",
       // dateTo: "",
+      pageNumber:0,
+      totalPages:0,
       status: null,
       barcode: null,
       dsNumber: null,
@@ -47,6 +50,7 @@ export default class ListOfEstimationSlips extends Component {
     this.getEstimationSlip = this.getEstimationSlip.bind(this);
     this.viewReport = this.viewReport.bind(this);
     this.closeViewReport = this.closeViewReport.bind(this);
+    this.changePage = this.changePage.bind(this);
   }
 
   componentWillMount() {
@@ -61,7 +65,8 @@ export default class ListOfEstimationSlips extends Component {
     this.setState({ storeId: storeId });
   }
 
-  getEstimationSlip() {
+  getEstimationSlip(pageNumber) {
+    console.log("pageNumber",pageNumber)
     const obj = {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
       dateTo: this.state.dateTo ? this.state.dateTo : undefined,
@@ -72,7 +77,7 @@ export default class ListOfEstimationSlips extends Component {
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
 
-    ListOfEstimationSlipsService.getEstimationSlips(obj).then((res) => {
+    ListOfEstimationSlipsService.getEstimationSlips(obj,pageNumber).then((res) => {
       console.log("data", res.data.result);
       if (res.data.result.deliverySlipVo) {
         res.data.result.deliverySlipVo.map((prop, i) => {
@@ -100,14 +105,14 @@ export default class ListOfEstimationSlips extends Component {
       }
 
       this.setState({
-        dsList: res.data.result.deliverySlipVo,
-        dsDetailsList: res.data.result.deliverySlipVo,
+        dsList: res?.data?.result?.deliverySlip,
+        dsDetailsList: res.data.result.deliverySlip,
       });
     });
   }
 
   viewReport(dsNumber) {
-    let filterData = this.state.dsDetailsList.filter(
+    let filterData = this.state.dsDetailsList.content.filter(
       (x) => x.dsNumber == dsNumber
     );
     console.log("filterdata", filterData);
@@ -150,7 +155,7 @@ export default class ListOfEstimationSlips extends Component {
   }
 
   renderTableData() {
-    return this.state.dsList.map((items, index) => {
+    return this.state.dsList?.content?.map((items, index) => {
       const { dsNumber, createdDate, status, mrp, promoDisc, netAmount } =
         items;
       return (
@@ -214,6 +219,16 @@ export default class ListOfEstimationSlips extends Component {
       });
     }
   }
+
+  changePage(pageNumber) {
+    console.log(">>>page", pageNumber);
+    let pageNo = pageNumber + 1;
+    this.setState({ pageNumber: pageNo });
+    // this.getUserBySearch(pageNumber);
+    // this.searchUser(pageNumber);
+    this.getEstimationSlip(pageNumber); 
+  }
+
 
   render() {
     return (
@@ -373,10 +388,7 @@ if (startDate < endDate){
             <div className="form-group">
               <button
                 className="btn-unic-search active"
-                onClick={this.getEstimationSlip}
-              >
-                SEARCH{" "}
-              </button>
+                onClick={()=>{this.getEstimationSlip(0);this.setState({ pageNumber: 0 });}}>SEARCH</button>
             </div>
           </div>
         </div>
@@ -416,6 +428,14 @@ if (startDate < endDate){
             </tbody> */}
             <tbody>{this.renderTableData()}</tbody>
           </table>
+          <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.dsList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div>
         </div>
       </div>
     );

@@ -9,6 +9,7 @@ import ecommerce from "../../assets/images/ecommerce.svg";
 import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
 import { NEW_SALE_URL } from "../../commonUtils/ApiConstants";
+import ReactPageNation from "../../commonUtils/Pagination";
 
 export default class DebitNotes extends Component {
 
@@ -16,6 +17,8 @@ export default class DebitNotes extends Component {
     super(props);
     this.state = {
       isDebit: false,
+      pageNumber:0,
+      totalPages:0,
       mobileNumber: "",
       storeName: "",
       userName: "",
@@ -42,6 +45,7 @@ export default class DebitNotes extends Component {
     this.closeDebit = this.closeDebit.bind(this);
     this.saveDebit = this.saveDebit.bind(this);
     this.handleValidation = this.handleValidation.bind(this);
+    this.changePage = this.changePage.bind(this);
   }
 
 
@@ -71,12 +75,12 @@ export default class DebitNotes extends Component {
     }
     AccountingPortalService.getDebitNotes(reqOb).then(response => {
       if (response) {
-        this.setState({ debitData: response.data.content });
+        this.setState({ debitData: response.data,totalPages: response.data.totalPages });
       }
     });
   }
 
-  searchDebitNotes = () => {
+  searchDebitNotes = (pageNumber) => {
     const { storeId, fromDate, toDate, searchMobileNumber } = this.state;
     const reqOb =  {
       fromDate: fromDate,
@@ -86,9 +90,9 @@ export default class DebitNotes extends Component {
       accountType: "DEBIT",
       customerId: null
     }
-    AccountingPortalService.getDebitNotes(reqOb).then(response => {
+    AccountingPortalService.getDebitNotes(reqOb,pageNumber).then(response => {
       if (response) {
-        this.setState({ debitData: response.data.content });
+        this.setState({ debitData: response.data,totalPages: response.data.totalPages});
       }
     });
     }
@@ -242,6 +246,17 @@ handleValidation () {
       this.saveDebit();
     }  
   }
+
+  changePage(pageNumber) {
+    console.log(">>>page", pageNumber);
+    let pageNo = pageNumber + 1;
+    this.setState({ pageNumber: pageNo });
+    // this.getUserBySearch(pageNumber);
+    // this.searchUser(pageNumber);
+    this.searchDebitNotes(pageNumber); 
+  }
+
+
   render() {
     return (
       <div className="maincontent">
@@ -510,7 +525,7 @@ handleValidation () {
             </div>
           </div>
           <div className="col-sm-6 col-12 scaling-mb scaling-center pt-4">
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchDebitNotes}>SEARCH</button>
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={()=>{this.searchDebitNotes(0);this.setState({pageNumber:0})}}>SEARCH</button>
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearSearch}>Clear</button>
             {/* <button className="btn-unic-search mt-2 active" onClick={this.addDebit}>Add Debit Notes</button> */}
           </div>
@@ -533,7 +548,7 @@ handleValidation () {
               </thead>
               <tbody>
 
-                {this.state.debitData.map((items, index) => {
+                {this.state.debitData?.content?.map((items, index) => {
                   return (
                     <tr key={index}>
                       <td className="col-1 underline geeks">{items.customerId}</td>
@@ -550,9 +565,22 @@ handleValidation () {
                     </tr>
                   );
                 })}
-                {this.state.debitData.length === 0 && <tr>No records found!</tr>}
+                {/* {this.state.debitData.length === 0 && <tr>No records found!</tr>} */}
               </tbody>
             </table>
+            <div className="row m-0 pb-3 mb-5 mt-3">
+
+{this.state.totalPages > 1 ? (
+            <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.debitData}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div>):null}
+                  </div>
+
           </div>
 
         </div>

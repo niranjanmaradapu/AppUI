@@ -49,6 +49,7 @@ export const CREATE_DELIVERY_SLIP_URL = {
 
 export const NEW_SALE_URL = {
     getDslipData: "/new-sale/newsale/getdeliveryslip",
+    getDsAsbarcode:"/inventory/inventory-management/scan-barcode",
     getMobileData: "/new-sale/newsale/getcustomerdetailsbymobilenuber",
     getNetAmount: "/new-sale/newsale/getHsnDetails",
     getDiscountReasons: "/new-sale/newsale/discTypes",

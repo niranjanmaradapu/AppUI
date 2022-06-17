@@ -4,9 +4,16 @@ import { BASE_URL } from '../commonUtils/Base';
 
 class NewSaleService { 
     
-    getDeliverySlipDetails(obj){
-        const param = '?dsNumber='+ obj; 
-        return axios.get(BASE_URL+NEW_SALE_URL.getDslipData+param);
+    getDeliverySlipDetails(obj,flag,storeId){
+     
+        if(flag){
+            const param = '?dsNumber='+ obj; 
+            return axios.get(BASE_URL+NEW_SALE_URL.getDslipData+param);
+        }else{
+            const param = '?barcode='+ obj+'&storeId='+ storeId
+            return axios.get(BASE_URL+NEW_SALE_URL.getDsAsbarcode+param);
+        }
+       
     }
 
     getMobileData(mobileNumber) {

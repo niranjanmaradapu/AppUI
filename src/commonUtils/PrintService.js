@@ -1,12 +1,12 @@
 import React, { useRef, useState } from "react";
 
 
-const PrinterStatusBill = (type,object) => {
-  console.log(type);
+const PrinterStatusBill = (type,barcode,object) => {
+  console.log(object);
   // 192.168.1.13  HOME
   // 10.80.2.50 OFC
-  const printerIPAddress = "10.80.2.26";
-  const printerPort = "8008";
+  const printerIPAddress = JSON.parse(sessionStorage.getItem('printerIp'));
+  const printerPort =  JSON.parse(sessionStorage.getItem('printerPort'));
 //   const [textToPrint, setTextToPrint] = useState("");
    let  connectionStatus ='';
   let ePosDevice;
@@ -33,6 +33,7 @@ const PrinterStatusBill = (type,object) => {
 
     ePosDev.connect(printerIPAddress, printerPort, (data) => {
       if (data === "OK") {
+        sessionStorage.setItem('print_config',data);
         ePosDev.createDevice(
           "local_printer",
           ePosDev.DEVICE_TYPE_PRINTER,
@@ -72,7 +73,7 @@ const PrinterStatusBill = (type,object) => {
            
              // *************************PRINT BILL*****************************
              if(type === "DSNUM"){
-               let dsnum= object
+               let dsNum= barcode
               // prn.addTextPosition(212);
               // prn.addTextVPosition(486);
               // prn.addText('EASY RETAIL\n');
@@ -89,12 +90,13 @@ const PrinterStatusBill = (type,object) => {
               prn.addText('ESTIMATION SLIP NUMBER\n');
               // prn.addText(' =============================================\n');
               prn.addTextVPosition(246);
-              prn.addBarcode(dsnum, prn.BARCODE_CODE39, prn.HRI_BELOW, prn.FONT_A, 2, 83);
+              prn.addBarcode(dsNum, prn.BARCODE_CODE39, prn.HRI_BELOW, prn.FONT_A, 2, 83);
               // prn.addText(' =============================================\n');
               prn.addTextPosition(211);
               prn.addTextVPosition(208);
               prn.addText('THANK YOU\n');
              } else if(type ==='INVOICE'){
+              let inNum= barcode
               prn.addTextPosition(212);
               prn.addTextVPosition(486);
               prn.addText('EASY RETAIL\n');
@@ -102,7 +104,7 @@ const PrinterStatusBill = (type,object) => {
               prn.addText('Invoice\n');
               prn.addText(' =============================================\n');
               prn.addTextPosition(3);
-              prn.addBarcode('ESYRETAIL7895574', prn.BARCODE_CODE39, prn.HRI_BELOW, prn.FONT_B, 2, 90);
+              prn.addBarcode(inNum, prn.BARCODE_CODE39, prn.HRI_BELOW, prn.FONT_B, 2, 90);
               prn.addText(' =============================================\n');
               prn.addTextPosition(10);
               prn.addText('CUSTOMER NAME:   Kadali         \n');
@@ -113,16 +115,19 @@ const PrinterStatusBill = (type,object) => {
               prn.addText(' =============================================\n');
               prn.addText(' S.No   Item     Qty    Type     Disc    Price\n');
               prn.addText(' ---------------------------------------------\n');
-              prn.addText(' 1.    shirts     2       M      0.0   1850.00\n');
-              prn.addText(' 2.    sarees     4       F      0.0   2550.00\n');
-              prn.addText(' 3.    T-shirts   3       M      0.0   3000.00\n');
-              prn.addText(' 4.    shorts     2       M      0.0    750.00\n');
-              prn.addText(' 5.    pants      1       T      0.0    800.00\n');
-              prn.addText(' 6.    shoes      1       S      0.0   1250.00\n');
-              prn.addText(' 7.    socks      2       M      0.0    250.00\n');
-              prn.addText(' 8.    paste      5       Y      0.0    450.00\n');
-              prn.addText(' 9.    soaps      6       M      0.0    350.00\n');
-              prn.addText(' 10.   brushes    5       F      0.0    800.00\n');
+              for(let i=0;i<object.length;i++){
+              prn.addText(i+'.'+object[i].barCode+'  '+ object[i].quantity+' '+object[i].itemPrice +'\n');
+              }
+              // prn.addText(' 1.    shirts     2       M      0.0   1850.00\n');
+              // prn.addText(' 2.    sarees     4       F      0.0   2550.00\n');
+              // prn.addText(' 3.    T-shirts   3       M      0.0   3000.00\n');
+              // prn.addText(' 4.    shorts     2       M      0.0    750.00\n');
+              // prn.addText(' 5.    pants      1       T      0.0    800.00\n');
+              // prn.addText(' 6.    shoes      1       S      0.0   1250.00\n');
+              // prn.addText(' 7.    socks      2       M      0.0    250.00\n');
+              // prn.addText(' 8.    paste      5       Y      0.0    450.00\n');
+              // prn.addText(' 9.    soaps      6       M      0.0    350.00\n');
+              // prn.addText(' 10.   brushes    5       F      0.0    800.00\n');
               prn.addText(' ---------------------------------------------\n');
               prn.addText(' Total            31             0.0  11230.00\n');
               prn.addText(' ---------------------------------------------\n');

@@ -135,8 +135,10 @@ export default class NewSale extends Component {
       balanceCreditAmount: "",
       isreturnCreditCash: false,
       upiAmount:0,
-      isCheckPromo:false
+      isCheckPromo:false,
       // open: false,
+      pathFlag:false
+
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -198,9 +200,26 @@ export default class NewSale extends Component {
     // }
 
     // this.getHsnDetails();
-
+    this.getPath();
   }
-
+  getPath(){
+    const role = JSON.parse(sessionStorage.getItem("user"));
+    URMService.getSubPrivilegesbyRoleId(role["custom:roleName"]).then(res => {
+      if(res) {
+      //  this.setState({buttonsList: res.data.result});
+      const subPrivilegesList = res.data.subPrivileges;
+      for(let i=0;i<subPrivilegesList.length;i++){
+        if(subPrivilegesList[i].childPath === '/createdeliveryslip')
+        {
+          this.setState({pathFlag:true})
+        }
+      }
+      // this.props.history.push(subPrivilegesList[0].childPath)
+      console.log(this.state.pathFlag)
+      }
+    });
+    
+  }
   getHsnDetails() {
     NewSaleService.getHsnDetails().then(response => {
       if (response) {
@@ -642,7 +661,9 @@ export default class NewSale extends Component {
             const param = '?razorPayId=' + response.razorpay_order_id + '&payStatus=' + status;
             const result = axios.post(BASE_URL + NEW_SALE_URL.saveSale + param, {});
             // Printer Service used for Testing
-            // PrinterStatusBill('INVOICE',data.amount)
+           // PrinterStatusBill('INVOICE', this.state.newSaleId,data.amount)
+
+
 
 
           },
@@ -741,54 +762,110 @@ export default class NewSale extends Component {
     const obj = {
       "dsNumber": this.state.dsNumber.trim(),
     }
+    const storeId = sessionStorage.getItem("storeId");
     this.state.dsNumberList.push(obj);
     if (e.key === "Enter") {
-    NewSaleService.getDeliverySlipDetails(this.state.dsNumber.trim()).then((res) => {
+    NewSaleService.getDeliverySlipDetails(this.state.dsNumber.trim(),this.state.pathFlag,storeId).then((res) => {
       this.setState({ showTable: true });
-      this.state.dlslips.push(res.data);
-      if (this.state.dlslips.length > 1) {
-        const barList = this.state.dlslips.filter(
-          (test, index, array) =>
-            index ===
-            array.findIndex((findTest) => findTest.dsNumber === test.dsNumber)
-        );
-
-        if (barList.length > 1) {
-          let lineStorage = [];
-          barList.forEach((element, index) => {
-            let lineItems = element.lineItems;
-            lineStorage = [...lineStorage, ...lineItems];
-          });
-
-          this.setState({ barCodeList: lineStorage,dsNumber: '' });
-
+      if(!this.state.pathFlag){
+        this.state.dlslips.push(res.data.result);
+        if (this.state.dlslips.length > 1) {
+          const barList = this.state.dlslips.filter(
+            (test, index, array) =>
+              index ===
+              array.findIndex((findTest) => findTest.dsNumber === test.dsNumber)
+          );
+  
+          if (barList.length > 1) {
+            let lineStorage = [];
+            barList.forEach((element, index) => {
+              let lineItems = element.lineItems;
+              lineStorage = [...lineStorage, ...lineItems];
+            });
+  
+            this.setState({ barCodeList: lineStorage,dsNumber: '' });
+  
+          } else {
+            this.setState({ barCodeList: barList[0].lineItems, dsNumber: ''  });
+          }
+  
         } else {
-          this.setState({ barCodeList: barList[0].lineItems, dsNumber: ''  });
+       
+            this.setState({ barCodeList: this.state.dlslips[0].lineItems , dsNumber: ''});
+         
+       
+          // this.state.barCodeList = this.state.dlslips.lineItems;
+        }
+        this.state.barCodeList.forEach((barCode, index) => {
+          costPrice = costPrice + barCode.itemPrice;
+          discount = discount + barCode.discount;
+          total = total + barCode.netValue;
+        });
+  
+        discount = discount + this.state.manualDisc;
+  
+        this.setState({
+          netPayableAmount: total,
+  
+          totalPromoDisc: discount,
+          grossAmount: costPrice,
+        });
+  
+        if (this.state.barCodeList.length > 0) {
+          this.setState({ enablePayment: true });
+        }
+      }else{
+        this.state.dlslips.push(res.data.lineItems);
+        if (this.state.dlslips.length > 1) {
+          const barList = this.state.dlslips.filter(
+            (test, index, array) =>
+              index ===
+              array.findIndex((findTest) => findTest.barCode === test.barCode)
+          );
+  
+          if (barList.length > 1) {
+            // let lineStorage = [];
+            // barList.forEach((element, index) => {
+            //   let lineItems = element.lineItems;
+            //   lineStorage = [...lineStorage, ...lineItems];
+            // });
+  
+            this.setState({ barCodeList:  this.state.dlslips,dsNumber: '' });
+  
+          } else {
+            this.setState({ barCodeList: this.state.dlslips, dsNumber: ''  });
+          }
+  
+        } else {
+            this.setState({ barCodeList:res.data.lineItems , dsNumber: ''});
+         
+       
+          // this.state.barCodeList = this.state.dlslips.lineItems;
+        }
+        this.state.barCodeList.forEach((barCode, index) => {
+          costPrice = costPrice + barCode.itemPrice;
+          discount = discount + barCode.discount;
+          total = total + barCode.netValue;
+        });
+  
+        discount = discount + this.state.manualDisc;
+  
+        this.setState({
+          netPayableAmount: total,
+  
+          totalPromoDisc: discount,
+          grossAmount: costPrice,
+        });
+  
+        if (this.state.barCodeList.length > 0) {
+          this.setState({ enablePayment: true });
         }
 
-      } else {
-        this.setState({ barCodeList: this.state.dlslips[0].lineItems , dsNumber: ''});
-        // this.state.barCodeList = this.state.dlslips.lineItems;
       }
+    
+    
 
-      this.state.barCodeList.forEach((barCode, index) => {
-        costPrice = costPrice + barCode.itemPrice;
-        discount = discount + barCode.discount;
-        total = total + barCode.netValue;
-      });
-
-      discount = discount + this.state.manualDisc;
-
-      this.setState({
-        netPayableAmount: total,
-
-        totalPromoDisc: discount,
-        grossAmount: costPrice,
-      });
-
-      if (this.state.barCodeList.length > 0) {
-        this.setState({ enablePayment: true });
-      }
+    
 
       this.getTaxAmount();
     });
@@ -1141,6 +1218,10 @@ export default class NewSale extends Component {
 
       NewSaleService.saveSale(obj).then((res) => {
         if (res) {
+          if(!this.state.isCard){
+            // Printer Service used for Testing
+            PrinterStatusBill('INVOICE',res.data.result,this.state.barCodeList)
+          }
           this.setState({ isBillingDetails: false, dsNumber: "",upiAmount: this.state.grandNetAmount, finalList: [] });
           this.setState({
             customerName: " ",
@@ -1179,10 +1260,6 @@ export default class NewSale extends Component {
           sessionStorage.setItem("recentSale", res.data.result);
           toast.success(res.data.result);
           this.setState({ newSaleId: res.data.result });
-          if(!this.state.isCard){
-            // Printer Service used for Testing
-            PrinterStatusBill('INVOICE',null)
-          }
           // this.pay()
           if (this.state.isCard || this.state.isUPIModel) {
             this.pay()

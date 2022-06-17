@@ -23,6 +23,7 @@ import { saveDataInIndexDB, getDataFromIndexDB } from '../../utility.js';
 import NewSaleService from "../../services/NewSaleService";
 import PrinterStatusBill from "../../commonUtils/PrintService";
 import { errorLengthMin , errorLengthMax , createDelivery_Err_Msg} from "../../commonUtils/Errors";
+import print from '../../assets/images/print_red.svg';
 class CeateDeliverySlip extends Component {
   constructor(props) {
     super(props);
@@ -43,6 +44,8 @@ class CeateDeliverySlip extends Component {
       promoDisc: 0,
       totalAmount: 0,
       totalQuantity: 0,
+      ipAddress:"192.168.192.168",
+      port:"8008",
       type: "",
       errors: {},
       showTable: false,
@@ -76,6 +79,8 @@ class CeateDeliverySlip extends Component {
     this.generateNew = this.generateNew.bind(this);
     this.getLineItems = this.getLineItems.bind(this);
     this.handleValidation=this.handleValidation.bind(this);
+    this.connectPrinter = this.connectPrinter.bind(this);
+    this.openPrinterPopup = this.openPrinterPopup.bind(this);
     //  this.deleteTableRow = this.deleteTableRow.bind(this);
 
 
@@ -288,22 +293,22 @@ class CeateDeliverySlip extends Component {
     };
     CreateDeliveryService.createDeliverySlip(obj, this.state.type).then(
       (res) => {
-        if (res.data.statusCode === "OK") {
-          this.setState({ dsNumber: res.data.body.number });
-          this.setState({ isCheckPromo: false });
-          toast.success(res.data.body.message);
-          sessionStorage.setItem("recentDS", res.data.body.message);
-          this.setState({
-            barCode: "",
-            smNumber: "",
-            barList: [],
-            itemsList: [],
-            showTable: false
+       // if (res.data.statusCode === "OK") {
+        this.setState({ dsNumber: res.data });
+        this.setState({ isCheckPromo: false });
+        toast.success("ES NUMBER:"+res.data);
+        sessionStorage.setItem("recentDS", res.data);
+        this.setState({
+          barCode: "",
+          smNumber: "",
+          barList: [],
+          itemsList: [],
+          showTable: false
 
-          });
-        } else {
-          toast.error(res.data.body);
-        }
+        });
+      // } else {
+      //   toast.error(res.data.body);
+      // }
       }
     );
   }
@@ -345,7 +350,12 @@ class CeateDeliverySlip extends Component {
     // Printer Service used for Testing
     // PrinterStatusBill('DSNUM',null);
   }
-
+  openPrinterPopup(){
+    var item_value = sessionStorage.getItem("print_config");
+    if(item_value!== "OK"){
+     this.setState({ isGenerate: true });
+    }
+  }
   // generateEstimationSlip(){
   //   // this.setState({
   //   //   barCode: "",
@@ -696,7 +706,11 @@ class CeateDeliverySlip extends Component {
       }
     });
   }
-
+  connectPrinter(){
+    sessionStorage.setItem("printerIp",JSON.stringify(this.state.ipAddress));
+    sessionStorage.setItem("printerPort",JSON.stringify(this.state.port));
+    this.hideModal()
+    }
   generateNew() {
     const storeId = sessionStorage.getItem("storeId");
     const createObj = {
@@ -708,9 +722,9 @@ class CeateDeliverySlip extends Component {
 
     CreateDeliveryService.saveDelivery(createObj).then(res => {
       if (res) {
-        toast.success(res.data.message);
+        toast.success('ES NUMBER:'+res.data);
         // Printer Service used for Testing
-          //  PrinterStatusBill('DSNUM',res.data.result) 
+        PrinterStatusBill('DSNUM',res.data,null) 
         this.setState({
           barCode: "",
           smNumber: "",
@@ -742,66 +756,44 @@ class CeateDeliverySlip extends Component {
         {/* <h5>Estimation Slip</h5> */}
         {/* <h5> {t("EstimationSlip")}</h5> */}
         <Modal isOpen={this.state.isGenerate} size="lg">
-          <div className="headerGreen"><h5>List Of Items</h5></div>
+          <div className="modal-header">
+          <div className="modal-title"><h5>Printer Settings</h5></div>
+          </div>
           <ModalBody>
             <div className="row">
-              {/* <div className="col-12 mb-2">
-                <label className="text-green fs-14"></label>
-              </div> */}
-              <div className="col-12">
-                <table className="table table-borderless mb-1">
-                  <thead>
-                    <tr className="m-0 p-0">
-                      {/* <th className="col-1"> </th> */}
-                      <th className="col-3">SLIP NO.</th>
-                      <th className="col-2">Qty</th>
-                      <th className="col-2">mrp</th>
-                      <th className="col-3">Promo Discount</th>
-                      {/* <th className="col-4">Description</th> */}
-                      <th className="col-2">Total</th>
-                    </tr>
-                  </thead>
-                </table>
-                <table className="table table-borderless gfg">
-                  <tbody>
-                    {this.state.barList.map((items, index) => {
-                      return (
-                        <tr key={index}>
-
-
-                          <td className="col-3 geeks">
-                            {items.barcode}
-                          </td>
-                          <td className="col-2">{items.quantity}</td>
-                          <td className="col-2">₹ {items.itemMrp}</td>
-                          <td className="col-3">{items.itemDiscount}</td>
-                          <td className="col-2">₹ {items.totalMrp}</td>
-                        </tr>
-                      );
-                    })}
-
-
-                  </tbody>
-
-                </table>
+              <div className="col-6">
+                <div className="form-group">
+                  <label>IP Address</label>
+                  <input type="text" className="form-control" value={this.state.ipAddress}
+                    onChange={(e) => this.setState({ipAddress: e.target.value})}
+                  placeholder="Enter IP"></input>
+                </div>
+              </div>
+              <div className="col-3">
+                <div className="form-group">
+                  <label>Port Number</label>
+                  <input type="text" className="form-control" value={this.state.port} 
+                   onChange={(e) => this.setState({port: e.target.value})}
+                  placeholder="Enter Port"></input>
+                </div>
               </div>
             </div>
           </ModalBody>
           <ModalFooter>
-            <button className="pt-2 btn-bdrG" onClick={this.hideModal}>
-              Back To Dashboard
+            <button className="btn-unic fs-12" onClick={this.hideModal}>
+              Close   
             </button>
             <button
-              className="btn btn-bdrG active fs-12"
-              onClick={this.generateNew}
+              className="btn btn-unic active fs-12"
+              onClick={this.connectPrinter}
             >
-              Generate New
+              Connect
             </button>
           </ModalFooter>
         </Modal>
         <div className="">
           <div className="row">
-            <div className="col-6 col-sm-3 sele">
+            <div className="col-6 col-sm-2 sele">
             <label>Select Type</label>
               <div className="form-group">
 
@@ -819,7 +811,7 @@ class CeateDeliverySlip extends Component {
                 {this.props.disabled}
               </div>
             </div>
-            <div className="col-sm-3 col-6 scaling-mtop">
+            <div className="col-sm-2 col-6 scaling-mtop">
             <label>SM Number<span className="text-red font-bold">*</span></label>
               <div className="form-group">
                 <input
@@ -840,7 +832,7 @@ class CeateDeliverySlip extends Component {
                 <span style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
                                         </div> */}
             </div>
-            <div className="col-6 col-sm-3">
+            <div className="col-6 col-sm-2">
             <label>Barcode</label>
               <div className="form-group">
                 {/* <input type="text" className="form-control" name="barCode" value={this.state.barCode} onKeyPress={this.getDeliverySlips}
@@ -879,7 +871,7 @@ class CeateDeliverySlip extends Component {
                 />
               </div>
             </div> */}
-            <div className="col-sm-3 scaling-ptop col-6 mt-4">
+            <div className="col-sm-2 scaling-ptop col-6 mt-4">
               <div className="form-group">
 
                 {/* onClick={this.checkPromo} */}
@@ -903,6 +895,11 @@ class CeateDeliverySlip extends Component {
                   Check Promo Discount
                 </button>
               </div>
+            </div>
+            <div className="col-sm-2 col-6 pt-4 mt-1 cursor">
+                  <img src={print}></img> <span className="text-red"
+                   onClick={this.openPrinterPopup}
+                  >Connect To Printer</span>
             </div>
             <div className="col-sm-3 scaling-ptop col-6">
               <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">

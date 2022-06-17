@@ -172,14 +172,15 @@ hr{
 }
 .t_image{
     & img{
-        top: -47%;
-        left: 49%;
-        position: relative;
+        top: -24%;
+        left: 48%;
+        position: relative;    
     }
 
 }
 .td_align{
-    padding-left: 9%;
+    padding-left: 7%;
+    padding-top: 2.4%;
 }
 .active{
     background-color: $primary-color !important;
@@ -386,5 +387,16 @@ textarea {
     & ul.nav li:hover {
         background: $primary-color;
         color: $white;
+    }
+}
+.outline{
+    &-remove{
+        & .form-control:focus {
+            color: #212529;
+            background-color: #fff;
+            border-color: #ced4da !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
     }
 }

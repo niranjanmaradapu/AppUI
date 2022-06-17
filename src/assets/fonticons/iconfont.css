@@ -3,11 +3,11 @@ iconfont Webfont
 */
 @font-face {
 	font-family: 'iconfont';
-	src: url('iconfont.eot?1655120337057');
-	src: url('iconfont.eot?#iefix-1655120337057') format('embedded-opentype'),
-		url('iconfont.woff2?1655120337057') format('woff2'),
-		url('iconfont.woff?1655120337057') format('woff'),
-		url('iconfont.ttf?1655120337057') format('truetype');
+	src: url('iconfont.eot?1655434028742');
+	src: url('iconfont.eot?#iefix-1655434028742') format('embedded-opentype'),
+		url('iconfont.woff2?1655434028742') format('woff2'),
+		url('iconfont.woff?1655434028742') format('woff'),
+		url('iconfont.ttf?1655434028742') format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -149,6 +149,7 @@ Glyphs list
 
 .icon-delete:before {
 	content: '\ea1d';
+	padding-top: 23px;
 }
 
 .icon-down_arrow:before {
@@ -377,7 +378,6 @@ Glyphs list
 
 .icon-scan:before {
 	content: '\ea56';
-	padding-top: 23px;
 }
 
 .icon-search:before {
@@ -398,6 +398,7 @@ Glyphs list
 
 .icon-tag_customer:before {
 	content: '\ea5b';
+	padding-top: 23px;
 }
 
 .icon-textile:before {

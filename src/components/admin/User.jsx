@@ -1070,7 +1070,7 @@ capitalization= () => {
                         </div>
                     </div>
                     <div className="col-12 col-sm-2 mt-2">
-                        <div className="form-group">
+                        <div className="form-group outline-remove">
                         <label>Role</label>
                         <input type="text" className="form-control" name ="role" placeholder="role" value={this.state.searchRole}
                                 onChange={(e) => this.setState({ searchRole: e.target.value })} />

@@ -345,7 +345,7 @@ label, .col-form-label{
   }
 }
 
-.t{
+.t{ 
   &-form{
     & select{
       display: block;
@@ -381,6 +381,23 @@ label, .col-form-label{
       appearance: none;
       border-radius: 0.25rem;
       transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+& input[type="number"]{
+  display: block;
+  width: 100%;
+  padding: 0.2rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.1;
+  color: #212529;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  -webkit-appearance: none;
+  height: 30px;
+  appearance: none;
+  border-radius: 0.25rem;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
   }
 }

@@ -511,6 +511,7 @@ export default class ManagePromo extends Component {
     const obj = {
       startDate: updatePromoStartDate,
       endDate: updatePromoEndDate,
+      // promotionStatus: updatePromoStatus,
       id: checkedItem.id
     }
       console.log(">>>", updatePromoStartDate, updatePromoEndDate);
@@ -559,7 +560,7 @@ export default class ManagePromo extends Component {
         startDate: startDate ? startDate : null,
         endDate: endDate ? endDate : null,
         promotionName: promotionName ? promotionName : null,
-        promotionStatus: promoStatus ? promoStatus : null,
+        promotionStatus: JSON.parse(promoStatus ? promoStatus : null),
         storeName: searchByStoreName ? searchByStoreName.label : null,
         clientId: customClientId ? customClientId  : null
        
@@ -936,7 +937,7 @@ haandleStartdate(e) {
             </div>
           </div>
           <div className="col-sm-2 col-6 mt-2 pt-4 p-0">
-          <button className="btn-unic-redbdr m-r-2" onClick={this.searchPromo}>SEARCH</button>
+          <button className="btn-unic-redbdr m-r-2 " onClick={this.searchPromo}>SEARCH</button>
           <button
               className="btn-unic-search active"
               onClick={this.addStore}

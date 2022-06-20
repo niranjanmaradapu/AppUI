@@ -98,7 +98,7 @@ export default class ProductsCombo extends Component {
               }
             else{
 
-            toast.error("+++++++++++++")
+            toast.info("Insufficient quntity");
             break
           }
           

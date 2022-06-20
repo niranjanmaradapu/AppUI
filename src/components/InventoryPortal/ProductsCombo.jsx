@@ -14,10 +14,12 @@ export default class ProductsCombo extends Component {
       isAddCombo:false,
       comboName: '',
       comboQuantity: '',
+      qunatity:1,
       dsNumber: '',
       domainDetails: {},
       selectedStoreId: '',
       error:{},
+      barList:[],
       listOfProducts: [],
       comboDescription: '',
       selectedDomainId: '',
@@ -72,42 +74,71 @@ export default class ProductsCombo extends Component {
   }
 
   getBarcodeDetails() {
+    // let j = 0
     const { selectedStoreId, domainDetails, dsNumber } = this.state;
     InventoryService.getBarcodeDetails(dsNumber, domainDetails, selectedStoreId).then((res) => {
+      
       if (res) {
           const { barcode, name, itemMrp, id } = res.data;
-          const obj = { barcode, name, itemMrp, id, qty: 1};
-          // let count = false;
-          // this.setState({
-          //   dsNumber:"",
-          //   listOfProducts: [...this.state.listOfProducts, obj ]
-          // });
+          const obj = { barcode, name, itemMrp, id, qty:1};
+          if (res.data) {
+            res.data.quantity=1
           let count = false;
           if(this.state.listOfProducts.length === 0){
-            this.setState({
-                  listOfProducts: [...this.state.listOfProducts, obj ]
-                });
-         } else {
+            this.state.listOfProducts.push(res.data);
+            //  this.state.listOfProducts[0].quantity=1;
+          } else {
           for (let i = 0; i < this.state.listOfProducts.length; i++) {
             if (this.state.listOfProducts[i].barcode === res.data.barcode) {
               count = true
-            
-            this.state.listOfProducts[i].qty++;
-          
+              var items =[...this.state.listOfProducts];
+              if(items[i].quantity < items[i].qty){
+                items[i].quantity= items[i].quantity + 1;
+                break;
+              }
+            else{
+
+            toast.error("+++++++++++++")
+            break
           }
-        }
+          
+       }
+      }
+      if(count === false){
+        this.state.listOfProducts.push(res.data);
+      }
+    
+         //   console.log("++++++++++++++++++"+"sucess")
+         //   // this.setState({
+         //   //   listOfProducts: [...this.state.listOfProducts, obj ]
+         //   // });
+         //   this.state.listOfProducts.push(res.data);
+         
+       
+        
+        //if(!count){
+       //this.state.listOfProducts.push(res.data);
+        //   console.log("++++++++++++++++++"+"sucess")
+        //   // this.setState({
+        //   //   listOfProducts: [...this.state.listOfProducts, obj ]
+        //   // });
+        //   this.state.listOfProducts.push(res.data);
+       // }
+
         
       } this.setState({ barList: this.state.listOfProducts, barCode: '' }, () => {
         this.state.barList.forEach((element) => {
           if (element.quantity > 1) {
           } else {
-            element.totalMrp = element.itemMrp;
             element.quantity = parseInt("1");
           }
 
         });
       });
     }
+  }
+    
+  
 
     });
   }
@@ -124,8 +155,8 @@ export default class ProductsCombo extends Component {
     });
   }
   saveProductBundle() {
-    const { listOfProducts, comboName, comboQuantity, comboDescription, selectedDomainId, selectedStoreId,comboPrice} = this.state;
-    const comboProductList = listOfProducts.map((itm) => {
+    const { listOfProducts,barList, comboName, comboQuantity, comboDescription, selectedDomainId, selectedStoreId,comboPrice} = this.state;
+    const comboProductList = barList.map((itm) => {
       const obj = {};
       obj.id = itm.id;
       obj.barcode = itm.barcode;
@@ -174,6 +205,7 @@ handleChange (){
   const comboQuantity = (Event.target.validity.valid) ? 
   Event.target.value : this.state.comboQuantity;
 }
+
   
   // loadErrorMsgs() {
   //   this.state.error["comboName"] = "Please Enter Combo Name";
@@ -233,7 +265,7 @@ handleChange (){
     });
   }
   handleQtyChange = (idx, e) => {
-    let listOfProducts = this.state.listOfProducts;
+    let listOfProducts = this.state.barList;
     listOfProducts[idx][e.target.name] = e.target.value;
     this.setState({ listOfProducts });
   }
@@ -334,7 +366,7 @@ handleChange (){
                                     </tr>
                                 </thead>
                                 <tbody>
-                                  {this.state.listOfProducts.length > 0 && this.state.listOfProducts.map((item, index) => {
+                                  {this.state.barList.length > 0 && this.state.barList.map((item, index) => {
                                     return (
                                       <tr key={index}>
                                       <td className="col-1"> { index + 1 }</td>
@@ -348,16 +380,17 @@ handleChange (){
                                             className="form-control"
                                             name="qty"
                                             min="1"
+                                            max={item.qty}
                                             disabled={this.state.isEdit}
                                             placeholder=""
-                                            value={this.state.listOfProducts[index].qty}
+                                            value={item.quantity}
                                             onChange={e => this.handleQtyChange(index, e)}
                                           />
                    
                                         </div>
                                         {/* <span style={{ color: "red" }}>{this.state.error["listOfProducts"]}</span> */}
                                       </th>
-                                      {this.state.listOfProducts.length > 1 && <td className="col-1 text-center">
+                                      {this.state.barList.length > 1 && <td className="col-1 text-center">
                                         <i onClick={() => this.handleRemoveSpecificRow(index)} className="icon-delete m-l-2 fs-16"></i>
                                       </td>}
                                       </tr> 

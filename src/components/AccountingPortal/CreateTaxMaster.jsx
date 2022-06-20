@@ -60,7 +60,7 @@ export default class CreateTaxMaster extends Component {
     if(!this.state.isTaxMasterEdited) {
       AccountingPortalService.saveMasterTax(obj).then(response => {        
         if (response.status == 200) {
-          toast.success('Tax Master saved successfully');
+          toast.success('Tax Master added successfully');
           this.getTaxDataList();
           this.closeTaxMaster();
         }

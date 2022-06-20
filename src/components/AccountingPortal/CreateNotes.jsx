@@ -106,8 +106,13 @@ export default class CreateNotes extends Component {
       customerId: null
     }
     AccountingPortalService.getCreditNotes(reqOb,pageNumber).then(response => {
-      if (response) {
+      if (response.data.content.length !== 0) {
+        this.state.creditData=response?.data;
           this.setState({ creditData: response.data, totalPages: response.data.totalPages });
+      }
+      else{
+        this.setState({ creditData: [] });
+        toast.error("No Record Found")
       }
     });
   }
@@ -482,7 +487,17 @@ changePage(pageNumber) {
               <input type="date" className="form-control"
                 placeholder="TO DATE" 
                 value={this.state.toDate}
-                onChange={(e) => this.setState({ toDate: e.target.value })}
+                // onChange={(e) => this.setState({ toDate: e.target.value })}
+                onChange={(e) =>{
+                  var startDate = new Date(this.state.fromDate);
+                  var endDate = new Date(e.target.value);
+                  console.log(">>>", startDate, endDate);
+                  if (startDate <= endDate) {
+                    this.setState({ toDate: e.target.value });
+                  } else {
+                    toast.error("Please select from date");
+                  }
+                }}
                 autoComplete="off"
                 />
             </div>

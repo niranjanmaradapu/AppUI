@@ -826,7 +826,7 @@ class CeateDeliverySlip extends Component {
                 />
               </div>
               <div>
-                             <span style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
+                             <span className="fs-12" style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
                                                         </div>
               {/* <div>
                 <span style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>

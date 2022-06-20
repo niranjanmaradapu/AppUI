@@ -413,7 +413,7 @@ export default class TagCustomer extends Component {
                   onChange={(e) => this.setState({ gvNumber: e.target.value })}
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["gvNumber"]}
                   </span>
                 </div>
@@ -453,7 +453,7 @@ export default class TagCustomer extends Component {
                   autoComplete="off"
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["fromDate"]}
                   </span>
                 </div>
@@ -481,7 +481,7 @@ export default class TagCustomer extends Component {
                   autoComplete="off"
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["toDate"]}
                   </span>
                 </div>
@@ -501,7 +501,7 @@ export default class TagCustomer extends Component {
                   onChange={(e) => this.setState({ amount: e.target.value })}
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["amount"]}
                   </span>
                 </div>

@@ -172,7 +172,7 @@ validation(e) {
                       onChange={(e) => this.setState({ name: e.target.value, username: e.target.value })}
                       autoComplete="off" />
                     <div>
-                      <span style={{ color: "red" }}>{this.state.errors["name"]}</span>
+                      <span className="fs-12" style={{ color: "red" }}>{this.state.errors["name"]}</span>
                     </div>
                   </div>
                 </div>
@@ -186,7 +186,7 @@ validation(e) {
                       // onChange={(e) => this.setState({ phoneNumber: e.target.value })}
                       autoComplete="off" />
                     <div>
-                      <span style={{ color: "red" }}>{this.state.errors["phoneNumber"]}</span>
+                      <span className="fs-12" style={{ color: "red" }}>{this.state.errors["phoneNumber"]}</span>
                     </div>
                   </div>
                 </div>
@@ -200,7 +200,7 @@ validation(e) {
                       onChange={(e) => this.setState({ email: e.target.value })}
                       autoComplete="off" />
                     <div>
-                      <span style={{ color: "red" }}>{this.state.errors["email"]}</span>
+                      <span className="fs-12" style={{ color: "red" }}>{this.state.errors["email"]}</span>
                     </div>
                   </div>
                 </div>
@@ -230,7 +230,7 @@ validation(e) {
                       onChange={(e) => this.setState({ gstNumber: e.target.value })} autoComplete="off"
                     />
                      <div>
-                      <span style={{ color: "red" }}>{this.state.errors["gstNumber"]}</span>
+                      <span className="fs-12" style={{ color: "red" }}>{this.state.errors["gstNumber"]}</span>
                     </div>
                     </div>
                   </div>

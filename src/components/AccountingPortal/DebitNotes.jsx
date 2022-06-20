@@ -91,8 +91,13 @@ export default class DebitNotes extends Component {
       customerId: null
     }
     AccountingPortalService.getDebitNotes(reqOb,pageNumber).then(response => {
-      if (response) {
+      if (response.data.content.length !== 0) {
+        this.state.debitData=response?.data;
         this.setState({ debitData: response.data,totalPages: response.data.totalPages});
+      }
+      else{
+        this.setState({ debitData: [] });
+        toast.error("No Record Found")
       }
     });
     }
@@ -494,7 +499,16 @@ handleValidation () {
               <input type="date" className="form-control"
                 placeholder="TO DATE"
                 value={this.state.toDate}
-                onChange={(e) => this.setState({ toDate: e.target.value })}
+                onChange={(e) =>{
+                  var startDate = new Date(this.state.fromDate);
+                  var endDate = new Date(e.target.value);
+                  console.log(">>>", startDate, endDate);
+                  if (startDate <= endDate) {
+                    this.setState({ toDate: e.target.value });
+                  } else {
+                    toast.error("Please select from date");
+                  }
+                }}
                 autoComplete="off"
               />
             </div>

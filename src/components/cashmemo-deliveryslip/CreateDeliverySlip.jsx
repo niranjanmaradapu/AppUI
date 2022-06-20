@@ -506,7 +506,7 @@ class CeateDeliverySlip extends Component {
                   </td>
                   {/* <td className="col-1"></td>
               <td className="col-1"></td> */}
-                  <td className="col-2"><input type="number"
+                  <td className="col-2 t-form"><input type="number"
                     value={items.quantity}
                     min="1"
                     max={items.qty}
@@ -841,7 +841,7 @@ class CeateDeliverySlip extends Component {
                 <input
                   type="text"
                   name="barCode"
-                  className="form-control frm-pr"
+                  className="form-control"
                   value={this.state.barCode}
                   onChange={(e) => this.setState({ barCode: e.target.value }, () => { 
                     this.getDeliverySlips(e) 

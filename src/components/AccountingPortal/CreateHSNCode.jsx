@@ -85,6 +85,7 @@ export default class CreateHSNCode extends Component {
         AccountingPortalService.saveHsnCode(obj).then(response => {
           if (response) {
           toast.success(response.data.message);
+          toast.success("HSN code added sucessfully");
           this.closeHSNCode()
           this.getAllHsnCodes()
           }

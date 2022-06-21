@@ -84,12 +84,13 @@ class Header extends Component {
     super(props)
     this.state = {
       userData: {},
-      selectedCategory: {
-      "id": "2",
-      "name": "Accounting Portal",
-      "parentImage": "icon-r_brand fs-30 i_icon",
-      "path": "/stores"
-    },
+    //   selectedCategory: {
+    //   "id": "2",
+    //   "name": "Accounting Portal",
+    //   "parentImage": "icon-r_brand fs-30 i_icon",
+    //   "path": "/stores"
+    // },
+    selectedCategory: {},
       selectedImage: '',
       headerName: '',
       domainTitle: '',
@@ -485,6 +486,7 @@ class Header extends Component {
         URMService.getSelectedPrivileges(user["custom:roleName"]).then(res => {
           if(res && res.data && res.data){
             this.setState({moduleNames: res.data.parentPrivileges});
+            this.setState({ selectedCategory: res.data.parentPrivileges[0]});
             eventBus.dispatch("subHeader", { message: (res.data && res.data.parentPrivileges.length>0)?res.data.parentPrivileges[0].id:"" });
           }
          

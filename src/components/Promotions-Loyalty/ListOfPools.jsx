@@ -794,16 +794,6 @@ export default class ListOfPools extends Component {
                 includeConditions.push(itm);
               });
             });
-            const a = this.groupByRuleNumber(includeConditions);
-            a.forEach((item) => {
-              item.rules.forEach((item, idx) => {
-                if(item.columnName  === 'BatchNo' || item.columnName  === 'Division' 
-                || item.columnName  === 'SubSection' ||  item.columnName  === 'Section' 
-                || item.columnName  === 'Uom') {
-                    this.getValuesForAllColumns(item.columnName, idx);
-                }
-              });
-            });
             this.setState({
               isPoolRuleUpdated: false,
               // ruleNumber: this.state.ruleNumber,
@@ -1174,7 +1164,6 @@ Tabs = () => {
                     </thead>
                 </table>
                 <table className="table-borderless V1_table gfg mb-0 w-100">
-                  {console.log('++++++++this.state.addNewRule++++++++++++', this.state.addNewRule)}
                   <tbody>
                       {this.state.addNewRule.map((item, idx) => (
                         
@@ -1216,7 +1205,6 @@ Tabs = () => {
                               className="form-control"
                             /> </td> :  
                             <td  className='col-4 t-form'>
-                              {console.log('++++++++++++++this.state.addNewRule[idx].givenValue+++++++', this.state.addNewRule[idx].givenValue)}
                             <div className="sele-height">
                               {(this.state.addNewRule[idx].operatorSymbol === 'In' ) ? 
                                 <Select className="w-100"
@@ -1237,7 +1225,7 @@ Tabs = () => {
                                     {
                                       this.state.addNewRule[idx].valueList &&
                                       this.state.addNewRule[idx].valueList.map((item, i) => 
-                                      (<option key={i} value={JSON.stringify(item)}>{item.label}</option>))
+                                      (<option key={i} value={this.state.isPoolRuleUpdated ? item.value : JSON.stringify(item)}>{item.label}</option>))
                                   }
                                 </select>
                           

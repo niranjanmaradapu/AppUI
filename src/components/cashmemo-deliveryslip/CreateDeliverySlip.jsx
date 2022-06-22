@@ -22,7 +22,7 @@ import { withTranslation } from 'react-i18next';
 import { saveDataInIndexDB, getDataFromIndexDB } from '../../utility.js';
 import NewSaleService from "../../services/NewSaleService";
 import PrinterStatusBill from "../../commonUtils/PrintService";
-import { errorLengthMin , errorLengthMax , createDelivery_Err_Msg} from "../../commonUtils/Errors";
+import { errorLengthMin, errorLengthMax, createDelivery_Err_Msg } from "../../commonUtils/Errors";
 import print from '../../assets/images/print_red.svg';
 class CeateDeliverySlip extends Component {
   constructor(props) {
@@ -33,19 +33,19 @@ class CeateDeliverySlip extends Component {
       dsNumber: "",
       qunatity: 1,
       itemsList: [],
-      tempList:[],
+      tempList: [],
       barList: [],
       isSMDisable: false,
       isDeliveryCreated: false,
       btnDisable: true,
       isRemember: true,
-      isgetLineItems : false,
+      isgetLineItems: false,
       mrpAmount: 0,
       promoDisc: 0,
       totalAmount: 0,
       totalQuantity: 0,
-      ipAddress:"192.168.192.168",
-      port:"8008",
+      ipAddress: "192.168.192.168",
+      port: "8008",
       type: "",
       errors: {},
       showTable: false,
@@ -78,7 +78,7 @@ class CeateDeliverySlip extends Component {
     this.hideModal = this.hideModal.bind(this);
     this.generateNew = this.generateNew.bind(this);
     this.getLineItems = this.getLineItems.bind(this);
-    this.handleValidation=this.handleValidation.bind(this);
+    this.handleValidation = this.handleValidation.bind(this);
     this.connectPrinter = this.connectPrinter.bind(this);
     this.openPrinterPopup = this.openPrinterPopup.bind(this);
     //  this.deleteTableRow = this.deleteTableRow.bind(this);
@@ -90,11 +90,11 @@ class CeateDeliverySlip extends Component {
     // this.setState({
     //   output: `onKeyDown ${keyName}`,
     // });
-    if(keyName === 'shift+a'){
+    if (keyName === 'shift+a') {
       this.checkPromo();
 
     }
-    if(keyName === 'shift+z'){
+    if (keyName === 'shift+z') {
       this.generateEstimationSlip();
 
     }
@@ -142,7 +142,7 @@ class CeateDeliverySlip extends Component {
     });
 
 
-    
+
     if (!slabCheck) {
       lineItem.cgst = 6;
       lineItem.sgst = 6;
@@ -157,7 +157,7 @@ class CeateDeliverySlip extends Component {
   };
 
   getDeliverySlips = (e) => {
-   
+
     const storeId = sessionStorage.getItem("storeId");
     this.setState({ type: this.state.selectedType.label });
     let mrp = 0;
@@ -166,102 +166,102 @@ class CeateDeliverySlip extends Component {
     if (e.key === "Enter") {
       const formValid = this.handleValidation();
       if (formValid) {
-  
-      this.setState({ copysmNumber: JSON.parse(JSON.stringify(this.state.smNumber)) });
-      if (this.state.barCode && this.state.smNumber) {
-        CreateDeliveryService.getBarCodeList(
-          this.state.barCode.trim(),
-          this.state.smNumber,
-          storeId
-        ).then((res) => {
 
-          if (res.data) {
-            let count = false;
-            // res.data.result.salesMan = this.state.copysmNumber;
-            if(this.state.itemsList.length === 0){
-            this.state.itemsList.push(res.data);
-            }
-            else {
-         
-              for (let i = 0; i < this.state.itemsList.length; i++) {
-                if (
+        this.setState({ copysmNumber: JSON.parse(JSON.stringify(this.state.smNumber)) });
+        if (this.state.barCode && this.state.smNumber) {
+          CreateDeliveryService.getBarCodeList(
+            this.state.barCode.trim(),
+            this.state.smNumber,
+            storeId
+          ).then((res) => {
+
+            if (res.data) {
+              let count = false;
+              // res.data.result.salesMan = this.state.copysmNumber;
+              if (this.state.itemsList.length === 0) {
+                this.state.itemsList.push(res.data);
+              }
+              else {
+
+                for (let i = 0; i < this.state.itemsList.length; i++) {
+                  if (
                     this.state.itemsList[i].barcode ===
                     res.data.barcode
-                ) {
+                  ) {
                     count = true;
                     var items = [...this.state.itemsList]
                     if (parseInt(items[i].quantity) + 1 <= parseInt(items[i].qty)) {
-                        let addItem = parseInt(items[i].quantity) + 1;
-                        items[i].quantity = addItem.toString()
-                        let totalcostMrp = items[i].itemMrp * parseInt(items[i].quantity)
-                        items[i].totalMrp = totalcostMrp
-                        break;
+                      let addItem = parseInt(items[i].quantity) + 1;
+                      items[i].quantity = addItem.toString()
+                      let totalcostMrp = items[i].itemMrp * parseInt(items[i].quantity)
+                      items[i].totalMrp = totalcostMrp
+                      break;
                     } else {
-                        // count = false
-                        toast.info("Insufficient Quantity")
-                        break;
+                      // count = false
+                      toast.info("Insufficient Quantity")
+                      break;
                     }
-                }
-            }
-            
-            if(!count){
-              this.state.itemsList.push(res.data);
-            }
-            
-
-            }
-
-
-            this.setState({ barList: this.state.itemsList, barCode: '' }, () => {
-              console.log('++++++++++barList++++++++++++++', this.state.barList);
-              this.state.barList.forEach((element) => {
-                element.itemDiscount = 0;
-                if(element.taxValues) {
-                  element.cgst = element.taxValues.cgstValue;
-                  element.sgst = element.taxValues.sgstValue;
-                  element.taxValue = element.taxValues.cgstValue + element.taxValues.sgstValue;
-                }               
-                if (element.quantity > 1) {
-                } else {
-                  element.totalMrp = element.itemMrp;
-                  element.quantity = parseInt("1");
+                  }
                 }
 
+                if (!count) {
+                  this.state.itemsList.push(res.data);
+                }
+
+
+              }
+
+
+              this.setState({ barList: this.state.itemsList, barCode: '' }, () => {
+                console.log('++++++++++barList++++++++++++++', this.state.barList);
+                this.state.barList.forEach((element) => {
+                  element.itemDiscount = 0;
+                  if (element.taxValues) {
+                    element.cgst = element.taxValues.cgstValue;
+                    element.sgst = element.taxValues.sgstValue;
+                    element.taxValue = element.taxValues.cgstValue + element.taxValues.sgstValue;
+                  }
+                  if (element.quantity > 1) {
+                  } else {
+                    element.totalMrp = element.itemMrp;
+                    element.quantity = parseInt("1");
+                  }
+
+                });
+                this.calculateTotal();
               });
-              this.calculateTotal();
-            });
-            // this.setState({ barCode: "" });
-            // this.setState({ itemsList: items.data });
-            this.setState({ btnDisable: false });
-            this.setState({ isDeliveryCreated: false });
-            if(this.state.barList.length > 0){
-              this.setState({isgetLineItems :true})
-              
-            } 
-          } else {
-            toast.error(res.data.body);
+              // this.setState({ barCode: "" });
+              // this.setState({ itemsList: items.data });
+              this.setState({ btnDisable: false });
+              this.setState({ isDeliveryCreated: false });
+              if (this.state.barList.length > 0) {
+                this.setState({ isgetLineItems: true })
+
+              }
+            } else {
+              toast.error(res.data.body);
+            }
+          });
+
+
+
+          this.setState({ showTable: true, isCheckPromo: true });
+          if (!this.state.isRemember) {
+            this.setState({ smNumber: "" });
           }
-        });
 
 
-
-        this.setState({ showTable: true, isCheckPromo: true });
-        if (!this.state.isRemember) {
-          this.setState({ smNumber: "" });
+        } else {
+          toast.info("Please enter Barcode / SM number");
         }
-
-
-      } else {
-        toast.info("Please enter Barcode / SM number");
       }
-    }
 
-  }
+    }
   };
   removeDuplicates(array, key) {
     const lookup = new Set();
     return array.filter(obj => !lookup.has(obj[key]) && lookup.add(obj[key]));
-}
+  }
   remberSalesMan(e) {
     if (e.target.checked) {
       if (this.state.smNumber) {
@@ -293,10 +293,10 @@ class CeateDeliverySlip extends Component {
     };
     CreateDeliveryService.createDeliverySlip(obj, this.state.type).then(
       (res) => {
-       // if (res.data.statusCode === "OK") {
+        // if (res.data.statusCode === "OK") {
         this.setState({ dsNumber: res.data });
         this.setState({ isCheckPromo: false });
-        toast.success("ES NUMBER:"+res.data);
+        toast.success("ES NUMBER:" + res.data);
         sessionStorage.setItem("recentDS", res.data);
         this.setState({
           barCode: "",
@@ -306,9 +306,9 @@ class CeateDeliverySlip extends Component {
           showTable: false
 
         });
-      // } else {
-      //   toast.error(res.data.body);
-      // }
+        // } else {
+        //   toast.error(res.data.body);
+        // }
       }
     );
   }
@@ -318,19 +318,19 @@ class CeateDeliverySlip extends Component {
     NewSaleService.getCheckPromoAmount(this.state.storeId, this.state.domainId, this.state.barList).then(response => {
       console.log(response.data.result.calculatedDiscountsVo);
       if (response && response.data && response.data.result[0].calculatedDiscountsVo) {
-        this.setState({ promoDiscount: response.data.result  });
+        this.setState({ promoDiscount: response.data.result });
         this.state.barList.forEach(barCodeData => {
           this.state.promoDiscount.forEach(promo => {
             if (barCodeData.barcode === promo.barcode) {
-              if(promo.calculatedDiscountsVo) {
+              if (promo.calculatedDiscountsVo) {
                 if (promo.calculatedDiscountsVo.discountAvailable) {
                   barCodeData.itemDiscount = parseInt(promo.calculatedDiscountsVo.calculatedDiscount);
                   barCodeData.totalMrp = barCodeData.totalMrp - barCodeData.itemDiscount;
                 }
               } else {
-                 barCodeData.itemDiscount = "No discount"
+                barCodeData.itemDiscount = "No discount"
               }
-            }            
+            }
           });
         });
 
@@ -350,10 +350,10 @@ class CeateDeliverySlip extends Component {
     // Printer Service used for Testing
     // PrinterStatusBill('DSNUM',null);
   }
-  openPrinterPopup(){
+  openPrinterPopup() {
     var item_value = sessionStorage.getItem("print_config");
-    if(item_value!== "OK"){
-     this.setState({ isGenerate: true });
+    if (item_value !== "OK") {
+      this.setState({ isGenerate: true });
     }
   }
   // generateEstimationSlip(){
@@ -409,15 +409,15 @@ class CeateDeliverySlip extends Component {
             {/* <button className="btn-unic m-r-2 scaling-mb">Hold Estimation Slip</button> */}
             {/* <button className="btn-unic m-r-2 scaling-mb active" onClick={this.getLineItems}>Generate Estimation Slip</button> */}
             <button
-                  className={ "btn-unic scaling-ptop active"+
-                    "btn-login btn-create" +
-                    (!this.state.isgetLineItems ? " btn-disable" : "")
-                  }
-                  onClick={this.generateEstimationSlip}
-                  disabled={!this.state.isgetLineItems}
-                >
-                  Generate Estimation Slip
-                </button>
+              className={"btn-unic scaling-ptop active" +
+                "btn-login btn-create" +
+                (!this.state.isgetLineItems ? " btn-disable" : "")
+              }
+              onClick={this.generateEstimationSlip}
+              disabled={!this.state.isgetLineItems}
+            >
+              Generate Estimation Slip
+            </button>
           </div>
 
           <div className="p-0 pb-3 pt-2">
@@ -483,8 +483,8 @@ class CeateDeliverySlip extends Component {
               <th className="col-2">Total</th>
             </tr>
           </thead>
-</table>
-      <table className="table table-borderless mb-1 gfg">
+        </table>
+        <table className="table table-borderless mb-1 gfg">
           <tbody>
             {this.state.barList.map((items, index) => {
               return (
@@ -545,9 +545,9 @@ class CeateDeliverySlip extends Component {
 
 
   checkQuantity(e, index, item) {
-    this.setState({isgetLineItems :true})
+    this.setState({ isgetLineItems: true })
     if (e.target.value !== "") {
-      item.quantity =  parseInt(e.target.value);
+      item.quantity = parseInt(e.target.value);
       let qty = item.quantity;
       if (item.quantity <= item.qty) {
         this.setState({ qty: e.target.value });
@@ -559,7 +559,7 @@ class CeateDeliverySlip extends Component {
         item.totalMrp = totalcostMrp
 
       } else {
-        this.setState({isgetLineItems :false})
+        this.setState({ isgetLineItems: false })
         toast.info("Insufficient Quantity");
       }
     } else {
@@ -583,12 +583,12 @@ class CeateDeliverySlip extends Component {
     let errors = {};
     let formIsValid = true;
     //sm number
-   
-  if (this.state.smNumber.length !== errorLengthMin.smNumber) {
-        formIsValid = false;
-        errors["smNumber"] = createDelivery_Err_Msg.smNumber;
-      }
-  
+
+    if (this.state.smNumber.length !== errorLengthMin.smNumber) {
+      formIsValid = false;
+      errors["smNumber"] = createDelivery_Err_Msg.smNumber;
+    }
+
 
     this.setState({ errors: errors });
     return formIsValid;
@@ -652,7 +652,7 @@ class CeateDeliverySlip extends Component {
   };
 
   generateEstimationSlip() {
-    this.setState({ isGenerate: true });
+    // this.setState({ isGenerate: true });
     this.getLineItems();
   }
 
@@ -706,11 +706,11 @@ class CeateDeliverySlip extends Component {
       }
     });
   }
-  connectPrinter(){
-    sessionStorage.setItem("printerIp",JSON.stringify(this.state.ipAddress));
-    sessionStorage.setItem("printerPort",JSON.stringify(this.state.port));
+  connectPrinter() {
+    sessionStorage.setItem("printerIp", JSON.stringify(this.state.ipAddress));
+    sessionStorage.setItem("printerPort", JSON.stringify(this.state.port));
     this.hideModal()
-    }
+  }
   generateNew() {
     const storeId = sessionStorage.getItem("storeId");
     const createObj = {
@@ -722,9 +722,9 @@ class CeateDeliverySlip extends Component {
 
     CreateDeliveryService.saveDelivery(createObj).then(res => {
       if (res) {
-        toast.success('ES NUMBER:'+res.data);
+        toast.success('ES NUMBER:' + res.data);
         // Printer Service used for Testing
-        PrinterStatusBill('DSNUM',res.data,null) 
+        PrinterStatusBill('DSNUM', res.data, null)
         this.setState({
           barCode: "",
           smNumber: "",
@@ -748,118 +748,118 @@ class CeateDeliverySlip extends Component {
 
   render() {
     return (
-      <Hotkeys 
-      keyName="shift+a,shift+z" 
-      onKeyDown={this.onKeyDown.bind(this)}
-    >
-      <div className="maincontent">
-        {/* <h5>Estimation Slip</h5> */}
-        {/* <h5> {t("EstimationSlip")}</h5> */}
-        <Modal isOpen={this.state.isGenerate} size="lg">
-          <div className="modal-header">
-          <div className="modal-title"><h5>Printer Settings</h5></div>
-          </div>
-          <ModalBody>
+      <Hotkeys
+        keyName="shift+a,shift+z"
+        onKeyDown={this.onKeyDown.bind(this)}
+      >
+        <div className="maincontent">
+          {/* <h5>Estimation Slip</h5> */}
+          {/* <h5> {t("EstimationSlip")}</h5> */}
+          <Modal isOpen={this.state.isGenerate} size="lg">
+            <div className="modal-header">
+              <div className="modal-title"><h5>Printer Settings</h5></div>
+            </div>
+            <ModalBody>
+              <div className="row">
+                <div className="col-6">
+                  <div className="form-group">
+                    <label>IP Address</label>
+                    <input type="text" className="form-control" value={this.state.ipAddress}
+                      onChange={(e) => this.setState({ ipAddress: e.target.value })}
+                      placeholder="Enter IP"></input>
+                  </div>
+                </div>
+                <div className="col-3">
+                  <div className="form-group">
+                    <label>Port Number</label>
+                    <input type="text" className="form-control" value={this.state.port}
+                      onChange={(e) => this.setState({ port: e.target.value })}
+                      placeholder="Enter Port"></input>
+                  </div>
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <button className="btn-unic fs-12" onClick={this.hideModal}>
+                Close
+              </button>
+              <button
+                className="btn btn-unic active fs-12"
+                onClick={this.connectPrinter}
+              >
+                Connect
+              </button>
+            </ModalFooter>
+          </Modal>
+          <div className="">
             <div className="row">
-              <div className="col-6">
+              <div className="col-6 col-sm-2 sele">
+                <label>Select Type</label>
                 <div className="form-group">
-                  <label>IP Address</label>
-                  <input type="text" className="form-control" value={this.state.ipAddress}
-                    onChange={(e) => this.setState({ipAddress: e.target.value})}
-                  placeholder="Enter IP"></input>
+
+
+                  <Select
+                    className="upper-case"
+                    placeholder="Select"
+                    value={this.state.selectedType} // set selected value
+                    options={this.state.typesList} // set list of the data
+                    onChange={this.handleChange} // assign onChange function
+                    isDisabled={true}
+
+
+                  />
+                  {this.props.disabled}
                 </div>
               </div>
-              <div className="col-3">
+              <div className="col-sm-2 col-6 scaling-mtop">
+                <label>SM Number<span className="text-red font-bold">*</span></label>
                 <div className="form-group">
-                  <label>Port Number</label>
-                  <input type="text" className="form-control" value={this.state.port} 
-                   onChange={(e) => this.setState({port: e.target.value})}
-                  placeholder="Enter Port"></input>
+                  <input
+                    type="text"
+                    autoFocus
+                    className="form-control"
+                    value={this.state.smNumber}
+                    onKeyPress={this.getDeliverySlips}
+                    placeholder="SM Number"
+                    maxLength={errorLengthMax.smNumber}
+                    onChange={(e) => this.setState({ smNumber: e.target.value })}
+                  />
                 </div>
-              </div>
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <button className="btn-unic fs-12" onClick={this.hideModal}>
-              Close   
-            </button>
-            <button
-              className="btn btn-unic active fs-12"
-              onClick={this.connectPrinter}
-            >
-              Connect
-            </button>
-          </ModalFooter>
-        </Modal>
-        <div className="">
-          <div className="row">
-            <div className="col-6 col-sm-2 sele">
-            <label>Select Type</label>
-              <div className="form-group">
-
-
-                <Select
-                  className="upper-case"
-                  placeholder="Select"
-                  value={this.state.selectedType} // set selected value
-                  options={this.state.typesList} // set list of the data
-                  onChange={this.handleChange} // assign onChange function
-                  isDisabled={true}
-                  
-
-                />
-                {this.props.disabled}
-              </div>
-            </div>
-            <div className="col-sm-2 col-6 scaling-mtop">
-            <label>SM Number<span className="text-red font-bold">*</span></label>
-              <div className="form-group">
-                <input
-                  type="text"
-                  autoFocus
-                  className="form-control"
-                  value={this.state.smNumber}
-                  onKeyPress={this.getDeliverySlips}
-                  placeholder="SM Number"
-                  maxLength={errorLengthMax.smNumber}
-                  onChange={(e) => this.setState({ smNumber: e.target.value })}
-                />
-              </div>
-              <div>
-                             <span className="fs-12" style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
-                                                        </div>
-              {/* <div>
+                <div>
+                  <span className="fs-12" style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
+                </div>
+                {/* <div>
                 <span style={{ color: "red" }}>{this.state.errors["smNumber"]}</span>
                                         </div> */}
-            </div>
-            <div className="col-6 col-sm-2">
-            <label>Barcode</label>
-              <div className="form-group">
-                {/* <input type="text" className="form-control" name="barCode" value={this.state.barCode} onKeyPress={this.getDeliverySlips}
+              </div>
+              <div className="col-6 col-sm-2">
+                <label>Barcode</label>
+                <div className="form-group">
+                  {/* <input type="text" className="form-control" name="barCode" value={this.state.barCode} onKeyPress={this.getDeliverySlips}
                                  placeholder="Barcode [Crtl + 1]"/> */}
 
-                <input
-                  type="text"
-                  name="barCode"
-                  className="form-control"
-                  value={this.state.barCode}
-                  onChange={(e) => this.setState({ barCode: e.target.value }, () => { 
-                    this.getDeliverySlips(e) 
-                  })}
-                  autoComplete="off"
-                  onKeyPress={this.getDeliverySlips}
-                  placeholder="ENTER BARCODE"
-                />
-                {/* <button type="button"className="scan">
+                  <input
+                    type="text"
+                    name="barCode"
+                    className="form-control"
+                    value={this.state.barCode}
+                    onChange={(e) => this.setState({ barCode: e.target.value }, () => {
+                      this.getDeliverySlips(e)
+                    })}
+                    autoComplete="off"
+                    onKeyPress={this.getDeliverySlips}
+                    placeholder="ENTER BARCODE"
+                  />
+                  {/* <button type="button"className="scan">
                                <img src={scan}/> SCAN  
                 </button> */}
-              </div>
-              {/* <div>
+                </div>
+                {/* <div>
                <span style={{ color: "red" }}>{this.state.errors["barCode"]}</span>
                                         </div> */}
-            </div>
-          
-            {/* <div className="col-sm-3 col-6 scaling-mtop">
+              </div>
+
+              {/* <div className="col-sm-3 col-6 scaling-mtop">
               <div className="form-group">
                 <input
                   type="number"
@@ -871,11 +871,11 @@ class CeateDeliverySlip extends Component {
                 />
               </div>
             </div> */}
-            <div className="col-sm-2 scaling-ptop col-6 mt-4">
-              <div className="form-group">
+              <div className="col-sm-2 scaling-ptop col-6 mt-4">
+                <div className="form-group">
 
-                {/* onClick={this.checkPromo} */}
-                {/* <button
+                  {/* onClick={this.checkPromo} */}
+                  {/* <button
                   className={
                     "btn-login btn-create" +
                     (!this.state.isCheckPromo ? " btn-disable" : "")
@@ -884,40 +884,40 @@ class CeateDeliverySlip extends Component {
                 >
                   Check Promo Discount
                 </button> */}
-                <button
-                  className={
-                    "btn-login btn-create" +
-                    (!this.state.isCheckPromo ? " btn-disable" : "") 
-                  }
-                  onClick={this.checkPromo}
-                  disabled={!this.state.isCheckPromo}
-                >
-                  Check Promo Discount
-                </button>
+                  <button
+                    className={
+                      "btn-login btn-create" +
+                      (!this.state.isCheckPromo ? " btn-disable" : "")
+                    }
+                    onClick={this.checkPromo}
+                    disabled={!this.state.isCheckPromo}
+                  >
+                    Check Promo Discount
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="col-sm-2 col-6 pt-4 mt-1 cursor">
-                  <img src={print}></img> <span className="text-red"
-                   onClick={this.openPrinterPopup}
-                  >Connect To Printer</span>
-            </div>
-            <div className="col-sm-3 scaling-ptop col-6">
-              <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                <input type="checkbox" className="form-check-input filled-in"
-                  checked={this.state.isRemember}
-                  onChange={this.remberSalesMan} id="remember" />
-                <label className="form-check-label" htmlFor="remember">Remember Sales Man</label>
+              <div className="col-sm-2 col-6 pt-4 mt-1 cursor">
+                <img src={print}></img> <span className="text-red"
+                  onClick={this.openPrinterPopup}
+                >Connect To Printer</span>
+              </div>
+              <div className="col-sm-3 scaling-ptop col-6">
+                <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                  <input type="checkbox" className="form-check-input filled-in"
+                    checked={this.state.isRemember}
+                    onChange={this.remberSalesMan} id="remember" />
+                  <label className="form-check-label" htmlFor="remember">Remember Sales Man</label>
 
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div>
-          {this.renderTableDetails()}
-        </div>
+          <div>
+            {this.renderTableDetails()}
+          </div>
 
-        {/* <ToastContainer /> */}
-      </div>
+          {/* <ToastContainer /> */}
+        </div>
       </Hotkeys>
     );
   }

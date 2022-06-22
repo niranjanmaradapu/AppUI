@@ -646,7 +646,7 @@ export default class BarcodeList extends Component {
       if (res.data) {
         toast.success("Barcode added successfully");
         // Printer Barcode used for Testing
-        PrintBarcode('BARCODE', res.data);
+        // PrintBarcode('BARCODE', res.data);
         this.setState({ isAddBarcode: false });
         this.props.history.push("/barcodeList");
         this.getAllBarcodes(0);
@@ -1747,7 +1747,7 @@ export default class BarcodeList extends Component {
                 className="btn-unic-redbdr mt-2 m-r-2"
                 onClick={this.openBarcode}
               >
-               <i className="icon-add_btn"></i> Add Barcode
+                <i className="icon-add_btn"></i> Add Barcode
               </button>
               {/*          
               <input onChange={this.handleExcelChange}  type='file' accept='.xlsx'/> */}
@@ -1763,7 +1763,7 @@ export default class BarcodeList extends Component {
                 className="btn-unic-redbdr mt-2"
                 onClick={this.fileUploadAction}
               >
-               <i className="icon-add_btn"></i> Add Bulk
+                <i className="icon-add_btn"></i> Add Bulk
               </button>
             </div>
           </div>

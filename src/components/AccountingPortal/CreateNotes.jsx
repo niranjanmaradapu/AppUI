@@ -96,6 +96,7 @@ export default class CreateNotes extends Component {
   }
 
   searchCreditNotes = (pageNumber) => {
+    if(this.state.fromDate || this.state.toDate || this.state.searchMobileNumber){
     const { storeId, fromDate, toDate, searchMobileNumber } = this.state;
    const reqOb =  {
       fromDate: fromDate,
@@ -115,6 +116,9 @@ export default class CreateNotes extends Component {
         toast.error("No Record Found")
       }
     });
+  }else{
+    toast.error("Please Give Any Input Field");
+  }
   }
 
   clearCreditNotes = () => {
@@ -495,7 +499,10 @@ changePage(pageNumber) {
                   if (startDate <= endDate) {
                     this.setState({ toDate: e.target.value });
                   } else {
-                    toast.error("Please select from date");
+                    toast.error("To Date Should Be Greater Than From Date");
+                  }
+                  if(endDate){
+                    toast.error("Please Select To Date");
                   }
                 }}
                 autoComplete="off"

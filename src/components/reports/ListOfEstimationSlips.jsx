@@ -107,6 +107,7 @@ export default class ListOfEstimationSlips extends Component {
       this.setState({
         dsList: res?.data?.result?.deliverySlip,
         dsDetailsList: res.data.result.deliverySlip,
+        totalPages:res.data.result.deliverySlip.totalPages
       });
     });
   }
@@ -428,6 +429,8 @@ if (startDate < endDate){
             </tbody> */}
             <tbody>{this.renderTableData()}</tbody>
           </table>
+          <div className="row m-0 pb-3 mb-5 mt-3">
+            {this.state.totalPages > 1 ? (
           <div className="d-flex justify-content-center">
                  <ReactPageNation
                   {...this.state.dsList}
@@ -436,6 +439,8 @@ if (startDate < endDate){
                     }}
                    />
                   </div>
+            ):null}
+            </div>
         </div>
       </div>
     );

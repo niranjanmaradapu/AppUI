@@ -768,9 +768,9 @@ export default class BarcodeList extends Component {
         <th className="col-3">BARCODE</th>
         <th className="col-1">MRP</th>
         <th className="col-2">CREATED DATE</th>
-        <th className="col-1">QTY</th>
-        <th className="col-1">VALUE</th>
-        <th className="col-1">DOMAIN</th>
+        <th className="col-1 p-l-1">QTY</th>
+        <th className="col-1 p-l-0">VALUE</th>
+        <th className="col-1 p-l-0">DOMAIN</th>
         <th className="col-2 text-center">Actions</th>
       </tr>
     );
@@ -783,9 +783,9 @@ export default class BarcodeList extends Component {
         <th className="col-3">BARCODE</th>
         <th className="col-1">Mrp</th>
         <th className="col-2">CREATED DATE</th>
-        <th className="col-1">QTY</th>
-        <th className="col-1">VALUE</th>
-        <th className="col-1">DOMAIN</th>
+        <th className="col-1 p-l-1">QTY</th>
+        <th className="col-1 p-l-0">VALUE</th>
+        <th className="col-1 p-l-0">DOMAIN</th>
         <th className="col-2 text-center">Actions</th>
       </tr>
     );
@@ -1735,12 +1735,12 @@ export default class BarcodeList extends Component {
                   this.setState({ pageNumber: 0 });
                 }}
               >
-                SEARCH
+                Search
               </button>
               <button className="btn-unic-search active m-r-2 mt-2"
                onClick={this.clear}
                >
-                 CLEAR</button>
+                 Clear</button>
               <button
                 className="btn-unic-redbdr mt-2 m-r-2"
                 onClick={this.openBarcode}

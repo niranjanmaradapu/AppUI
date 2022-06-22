@@ -361,12 +361,12 @@ export default class TagCustomer extends Component {
           </div>
           <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
-              <label>GV NUMBER</label>
+              <label>GV Number</label>
               <input
                 type="number"
                 className="form-control"
                 min={0}
-                placeholder="GV NUMBER"
+                placeholder="GV Number"
                 value={this.state.gvNumber1}
                 onChange={(e) => this.setState({ gvNumber1: e.target.value })}
               />
@@ -379,7 +379,7 @@ export default class TagCustomer extends Component {
                 className="btn-unic-search active m-r-2"
                 onClick={this.searchGiftVoucher}
               >
-                SEARCH
+                Search
               </button>
               <button
                 className="btn-unic-search active m-r-2"
@@ -518,7 +518,7 @@ export default class TagCustomer extends Component {
                 className="btn-unic-search active mt-1 m-r-2"
                 onClick={this.addGiftVoucher}
               >
-                ADD GIFT VOUCHER
+                Add Gift Voucher
               </button>
             </div>
             <div className="col-12 col-sm-9">

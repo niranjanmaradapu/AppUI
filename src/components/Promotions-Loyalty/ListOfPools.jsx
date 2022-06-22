@@ -133,7 +133,8 @@ export default class ListOfPools extends Component {
     activeIndex: null,
     selectedOption: '',
     errors: [],
-    poolError: {}
+    poolError: {},
+    isPoolEdited: false
     };
 
     this.addPool = this.addPool.bind(this);
@@ -361,7 +362,8 @@ export default class ListOfPools extends Component {
               poolName: '',
               poolType: '',
               addNewRule: [],
-              updatedRuleVO: []
+              updatedRuleVO: [],
+              activeIndex: null
             });
             this.getPoolList();
         } else {
@@ -450,9 +452,10 @@ export default class ListOfPools extends Component {
             return obj;
         });
         this.state.addNewRule[idx].valueList = columnNames;
-        this.setState({
-          addNewRule
-        });
+        // if(this.state.isPoolRuleUpdated) {
+        //   this.state.addNewRule[idx].valueList = columnNames;
+        // }
+       
       } else {
         toast.error(res.data.message);
       }
@@ -501,10 +504,18 @@ export default class ListOfPools extends Component {
     const createdBy = user['cognito:groups'][0];
     const pool =  listOfPools.find(pool => pool.poolId === item.poolId);
     const conditionsList = this.conditionsList(pool.pool_RuleVo);
+    conditionsList.forEach((item, idx) => {
+      if(item.columnName  === 'BatchNo' || item.columnName  === 'Division' || item.columnName  === 'SubSection' ||  
+      item.columnName  === 'Section' || item.columnName  === 'Uom') {
+          this.getValuesForAllColumns(item.columnName, idx);
+      }
+    });
     this.setState({
         // getting max rule num
          // ruleNumber: Math.max(...conditionsList.map(item => item.ruleNumber)),
          isUpdatable: true,
+         isPoolEdited: true,
+         activeIndex: null,
          isAddPool: true,
          poolId: pool.poolId,
          poolName: pool.poolName,
@@ -553,7 +564,7 @@ export default class ListOfPools extends Component {
   } 
 
   closePoolRule() {
-    this.setState({ isAddPoolRule : false });
+    this.setState({ isAddPoolRule : false,  isPoolEdited: false, activeIndex: null, });
   }
   handleCreatedBy(e) {
     this.setState({ createdBy: e.target.value });
@@ -723,7 +734,13 @@ export default class ListOfPools extends Component {
     hash[key] = { ruleNumber: o.ruleNumber, ruleType: o.ruleType, isForEdit: o.isForEdit, conditionVos : [] };
     grouped.push(hash[key]);
     }
-    ['used'].forEach(function (k) { hash[key]['conditionVos'].push({ columnName : o['columnName'], givenValues : [o['givenValue']], operatorSymbol: o['operatorSymbol']}) });
+    let value ;
+    if(typeof o['givenValue'] === 'object') {
+      value = o['givenValue'].value;
+      } else {
+        value = o['givenValue'];
+    }
+    ['used'].forEach(function (k) { hash[key]['conditionVos'].push({ columnName : o['columnName'], givenValues : [value], operatorSymbol: o['operatorSymbol']}) });
     });
     return grouped;
   }
@@ -824,11 +841,13 @@ export default class ListOfPools extends Component {
           });
         if(activeTab === 'INCLUDED') {      
           // const includeRules = [...addedIncludedPoolRules, ...addedNewRules];
-          const finalIncludedRules = addedNewRules.map((item) => { 
+          const finalIncludedRules = addedNewRules.map((item) => {
             item.ruleType = 'Include';
-            return item; 
-          });
-         
+            let itm = JSON.parse(item.givenValue);           
+            delete item.givenValue; 
+            item.givenValue = itm;
+            return item;  
+          });         
          const groupedRules = this.groupByRuleNumber(finalIncludedRules);
          const includeRules = [...addedIncludedPoolRules, ...groupedRules];
          includeRules.forEach((item, index) => {
@@ -844,6 +863,9 @@ export default class ListOfPools extends Component {
           // const excludeRules = [...addedExcludedPoolRules, ...addedNewRules];
           const finalExcludedRules = addedNewRules.map((item) => { 
             item.ruleType = 'Exclude';
+            let itm = JSON.parse(item.givenValue);
+            delete item.givenValue;
+            item.givenValue = itm;
             return item; 
           });
           const groupedRules = this.groupByRuleNumber(finalExcludedRules);
@@ -933,10 +955,46 @@ FirstTab = () => {
                             {item.rules.map((itm, ind) => {
                                 return (
                                   <tr key={ind}>
-                                    <td className="col-3">{itm.columnName}</td>
-                                    <td className="col-3">{itm.operatorSymbol}</td>
-                                    <td className="col-3">{itm.givenValue}</td>
-                                  </tr>
+                                  <td className="col-3">{itm.columnName}</td>
+                                  <td className="col-3">{itm.operatorSymbol}</td>
+                                  <td  className="col-3">                                    
+                                    {this.state.isPoolEdited ? this.state.addedIncludedPoolRules[index].rules[ind].valueList ? <select
+                                      value={this.state.addedIncludedPoolRules[index].rules[ind].givenValue} 
+                                      disabled                       
+                                      name="givenValue"
+                                      className="form-control">
+                                      {
+                                          this.state.addedIncludedPoolRules[index].rules[ind].valueList &&
+                                          this.state.addedIncludedPoolRules[index].rules[ind].valueList.map((item, i) => 
+                                          (<option key={i} value={item.value}>{item.label}</option>))
+                                      }
+                                      </select> : <input 
+                                        type="text" 
+                                        name="givenValue"
+                                        value={this.state.addedIncludedPoolRules[index].rules[ind].givenValue}
+                                        disabled
+                                        className="form-control"
+                                      /> :
+                                      this.state.addedIncludedPoolRules[index].rules[ind].valueList ? <select
+                                      value={this.state.addedIncludedPoolRules[index].rules[ind].givenValue.value} 
+                                      disabled                       
+                                      name="givenValue"
+                                      className="form-control">
+                                      {
+                                          this.state.addedIncludedPoolRules[index].rules[ind].valueList &&
+                                          this.state.addedIncludedPoolRules[index].rules[ind].valueList.map((item, i) => 
+                                          (<option key={i} value={item.value}>{item.label}</option>))
+                                      }
+                                      </select> : <input 
+                                        type="text" 
+                                        name="givenValue"
+                                        value={this.state.addedIncludedPoolRules[index].rules[ind].givenValue}
+                                        disabled
+                                        className="form-control"
+                                      />
+                                      }
+                                  </td>                             
+                                </tr>
                                   )
                             })}
                             </tbody>
@@ -982,7 +1040,43 @@ SecondTab = () => {
                                 <tr className="m-0 p-0" key={ind}>
                                   <td className="col-3">{itm.columnName}</td>
                                   <td className="col-3">{itm.operatorSymbol}</td>
-                                  <td className="col-3">{itm.givenValue}</td>
+                                  <td  className="col-3">                                    
+                                    {this.state.isPoolEdited ? this.state.addedExcludedPoolRules[index].rules[ind].valueList ? <select
+                                      value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue} 
+                                      disabled                       
+                                      name="givenValue"
+                                      className="form-control">
+                                      {
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList &&
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList.map((item, i) => 
+                                          (<option key={i} value={item.value}>{item.label}</option>))
+                                      }
+                                      </select> : <input 
+                                        type="text" 
+                                        name="givenValue"
+                                        value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue}
+                                        disabled
+                                        className="form-control"
+                                      /> :
+                                      this.state.addedExcludedPoolRules[index].rules[ind].valueList ? <select
+                                      value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue.value} 
+                                      disabled                       
+                                      name="givenValue"
+                                      className="form-control">
+                                      {
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList &&
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList.map((item, i) => 
+                                          (<option key={i} value={item.value}>{item.label}</option>))
+                                      }
+                                      </select> : <input 
+                                        type="text" 
+                                        name="givenValue"
+                                        value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue}
+                                        disabled
+                                        className="form-control"
+                                      />
+                                      }
+                                  </td>  
                                 </tr>
                                 )
                           })}
@@ -1000,6 +1094,7 @@ SecondTab = () => {
 handleInclude = () => {
   this.setState({
     activeTab: 'INCLUDED',
+    activeIndex: null,
     // ruleNumber: this.state.ruleNumber,
     addNewRule: []
   });
@@ -1007,6 +1102,7 @@ handleInclude = () => {
 handleExclude = () => {
   this.setState({
     activeTab: 'EXCLUDED',
+    activeIndex: null,
     // ruleNumber: this.state.ruleNumber,
     addNewRule: []
   });
@@ -1158,8 +1254,8 @@ Tabs = () => {
                                   value={this.state.addNewRule[idx].selectedPoolValues}
                                   // value={this.state.addNewRule[idx].givenValue}
                                 />
-                               : 
-                              
+                               :     
+                                                         
                                 <select
                                   value={this.state.addNewRule[idx].givenValue} 
                                   onChange={ e => this.handleTextChange(idx, e)}                          
@@ -1169,7 +1265,7 @@ Tabs = () => {
                                     {
                                       this.state.addNewRule[idx].valueList &&
                                       this.state.addNewRule[idx].valueList.map((item, i) => 
-                                      (<option key={i} value={item.value}>{item.label}</option>))
+                                      (<option key={i} value={this.state.isPoolRuleUpdated ? item.value : JSON.stringify(item)}>{item.label}</option>))
                                   }
                                 </select>
                           

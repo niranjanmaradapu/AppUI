@@ -14,10 +14,12 @@ export default class ProductsCombo extends Component {
       isAddCombo:false,
       comboName: '',
       comboQuantity: '',
+      qunatity:1,
       dsNumber: '',
       domainDetails: {},
       selectedStoreId: '',
       error:{},
+      barList:[],
       listOfProducts: [],
       comboDescription: '',
       selectedDomainId: '',
@@ -56,11 +58,15 @@ export default class ProductsCombo extends Component {
   }
   addCombo() {
     this.setState({isAddCombo : true,isEdit: false});
+    this.setState({comboQuantity:"",
+    comboName:"" , comboPrice:"" , dsNumber :"" ,
+  })
+    
   } 
   closeCombo() {
-    this.setState({ isAddCombo : false,isEdit: false, listOfProducts: []});
+    this.setState({ isAddCombo : false,isEdit: false, listOfProducts: [] , barList :[]});
     this.setState({comboQuantity:"",
-    comboName:""
+    comboName:"" , comboPrice:"" , dsNumber :""
   })
   }
   clear = () => {
@@ -72,42 +78,71 @@ export default class ProductsCombo extends Component {
   }
 
   getBarcodeDetails() {
+    // let j = 0
     const { selectedStoreId, domainDetails, dsNumber } = this.state;
     InventoryService.getBarcodeDetails(dsNumber, domainDetails, selectedStoreId).then((res) => {
+      
       if (res) {
           const { barcode, name, itemMrp, id } = res.data;
-          const obj = { barcode, name, itemMrp, id, qty: 1};
-          // let count = false;
-          // this.setState({
-          //   dsNumber:"",
-          //   listOfProducts: [...this.state.listOfProducts, obj ]
-          // });
+          const obj = { barcode, name, itemMrp, id, qty:1};
+          if (res.data) {
+            res.data.quantity=1
           let count = false;
           if(this.state.listOfProducts.length === 0){
-            this.setState({
-                  listOfProducts: [...this.state.listOfProducts, obj ]
-                });
-         } else {
+            this.state.listOfProducts.push(res.data);
+            //  this.state.listOfProducts[0].quantity=1;
+          } else {
           for (let i = 0; i < this.state.listOfProducts.length; i++) {
             if (this.state.listOfProducts[i].barcode === res.data.barcode) {
               count = true
-            
-            this.state.listOfProducts[i].qty++;
-          
+              var items =[...this.state.listOfProducts];
+              if(items[i].quantity < items[i].qty){
+                items[i].quantity= items[i].quantity + 1;
+                break;
+              }
+            else{
+            toast.info("Insufficient quntity");
+            break
           }
-        }
+          
+       }
+      }
+      if(count === false){
+        this.state.listOfProducts.push(res.data);
+      }
+    
+         //   console.log("++++++++++++++++++"+"sucess")
+         //   // this.setState({
+         //   //   listOfProducts: [...this.state.listOfProducts, obj ]
+         //   // });
+         //   this.state.listOfProducts.push(res.data);
+         
+       
         
-      } this.setState({ barList: this.state.listOfProducts, barCode: '' }, () => {
-        this.state.barList.forEach((element) => {
+        //if(!count){
+       //this.state.listOfProducts.push(res.data);
+        //   console.log("++++++++++++++++++"+"sucess")
+        //   // this.setState({
+        //   //   listOfProducts: [...this.state.listOfProducts, obj ]
+        //   // });
+        //   this.state.listOfProducts.push(res.data);
+       // }
+
+        
+      } this.setState({ listOfProducts: this.state.listOfProducts, dsNumber: '' }, () => {
+        this.state.listOfProducts.forEach((element) => {
           if (element.quantity > 1) {
           } else {
-            element.totalMrp = element.itemMrp;
             element.quantity = parseInt("1");
           }
 
         });
       });
+      
     }
+  }
+    
+  
 
     });
   }
@@ -124,7 +159,7 @@ export default class ProductsCombo extends Component {
     });
   }
   saveProductBundle() {
-    const { listOfProducts, comboName, comboQuantity, comboDescription, selectedDomainId, selectedStoreId,comboPrice} = this.state;
+    const { listOfProducts,barList, comboName, comboQuantity, comboDescription, selectedDomainId, selectedStoreId,comboPrice} = this.state;
     const comboProductList = listOfProducts.map((itm) => {
       const obj = {};
       obj.id = itm.id;
@@ -174,6 +209,7 @@ handleChange (){
   const comboQuantity = (Event.target.validity.valid) ? 
   Event.target.value : this.state.comboQuantity;
 }
+
   
   // loadErrorMsgs() {
   //   this.state.error["comboName"] = "Please Enter Combo Name";
@@ -219,6 +255,7 @@ handleChange (){
     comboQuantity: item.bundleQuantity, 
     listOfProducts: item.productTextiles,
     comboPrice: item.itemMrp
+    
   });
   }
   searchCombo = () => {
@@ -307,6 +344,7 @@ handleChange (){
                   <input
                     type="text"
                     className="form-control"
+                    disabled={this.state.isEdit}
                     value={this.state.dsNumber}
                     placeholder="ENTER BARCODE"
                     onChange={(e) => this.setState({ dsNumber: e.target.value })}
@@ -348,9 +386,10 @@ handleChange (){
                                             className="form-control"
                                             name="qty"
                                             min="1"
+                                            max={item.qty}
                                             disabled={this.state.isEdit}
                                             placeholder=""
-                                            value={this.state.listOfProducts[index].qty}
+                                            value={!this.state.isEdit ? item.quantity : item.qty}
                                             onChange={e => this.handleQtyChange(index, e)}
                                           />
                    
@@ -389,6 +428,7 @@ handleChange (){
               type="date"
               className="form-control"
               placeholder="FROM DATE"
+              value={this.state.fromDate}
               onChange={(e) => this.setState({ fromDate: e.target.value })}
             />
           </div>
@@ -400,6 +440,7 @@ handleChange (){
               type="date"
               className="form-control"
               placeholder="TO DATE"
+              value={this.state.toDate}
               onChange={(e) => this.setState({ toDate: e.target.value })}
             />
           </div>

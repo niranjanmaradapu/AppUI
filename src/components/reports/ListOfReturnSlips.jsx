@@ -374,7 +374,7 @@ export default class ListOfReturnSlips extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="BARCODE NUMBER"
+                placeholder="Barcode Number"
                 value={this.state.barcode}
                 // onChange={(e) =>
                 //   this.setState({ barcodeTextileId: e.target.value })
@@ -428,7 +428,7 @@ export default class ListOfReturnSlips extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="BARCODE MRP <"
+                placeholder="Barcode MRP <"
                 value={this.state.itemMrpLessThan}
                 onChange={(e) =>
                   this.setState({ itemMrpLessThan: e.target.value })
@@ -443,7 +443,7 @@ export default class ListOfReturnSlips extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="BARCODE MRP >"
+                placeholder="Barcode MRP >"
                 value={this.state.itemMrpGreaterThan}
                 onChange={(e) =>
                   this.setState({ itemMrpGreaterThan: e.target.value })
@@ -459,7 +459,7 @@ export default class ListOfReturnSlips extends Component {
                   this.getBarcodes(0);
                 }}
               >
-                SEARCH{" "}
+                Search{" "}
               </button>
             </div>
           </div>

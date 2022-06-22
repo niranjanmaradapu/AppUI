@@ -242,7 +242,7 @@ export default class ManagePromo extends Component {
     }
     if (!searchStoreName || searchStoreName.length === 0) {
       formIsValid = false;
-      errors["searchStoreName"] = "Select Start Date";
+      errors["searchStoreName"] = "Select Promotion Name";
     }
     this.setState({ storeErrors: errors });               
     return formIsValid;

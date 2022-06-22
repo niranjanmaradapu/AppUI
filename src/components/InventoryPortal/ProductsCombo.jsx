@@ -452,12 +452,12 @@ handleChange (){
                  onClick={this.searchCombo}
                 className="btn-unic-search active m-r-2 mt-1"
               >
-                SEARCH
+                Search
               </button>
               <button className="btn-unic-search active m-r-2 mt-2"
               onClick={this.clear}
                >
-                 CLEAR
+                 Clear
                  </button>
 
 

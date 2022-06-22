@@ -428,6 +428,7 @@ handleChange (){
               type="date"
               className="form-control"
               placeholder="FROM DATE"
+              value={this.state.fromDate}
               onChange={(e) => this.setState({ fromDate: e.target.value })}
             />
           </div>
@@ -439,6 +440,7 @@ handleChange (){
               type="date"
               className="form-control"
               placeholder="TO DATE"
+              value={this.state.toDate}
               onChange={(e) => this.setState({ toDate: e.target.value })}
             />
           </div>

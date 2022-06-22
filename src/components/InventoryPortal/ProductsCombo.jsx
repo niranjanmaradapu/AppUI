@@ -58,11 +58,15 @@ export default class ProductsCombo extends Component {
   }
   addCombo() {
     this.setState({isAddCombo : true,isEdit: false});
+    this.setState({comboQuantity:"",
+    comboName:"" , comboPrice:"" , dsNumber :"" ,
+  })
+    
   } 
   closeCombo() {
-    this.setState({ isAddCombo : false,isEdit: false, listOfProducts: []});
+    this.setState({ isAddCombo : false,isEdit: false, listOfProducts: [] , barList :[]});
     this.setState({comboQuantity:"",
-    comboName:""
+    comboName:"" , comboPrice:"" , dsNumber :""
   })
   }
   clear = () => {
@@ -97,7 +101,6 @@ export default class ProductsCombo extends Component {
                 break;
               }
             else{
-
             toast.info("Insufficient quntity");
             break
           }
@@ -126,8 +129,8 @@ export default class ProductsCombo extends Component {
        // }
 
         
-      } this.setState({ barList: this.state.listOfProducts, barCode: '' }, () => {
-        this.state.barList.forEach((element) => {
+      } this.setState({ listOfProducts: this.state.listOfProducts, dsNumber: '' }, () => {
+        this.state.listOfProducts.forEach((element) => {
           if (element.quantity > 1) {
           } else {
             element.quantity = parseInt("1");
@@ -135,6 +138,7 @@ export default class ProductsCombo extends Component {
 
         });
       });
+      
     }
   }
     
@@ -156,7 +160,7 @@ export default class ProductsCombo extends Component {
   }
   saveProductBundle() {
     const { listOfProducts,barList, comboName, comboQuantity, comboDescription, selectedDomainId, selectedStoreId,comboPrice} = this.state;
-    const comboProductList = barList.map((itm) => {
+    const comboProductList = listOfProducts.map((itm) => {
       const obj = {};
       obj.id = itm.id;
       obj.barcode = itm.barcode;
@@ -251,6 +255,7 @@ handleChange (){
     comboQuantity: item.bundleQuantity, 
     listOfProducts: item.productTextiles,
     comboPrice: item.itemMrp
+    
   });
   }
   searchCombo = () => {
@@ -265,7 +270,7 @@ handleChange (){
     });
   }
   handleQtyChange = (idx, e) => {
-    let listOfProducts = this.state.barList;
+    let listOfProducts = this.state.listOfProducts;
     listOfProducts[idx][e.target.name] = e.target.value;
     this.setState({ listOfProducts });
   }
@@ -339,6 +344,7 @@ handleChange (){
                   <input
                     type="text"
                     className="form-control"
+                    disabled={this.state.isEdit}
                     value={this.state.dsNumber}
                     placeholder="ENTER BARCODE"
                     onChange={(e) => this.setState({ dsNumber: e.target.value })}
@@ -366,7 +372,7 @@ handleChange (){
                                     </tr>
                                 </thead>
                                 <tbody>
-                                  {this.state.barList.length > 0 && this.state.barList.map((item, index) => {
+                                  {this.state.listOfProducts.length > 0 && this.state.listOfProducts.map((item, index) => {
                                     return (
                                       <tr key={index}>
                                       <td className="col-1"> { index + 1 }</td>
@@ -383,14 +389,14 @@ handleChange (){
                                             max={item.qty}
                                             disabled={this.state.isEdit}
                                             placeholder=""
-                                            value={item.quantity}
+                                            value={!this.state.isEdit ? item.quantity : item.qty}
                                             onChange={e => this.handleQtyChange(index, e)}
                                           />
                    
                                         </div>
                                         {/* <span style={{ color: "red" }}>{this.state.error["listOfProducts"]}</span> */}
                                       </th>
-                                      {this.state.barList.length > 1 && <td className="col-1 text-center">
+                                      {this.state.listOfProducts.length > 1 && <td className="col-1 text-center">
                                         <i onClick={() => this.handleRemoveSpecificRow(index)} className="icon-delete m-l-2 fs-16"></i>
                                       </td>}
                                       </tr> 
@@ -452,12 +458,12 @@ handleChange (){
                  onClick={this.searchCombo}
                 className="btn-unic-search active m-r-2 mt-1"
               >
-                Search
+                SEARCH
               </button>
               <button className="btn-unic-search active m-r-2 mt-2"
               onClick={this.clear}
                >
-                 Clear
+                 CLEAR
                  </button>
 
 

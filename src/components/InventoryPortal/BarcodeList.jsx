@@ -1739,7 +1739,7 @@ export default class BarcodeList extends Component {
               >
                 Search
               </button>
-              <button className="btn-unic-search active m-r-2 mt-2"
+              <button className="btn-clear m-r-2 mt-2"
                 onClick={this.clear}
               >
                 Clear</button>
@@ -1747,7 +1747,7 @@ export default class BarcodeList extends Component {
                 className="btn-unic-redbdr mt-2 m-r-2"
                 onClick={this.openBarcode}
               >
-                Add Barcode
+               <i className="icon-add_btn"></i> Add Barcode
               </button>
               {/*          
               <input onChange={this.handleExcelChange}  type='file' accept='.xlsx'/> */}
@@ -1763,7 +1763,7 @@ export default class BarcodeList extends Component {
                 className="btn-unic-redbdr mt-2"
                 onClick={this.fileUploadAction}
               >
-                Add Bulk
+               <i className="icon-add_btn"></i> Add Bulk
               </button>
             </div>
           </div>

@@ -382,7 +382,7 @@ export default class TagCustomer extends Component {
                 Search
               </button>
               <button
-                className="btn-unic-search active m-r-2"
+                className="btn-clear m-r-2"
                 onClick={() => {
                   this.clearSearch();
                 }}

@@ -411,7 +411,7 @@ export default class GenerateReturnSlip extends Component {
                   <input
                     type="search"
                     className="form-control"
-                    placeholder="CUSTMER Mobile NUMBER"
+                    placeholder="Customer Mobile Number"
                     maxLength="10"
                     // value={this.state.mobileNo}
                     value={this.state.mobileNumber}
@@ -428,7 +428,7 @@ export default class GenerateReturnSlip extends Component {
                   className="btn-unic-search active m-r-2 scaling-mb"
                   onClick={this.getReturnSlipDetails}
                 >
-                  SEARCH
+                  Search
                 </button>
                 <button
                   className="btn-unic scaling-mb"

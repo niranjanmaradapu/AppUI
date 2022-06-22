@@ -799,7 +799,7 @@ class CeateDeliverySlip extends Component {
 
 
                   <Select
-                    className="upper-case"
+                    className="upper-case fs-14"
                     placeholder="Select"
                     value={this.state.selectedType} // set selected value
                     options={this.state.typesList} // set list of the data
@@ -848,7 +848,7 @@ class CeateDeliverySlip extends Component {
                     })}
                     autoComplete="off"
                     onKeyPress={this.getDeliverySlips}
-                    placeholder="ENTER BARCODE"
+                    placeholder="Enter Barcode"
                   />
                   {/* <button type="button"className="scan">
                                <img src={scan}/> SCAN  

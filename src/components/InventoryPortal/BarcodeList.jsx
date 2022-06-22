@@ -781,7 +781,7 @@ export default class BarcodeList extends Component {
       <tr className="m-0 p-0">
         <th className="col-1">S.NO</th>
         <th className="col-3">BARCODE</th>
-        <th className="col-1">LIST PRICE</th>
+        <th className="col-1">Mrp</th>
         <th className="col-2">CREATED DATE</th>
         <th className="col-1">QTY</th>
         <th className="col-1">VALUE</th>
@@ -1167,7 +1167,7 @@ export default class BarcodeList extends Component {
     this.state.errors["nameErr"] = "Please enter the Name";
     this.state.errors["colourErr"] = "Please enter the Colour";
     this.state.errors["batchErr"] = "please enter the Batch";
-    this.state.errors["listErr"] = "please enter the List Price";
+    this.state.errors["listErr"] = "please enter the Mrp";
     this.state.errors["uomErr"] = "please select the Uom";
     this.state.errors["empErr"] = "please enter the Emp ID";
     this.state.errors["storeErr"] = "please select the Store";
@@ -1522,7 +1522,7 @@ export default class BarcodeList extends Component {
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
                     <label>
-                      List Price
+                       MRP
                       <span className="text-red font-bold">*</span>
                     </label>
                     <input

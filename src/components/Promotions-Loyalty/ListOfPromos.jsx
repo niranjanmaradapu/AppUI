@@ -1477,9 +1477,9 @@ handleBenefitFormData() {
             </div>
           </div>
           <div className="col-sm-4 col-6 mt-2 pt-3">
-          <button className="btn-unic-redbdr m-r-2 " onClick={this.searchPromotion}>SEARCH</button>
+          <button className="btn-unic-search active m-r-2 " onClick={this.searchPromotion}>Search</button>
           <button
-              className="btn-unic-search active mt-2  " 
+              className="btn-unic-redbdr mt-2  " 
               onClick={this.addPromo}
             >
               <i className="icon-add_btn"></i> Add Promo

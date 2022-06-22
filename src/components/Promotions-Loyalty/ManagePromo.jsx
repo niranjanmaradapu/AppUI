@@ -880,10 +880,10 @@ haandleStartdate(e) {
           </ModalFooter>
         </Modal>
         <div className="row">
-          <div className="col-sm-2 col-6">
+          <div className="col-sm-2 col-6 sele">
             <div className="form-group mt-2 mb-1">
                <label>Store Name</label>
-              <Select
+              <Select className="fs-14"
                 // isMulti
                 onChange={this.onSearchStoreNameChange}
                 options={this.state.storesList}
@@ -937,9 +937,9 @@ haandleStartdate(e) {
             </div>
           </div>
           <div className="col-sm-2 col-6 mt-2 pt-4 p-0">
-          <button className="btn-unic-redbdr m-r-2 " onClick={this.searchPromo}>SEARCH</button>
+          <button className="btn-unic-search active m-r-2 " onClick={this.searchPromo}>Search</button>
           <button
-              className="btn-unic-search active"
+              className="btn-unic-redbdr"
               onClick={this.addStore}
             >
               <i className="icon-retail p-r-1"></i> Add Store
@@ -986,7 +986,17 @@ haandleStartdate(e) {
             } = item;
               return( 
               <tr key={index}>
-                  <td className="col-1 underline geeks"> <input type="checkbox" checked={item.isCheckBoxChecked}  onChange={(e) => this.handleChange(e,index, item)}/> <span className="pt-0 mt-0">{item.id}</span> </td>
+                  <td className="col-1 underline geeks"> 
+                  <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                  <input type="checkbox" className="form-check-input filled-in"
+                    checked={item.isCheckBoxChecked}  onChange={(e) => this.handleChange(e,index, item)}/>
+                  <span className="pt-0 mt-0">{item.id}</span> 
+                </div>
+
+                  {/* <input type="checkbox" checked={item.isCheckBoxChecked}  onChange={(e) => this.handleChange(e,index, item)}/> 
+                  <span className="pt-0 mt-0">{item.id}</span>  */}
+                  
+                  </td>
                   <td className="col-2">{item.promotionName}</td>
                   <td className="col-2">{item.storeName}</td>
                   <td className="col-2">{item.priority}</td>

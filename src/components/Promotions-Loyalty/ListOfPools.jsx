@@ -1381,8 +1381,8 @@ Tabs = () => {
             </div>
           </div>
           <div className="col-sm-4 col-12 pt-4 scaling-center scaling-mb">
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>SEARCH</button>
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearPool}>CLEAR</button>
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>Search</button>
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearPool}>Clear</button>
             <button className="btn-unic-redbdr mt-2" onClick={this.addPool}>Add Pool</button>
           </div>
           {/* <div className="col-sm-3 col-12 text-right pt-4 scaling-center scaling-mb">

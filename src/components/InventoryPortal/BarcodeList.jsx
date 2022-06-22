@@ -1167,7 +1167,7 @@ export default class BarcodeList extends Component {
     this.state.errors["nameErr"] = "Please enter the Name";
     this.state.errors["colourErr"] = "Please enter the Colour";
     this.state.errors["batchErr"] = "please enter the Batch";
-    this.state.errors["listErr"] = "please enter the Mrp";
+    this.state.errors["mrpErr"] = "please enter the Mrp";
     this.state.errors["uomErr"] = "please select the Uom";
     this.state.errors["empErr"] = "please enter the Emp ID";
     this.state.errors["storeErr"] = "please select the Store";

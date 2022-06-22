@@ -22,9 +22,9 @@ import PrintBarcode from "../../commonUtils/checkPrinter";
 const data1 = [
   "Textile",
 
- "Retail",
+  "Retail",
 
- "Electronics"
+  "Electronics"
 
 ];
 export default class BarcodeList extends Component {
@@ -152,14 +152,14 @@ export default class BarcodeList extends Component {
     this.getbarcodeDetails(barcodeId);
   }
   clear = () => {
-    this.setState({ 
+    this.setState({
       fromDate: '',
       toDate: '',
-      barcodeSearchId:''
-     }, () => {
-       this.getAllBarcodes(0);
-      });
-       
+      barcodeSearchId: ''
+    }, () => {
+      this.getAllBarcodes(0);
+    });
+
   }
 
   componentWillMount() {
@@ -273,13 +273,13 @@ export default class BarcodeList extends Component {
     //     storeId: this.state.selectedStoreId,
     //   };
     // } else {
-      
-      saveJson = {
-        fromDate: this.state.fromDate,
-        toDate: this.state.toDate,
-        barcode: this.state.barcodeSearchId.trim(),
-        storeId: this.state.selectedStoreId,
-      };
+
+    saveJson = {
+      fromDate: this.state.fromDate,
+      toDate: this.state.toDate,
+      barcode: this.state.barcodeSearchId.trim(),
+      storeId: this.state.selectedStoreId,
+    };
     // }
 
     InventoryService.getAllBarcodes(
@@ -291,15 +291,17 @@ export default class BarcodeList extends Component {
         // console.log("...", pageNumber);
         if (res.data.content.length !== 0) {
           this.state.barcodesList = res?.data;
-          this.setState({ barcodesList: this.state.barcodesList,
-          totalPages: res.data.totalPages,});
+          this.setState({
+            barcodesList: this.state.barcodesList,
+            totalPages: res.data.totalPages,
+          });
           this.setStoreNames();
-    
+
         } else {
           this.setState({ barcodesList: [] });
           toast.error("No Record Found");
         }
-        
+
       })
       .catch((error) => {
         if (error.response && error.response.data.isSuccess === "false") {
@@ -486,11 +488,11 @@ export default class BarcodeList extends Component {
       }
     });
   }
-  
+
   dateFormat = (d) => {
     let date = new Date(d)
-    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
-}
+    return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes()
+  }
 
   getAllStoresList() {
     URMService.getStoresByDomainId(this.state.clientId).then(
@@ -573,7 +575,7 @@ export default class BarcodeList extends Component {
             hsnCode: barcode.hsnCode,
             name: barcode.name,
             domainDetailsObj: barcode.domainType,
-            selectedDomain:barcode.domainType
+            selectedDomain: barcode.domainType
           });
         }
         this.setDropdowns(true);
@@ -589,7 +591,7 @@ export default class BarcodeList extends Component {
       this.getAllSubsections(this.state.section);
     }
   }
- 
+
   addBarcode() {
     let domainInfo = this.state.domainDetailsObj;
     this.state.textileFieldsErr = false;
@@ -612,27 +614,27 @@ export default class BarcodeList extends Component {
     //     colour: this.state.colour,
     //   };
     // } else {
-      saveJson = {
-        status: (domainInfo === "Retail")?this.state.status:null,
-        // stockValue:(domainInfo === "Retail")? this.state.stockValue:null,
-        productValidity:(domainInfo === "Retail")?this.state.productValidity:null,
-        isBarcode:(domainInfo === "Retail")?false:null,
-        division: parseInt(this.state.division),
-        section: parseInt(this.state.section),
-        subSection: parseInt(this.state.subSection),
-        category: parseInt(this.state.category),
-        batchNo: this.state.batchNo,
-        colour: this.state.colour,
-        name: this.state.name,
-        qty: parseInt(this.state.qty),
-        costPrice: parseInt(this.state.costPrice),
-        itemMrp: parseInt(this.state.listPrice),
-        storeId: parseInt(this.state.storeId),
-        empId: this.state.empId,
-        uom: this.state.uom,
-        domainType: this.state.domainDetailsObj,
-        hsnCode: this.state.hsnCode,
-      };
+    saveJson = {
+      status: (domainInfo === "Retail") ? this.state.status : null,
+      // stockValue:(domainInfo === "Retail")? this.state.stockValue:null,
+      productValidity: (domainInfo === "Retail") ? this.state.productValidity : null,
+      isBarcode: (domainInfo === "Retail") ? false : null,
+      division: parseInt(this.state.division),
+      section: parseInt(this.state.section),
+      subSection: parseInt(this.state.subSection),
+      category: parseInt(this.state.category),
+      batchNo: this.state.batchNo,
+      colour: this.state.colour,
+      name: this.state.name,
+      qty: parseInt(this.state.qty),
+      costPrice: parseInt(this.state.costPrice),
+      itemMrp: parseInt(this.state.listPrice),
+      storeId: parseInt(this.state.storeId),
+      empId: this.state.empId,
+      uom: this.state.uom,
+      domainType: this.state.domainDetailsObj,
+      hsnCode: this.state.hsnCode,
+    };
     // }
 
     InventoryService.addBarcode(
@@ -644,7 +646,7 @@ export default class BarcodeList extends Component {
       if (res.data) {
         toast.success("Barcode added successfully");
         // Printer Barcode used for Testing
-        // PrintBarcode('BARCODE',res.data);
+        PrintBarcode('BARCODE', res.data);
         this.setState({ isAddBarcode: false });
         this.props.history.push("/barcodeList");
         this.getAllBarcodes(0);
@@ -675,8 +677,8 @@ export default class BarcodeList extends Component {
       hsnCode: "",
       colour: "",
       qty: "",
-      selectedDomain:"",
-      domainDetailsObj:"",
+      selectedDomain: "",
+      domainDetailsObj: "",
       retailFieldsErr: false,
       textileFieldsErr: false,
       commonFieldsErr: false,
@@ -707,28 +709,28 @@ export default class BarcodeList extends Component {
     //     colour: this.state.colour,
     //   };
     // } else {
-      saveJson = {
-        status: this.state.edit?this.state.status:null,
-        productValidity: this.state.edit?this.state.productValidity:null,
-        id: this.state.productTextileId,
-        division: parseInt(this.state.division),
-        section: parseInt(this.state.section),
-        subSection: parseInt(this.state.subSection),
-        category: parseInt(this.state.category),
-        batchNo: this.state.batchNo,
-        colour: this.state.colour,
-        name: this.state.name,
-        qty: this.state.qty,
-        costPrice: this.state.costPrice,
-        itemMrp: parseInt(this.state.listPrice),
-        storeId: this.state.storeId,
-        domainType: this.state.domainDetailsObj,
-        empId: this.state.empId,
-        uom: this.state.uom,
-        productTextileId: this.state.productTextileId,
-        // hsnMasterId: this.state.hsnCode,
-        hsnCode: this.state.hsnCode,
-      };
+    saveJson = {
+      status: this.state.edit ? this.state.status : null,
+      productValidity: this.state.edit ? this.state.productValidity : null,
+      id: this.state.productTextileId,
+      division: parseInt(this.state.division),
+      section: parseInt(this.state.section),
+      subSection: parseInt(this.state.subSection),
+      category: parseInt(this.state.category),
+      batchNo: this.state.batchNo,
+      colour: this.state.colour,
+      name: this.state.name,
+      qty: this.state.qty,
+      costPrice: this.state.costPrice,
+      itemMrp: parseInt(this.state.listPrice),
+      storeId: this.state.storeId,
+      domainType: this.state.domainDetailsObj,
+      empId: this.state.empId,
+      uom: this.state.uom,
+      productTextileId: this.state.productTextileId,
+      // hsnMasterId: this.state.hsnCode,
+      hsnCode: this.state.hsnCode,
+    };
     // }
     InventoryService.addBarcode(
       saveJson,
@@ -741,10 +743,10 @@ export default class BarcodeList extends Component {
         this.stateReset();
         this.props.history.push("/barcodeList");
         this.getAllBarcodes(0);
-      } 
+      }
     });
   }
- 
+
   deleteBarcode(id) {
     InventoryService.deleteBarcode(id, this.state.domainDetailsObj).then(
       (res) => {
@@ -793,8 +795,8 @@ export default class BarcodeList extends Component {
 
   barcodesListTable() {
     return this.state.barcodesList.map((items, index) => {
-      {console.log('++++items++++++++++', items)}
-      const { 
+      { console.log('++++items++++++++++', items) }
+      const {
         // barcodeId,
         id,
         listPrice,
@@ -847,7 +849,7 @@ export default class BarcodeList extends Component {
             domainType
           } = items;
           let date = this.dateFormat(items.originalBarcodeCreatedAt);
-          
+
           return (
             <tr key={index}>
               <td className="col-1 geeks">{index + 1}</td>
@@ -1522,7 +1524,7 @@ export default class BarcodeList extends Component {
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
                     <label>
-                       MRP
+                      MRP
                       <span className="text-red font-bold">*</span>
                     </label>
                     <input
@@ -1660,12 +1662,12 @@ export default class BarcodeList extends Component {
               Cancel
             </button>
             <button className={this.state.selectedDomain ? "btn-unic active fs-12" : "btn-selection fs-12"}
-            disabled={!this.state.selectedDomain}
+              disabled={!this.state.selectedDomain}
               onClick={this.checkForMandatory || this.handleDomainChange}
             >
               Save
             </button>
-          
+
           </ModalFooter>
         </Modal>
         <div className="maincontent">
@@ -1738,9 +1740,9 @@ export default class BarcodeList extends Component {
                 Search
               </button>
               <button className="btn-unic-search active m-r-2 mt-2"
-               onClick={this.clear}
-               >
-                 Clear</button>
+                onClick={this.clear}
+              >
+                Clear</button>
               <button
                 className="btn-unic-redbdr mt-2 m-r-2"
                 onClick={this.openBarcode}

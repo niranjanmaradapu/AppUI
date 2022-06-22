@@ -652,7 +652,7 @@ class CeateDeliverySlip extends Component {
   };
 
   generateEstimationSlip() {
-    // this.setState({ isGenerate: true });
+    this.setState({ isGenerate: true });
     this.getLineItems();
   }
 

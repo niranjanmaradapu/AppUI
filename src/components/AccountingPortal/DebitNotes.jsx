@@ -506,14 +506,18 @@ handleValidation () {
                 onChange={(e) =>{
                   var startDate = new Date(this.state.fromDate);
                   var endDate = new Date(e.target.value);
-                  console.log(">>>", startDate, endDate);
-                  if(startDate && endDate ){
+                  console.log(">>>", this.state.fromDate);
+                  if(!this.state.fromDate){
+                    toast.error("Please Select From Date")
+                    console.log("++++++startdate+++++"+this.state.fromDate)
+                  }
                   if (startDate <= endDate) {
                     this.setState({ toDate: e.target.value });
                   } else {
                     toast.error("To Date Should Be Greater Than From Date");
+                    console.log("++++++enddate+++++"+endDate)
                   }
-                }
+                
                 
                 }}
                 autoComplete="off"

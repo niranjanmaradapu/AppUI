@@ -501,9 +501,6 @@ changePage(pageNumber) {
                   } else {
                     toast.error("To Date Should Be Greater Than From Date");
                   }
-                  if(endDate){
-                    toast.error("Please Select To Date");
-                  }
                 }}
                 autoComplete="off"
                 />

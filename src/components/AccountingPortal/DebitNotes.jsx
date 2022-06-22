@@ -81,6 +81,7 @@ export default class DebitNotes extends Component {
   }
 
   searchDebitNotes = (pageNumber) => {
+    if(this.state.fromDate || this.state.toDate || this.state.searchMobileNumber){
     const { storeId, fromDate, toDate, searchMobileNumber } = this.state;
     const reqOb =  {
       fromDate: fromDate,
@@ -100,6 +101,9 @@ export default class DebitNotes extends Component {
         toast.error("No Record Found")
       }
     });
+  }else{
+    toast.error("Please Give Any Input Field");
+  }
     }
   clearSearch = () => {
     this.setState({ fromDate: "", toDate: "", searchMobileNumber: "" }, () => {
@@ -503,11 +507,14 @@ handleValidation () {
                   var startDate = new Date(this.state.fromDate);
                   var endDate = new Date(e.target.value);
                   console.log(">>>", startDate, endDate);
+                  if(startDate && endDate ){
                   if (startDate <= endDate) {
                     this.setState({ toDate: e.target.value });
                   } else {
-                    toast.error("Please select from date");
+                    toast.error("To Date Should Be Greater Than From Date");
                   }
+                }
+                
                 }}
                 autoComplete="off"
               />

@@ -209,7 +209,7 @@ export default class ListOfPromotions extends Component {
                 min="0"
                 onKeyPress={this.preventMinus}
                 className="form-control"
-                placeholder="PROMO ID"
+                placeholder="Promo ID"
                 value={this.state.promoId}
                 onChange={(e) => this.setState({ promoId: e.target.value })}
               />
@@ -251,7 +251,7 @@ export default class ListOfPromotions extends Component {
           </div>
           <div className="col-6 col-sm-4 pt-4 scaling-mb mt-2">
             <div className="form-group" onClick={this.getPromotions}>
-              <button className="btn-unic-search active">SEARCH </button>
+              <button className="btn-unic-search active">Search </button>
             </div>
           </div>
         </div>

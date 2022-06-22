@@ -162,8 +162,8 @@ export default class ListOfEstimationSlips extends Component {
       return (
         <tr className="m-0 p-0" key={index}>
           <td className="col-1">{index + 1}</td>
-          <td className="col-2">{dsNumber}</td>
-          <td className="col-1">{createdDate}</td>
+          <td className="col-1">{dsNumber}</td>
+          <td className="col-2">{createdDate}</td>
           <td className="col-1">{status}</td>
           {/* <td className="col-2">₹{mrp}</td> */}
           <td className="col-2">₹{netAmount}</td>
@@ -389,25 +389,26 @@ if (startDate < endDate){
             <div className="form-group">
               <button
                 className="btn-unic-search active"
-                onClick={()=>{this.getEstimationSlip(0);this.setState({ pageNumber: 0 });}}>SEARCH</button>
+                onClick={()=>{this.getEstimationSlip(0);this.setState({ pageNumber: 0 });}}>Search</button>
             </div>
           </div>
         </div>
         <h5 className="pl-4 mt-3 mb-1 fs-18">List Of Estimation Slips</h5>
         <div className="row m-0 p-0 mb-3">
-          <table className="table table-borderless mb-1 mt-2 p-0">
+        <div className="table-responsive p-0">
+          <table className="table table-borderless mb-1 mt-2">
             <thead>
               <tr className="m-0 p-0">
                 <th className="col-1">S.NO</th>
-                <th className="col-2">ES Number</th>
-                <th className="col-1">ES DATE</th>
+                <th className="col-1">ES Number</th>
+                <th className="col-2">ES DATE</th>
                 <th className="col-1">ES STATUS</th>
                 <th className="col-2">GROSS AMOUNT</th>
                 <th className="col-1">PROMO DISC</th>
                 <th className="col-2">NET AMOUNT</th>
-
                 <th className="col-2 text-center">ACTION</th>
               </tr>
+              
             </thead>
           </table>
           <table className="table table-borderless gfg mb-0">
@@ -429,6 +430,7 @@ if (startDate < endDate){
             </tbody> */}
             <tbody>{this.renderTableData()}</tbody>
           </table>
+          </div>
           <div className="row m-0 pb-3 mb-5 mt-3">
             {this.state.totalPages > 1 ? (
           <div className="d-flex justify-content-center">

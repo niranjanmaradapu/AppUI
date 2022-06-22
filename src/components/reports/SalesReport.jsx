@@ -462,7 +462,7 @@ export default class SalesReport extends Component {
                 className="btn-unic-search active"
                 onClick={()=>{this.getSaleBills(0);this.setState({pageNumber:0})}}
               >
-                SEARCH
+                Search
               </button>
             </div>
           </div>

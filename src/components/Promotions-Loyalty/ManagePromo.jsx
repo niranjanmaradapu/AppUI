@@ -569,7 +569,7 @@ export default class ManagePromo extends Component {
     PromotionsService.searchPromotion(obj).then((res) => {     
       if(res.data.isSuccess === 'true') {
         this.setState({
-          allStorePromos: res.data.result,
+          allStorePromos: res.data.result.content,
           promoStatus: '', 
           searchByStoreName: '',
           endDate: '', 

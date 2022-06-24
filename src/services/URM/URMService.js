@@ -49,7 +49,7 @@ class URMService {
     }
 
     getStoresByDomainId(clientId) {
-        const param = '?clientId='+ clientId+'&isActive=false'; 
+        const param = '?clientId='+ clientId+'&isActive=true'; 
         return axios.get(BASE_URL+USER_MANAGEMENT_URL.getAllStores+param);
     }
 

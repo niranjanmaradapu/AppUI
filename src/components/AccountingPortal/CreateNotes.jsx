@@ -539,7 +539,7 @@ changePage(pageNumber) {
             {/* <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchCreditNotes}>SEARCH</button> */}
             <button className="btn-unic-search active m-r-2 mt-2" onClick={()=>{this.searchCreditNotes(0); this.setState({ pageNumber: 0 });}}>Search</button>
             <button className="btn-clear m-r-2 mt-2" onClick={this.clearCreditNotes}>Clear</button>
-            <button className="btn-unic-search mt-2 active" onClick={this.addCredit}>Add Credit Notes</button>
+            <button className="btn-unic-search mt-2 active" onClick={this.addCredit}><i className="icon-credit_notes"></i> Add Credit Notes</button>
           </div>
         </div>
         <div className="row m-0 p-0 scaling-center">

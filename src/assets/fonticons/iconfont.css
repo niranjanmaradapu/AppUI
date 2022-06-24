@@ -3,11 +3,11 @@ iconfont Webfont
 */
 @font-face {
 	font-family: 'iconfont';
-	src: url('iconfont.eot?1655895204637');
-	src: url('iconfont.eot?#iefix-1655895204637') format('embedded-opentype'),
-		url('iconfont.woff2?1655895204637') format('woff2'),
-		url('iconfont.woff?1655895204637') format('woff'),
-		url('iconfont.ttf?1655895204637') format('truetype');
+	src: url('iconfont.eot?1656052933489');
+	src: url('iconfont.eot?#iefix-1656052933489') format('embedded-opentype'),
+		url('iconfont.woff2?1656052933489') format('woff2'),
+		url('iconfont.woff?1656052933489') format('woff'),
+		url('iconfont.ttf?1656052933489') format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -33,457 +33,238 @@ iconfont Webfont
 Glyphs list
 */
 
-.icon-accounting_graph1:before {
-	content: '\ea01';
-	padding-top: 23px;
-}
-
-.icon-accounting_graph2:before {
-	content: '\ea02';
-	padding-top: 23px;
-}
-
 .icon-accounting_portal:before {
-	content: '\ea03';
-	padding-top: 23px;
+	content: '\ea01';
 }
 
 .icon-active_promotions:before {
-	content: '\ea04';
-	padding-top: 23px;
+	content: '\ea02';
 }
 
 .icon-add_btn:before {
-	content: '\ea05';
-	padding-top: 23px;
+	content: '\ea03';
 }
 
 .icon-add_pool:before {
-	content: '\ea06';
-	padding-top: 23px;
+	content: '\ea04';
 }
 
-.icon-adminimg:before {
-	content: '\ea07';
-	padding-top: 23px;
-}
-
-.icon-adminIMG1:before {
-	content: '\ea08';
-	padding-top: 23px;
+.icon-add_role:before {
+	content: '\ea05';
 }
 
 .icon-all_modules:before {
-	content: '\ea09';
-	padding-top: 23px;
+	content: '\ea06';
 }
 
 .icon-arrow_big_left:before {
-	content: '\ea0a';
-	padding-top: 23px;
+	content: '\ea07';
 }
 
 .icon-arrow_sm:before {
-	content: '\ea0b';
-	padding-top: 23px;
+	content: '\ea08';
 }
 
 .icon-audit:before {
-	content: '\ea0c';
-	padding-top: 23px;
+	content: '\ea09';
 }
 
 .icon-barcode:before {
-	content: '\ea0d';
-	padding-top: 23px;
-}
-
-.icon-barcode_big:before {
-	content: '\ea0e';
-	padding-top: 23px;
+	content: '\ea0a';
 }
 
 .icon-barcode_s:before {
-	content: '\ea0f';
-	padding-top: 23px;
-}
-
-.icon-bg_customer:before {
-	content: '\ea10';
-	padding-top: 23px;
-}
-
-.icon-bg_domain:before {
-	content: '\ea11';
-	padding-top: 23px;
+	content: '\ea0b';
 }
 
 .icon-card:before {
-	content: '\ea12';
-	padding-top: 23px;
+	content: '\ea0c';
 }
 
 .icon-cash:before {
-	content: '\ea13';
-	padding-top: 23px;
+	content: '\ea0d';
 }
 
 .icon-cash_memo:before {
-	content: '\ea14';
-	padding-top: 23px;
+	content: '\ea0e';
 }
 
 .icon-chart:before {
-	content: '\ea15';
-	padding-top: 23px;
+	content: '\ea0f';
 }
 
 .icon-circle_arrow:before {
-	content: '\ea16';
-	padding-top: 23px;
+	content: '\ea10';
 }
 
 .icon-close:before {
-	content: '\ea17';
-	padding-top: 23px;
+	content: '\ea11';
 }
 
 .icon-coupon:before {
-	content: '\ea18';
-	padding-top: 23px;
+	content: '\ea12';
 }
 
 .icon-create_customer:before {
-	content: '\ea19';
-	padding-top: 23px;
+	content: '\ea13';
 }
 
 .icon-create_delivery_slip:before {
-	content: '\ea1a';
-	padding-top: 23px;
+	content: '\ea14';
 }
 
 .icon-credit_notes:before {
-	content: '\ea1b';
-	padding-top: 23px;
+	content: '\ea15';
 }
 
 .icon-c_portal:before {
-	content: '\ea1c';
-	padding-top: 23px;
+	content: '\ea16';
 }
 
 .icon-c_portal_dark:before {
-	content: '\ea1d';
-	padding-top: 23px;
+	content: '\ea17';
 }
 
 .icon-c_portal_white:before {
-	content: '\ea1e';
+	content: '\ea18';
 }
 
 .icon-delete:before {
-	content: '\ea1f';
+	content: '\ea19';
 }
 
 .icon-down_arrow:before {
-	content: '\ea20';
-}
-
-.icon-easy_retail_logo:before {
-	content: '\ea21';
-}
-
-.icon-ecommerce:before {
-	content: '\ea22';
+	content: '\ea1a';
 }
 
 .icon-edit:before {
-	content: '\ea23';
-	padding-top: 23px;
-}
-
-.icon-electrical:before {
-	content: '\ea24';
-}
-
-.icon-electrical_electronics:before {
-	content: '\ea25';
-}
-
-.icon-error:before {
-	content: '\ea26';
+	content: '\ea1b';
 }
 
 .icon-eye:before {
-	content: '\ea27';
-	padding-top: 23px;
-}
-
-.icon-Final-Logo-Colour-and-Proportion:before {
-	content: '\ea28';
-}
-
-.icon-gift_v:before {
-	content: '\ea29';
+	content: '\ea1c';
 }
 
 .icon-HR_portal:before {
-	content: '\ea2a';
-	padding-top: 23px;
-}
-
-.icon-hsn:before {
-	content: '\ea2b';
+	content: '\ea1d';
 }
 
 .icon-inactive_promo:before {
-	content: '\ea2c';
+	content: '\ea1e';
 }
 
 .icon-inventory_portal:before {
-	content: '\ea2d';
-}
-
-.icon-jewellary:before {
-	content: '\ea2e';
+	content: '\ea1f';
 }
 
 .icon-khata:before {
-	content: '\ea2f';
-}
-
-.icon-last_month_sale:before {
-	content: '\ea30';
-}
-
-.icon-locked:before {
-	content: '\ea31';
-}
-
-.icon-login_bg:before {
-	content: '\ea32';
-}
-
-.icon-login_bg_circle:before {
-	content: '\ea33';
-}
-
-.icon-login_circle_big:before {
-	content: '\ea34';
-}
-
-.icon-login_main_bg:before {
-	content: '\ea35';
-}
-
-.icon-logo_01:before {
-	content: '\ea36';
-}
-
-.icon-logo_icon:before {
-	content: '\ea37';
-}
-
-.icon-logo_otsi:before {
-	content: '\ea38';
+	content: '\ea20';
 }
 
 .icon-loyalty_promo:before {
-	content: '\ea39';
+	content: '\ea21';
 }
 
 .icon-mail:before {
-	content: '\ea3a';
+	content: '\ea22';
 }
 
 .icon-management:before {
-	content: '\ea3b';
-}
-
-.icon-midi_blue:before {
-	content: '\ea3c';
-}
-
-.icon-midi_bluenew:before {
-	content: '\ea3d';
-}
-
-.icon-midi_dress:before {
-	content: '\ea3e';
-}
-
-.icon-monthly_sale:before {
-	content: '\ea3f';
-}
-
-.icon-notes:before {
-	content: '\ea40';
-}
-
-.icon-notes_add:before {
-	content: '\ea41';
+	content: '\ea23';
 }
 
 .icon-pramotions:before {
-	content: '\ea42';
+	content: '\ea24';
 }
 
 .icon-print:before {
-	content: '\ea43';
+	content: '\ea25';
 }
 
-.icon-profile:before {
-	content: '\ea44';
+.icon-product_combo:before {
+	content: '\ea26';
 }
 
 .icon-promo:before {
-	content: '\ea45';
+	content: '\ea27';
 }
 
 .icon-promotions_loyal:before {
-	content: '\ea46';
+	content: '\ea28';
 }
 
 .icon-qr_new:before {
-	content: '\ea47';
-}
-
-.icon-rebarcoading:before {
-	content: '\ea48';
+	content: '\ea29';
 }
 
 .icon-reports_chart:before {
-	content: '\ea49';
-}
-
-.icon-retail_logo:before {
-	content: '\ea4a';
+	content: '\ea2a';
 }
 
 .icon-return_slip:before {
-	content: '\ea4b';
-}
-
-.icon-r_brand:before {
-	content: '\ea4c';
+	content: '\ea2b';
 }
 
 .icon-R_logo:before {
-	content: '\ea4d';
+	content: '\ea2c';
 }
 
 .icon-sale:before {
-	content: '\ea4e';
-}
-
-.icon-sales_graph:before {
-	content: '\ea4f';
-}
-
-.icon-sales_graph_2:before {
-	content: '\ea50';
-}
-
-.icon-sales_report_graph1:before {
-	content: '\ea51';
-}
-
-.icon-sales_report_graph2:before {
-	content: '\ea52';
-}
-
-.icon-sales_report_graph3:before {
-	content: '\ea53';
-}
-
-.icon-sales_report_graph4:before {
-	content: '\ea54';
-}
-
-.icon-sales_report_graph5:before {
-	content: '\ea55';
-}
-
-.icon-sanitary:before {
-	content: '\ea56';
+	content: '\ea2d';
 }
 
 .icon-saree:before {
-	content: '\ea57';
+	content: '\ea2e';
 }
 
 .icon-scan:before {
-	content: '\ea58';
+	content: '\ea2f';
 }
 
 .icon-search:before {
-	content: '\ea59';
+	content: '\ea30';
 }
 
 .icon-stock:before {
-	content: '\ea5a';
-	padding-top: 23px;
+	content: '\ea31';
 }
 
 .icon-store:before {
-	content: '\ea5b';
-	padding-top: 23px;
+	content: '\ea32';
 }
 
 .icon-table_arrow_left:before {
-	content: '\ea5c';
-	padding-top: 23px;
+	content: '\ea33';
 }
 
 .icon-table_arrow_right:before {
-	content: '\ea5d';
+	content: '\ea34';
 }
 
 .icon-tag_customer:before {
-	content: '\ea5e';
-	padding-top: 23px;
-}
-
-.icon-textile:before {
-	content: '\ea5f';
+	content: '\ea35';
 }
 
 .icon-transfer:before {
-	content: '\ea60';
+	content: '\ea36';
 }
 
 .icon-upi:before {
-	content: '\ea61';
-	padding-top: 23px;
+	content: '\ea37';
 }
 
 .icon-up_arrow:before {
-	content: '\ea62';
-	padding-top: 23px;
-}
-
-.icon-urm_graph1:before {
-	content: '\ea63';
-}
-
-.icon-urm_graph2:before {
-	content: '\ea64';
-}
-
-.icon-urm_graph3:before {
-	content: '\ea65';
+	content: '\ea38';
 }
 
 .icon-URM_portal:before {
-	content: '\ea66';
+	content: '\ea39';
 }
 
 .icon-user_privileges:before {
-	content: '\ea67';
+	content: '\ea3a';
 }
 
 .icon-view:before {
-	content: '\ea68';
-	padding-top: 23px;
+	content: '\ea3b';
 }

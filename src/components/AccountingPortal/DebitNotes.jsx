@@ -551,7 +551,7 @@ handleValidation () {
           </div>
           <div className="col-sm-6 col-12 scaling-mb scaling-center pt-4">
             <button className="btn-unic-search active m-r-2 mt-2" onClick={()=>{this.searchDebitNotes(0);this.setState({pageNumber:0})}}>Search</button>
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearSearch}>Clear</button>
+            <button className="btn-clear m-r-2 mt-2" onClick={this.clearSearch}>Clear</button>
             {/* <button className="btn-unic-search mt-2 active" onClick={this.addDebit}>Add Debit Notes</button> */}
           </div>
         </div>

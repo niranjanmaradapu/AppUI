@@ -1482,7 +1482,7 @@ handleBenefitFormData() {
               className="btn-unic-redbdr mt-2  " 
               onClick={this.addPromo}
             >
-              <i className="icon-add_btn"></i> Add Promo
+              <i className="icon-sale"></i> Add Promo
               {/* <i className="icon-sale p-r-1"></i>Add Promo */}
             </button>
           </div>

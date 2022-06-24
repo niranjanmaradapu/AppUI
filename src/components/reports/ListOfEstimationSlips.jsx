@@ -236,8 +236,8 @@ export default class ListOfEstimationSlips extends Component {
       <div className="maincontent">
         <Modal isOpen={this.state.isView} className="modal-fullscreen">
           <ModalHeader>Estimation Slip Details </ModalHeader>
-          <ModalBody>
-            <div className="row mb-2">
+          <ModalBody className="pt-3">
+            <div className="row mb-2 m-0 p-0">
               <div className="col-3">
                 <div className="">
                   <label>Estimation Slip : </label>{" "}

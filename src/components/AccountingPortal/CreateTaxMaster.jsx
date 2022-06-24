@@ -250,7 +250,7 @@ export default class CreateTaxMaster extends Component {
             <h5 className="mt-1 mb-2 fs-18 p-l-0 mt-3">List Of Taxes</h5>
           </div>
           <div className="col-sm-7 col-6 scaling-mb text-right">
-            <button className="btn-unic-search mt-2 active" onClick={this.addTaxMaster}>Add Tax Master</button>
+            <button className="btn-unic-search mt-2 active" onClick={this.addTaxMaster}><i className='icon-credit_notes'></i> Add Tax Master</button>
           </div>
         </div>
         <div className="table-responsive">

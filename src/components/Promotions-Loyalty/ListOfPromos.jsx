@@ -358,14 +358,14 @@ export default class ListOfPromos extends Component {
           discountSubType: item
         }
         if(benfitType === 'XunitsFromBuyPool') {
-          obj = {...obj, numOfItemsFromBuyPool, itemValue: buyPoolValue}
+          obj = {...obj, poolVo: [], numOfItemsFromBuyPool, itemValue: buyPoolValue}
         }
         if(benfitType === 'XunitsFromGetPool') {
           let resultObj = {
             poolId : selectedPoolValue.value,
             poolName: selectedPoolValue.label
           }
-          obj = {...obj, numOfItemsFromGetPool, itemValue: getPoolValue,poolId: resultObj.poolId, poolName: resultObj.poolName}
+          obj = {...obj, numOfItemsFromGetPool, itemValue: getPoolValue, poolVo: [resultObj]}
         }
         if (promoApplyType === 'QuantitySlab' || promoApplyType === 'ValueSlab') {
             this.state.slabValues.map((item, ind) => {

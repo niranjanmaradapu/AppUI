@@ -671,6 +671,7 @@ body{
                             margin-bottom: 0px;
                             display: block;
                             height: 40px;
+                            padding: 4px;
                             // padding: 16%;
                             border-radius: 50px;
                             border: 1px solid #DCE3F2;
@@ -679,6 +680,9 @@ body{
                             cursor: pointer;
                             & img{
                                 padding-top: 10px;
+                            }
+                            & i{
+                            
                             }
                             & label{
                                 font-size: 12px;

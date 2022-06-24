@@ -196,10 +196,10 @@ export default class BarcodeList extends Component {
         () => {
           this.getAllStoresList();
           this.getAllBarcodes(0);
-          this.getAllUoms();
-          this.getAllDivisions();
-          this.getHsnDetails();
-          this.getAllCategories();
+          // this.getAllUoms();
+          // this.getAllDivisions();
+          // this.getHsnDetails();
+          // this.getAllCategories();
           this.loadErrorMsgs();
         }
       );
@@ -218,10 +218,10 @@ export default class BarcodeList extends Component {
     this.setState({ selectedDomain: event.target.value, domainDetailsObj: event.target.value }, () =>
       console.log(this.state.domainDetailsObj));
     //  this.getHeaders(e.target.value)
-    //  this.getAllUoms();
-    //  this.getAllDivisions();
-    //  this.getHsnDetails();
-    //  this.getAllCategories();
+     this.getAllUoms();
+     this.getAllDivisions(event.target.value);
+     this.getHsnDetails(event.target.value);
+     this.getAllCategories(event.target.value);
     //  this.loadErrorMsgs();
 
   }
@@ -417,8 +417,8 @@ export default class BarcodeList extends Component {
     });
   }
 
-  getAllDivisions() {
-    InventoryService.getAllDivisions().then((res) => {
+  getAllDivisions(data) {
+    InventoryService.getAllDivisions(data).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,

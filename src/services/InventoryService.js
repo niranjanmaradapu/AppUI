@@ -17,8 +17,9 @@ class InventoryService {
         return axios.get(BASE_URL + INVENTORY_URLS.getAllUOMs);
     }
 
-    getAllDivisions() {
-        return axios.get(BASE_URL + INVENTORY_URLS.getAllDivisions);
+    getAllDivisions(domainType) {
+        const param  = '?domainType='+ domainType
+        return axios.get(BASE_URL + INVENTORY_URLS.getAllDivisions + param);
     }
 
     getAllHsnList() {

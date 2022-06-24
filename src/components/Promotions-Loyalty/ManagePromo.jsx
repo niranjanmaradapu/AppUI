@@ -942,7 +942,7 @@ haandleStartdate(e) {
               className="btn-unic-redbdr"
               onClick={this.addStore}
             >
-              <i className="icon-retail p-r-1"></i> Add Store
+              <i className="icon-store m-r-1"></i> Add Store
             </button>
           </div>
           <div className="col-sm-4 col-12 pl-0 mb-3 scaling-center scaling-mb">

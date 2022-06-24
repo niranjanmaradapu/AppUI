@@ -473,7 +473,7 @@ handleChange (){
                 className="btn-unic-redbdr mt-2 m-r-2"
                 onClick={this.addCombo}
               >
-               <i className="icon-add_btn"></i> Add Combo
+               <i className="icon-product_combo fs-16"></i> Add Combo
               </button>
         </div>
         </div>

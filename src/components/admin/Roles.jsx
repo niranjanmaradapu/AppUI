@@ -688,7 +688,7 @@ getSelectedPrivileges(parentsList, childList) {
                     <div className="col-sm-6 pt-4 col-12 scaling-center scaling-mb mt-2 p-l-0 p-r-0">
                         <button className="btn-unic-search active m-r-2" onClick={this.searchRoles}>Search </button>
                         <button className="btn-clear m-r-2" onClick={this.getAllRoles}>Clear </button>
-                        <button className="btn-unic-search active" onClick={this.showRoles}><i className="icon-create_customer"></i> Add Role </button>
+                        <button className="btn-unic-search active" onClick={this.showRoles}><i className="icon-add_role"></i> Add Role </button>
                     </div>
 
                 </div>

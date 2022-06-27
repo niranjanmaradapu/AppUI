@@ -521,7 +521,7 @@ export default class Stores extends Component {
 
         if (!this.state.stateName) {
             formIsValid = false;
-            errors["stateName"] = "Enter state Name";
+            errors["stateName"] = account_err_msg.stateName;
         }
 
 

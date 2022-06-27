@@ -905,7 +905,7 @@ export default class NewSale extends Component {
     //   this.setState({ stateGST: 70, centralGST: 70 });
     //   console.log("Checking the slab")
     // }
-    const grandTotal = this.state.netPayableAmount + this.state.centralGST + this.state.stateGST;
+    const grandTotal = this.state.netPayableAmount;
     this.setState({ grandNetAmount: grandTotal, totalAmount: grandTotal });
 
 

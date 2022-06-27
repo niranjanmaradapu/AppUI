@@ -425,7 +425,7 @@ export default class NewSale extends Component {
         "sgst": this.state.stateGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
-        "recievedAmount": this.state.cashAmount,
+        "recievedAmount": this.state.grandNetAmount,
         "returnAmount": this.state.returnCash,
         "lineItemsReVo": null,
         "paymentAmountType": [

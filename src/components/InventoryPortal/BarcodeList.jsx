@@ -242,11 +242,11 @@ export default class BarcodeList extends Component {
       subSectionsList: [],
       subSection: "",
     });
-    this.getAllSections(e.target.value);
+    this.getAllSections(e.target.value,this.state.selectedDomain);
   };
   handleSectionChange = (e) => {
     this.setState({ section: e.target.value });
-    this.getAllSubsections(e.target.value);
+    this.getAllSubsections(e.target.value,this.state.selectedDomain);
   };
   handleSubsectionChange = (e) => {
     this.setState({ subSection: e.target.value });
@@ -431,9 +431,9 @@ export default class BarcodeList extends Component {
     });
   }
 
-  getAllSections(id) {
+  getAllSections(id,data) {
     this.setState({ sectionsList: [] });
-    InventoryService.getAllSections(id).then((res) => {
+    InventoryService.getAllSections(id,data).then((res) => {
       if (res.data) {
         res.data.forEach((ele, index) => {
           const obj = {
@@ -451,9 +451,9 @@ export default class BarcodeList extends Component {
     });
   }
 
-  getAllSubsections(id) {
+  getAllSubsections(id,data) {
     this.setState({ subSectionsList: [] });
-    InventoryService.getAllSections(id).then((res) => {
+    InventoryService.getAllSections(id,data).then((res) => {
       if (res.data) {
         res.data.forEach((ele, index) => {
           const obj = {
@@ -470,9 +470,9 @@ export default class BarcodeList extends Component {
     });
   }
 
-  getAllCategories() {
+  getAllCategories(data) {
     this.setState({ categoriesList: [] });
-    InventoryService.getAllCategories().then((res) => {
+    InventoryService.getAllCategories(data).then((res) => {
       if (res.data) {
         res.data.forEach((ele, index) => {
           const obj = {
@@ -587,8 +587,8 @@ export default class BarcodeList extends Component {
 
   setDropdowns(isEdit) {
     if (isEdit && this.state.domainDetailsObj === "Textile") {
-      this.getAllSections(this.state.division);
-      this.getAllSubsections(this.state.section);
+      this.getAllSections(this.state.division,this.state.selectedDomain);
+      this.getAllSubsections(this.state.section,this.state.selectedDomain);
     }
   }
 

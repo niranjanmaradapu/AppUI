@@ -18,7 +18,7 @@ class InventoryService {
     }
 
     getAllDivisions(domainType) {
-        const param  = '?domainType='+ domainType
+        const param  = '?domainType='+ domainType;
         return axios.get(BASE_URL + INVENTORY_URLS.getAllDivisions + param);
     }
 
@@ -30,13 +30,14 @@ class InventoryService {
     //     console.log("??/?",BASE_URL+INVENTORY_URLS.getAllHsnData+"?hsnCode="+hsnCode);
     //     return axios.get(BASE_URL+INVENTORY_URLS.getAllHsnData+"?hsnCode="+hsnCode);
     // }
-    getAllSections(id) {
-        const param1 = '?id=' + id;
+    getAllSections(id,domainType) {
+        const param1 = '?id=' + id +'&domainType=' + domainType;
         return axios.get(BASE_URL + INVENTORY_URLS.getAllSections + param1);
     }
 
-    getAllCategories() {
-        return axios.get(BASE_URL + INVENTORY_URLS.getAllCategories);
+    getAllCategories(domainType) {
+        const param  = '?domainType='+ domainType
+        return axios.get(BASE_URL + INVENTORY_URLS.getAllCategories +param);
     }
 
     getStoreNamesByIds(list) {

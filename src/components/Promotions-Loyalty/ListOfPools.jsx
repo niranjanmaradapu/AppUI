@@ -127,13 +127,14 @@ export default class ListOfPools extends Component {
     isAddRule: false,
     addedIncludedPoolRules: [],
     addedExcludedPoolRules: [],
-    ruleNumber: 0,
+    // ruleNumber: 0,
     isPoolRuleUpdated: false,
     editedRuleNumber: '',
     activeIndex: null,
     selectedOption: '',
     errors: [],
-    poolError: {}
+    poolError: {},
+    isPoolEdited: false
     };
 
     this.addPool = this.addPool.bind(this);
@@ -176,8 +177,8 @@ export default class ListOfPools extends Component {
       columnsObj.BarcodeCreatedOn = result.BarcodeCreatedOn;
       // columnsObj.StyleCode = result.StyleCode;
       // columnsObj.SubsectionId = result.SubsectionId;
-      columnsObj.Uom = result.Uom;
-      columnsObj.BatchNo = result.BatchNo;
+      // columnsObj.Uom = result.Uom;
+      // columnsObj.BatchNo = result.BatchNo;
       // columnsObj.DiscountType = result.DiscountType;
       columnsObj.Division = result.Division;
       const propertyNames = Object.keys(columnsObj);
@@ -327,18 +328,15 @@ export default class ListOfPools extends Component {
           }
       });
     } else {
-    const finalAddedRules = [addedIncludedPoolRules, addedExcludedPoolRules];
-    this.groupByMultipleProperties(finalAddedRules);
-    finalAddedRules.forEach(item => {
-      item.forEach((itm) => {
-        delete itm.valueList;
-        delete itm.ruleNumber;
-        poolConditions.push(itm.rules);
-      }); 
-    });
-    let conditionArray = [];
-    poolConditions.forEach((rule) => {
-       rule.forEach((condition) => conditionArray.push(condition)) 
+    const finalAddedRules = [...addedIncludedPoolRules, ...addedExcludedPoolRules];
+    finalAddedRules.forEach(item => {    
+    item.ruleNumber = item.ruleNumber;
+      item.rules.forEach((itm) => {
+        itm.ruleNumber = item.ruleNumber;
+        delete itm.oparatorsList;
+        delete itm.selectedPoolValues;
+        poolConditions.push(itm);
+      });
     });
     const obj = {
       isActive: true,
@@ -349,9 +347,9 @@ export default class ListOfPools extends Component {
       clientId: user['custom:clientId1'],
       createdBy: createdBy,
       domainId: this.state.clientId,
-      pool_RuleVo: this.groupByMultipleProperties(conditionArray)
+      pool_RuleVo: this.groupByMultipleProperties(poolConditions)
     }
-    if(conditionArray.length === 0) {
+    if(poolConditions.length === 0) {
       this.handlePoolData();
       toast.info('Add Pool Rule');
     } else if(this.handlePoolData()) {
@@ -364,7 +362,8 @@ export default class ListOfPools extends Component {
               poolName: '',
               poolType: '',
               addNewRule: [],
-              updatedRuleVO: []
+              updatedRuleVO: [],
+              activeIndex: null
             });
             this.getPoolList();
         } else {
@@ -375,18 +374,12 @@ export default class ListOfPools extends Component {
   }
   }
   handleAddRow = () => {
-    const { ruleNumber, activeTab, addNewRule } = this.state;
-      let ruleNum = '';
-      if(activeTab === 'INCLUDED') {
-        ruleNum = ruleNumber + 1;
-      } else {
-        ruleNum = ruleNumber
-      }        
+    const { ruleNumber, activeTab, addNewRule } = this.state;     
       this.setState({
         isPoolRuleUpdated: false,
         isAddRule: true,
         addNewRule: [],
-        ruleNumber: ruleNum, 
+        // ruleNumber: ruleNum, 
         // addNewRule
       });
   };
@@ -454,14 +447,15 @@ export default class ListOfPools extends Component {
       if (res.data.isSuccess === 'true') {
         const columnNames = res.data['result'].map((item) => {
           const obj = {};
-            obj.label = item;
-            obj.value = item;
+            obj.label = item.name;
+            obj.value = item.id;
             return obj;
         });
         this.state.addNewRule[idx].valueList = columnNames;
-        this.setState({
-          addNewRule
-        });
+        // if(this.state.isPoolRuleUpdated) {
+        //   this.state.addNewRule[idx].valueList = columnNames;
+        // }
+       
       } else {
         toast.error(res.data.message);
       }
@@ -510,10 +504,18 @@ export default class ListOfPools extends Component {
     const createdBy = user['cognito:groups'][0];
     const pool =  listOfPools.find(pool => pool.poolId === item.poolId);
     const conditionsList = this.conditionsList(pool.pool_RuleVo);
+    conditionsList.forEach((item, idx) => {
+      if(item.columnName  === 'BatchNo' || item.columnName  === 'Division' || item.columnName  === 'SubSection' ||  
+      item.columnName  === 'Section' || item.columnName  === 'Uom') {
+          this.getValuesForAllColumns(item.columnName, idx);
+      }
+    });
     this.setState({
         // getting max rule num
-         ruleNumber: Math.max(...conditionsList.map(item => item.ruleNumber)),
+         // ruleNumber: Math.max(...conditionsList.map(item => item.ruleNumber)),
          isUpdatable: true,
+         isPoolEdited: true,
+         activeIndex: null,
          isAddPool: true,
          poolId: pool.poolId,
          poolName: pool.poolName,
@@ -562,7 +564,7 @@ export default class ListOfPools extends Component {
   } 
 
   closePoolRule() {
-    this.setState({ isAddPoolRule : false });
+    this.setState({ isAddPoolRule : false,  isPoolEdited: false, activeIndex: null, });
   }
   handleCreatedBy(e) {
     this.setState({ createdBy: e.target.value });
@@ -671,7 +673,7 @@ export default class ListOfPools extends Component {
       if(activeTab === 'INCLUDED') {
         let includeConditions = [];
         addedIncludedPoolRules.forEach(item => {
-          delete item.ruleNumber;
+          // delete item.ruleNumber;
           item.rules.forEach(itm => {
             includeConditions.push(itm);
           });
@@ -686,7 +688,7 @@ export default class ListOfPools extends Component {
       } else {
         let excludeConditions = [];
         addedExcludedPoolRules.forEach(item => {
-          delete item.ruleNumber;
+          // delete item.ruleNumber;
           item.rules.forEach(itm => {
             excludeConditions.push(itm);
           });
@@ -732,7 +734,13 @@ export default class ListOfPools extends Component {
     hash[key] = { ruleNumber: o.ruleNumber, ruleType: o.ruleType, isForEdit: o.isForEdit, conditionVos : [] };
     grouped.push(hash[key]);
     }
-    ['used'].forEach(function (k) { hash[key]['conditionVos'].push({ columnName : o['columnName'], givenValues : [o['givenValue']], operatorSymbol: o['operatorSymbol']}) });
+    let value ;
+    if(typeof o['givenValue'] === 'object') {
+      value = o['givenValue'].value;
+      } else {
+        value = o['givenValue'];
+    }
+    ['used'].forEach(function (k) { hash[key]['conditionVos'].push({ columnName : o['columnName'], givenValues : [value], operatorSymbol: o['operatorSymbol']}) });
     });
     return grouped;
   }
@@ -752,6 +760,7 @@ export default class ListOfPools extends Component {
   }
   addRule = () => {
     const { addNewRule, editedRuleNumber, activeTab, addedExcludedPoolRules, addedIncludedPoolRules, isUpdatable, isPoolRuleUpdated } = this.state;
+  
     const conditionErrors = this.conditionValidation();
     if(addNewRule.length === 0) {
       toast.info('Add At Least One Condition');
@@ -774,7 +783,7 @@ export default class ListOfPools extends Component {
             } else {
               const finalIncludedRules = addedNewRules.map((item) => { 
                 item.ruleType = 'Include';
-                item.ruleNumber = this.state.ruleNumber
+                // item.ruleNumber = this.state.ruleNumber
                 return item; 
               });
               const groupedRules = this.groupByRuleNumber(finalIncludedRules);
@@ -782,14 +791,14 @@ export default class ListOfPools extends Component {
             }
             let includeConditions = [];
             addedIncludedPoolRules1.forEach(item => {
-              delete item.ruleNumber;
+              // delete item.ruleNumber;
               item.rules.forEach(itm => {
                 includeConditions.push(itm);
               });
             });
             this.setState({
               isPoolRuleUpdated: false,
-              ruleNumber: this.state.ruleNumber,
+              // ruleNumber: this.state.ruleNumber,
               isAddRule: false,
               addedIncludedPoolRules: this.groupByRuleNumber(includeConditions),
               addNewRule: []
@@ -801,7 +810,7 @@ export default class ListOfPools extends Component {
               } else {
                 const finalExcludedRules = addedNewRules.map((item) => { 
                   item.ruleType = 'Include';
-                  item.ruleNumber = this.state.ruleNumber
+                  // item.ruleNumber = this.state.ruleNumber
                   return item; 
                 });
                 const groupedRules = this.groupByRuleNumber(finalExcludedRules);
@@ -822,7 +831,7 @@ export default class ListOfPools extends Component {
           }
       } else {
           const addedNewRules = addNewRule.map((item) => {
-            item.ruleNumber = this.state.ruleNumber;
+            // item.ruleNumber = this.state.ruleNumber;
             if(isUpdatable) {
               item.isForEdit = true;
             } else {
@@ -832,13 +841,19 @@ export default class ListOfPools extends Component {
           });
         if(activeTab === 'INCLUDED') {      
           // const includeRules = [...addedIncludedPoolRules, ...addedNewRules];
-          const finalIncludedRules = addedNewRules.map((item) => { 
+          const finalIncludedRules = addedNewRules.map((item) => {
             item.ruleType = 'Include';
-            return item; 
+            let itm = JSON.parse(item.givenValue);           
+            delete item.givenValue; 
+            item.givenValue = itm;
+            return item;  
+          });         
+         const groupedRules = this.groupByRuleNumber(finalIncludedRules);
+         const includeRules = [...addedIncludedPoolRules, ...groupedRules];
+         includeRules.forEach((item, index) => {
+            item.ruleNumber = index + 1;
           });
-          const groupedRules = this.groupByRuleNumber(finalIncludedRules);
-          const includeRules = [...addedIncludedPoolRules, ...groupedRules];
-          this.setState({
+         this.setState({
             isAddRule: false,
           // addedIncludedPoolRules: finalIncludedRules,
             addedIncludedPoolRules: includeRules,
@@ -848,10 +863,16 @@ export default class ListOfPools extends Component {
           // const excludeRules = [...addedExcludedPoolRules, ...addedNewRules];
           const finalExcludedRules = addedNewRules.map((item) => { 
             item.ruleType = 'Exclude';
+            let itm = JSON.parse(item.givenValue);
+            delete item.givenValue;
+            item.givenValue = itm;
             return item; 
           });
           const groupedRules = this.groupByRuleNumber(finalExcludedRules);
           const excludeRules = [...addedExcludedPoolRules, ...groupedRules];
+          excludeRules.forEach((item, index) => {
+            item.ruleNumber = index + 1;
+          });
           this.setState({
             isAddRule: false,
             addedExcludedPoolRules: excludeRules,
@@ -914,8 +935,8 @@ FirstTab = () => {
                       <table className="table table-borderless mb-1 mt-2">
                       <thead>
                           <tr key={index}> 
-                            <td className="col-10"><h6>Rule - {item.ruleNumber}</h6></td>
-                            <td><img onClick={() => this.editPoolRule(item.ruleNumber, index)} src={edit} className="w-12 pb-2" /> </td>
+                            <td className="col-10"><h6>Rule - {index + 1}</h6></td>
+                            <td><img onClick={() => this.editPoolRule(index + 1, index)} src={edit} className="w-12 pb-2" /> </td>
                             <td> <i onClick= {() => this.handleRemoveSpecificRule(index)} className="icon-delete m-l-2 fs-16"></i></td>
                             <td><i onClick={this.toggleClass.bind(this, index)}>{this.moreLess(index)}</i></td>
                           </tr>
@@ -934,10 +955,46 @@ FirstTab = () => {
                             {item.rules.map((itm, ind) => {
                                 return (
                                   <tr key={ind}>
-                                    <td className="col-3">{itm.columnName}</td>
-                                    <td className="col-3">{itm.operatorSymbol}</td>
-                                    <td className="col-3">{itm.givenValue}</td>
-                                  </tr>
+                                  <td className="col-3">{itm.columnName}</td>
+                                  <td className="col-3">{itm.operatorSymbol}</td>
+                                  <td  className="col-3">                                    
+                                    {this.state.isPoolEdited ? this.state.addedIncludedPoolRules[index].rules[ind].valueList ? <select
+                                      value={this.state.addedIncludedPoolRules[index].rules[ind].givenValue} 
+                                      disabled                       
+                                      name="givenValue"
+                                      className="form-control">
+                                      {
+                                          this.state.addedIncludedPoolRules[index].rules[ind].valueList &&
+                                          this.state.addedIncludedPoolRules[index].rules[ind].valueList.map((item, i) => 
+                                          (<option key={i} value={item.value}>{item.label}</option>))
+                                      }
+                                      </select> : <input 
+                                        type="text" 
+                                        name="givenValue"
+                                        value={this.state.addedIncludedPoolRules[index].rules[ind].givenValue}
+                                        disabled
+                                        className="form-control"
+                                      /> :
+                                      this.state.addedIncludedPoolRules[index].rules[ind].valueList ? <select
+                                      value={this.state.addedIncludedPoolRules[index].rules[ind].givenValue.value} 
+                                      disabled                       
+                                      name="givenValue"
+                                      className="form-control">
+                                      {
+                                          this.state.addedIncludedPoolRules[index].rules[ind].valueList &&
+                                          this.state.addedIncludedPoolRules[index].rules[ind].valueList.map((item, i) => 
+                                          (<option key={i} value={item.value}>{item.label}</option>))
+                                      }
+                                      </select> : <input 
+                                        type="text" 
+                                        name="givenValue"
+                                        value={this.state.addedIncludedPoolRules[index].rules[ind].givenValue}
+                                        disabled
+                                        className="form-control"
+                                      />
+                                      }
+                                  </td>                             
+                                </tr>
                                   )
                             })}
                             </tbody>
@@ -961,8 +1018,8 @@ SecondTab = () => {
                   <table className="table table-borderless mb-1 mt-2">
                     <thead>
                         <tr key={index}> 
-                        <td className="col-10"><h6>Rule - {item.ruleNumber}</h6></td>
-                        <td><img onClick={() => this.editPoolRule(item.ruleNumber, index)} src={edit} className="w-12 pb-2" /> </td>
+                        <td className="col-10"><h6>Rule - {index + 1}</h6></td>
+                        <td><img onClick={() => this.editPoolRule(index + 1, index)} src={edit} className="w-12 pb-2" /> </td>
                         <td> <i onClick= {() => this.handleRemoveSpecificRule(index)} className="icon-delete m-l-2 fs-16"></i></td>
                         <td><i onClick={this.toggleClass.bind(this, index)}>{this.moreLess(index)}</i></td>
                         </tr>
@@ -983,7 +1040,43 @@ SecondTab = () => {
                                 <tr className="m-0 p-0" key={ind}>
                                   <td className="col-3">{itm.columnName}</td>
                                   <td className="col-3">{itm.operatorSymbol}</td>
-                                  <td className="col-3">{itm.givenValue}</td>
+                                  <td  className="col-3">                                    
+                                    {this.state.isPoolEdited ? this.state.addedExcludedPoolRules[index].rules[ind].valueList ? <select
+                                      value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue} 
+                                      disabled                       
+                                      name="givenValue"
+                                      className="form-control">
+                                      {
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList &&
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList.map((item, i) => 
+                                          (<option key={i} value={item.value}>{item.label}</option>))
+                                      }
+                                      </select> : <input 
+                                        type="text" 
+                                        name="givenValue"
+                                        value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue}
+                                        disabled
+                                        className="form-control"
+                                      /> :
+                                      this.state.addedExcludedPoolRules[index].rules[ind].valueList ? <select
+                                      value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue.value} 
+                                      disabled                       
+                                      name="givenValue"
+                                      className="form-control">
+                                      {
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList &&
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList.map((item, i) => 
+                                          (<option key={i} value={item.value}>{item.label}</option>))
+                                      }
+                                      </select> : <input 
+                                        type="text" 
+                                        name="givenValue"
+                                        value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue}
+                                        disabled
+                                        className="form-control"
+                                      />
+                                      }
+                                  </td>  
                                 </tr>
                                 )
                           })}
@@ -1001,14 +1094,16 @@ SecondTab = () => {
 handleInclude = () => {
   this.setState({
     activeTab: 'INCLUDED',
-    ruleNumber: this.state.ruleNumber,
+    activeIndex: null,
+    // ruleNumber: this.state.ruleNumber,
     addNewRule: []
   });
 };
 handleExclude = () => {
   this.setState({
     activeTab: 'EXCLUDED',
-    ruleNumber: this.state.ruleNumber,
+    activeIndex: null,
+    // ruleNumber: this.state.ruleNumber,
     addNewRule: []
   });
 };
@@ -1028,7 +1123,9 @@ Tabs = () => {
          >EXCLUDED</li>
       </ul>
       <div>
+     
         {this.state.activeTab === "INCLUDED" ? this.FirstTab() : this.SecondTab()}
+        <button type="button" className="btn-unic-redbdr mt-4" onClick={this.handleAddRow}>Add Pool Rule</button>
       </div>
     </div>
   );
@@ -1157,8 +1254,8 @@ Tabs = () => {
                                   value={this.state.addNewRule[idx].selectedPoolValues}
                                   // value={this.state.addNewRule[idx].givenValue}
                                 />
-                               : 
-                              
+                               :     
+                                                         
                                 <select
                                   value={this.state.addNewRule[idx].givenValue} 
                                   onChange={ e => this.handleTextChange(idx, e)}                          
@@ -1168,7 +1265,7 @@ Tabs = () => {
                                     {
                                       this.state.addNewRule[idx].valueList &&
                                       this.state.addNewRule[idx].valueList.map((item, i) => 
-                                      (<option key={i} value={item.value}>{item.label}</option>))
+                                      (<option key={i} value={this.state.isPoolRuleUpdated ? item.value : JSON.stringify(item)}>{item.label}</option>))
                                   }
                                 </select>
                           
@@ -1235,7 +1332,7 @@ Tabs = () => {
                 </div>
                 <div className="col-4 outlet">
                 
-                    <button type="button" className="btn-unic-redbdr mt-4" onClick={this.handleAddRow}>Add Pool Rule</button>
+                    {/* <button type="button" className="btn-unic-redbdr mt-4" onClick={this.handleAddRow}>Add Pool Rule</button> */}
                 
                 </div>
                 <div className="App">
@@ -1284,9 +1381,9 @@ Tabs = () => {
             </div>
           </div>
           <div className="col-sm-4 col-12 pt-4 scaling-center scaling-mb">
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>SEARCH</button>
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearPool}>CLEAR</button>
-            <button className="btn-unic-redbdr mt-2" onClick={this.addPool}>Add Pool</button>
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>Search</button>
+            <button className="btn-clear m-r-2 mt-2" onClick={this.clearPool}>Clear</button>
+            <button className="btn-unic-redbdr mt-2" onClick={this.addPool}><i className='icon-sale'></i> Add Pool</button>
           </div>
           {/* <div className="col-sm-3 col-12 text-right pt-4 scaling-center scaling-mb">
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>SEARCH</button>
@@ -1295,16 +1392,6 @@ Tabs = () => {
         </div>
         <div className="row m-0 p-0 scaling-center">
           <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Pools</h5>
-          {this.state.listOfPools.length > 10 && <div className="col-11 text-right p-r-0 mt-2 align-self-center">
-            <span style={{float: 'right'}}>
-              <Pagination 
-                poolsPerPage={this.state.poolsPerPage}
-                totalPools={this.state.listOfPools.length}
-                paginate={this.paginate}          
-              />
-            </span>
-            <span className="mt-3 ">Show on page </span><span className="font-bold fs-14"> {this.state.currentPage}-{ this.state.poolsPerPage * this.state.currentPage}</span><span> Out of </span><span className="font-bold fs-14">{this.state.listOfPools.length}</span>
-          </div>}
           <DisplayPools 
               listOfPools={this.state.currentPools}
               handleRemovePool={this.handleRemovePool}

@@ -15,6 +15,7 @@ export default class Roles extends Component {
             showModal: false,
             showRole: false,
             roleName: "",
+            searchCreatedby:"",
             descriptionName: "",
             selectedPrivilegesList: [],
             userName: "",
@@ -43,6 +44,7 @@ export default class Roles extends Component {
         this.addedRoles = this.addedRoles.bind(this);
         this.addRoles = this.addRoles.bind(this);
         this.searchRoles = this.searchRoles.bind(this);
+        this.validation = this.validation.bind(this);
         this.handleValidation = this.handleValidation.bind(this);
         this.getAllRoles = this.getAllRoles.bind(this);
         this.savePrivilege = this.savePrivilege.bind(this);
@@ -101,6 +103,20 @@ export default class Roles extends Component {
         }
 
     }
+
+    validation(e) {
+        // console.log(e.target.value)
+        const regex = /^[0-9\b]+$/;
+        const value = e.target.value;
+        if (value === "" || regex.test(value)) {
+          this.setState({
+            [e.target.id]: e.target.value,searchCreatedby: e.target.value,
+          });
+        } else {
+        //   this.setState({searchCreatedby: ""});
+          // toast.error("pls enter numbers")
+        }
+      }
    
 
     handleValidation() {
@@ -119,7 +135,7 @@ export default class Roles extends Component {
           
 
 
-
+      
         // Area 
         if (!this.state.descriptionName) {
             formIsValid = false;
@@ -152,6 +168,7 @@ export default class Roles extends Component {
         this.setState({
             showModal: true,
             roleName: "",
+            searchCreatedby:"",
             descriptionName: "",
             childList: [],
             parentsList: [],
@@ -180,6 +197,7 @@ export default class Roles extends Component {
             if (this.state.isEdit) {
                 const saveObj = {
                     "roleName": this.state.roleName,
+                    "searchCreatedBy": this.state.searchCreatedBy,
                     "description": this.state.descriptionName,
                     "clientId": parseInt(this.state.clientId),
                     "createdBy": parseInt(this.state.loggedUser),
@@ -203,6 +221,7 @@ export default class Roles extends Component {
             } else {
                 const saveObj = {
                     "roleName": this.state.roleName,
+                    "searchCreatedBy": this.state.searchCreatedBy,
                     "description": this.state.descriptionName,
                      "clientId": parseInt(this.state.clientId),
                     "createdBy": parseInt(this.state.loggedUser),
@@ -212,8 +231,10 @@ export default class Roles extends Component {
 
                 URMService.saveRole(saveObj).then((res) => {
                     if (res) {
+                        toast.success("Role Created Successfully");
                         toast.success(res.data.result);
                         this.getAllRoles()
+                        this.getPrivilegesList()
                         this.hideRoles();
                     }
                 });
@@ -367,11 +388,11 @@ getSelectedPrivileges(parentsList, childList) {
                                     <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-15">
                                         {
                                             child.name && (
-                                                <div>
-                                                    <input type="checkbox" className="form-check-input filled-in mt-1" id="remember{{index}}"
+                                                <div className="cursor">
+                                                    <input type="checkbox" className=" cursor form-check-input filled-in mt-1" id="remember{{index}}"
                                                         name="child{{i}}" checked={child.checked}
                                                         onChange={(e) => this.setPrivileges(e, i, node, child)} />
-                                                    <label className="form-check-label" htmlFor="remember">  {child.name}</label>
+                                                    <label className="cursor form-check-label" htmlFor="remember">  {child.name}</label>
 
                                                 </div>
                                             )
@@ -436,6 +457,7 @@ getSelectedPrivileges(parentsList, childList) {
             showModal: true,
             roleName: items.roleName,
             isEdit: true,
+            searchCreatedBy: items.searchCreatedBy,
             descriptionName: items.description,
             childList: items.subPrivilege,
             parentsList: items.parentPrivilege,
@@ -491,9 +513,9 @@ getSelectedPrivileges(parentsList, childList) {
                                 <th className="col-2">Role</th>
                                 {/* <th className="col-2">Domain</th> */}
                                 <th className="col-2">Created By</th>
-                                <th className="col-2">Created Date</th>
-                                <th className="col-1">User Count</th>
-                                <th className="col-2">Description</th>
+                                <th className="col-2 p-l-1">Created Date</th>
+                                <th className="col-1 p-l-0">User Count</th>
+                                <th className="col-2 p-l-0">Description</th>
                                 <th className="col-1"></th>
                             </tr>
                         </thead>
@@ -528,10 +550,12 @@ getSelectedPrivileges(parentsList, childList) {
                 <Modal isOpen={this.state.showRole} size="lg">
                     <ModalHeader>Privileges </ModalHeader>
                     <ModalBody>
-                        <div className="maincontent p-0">
-                            <table className="table table-borderless">
+                        <div className="maincontent p-0 mb-0">
+                            <table className="table table-borderless mb-0">
                                 <thead>
-
+                                    <tr className="m-0 p-0">
+                                    <th>Privilege Name</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
 
@@ -550,7 +574,7 @@ getSelectedPrivileges(parentsList, childList) {
                     <ModalHeader>  {
                         !this.state.isEdit && (
                             <div>
-                                Create Role
+                                Add Role
                             </div>
 
                         )
@@ -578,6 +602,7 @@ getSelectedPrivileges(parentsList, childList) {
 
                                     </div>
                                 </div>
+                                
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>Description<span className="text-red font-bold">*</span></label>
@@ -626,7 +651,7 @@ getSelectedPrivileges(parentsList, childList) {
                             <div className="col-12 text-right">
                                 <button className="btn-unic m-r-2" onClick={this.hideRoles}>Cancel</button>
                                 <button
-                                    className="btn-unic active fs-12" onClick={this.addRoles}>Add Role</button>
+                                    className="btn-unic active fs-12" onClick={this.addRoles}>Save</button>
                             </div>
                         </div>
                     </ModalFooter>
@@ -644,7 +669,13 @@ getSelectedPrivileges(parentsList, childList) {
                         <div className="form-group">
                             <label>Created By</label>
                             <input type="text" className="form-control" placeholder="Created By" value={this.state.searchCreatedby}
-                                onChange={(e) => this.setState({ searchCreatedby: e.target.value })} />
+                                // onChange={(e) => this.setState({ searchCreatedby: e.target.value },() =>
+                                // {
+                                //     this.validation();
+                                // }) }
+                                onChange ={this.validation}
+                                
+                                 />
                         </div>
                     </div>
                     <div className="col-sm-2 col-12 mt-2">
@@ -655,9 +686,9 @@ getSelectedPrivileges(parentsList, childList) {
                         </div>
                     </div>
                     <div className="col-sm-6 pt-4 col-12 scaling-center scaling-mb mt-2 p-l-0 p-r-0">
-                        <button className="btn-unic-search active m-r-2" onClick={this.searchRoles}>SEARCH </button>
-                        <button className="btn-unic-search active m-r-2" onClick={this.getAllRoles}>Clear </button>
-                        <button className="btn-unic-search active" onClick={this.showRoles}><i className="icon-create_customer"></i> Create Role </button>
+                        <button className="btn-unic-search active m-r-2" onClick={this.searchRoles}>Search </button>
+                        <button className="btn-clear m-r-2" onClick={this.getAllRoles}>Clear </button>
+                        <button className="btn-unic-search active" onClick={this.showRoles}><i className="icon-add_role"></i> Add Role </button>
                     </div>
 
                 </div>

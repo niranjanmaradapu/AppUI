@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.8.3",
     "axios": "^0.21.1",
     "bootstrap": "^5.1.0",
+    "browserprint": "^1.1.7",
     "chart.js": "^3.7.1",
     "chartjs-plugin-datalabels": "^2.0.0",
     "dexie": "^3.2.0",
@@ -24,6 +25,8 @@
     "react-collapse": "^5.1.1",
     "react-data-table-component": "^7.5.0",
     "react-dom": "^17.0.2",
+    "react-hot-keys": "^2.7.2",
+    "react-hotkeys": "^2.0.0",
     "react-i18next": "^11.12.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
@@ -32,7 +35,8 @@
     "react-treeview": "^0.4.7",
     "reactstrap": "^8.9.0",
     "web-vitals": "^1.1.2",
-    "xlsx": "^0.18.0"
+    "xlsx": "^0.18.0",
+    "zebra-browser-print": "^1.0.1"
   },
   "scripts": {
     "start": "react-scripts --openssl-legacy-provider start",    

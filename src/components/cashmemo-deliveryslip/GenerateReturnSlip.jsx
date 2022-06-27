@@ -20,11 +20,14 @@ export default class GenerateReturnSlip extends Component {
       netValue: 0,
       quantity: 0,
       netValueList: [],
+      slectedItems:[],
+      netValueSum:[],
       returnSlipTotal: 0,
       isgenerateReturnSlip: true,
       mobileNumber: null,
       createdBy: 0,
       comments: null,
+      selectedNetVal:0
     };
     this.tagCustomer = this.tagCustomer.bind(this);
     this.closeTagCustomer = this.closeTagCustomer.bind(this);
@@ -78,11 +81,11 @@ export default class GenerateReturnSlip extends Component {
   saveGenerateReturnSlip() {
     const storeId = sessionStorage.getItem("storeId");
     let barList = [];
-    this.state.returnslipsList.forEach((element) => {
+    this.state.netValueList.forEach((element) => {
       console.log("returnSlipList", this.state.returnslipsList);
       const obj = {
         amount: element.netValue,
-        barCode: element.barcode,
+        barCode: element.barCode,
         qty: element.quantity,
       };
       barList.push(obj);
@@ -173,6 +176,8 @@ export default class GenerateReturnSlip extends Component {
     });
   }
 
+
+
   getReturnslipTotal(e, value, selectedElement) {
     selectedElement.isChecked = e.target.checked;
 
@@ -180,11 +185,12 @@ export default class GenerateReturnSlip extends Component {
       const obj = {
         netValue: selectedElement.netValue,
         barCode: selectedElement.barcode,
+        quantity:selectedElement.quantity,
       };
       this.state.netValueList.push(obj);
     } else {
       let index = this.state.netValueList.findIndex(
-        (ele) => ele.barcode === selectedElement.barcode
+        (ele) => ele.barCode === selectedElement.barcode
       );
       this.state.netValueList.splice(index, 1);
     }
@@ -193,7 +199,8 @@ export default class GenerateReturnSlip extends Component {
       this.state.netValueList,
       "barcode"
     );
-    this.setState({ netValueList: netValueList }, () => {
+    
+    this.setState({ netValueList: this.state.netValueList }, () => {
       let returnSlipTotal = 0;
       this.state.netValueList.forEach((element) => {
         returnSlipTotal = returnSlipTotal + element.netValue;
@@ -249,12 +256,14 @@ export default class GenerateReturnSlip extends Component {
   }
 
   getTableData() {
-    return this.state.returnslipsList.map((items, index) => {
-      const { barcode, quantity, netValue } = items;
+    // return this.state.returnslipsList.map((items, index) => {
+      return this.state.netValueList.map((items, index) => {
+        console.log("retuensliplist>>>>>>",this.state.netValueList);
+      const { barCode, quantity, netValue } = items;
       return (
         <div>
           <tr>
-            <td className="col-4 geeks">{barcode}</td>
+            <td className="col-4 geeks">{barCode}</td>
             <td className="col-4">{quantity}</td>
             <td className="col-4">₹ {netValue}</td>
           </tr>
@@ -520,7 +529,7 @@ export default class GenerateReturnSlip extends Component {
                     </div>
                     <div className="col-7 p-l-0 pt-1 text-right">
                       <label className="font-bold">
-                        ₹ {this.state.returnSlipTotal}
+                      ₹ {this.state.returnSlipTotal}
                       </label>
                     </div>
                   </div>

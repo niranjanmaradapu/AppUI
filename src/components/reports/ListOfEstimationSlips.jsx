@@ -6,6 +6,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import { Toast } from "react-bootstrap";
+import ReactPageNation from "../../commonUtils/Pagination";
 
 export default class ListOfEstimationSlips extends Component {
   constructor(props) {
@@ -15,6 +16,8 @@ export default class ListOfEstimationSlips extends Component {
       dateTo: moment(new Date()).format("YYYY-MM-DD").toString(),
       // dateFrom: "",
       // dateTo: "",
+      pageNumber:0,
+      totalPages:0,
       status: null,
       barcode: null,
       dsNumber: null,
@@ -47,6 +50,7 @@ export default class ListOfEstimationSlips extends Component {
     this.getEstimationSlip = this.getEstimationSlip.bind(this);
     this.viewReport = this.viewReport.bind(this);
     this.closeViewReport = this.closeViewReport.bind(this);
+    this.changePage = this.changePage.bind(this);
   }
 
   componentWillMount() {
@@ -61,7 +65,8 @@ export default class ListOfEstimationSlips extends Component {
     this.setState({ storeId: storeId });
   }
 
-  getEstimationSlip() {
+  getEstimationSlip(pageNumber) {
+    console.log("pageNumber",pageNumber)
     const obj = {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
       dateTo: this.state.dateTo ? this.state.dateTo : undefined,
@@ -72,7 +77,7 @@ export default class ListOfEstimationSlips extends Component {
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
 
-    ListOfEstimationSlipsService.getEstimationSlips(obj).then((res) => {
+    ListOfEstimationSlipsService.getEstimationSlips(obj,pageNumber).then((res) => {
       console.log("data", res.data.result);
       if (res.data.result.deliverySlipVo) {
         res.data.result.deliverySlipVo.map((prop, i) => {
@@ -100,14 +105,15 @@ export default class ListOfEstimationSlips extends Component {
       }
 
       this.setState({
-        dsList: res.data.result.deliverySlipVo,
-        dsDetailsList: res.data.result.deliverySlipVo,
+        dsList: res?.data?.result?.deliverySlip,
+        dsDetailsList: res.data.result.deliverySlip,
+        totalPages:res.data.result.deliverySlip.totalPages
       });
     });
   }
 
   viewReport(dsNumber) {
-    let filterData = this.state.dsDetailsList.filter(
+    let filterData = this.state.dsDetailsList.content.filter(
       (x) => x.dsNumber == dsNumber
     );
     console.log("filterdata", filterData);
@@ -150,14 +156,14 @@ export default class ListOfEstimationSlips extends Component {
   }
 
   renderTableData() {
-    return this.state.dsList.map((items, index) => {
+    return this.state.dsList?.content?.map((items, index) => {
       const { dsNumber, createdDate, status, mrp, promoDisc, netAmount } =
         items;
       return (
         <tr className="m-0 p-0" key={index}>
           <td className="col-1">{index + 1}</td>
-          <td className="col-2">{dsNumber}</td>
-          <td className="col-1">{createdDate}</td>
+          <td className="col-1">{dsNumber}</td>
+          <td className="col-2">{createdDate}</td>
           <td className="col-1">{status}</td>
           {/* <td className="col-2">₹{mrp}</td> */}
           <td className="col-2">₹{netAmount}</td>
@@ -215,13 +221,23 @@ export default class ListOfEstimationSlips extends Component {
     }
   }
 
+  changePage(pageNumber) {
+    console.log(">>>page", pageNumber);
+    let pageNo = pageNumber + 1;
+    this.setState({ pageNumber: pageNo });
+    // this.getUserBySearch(pageNumber);
+    // this.searchUser(pageNumber);
+    this.getEstimationSlip(pageNumber); 
+  }
+
+
   render() {
     return (
       <div className="maincontent">
         <Modal isOpen={this.state.isView} className="modal-fullscreen">
           <ModalHeader>Estimation Slip Details </ModalHeader>
-          <ModalBody>
-            <div className="row mb-2">
+          <ModalBody className="pt-3">
+            <div className="row mb-2 m-0 p-0">
               <div className="col-3">
                 <div className="">
                   <label>Estimation Slip : </label>{" "}
@@ -373,28 +389,26 @@ if (startDate < endDate){
             <div className="form-group">
               <button
                 className="btn-unic-search active"
-                onClick={this.getEstimationSlip}
-              >
-                SEARCH{" "}
-              </button>
+                onClick={()=>{this.getEstimationSlip(0);this.setState({ pageNumber: 0 });}}>Search</button>
             </div>
           </div>
         </div>
-        <h5 className="pl-4 mt-3">List Of Estimation Slips</h5>
+        <h5 className="pl-4 mt-3 mb-1 fs-18">List Of Estimation Slips</h5>
         <div className="row m-0 p-0 mb-3">
+        <div className="table-responsive p-0">
           <table className="table table-borderless mb-1 mt-2">
             <thead>
               <tr className="m-0 p-0">
                 <th className="col-1">S.NO</th>
-                <th className="col-2">ES Number</th>
-                <th className="col-1">ES DATE</th>
+                <th className="col-1">ES Number</th>
+                <th className="col-2">ES DATE</th>
                 <th className="col-1">ES STATUS</th>
                 <th className="col-2">GROSS AMOUNT</th>
                 <th className="col-1">PROMO DISC</th>
                 <th className="col-2">NET AMOUNT</th>
-
                 <th className="col-2 text-center">ACTION</th>
               </tr>
+              
             </thead>
           </table>
           <table className="table table-borderless gfg mb-0">
@@ -416,6 +430,19 @@ if (startDate < endDate){
             </tbody> */}
             <tbody>{this.renderTableData()}</tbody>
           </table>
+          </div>
+          <div className="row m-0 pb-3 mb-5 mt-3">
+            {this.state.totalPages > 1 ? (
+          <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.dsList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div>
+            ):null}
+            </div>
         </div>
       </div>
     );

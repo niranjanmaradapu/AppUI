@@ -7,6 +7,7 @@ import view from "../../assets/images/view.svg";
 import ListOfSaleBillsService from "../../services/Reports/ListOfSaleBillsService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
+import ReactPageNation from "../../commonUtils/Pagination";
 
 export default class SalesReport extends Component {
   constructor(props) {
@@ -16,6 +17,8 @@ export default class SalesReport extends Component {
       dateTo: moment(new Date()).format("YYYY-MM-DD").toString(),
       // dateFrom: "",
       // dateTo: "",
+      pageNumber:0,
+      totalPages:0,
       custMobileNumber: null,
       billStatus: null,
       invoiceNumber: null,
@@ -30,6 +33,7 @@ export default class SalesReport extends Component {
     this.viewReport = this.viewReport.bind(this);
     this.closeViewReport = this.closeViewReport.bind(this);
     this.validation = this.validation.bind(this);
+    this.changePage = this.changePage.bind(this);
   }
 
   componentWillMount() {
@@ -44,7 +48,7 @@ export default class SalesReport extends Component {
     this.setState({ storeId: storeId });
   }
 
-  getSaleBills() {
+  getSaleBills(pageNumber) {
     const obj = {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
       dateTo: this.state.dateTo ? this.state.dateTo : undefined,
@@ -59,13 +63,14 @@ export default class SalesReport extends Component {
       // domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
-    ListOfSaleBillsService.getSaleBills(obj).then((res) => {
+    ListOfSaleBillsService.getSaleBills(obj,pageNumber).then((res) => {
       console.log(res.data.result);
-      let data = res.data.result.newSaleVo;
+      let data = res.data.result.newSale;
 
       this.setState({
-        sbList: res.data.result.newSaleVo,
-        sbDetailsList: res.data.result.newSaleVo,
+        sbList: res.data.result.newSale,
+        sbDetailsList: res.data.result.newSale.content,
+        totalPages:res.data.result.newSale.totalPages
       });
     });
   }
@@ -142,7 +147,7 @@ export default class SalesReport extends Component {
   }
 
   renderTableData() {
-    return this.state.sbList.map((items, index) => {
+    return this.state.sbList?.content?.map((items, index) => {
       const {
         invoiceNumber,
         empId,
@@ -235,6 +240,16 @@ export default class SalesReport extends Component {
     } else {
       // toast.error("pls enter numbers");
     }
+  }
+
+
+  changePage(pageNumber) {
+    console.log(">>>page", pageNumber);
+    let pageNo = pageNumber + 1;
+    this.setState({ pageNumber: pageNo });
+    // this.getUserBySearch(pageNumber);
+    // this.searchUser(pageNumber);
+    this.getSaleBills(pageNumber); 
   }
 
   render() {
@@ -445,9 +460,9 @@ export default class SalesReport extends Component {
             <div className="form-group">
               <button
                 className="btn-unic-search active"
-                onClick={this.getSaleBills}
+                onClick={()=>{this.getSaleBills(0);this.setState({pageNumber:0})}}
               >
-                SEARCH{" "}
+                Search
               </button>
             </div>
           </div>
@@ -485,6 +500,17 @@ export default class SalesReport extends Component {
                 </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
             </table>
+            <div className="row m-0 pb-3 mb-5 mt-3">
+            {this.state.totalPages > 1 ? (
+            <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.sbList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div>
+                   ):null}</div>
           </div>
         </div>
       </div>

@@ -135,7 +135,7 @@ export default class ListOfDeliverySlips extends Component {
         },
         () => {
           console.log(this.state);
-          this.getStoreNames(this.state.domainId1);
+          this.getStoreNames(user["custom:clientId1"]);
         }
       );
     } else {
@@ -148,7 +148,7 @@ export default class ListOfDeliverySlips extends Component {
         },
         () => {
           console.log(this.state);
-          this.getStoreNames(user["custom:domianId1"]);
+          this.getStoreNames(user["custom:clientId1"]);
         }
       );
     }
@@ -262,7 +262,7 @@ export default class ListOfDeliverySlips extends Component {
                 className="btn-unic-search active"
                 onClick={this.getDeliverySlips}
               >
-                SEARCH{" "}
+                Search{" "}
               </button>
             </div>
           </div>

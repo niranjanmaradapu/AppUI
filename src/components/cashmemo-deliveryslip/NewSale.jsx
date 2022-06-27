@@ -6,6 +6,7 @@ import barcode from "../../assets/images/barcode.svg";
 import card from "../../assets/images/card.svg";
 import cash from "../../assets/images/cash.svg";
 import upi from "../../assets/images/upi.svg";
+import Hotkeys from 'react-hot-keys';
 import qr from "../../assets/images/qr_new.svg";
 import khata from "../../assets/images/khata.svg";
 import NewSaleService from "../../services/NewSaleService";
@@ -18,6 +19,7 @@ import CreateDeliveryService from "../../services/CreateDeliveryService";
 import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
 import { NEW_SALE_URL } from "../../commonUtils/ApiConstants";
+import PrinterStatusBill from "../../commonUtils/PrintService";
 
 
 
@@ -133,8 +135,10 @@ export default class NewSale extends Component {
       balanceCreditAmount: "",
       isreturnCreditCash: false,
       upiAmount:0,
-      isCheckPromo:false
+      isCheckPromo:false,
       // open: false,
+      pathFlag:false
+
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -168,6 +172,20 @@ export default class NewSale extends Component {
 
     //this.handler = this.handler.bind(this);
   }
+  onKeyDown(keyName, e, handle) {
+    console.log("test:onKeyDown", keyName, e, handle)
+    // this.setState({
+    //   output: `onKeyDown ${keyName}`,
+    // });
+    if(keyName === 'shift+s'){
+      this.getCardModel();
+
+    }
+    if(keyName === 'shift+x'){
+      this.getCashModel();
+
+    }
+  }
 
   componentWillMount() {
 
@@ -182,9 +200,26 @@ export default class NewSale extends Component {
     // }
 
     // this.getHsnDetails();
-
+    this.getPath();
   }
-
+  getPath(){
+    const role = JSON.parse(sessionStorage.getItem("user"));
+    URMService.getSubPrivilegesbyRoleId(role["custom:roleName"]).then(res => {
+      if(res) {
+      //  this.setState({buttonsList: res.data.result});
+      const subPrivilegesList = res.data.subPrivileges;
+      for(let i=0;i<subPrivilegesList.length;i++){
+        if(subPrivilegesList[i].childPath === '/createdeliveryslip')
+        {
+          this.setState({pathFlag:true})
+        }
+      }
+      // this.props.history.push(subPrivilegesList[0].childPath)
+      console.log(this.state.pathFlag)
+      }
+    });
+    
+  }
   getHsnDetails() {
     NewSaleService.getHsnDetails().then(response => {
       if (response) {
@@ -352,16 +387,13 @@ export default class NewSale extends Component {
   }
 
   saveCCAmount() {
-    console.log("+++++++++++++++++conirm_+++++++++++")
 
     this.state.discType = this.state.dropValue;
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
     const storeId = sessionStorage.getItem("storeId");
-    
-    console.log("+++++++++++++++++conirm2+++++++++++")
     let obj;
-    // if (this.state.isTextile) {
+    //if (this.state.isTextile) {
       obj = {
 
         "natureOfSale": "InStore",
@@ -393,7 +425,7 @@ export default class NewSale extends Component {
         "sgst": this.state.stateGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
-        "recievedAmount": this.state.cashAmount,
+        "recievedAmount": this.state.grandNetAmount,
         "returnAmount": this.state.returnCash,
         "lineItemsReVo": null,
         "paymentAmountType": [
@@ -407,8 +439,6 @@ export default class NewSale extends Component {
           }
 
         ]
-        
-    
 
       }
 
@@ -630,6 +660,10 @@ export default class NewSale extends Component {
             let status = true
             const param = '?razorPayId=' + response.razorpay_order_id + '&payStatus=' + status;
             const result = axios.post(BASE_URL + NEW_SALE_URL.saveSale + param, {});
+            // Printer Service used for Testing
+           // PrinterStatusBill('INVOICE', this.state.newSaleId,data.amount)
+
+
 
 
           },
@@ -728,54 +762,110 @@ export default class NewSale extends Component {
     const obj = {
       "dsNumber": this.state.dsNumber.trim(),
     }
+    const storeId = sessionStorage.getItem("storeId");
     this.state.dsNumberList.push(obj);
     if (e.key === "Enter") {
-    NewSaleService.getDeliverySlipDetails(this.state.dsNumber.trim()).then((res) => {
+    NewSaleService.getDeliverySlipDetails(this.state.dsNumber.trim(),this.state.pathFlag,storeId).then((res) => {
       this.setState({ showTable: true });
-      this.state.dlslips.push(res.data.result);
-      if (this.state.dlslips.length > 1) {
-        const barList = this.state.dlslips.filter(
-          (test, index, array) =>
-            index ===
-            array.findIndex((findTest) => findTest.dsNumber === test.dsNumber)
-        );
-
-        if (barList.length > 1) {
-          let lineStorage = [];
-          barList.forEach((element, index) => {
-            let lineItems = element.lineItems;
-            lineStorage = [...lineStorage, ...lineItems];
-          });
-
-          this.setState({ barCodeList: lineStorage,dsNumber: '' });
-
+      if(!this.state.pathFlag){
+        this.state.dlslips.push(res.data.result);
+        if (this.state.dlslips.length > 1) {
+          const barList = this.state.dlslips.filter(
+            (test, index, array) =>
+              index ===
+              array.findIndex((findTest) => findTest.dsNumber === test.dsNumber)
+          );
+  
+          if (barList.length > 1) {
+            let lineStorage = [];
+            barList.forEach((element, index) => {
+              let lineItems = element.lineItems;
+              lineStorage = [...lineStorage, ...lineItems];
+            });
+  
+            this.setState({ barCodeList: lineStorage,dsNumber: '' });
+  
+          } else {
+            this.setState({ barCodeList: barList[0].lineItems, dsNumber: ''  });
+          }
+  
         } else {
-          this.setState({ barCodeList: barList[0].lineItems, dsNumber: ''  });
+       
+            this.setState({ barCodeList: this.state.dlslips[0].lineItems , dsNumber: ''});
+         
+       
+          // this.state.barCodeList = this.state.dlslips.lineItems;
+        }
+        this.state.barCodeList.forEach((barCode, index) => {
+          costPrice = costPrice + barCode.itemPrice;
+          discount = discount + barCode.discount;
+          total = total + barCode.netValue;
+        });
+  
+        discount = discount + this.state.manualDisc;
+  
+        this.setState({
+          netPayableAmount: total,
+  
+          totalPromoDisc: discount,
+          grossAmount: costPrice,
+        });
+  
+        if (this.state.barCodeList.length > 0) {
+          this.setState({ enablePayment: true });
+        }
+      }else{
+        this.state.dlslips.push(res.data.lineItems);
+        if (this.state.dlslips.length > 1) {
+          const barList = this.state.dlslips.filter(
+            (test, index, array) =>
+              index ===
+              array.findIndex((findTest) => findTest.barCode === test.barCode)
+          );
+  
+          if (barList.length > 1) {
+            // let lineStorage = [];
+            // barList.forEach((element, index) => {
+            //   let lineItems = element.lineItems;
+            //   lineStorage = [...lineStorage, ...lineItems];
+            // });
+  
+            this.setState({ barCodeList:  this.state.dlslips,dsNumber: '' });
+  
+          } else {
+            this.setState({ barCodeList: this.state.dlslips, dsNumber: ''  });
+          }
+  
+        } else {
+            this.setState({ barCodeList:res.data.lineItems , dsNumber: ''});
+         
+       
+          // this.state.barCodeList = this.state.dlslips.lineItems;
+        }
+        this.state.barCodeList.forEach((barCode, index) => {
+          costPrice = costPrice + barCode.itemPrice;
+          discount = discount + barCode.discount;
+          total = total + barCode.netValue;
+        });
+  
+        discount = discount + this.state.manualDisc;
+  
+        this.setState({
+          netPayableAmount: total,
+  
+          totalPromoDisc: discount,
+          grossAmount: costPrice,
+        });
+  
+        if (this.state.barCodeList.length > 0) {
+          this.setState({ enablePayment: true });
         }
 
-      } else {
-        this.setState({ barCodeList: this.state.dlslips[0].lineItems , dsNumber: ''});
-        // this.state.barCodeList = this.state.dlslips.lineItems;
       }
+    
+    
 
-      this.state.barCodeList.forEach((barCode, index) => {
-        costPrice = costPrice + barCode.itemPrice;
-        discount = discount + barCode.discount;
-        total = total + barCode.netValue;
-      });
-
-      discount = discount + this.state.manualDisc;
-
-      this.setState({
-        netPayableAmount: total,
-
-        totalPromoDisc: discount,
-        grossAmount: costPrice,
-      });
-
-      if (this.state.barCodeList.length > 0) {
-        this.setState({ enablePayment: true });
-      }
+    
 
       this.getTaxAmount();
     });
@@ -1107,6 +1197,8 @@ export default class NewSale extends Component {
 
         "offlineNumber": null,
 
+        "mobileNumber": this.state.mobileData.mobileNumber,
+
         "userId": this.state.userId ? this.state.userId : null,
 
         "sgst": this.state.stateGST,
@@ -1126,6 +1218,10 @@ export default class NewSale extends Component {
 
       NewSaleService.saveSale(obj).then((res) => {
         if (res) {
+          if(!this.state.isCard){
+            // Printer Service used for Testing
+            PrinterStatusBill('INVOICE',res.data.result,this.state.barCodeList)
+          }
           this.setState({ isBillingDetails: false, dsNumber: "",upiAmount: this.state.grandNetAmount, finalList: [] });
           this.setState({
             customerName: " ",
@@ -1153,6 +1249,7 @@ export default class NewSale extends Component {
             totalAmount:0,
             couponAmount:0,
             isCredit: false,
+            enablePayment: false
             
 
 
@@ -1340,7 +1437,7 @@ export default class NewSale extends Component {
           if (response) {
             console.log(response);
             if (response.data.result && response.data.result.length > 0) {
-              this.setState({ isCredit: true, creditAmount: response.data.result[0].actualAmount });
+              this.setState({ isCredit: true, creditAmount: response.data.result[0].amount });
             }
           }
         });
@@ -1410,7 +1507,7 @@ export default class NewSale extends Component {
                     <th className="col-2">Discount</th>
                     <th className="col-1">Sgst</th>
                     <th className="col-1">Cgst</th>
-                    <th className="col-2">Gross Amount</th>
+                    <th className="col-2">Gross</th>
                   </tr>
                 </thead>
 
@@ -1502,8 +1599,12 @@ export default class NewSale extends Component {
       },
     };
     return (
+      <Hotkeys 
+      keyName="shift+s,shift+x" 
+      onKeyDown={this.onKeyDown.bind(this)}
+    >
 
-      <div className="maincontent">
+      <div className="maincontent pt-0">
 
 
         <Modal isOpen={this.state.isUPIModel} size="lg">
@@ -1890,22 +1991,13 @@ export default class NewSale extends Component {
             </button>
           </ModalFooter>
         </Modal>
-
-        <div className="row">
-          <div className="col-6 pt-2">
-
-          </div>
-          <div className="col-6 text-right pb-2">
-
-          </div>
-        </div>
-
-        <div className="">
           <div className="row">
-            <div className="col-sm-8 col-12">
-              <div className="row">
+            <div className="newsale-body p-r-1">
+                   <div className="newsale-body-left">
+                   <div className="">
+              <div className="row m-r-0">
                 <div className="col-12 col-sm-4">
-                  <div className="form-group">
+                  <div className="form-group fm-height">
 
                     {/* {
                       this.state.isTextile && ( */}
@@ -1955,24 +2047,15 @@ export default class NewSale extends Component {
 
                   </div>
                 </div>
-
-              </div>
-              <div className="row m-0 p-0">
-                <div className="col-12 col-sm-4 scaling-center p-l-0">
-                  <h5 className="mt-1 fs-18 mb-3">
-                    Order Details
-                  </h5>
-                </div>
-
                 {
                   this.state.showTable && (
 
 
-                    <div className="col-12 col-sm-8 scaling-center text-right p-r-0">
+                    <div className="col-12 col-sm-8 scaling-center p-t-5 text-right p-r-0">
 
                       <button
                         type="button"
-                        className={"m-r-2  scaling-mb" + (this.state.isCredit ? "btn-unic btn-disable" : "btn-unic active")}
+                        className={"m-r-2  scaling-mb " + (this.state.isCredit ? " btn-unic btn-disable" : " btn-unic active")}
                         onClick={this.toggleModal}
                       >Tag Customer </button>
                       <button
@@ -1995,12 +2078,21 @@ export default class NewSale extends Component {
                   )
                 }
 
+              </div>
+              <div className="row m-0 p-0">
+                <div className="col-12 col-sm-4 scaling-center p-l-0">
+                  <h5 className="fs-18">
+                    Order Details
+                  </h5>
+                </div>
 
-                <div>{this.showOrderDetails()}</div>
+            
+
+                <div className="p-l-0">{this.showOrderDetails()}</div>
                 {
                   this.state.showTable && (
 
-                    <div>
+                    <div className="p-l-0">
                       <div className="rect-cardred m-0">
                         <div className="row">
                           <div className="col-2 text-center">
@@ -2029,12 +2121,12 @@ export default class NewSale extends Component {
 
                       <div className="row p-0 m-0 mt-2">
                         <div className="col-6 p-l-0">
-                          <h5 className="mt-2">
+                          <h5 className="mb-0 mt-2 fs-18">
                             Customer Details
                           </h5>
                         </div>
                         <div className="col-6"></div>
-                        <table className="table table-borderless mb-1 mt-2">
+                        <table className="table table-borderless mb-0 mt-2 p-l-0 p-r-0">
                           <thead>
                             <tr className="m-0 p-0">
                               <th className="col-3">NAME</th>
@@ -2045,7 +2137,7 @@ export default class NewSale extends Component {
                             </tr>
                           </thead>
                         </table>
-                        <table className="table table-borderless gfg mb-0">
+                        <table className="table table-borderless gfg mb-0 p-l-0 p-r-0">
                           <tbody>
                             <tr>
                               <td className="col-3 geeks">
@@ -2072,12 +2164,86 @@ export default class NewSale extends Component {
 
                   )
                 }
+       
+       {
+                  this.state.enablePayment && (
+                    <div className="pay p-l-0">
+                      <h5 className="fs-18 mb-2 font-bold pt-3">Payment Type</h5>
+                        <ul>
+                          <li>
+                            <span>
+                              {/* <img src={card} onClick={this.getCardModel} /> */}
+                              <i className="icon-card" onClick={this.getCardModel}></i>
+                              <label>CARD</label>
+                            </span>
 
+                          </li>
+                          <li>
+                            <span>
+                              {/* <img src={cash} onClick={this.getCashModel} /> */}
+                              <i className="icon-cash" onClick={this.getCashModel}></i>
+                              <label>CASH</label>
+                            </span>
+
+                          </li>
+                          <li>
+                            <span className="">
+                              {/* <img src={upi} onClick={this.getUPIModel} /> */}
+                              <i className="icon-upi" onClick={this.getUPIModel}></i>
+                              <label>UPI</label>
+                            </span>
+
+                          </li>
+                          <li>
+                            <span>
+                              {/* <img src={qr} onClick={this.getCCModel} /> */}
+                              <i className="icon-qr_new" onClick={this.getCCModel}></i>
+                              <label>CC</label>
+                            </span>
+
+                          </li>
+                          {
+                            this.state.isCredit && (
+                              <li>
+                                <span className="">
+                                  {/* <img src={upi} onClick={this.getCreditModel} /> */}
+                                  <i className="icon-card" onClick={this.getCreditModel}></i>
+                                  <label>CREDIT</label>
+                                </span>
+
+                              </li>
+                            )
+                          }
+
+                          <li>
+                            <span>
+                              {/* <img src={khata} /> */}
+                              <i className="icon-khata"></i>
+                              <label>KHATA</label>
+                            </span>
+
+                          </li>
+                          <li>
+                            <span>
+                              {/* <img src={khata} onClick={this.getGvModel} /> */}
+                              <i className="icon-khata" onClick={this.getGvModel}></i>
+                              <label> GV</label>
+                            </span>
+
+                          </li>
+
+
+                        </ul>
+                    </div>
+                  )
+                }
               </div>
             </div>
-            <div className="col-sm-4 col-12">
-              <div className="rect-grey pb-3">
-                <h5 className="m-b-5">Billing summary</h5>
+                  </div>
+                  <div className="newsale-body-right">
+                  <div className="">
+              <div className="billing pb-3">
+                <h5 className="">Billing summary</h5>
                 <div className="row">
                   <div className="col-5">
                     <label>Total Amount</label>
@@ -2108,26 +2274,26 @@ export default class NewSale extends Component {
                 <div className="payment">
                 <div className="row">
                     <div className="col-5 p-r-0 pt-1">
-                      <label>Total Amount</label>
+                      <label className="text-secondary">Total Amount</label>
                     </div>
                     <div className="col-7 p-l-0 pt-1 text-right">
-                      <label className="font-bold">₹ {this.state.totalAmount}</label>
+                      <label className="font-bold text-secondary">₹ {this.state.totalAmount}</label>
                     </div>
                   </div>
                   <div className="row">
                     <div className="col-5 p-r-0 pt-1">
-                      <label>Promo Discount</label>
+                      <label className="text-green">Promo Discount</label>
                     </div>
                     <div className="col-7 p-l-0 pt-1 text-right">
-                      <label className="font-bold">₹ {this.state.totalPromoDisc}</label>
+                      <label className="font-bold text-green">₹ {this.state.totalPromoDisc}</label>
                     </div>
                   </div>
                   <div className="row">
                     <div className="col-5 p-r-0 pt-1">
-                      <label>Payable Amount</label>
+                      <label className="text-secondary">Payable Amount</label>
                     </div>
                     <div className="col-7 p-l-0 pt-1 text-right">
-                      <label className="font-bold">₹ {this.state.grandNetAmount}</label>
+                      <label className="font-bold text-secondary">₹ {this.state.grandNetAmount}</label>
                     </div>
                   </div>
 
@@ -2136,10 +2302,10 @@ export default class NewSale extends Component {
                   this.state.isBillingDiscount && (
                     <div className="row">
                     <div className="col-5">
-                      <label>Billing Discount</label>
+                      <label className="text-secondary">Billing Discount</label>
                     </div>
                     <div className="col-7 text-right">
-                      <label className="font-bold">₹ {this.state.manualDisc}</label>
+                      <label className="font-bold text-secondary">₹ {this.state.manualDisc}</label>
                     </div>
                   </div>
                   )
@@ -2150,18 +2316,18 @@ export default class NewSale extends Component {
                       <div>
                             <div className="row">
                       <div className="col-5">
-                        <label>Credit Amount</label>
+                        <label className="text-secondary">Credit Amount</label>
                       </div>
                       <div className="col-7 text-right">
-                        <label className="font-bold">₹ {this.state.creditAmount}</label>
+                        <label className="font-bold text-secondary">₹ {this.state.creditAmount}</label>
                       </div>
                     </div>
                     <div className="row">
                       <div className="col-5">
-                        <label>Payed Amount</label>
+                        <label className="text-secondary">Payed Amount</label>
                       </div>
                       <div className="col-7 text-right">
-                        <label className="font-bold">₹ {this.state.payCreditAmount}</label>
+                        <label className="font-bold text-secondary">₹ {this.state.payCreditAmount}</label>
                       </div>
                     </div>
                       </div>
@@ -2177,10 +2343,10 @@ export default class NewSale extends Component {
                     this.state.isreturnCreditCash && (
                       <div className="row">
                         <div className="col-5 p-r-0 pt-1">
-                          <label>Balance Amount</label>
+                          <label className="text-secondary">Balance Amount</label>
                         </div>
                         <div className="col-7 p-l-0 pt-1 text-right">
-                          <label className="font-bold">₹ {this.state.balanceCreditAmount}</label>
+                          <label className="font-bold text-secondary">₹ {this.state.balanceCreditAmount}</label>
                         </div>
                       </div>
                     )
@@ -2192,18 +2358,18 @@ export default class NewSale extends Component {
                       <div> 
                         <div className="row">
                         <div className="col-5 p-r-0 pt-1">
-                          <label>Collected Amount</label>
+                          <label className="text-secondary">Collected Amount</label>
                         </div>
                         <div className="col-7 p-l-0 pt-1 text-right">
-                          <label className="font-bold">₹ {this.state.cashAmount}</label>
+                          <label className="font-bold text-secondary">₹ {this.state.cashAmount}</label>
                         </div>
                       </div>
                       <div className="row">
                         <div className="col-5 p-r-0 pt-1">
-                          <label>Return Amount</label>
+                          <label className="text-orange">Return Amount</label>
                         </div>
                         <div className="col-7 p-l-0 pt-1 text-right">
-                          <label className="font-bold">₹ {this.state.returnCash}</label>
+                          <label className="font-bold text-orange">₹ {this.state.returnCash}</label>
                         </div>
                       </div>
                       </div>
@@ -2215,10 +2381,10 @@ export default class NewSale extends Component {
                     this.state.couponAmount > 0 && (
                       <div className="row">
                       <div className="col-5">
-                        <label>Coupon Applied</label>
+                        <label className="text-green">Coupon Applied</label>
                       </div>
                       <div className="col-7 text-right">
-                        <label className="font-bold">₹ {this.state.couponAmount}</label>
+                        <label className="font-bold text-green">₹ {this.state.couponAmount}</label>
                       </div>
                     </div>
                     )
@@ -2251,77 +2417,11 @@ export default class NewSale extends Component {
                   )
                 }
 
-                {
-                  this.state.enablePayment && (
-                    <div>
-                      <label className="fs-18 pt-3">Payment Type</label>
-                      <div className="list row">
-                        <ul>
-                          <li>
-                            <span>
-                              <img src={card} onClick={this.getCardModel} />
-                              <label>CARD</label>
-                            </span>
-
-                          </li>
-                          <li>
-                            <span>
-                              <img src={cash} onClick={this.getCashModel} />
-                              <label>CASH</label>
-                            </span>
-
-                          </li>
-                          <li>
-                            <span className="">
-                              <img src={upi} onClick={this.getUPIModel} />
-                              <label>UPI</label>
-                            </span>
-
-                          </li>
-                          <li>
-                            <span>
-                              <img src={qr} onClick={this.getCCModel} />
-                              <label>CC</label>
-                            </span>
-
-                          </li>
-                          {
-                            this.state.isCredit && (
-                              <li>
-                                <span className="">
-                                  <img src={upi} onClick={this.getCreditModel} />
-                                  <label>CREDIT</label>
-                                </span>
-
-                              </li>
-                            )
-                          }
-
-                          <li>
-                            <span>
-                              <img src={khata} />
-                              <label>KHATA</label>
-                            </span>
-
-                          </li>
-                          <li>
-                            <span>
-                              <img src={khata} onClick={this.getGvModel} />
-                              <label> GV</label>
-                            </span>
-
-                          </li>
-
-
-                        </ul>
-                      </div>
-                    </div>
-                  )
-                }
 
 
 
-                <div className="mt-3">
+
+                <div className="p-t-3">
                   <button
                     className={"mt-1 w-100 " + (this.state.grandNetAmount !== 0 || this.state.totalAmount === 0 ? "btn-unic btn-disable" : "btn-unic active")} 
                     onClick={this.savePayment}
@@ -2331,12 +2431,14 @@ export default class NewSale extends Component {
                 </div>
               </div>
             </div>
-
-          </div>
+                  </div>
+            </div>
         </div>
+      
 
 
       </div>
+     </Hotkeys>
     );
   }
 }

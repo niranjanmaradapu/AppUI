@@ -14,6 +14,8 @@ export default class ListOfReturnSlips extends Component {
       toDate: "",
       // startRecordNumber: 0,
       // numberOfRecords: 5,
+      pageNumber:0,
+      totalPages:0,
       barcodeTextileId: "",
       barcode: "",
       store: "",
@@ -57,19 +59,19 @@ export default class ListOfReturnSlips extends Component {
 
   getBarcodes(pageNumber) {
     const obj = {
-      fromDate: this.state.fromDate ? this.state.fromDate : undefined,
-      toDate: this.state.toDate ? this.state.toDate : undefined,
+      fromDate: this.state.fromDate ? this.state.fromDate : null,
+      toDate: this.state.toDate ? this.state.toDate : null,
       // startRecordNumber: 0,
       // numberOfRecords: 5,
       barcodeTextileId: this.state.barcodeTextileId
         ? parseInt(this.state.barcodeTextileId)
         : undefined,
-      barcode: this.state.barcode ? this.state.barcode : undefined,
+      barcode: this.state.barcode ? this.state.barcode : null,
       // storeName: this.state.store ? this.state.store : undefined,
       storeId:
         this.state.storeId && this.state.storeId != 0
           ? this.state.storeId
-          : undefined,
+          : "",
 
       empId: this.state.empId ? this.state.empId : undefined,
       itemMrpLessThan: this.state.itemMrpLessThan
@@ -120,6 +122,7 @@ export default class ListOfReturnSlips extends Component {
         // barcodeData: a,
         bcList: a,
         bcDetailsList: a,
+        totalPages:res.data.result.totalPages
       });
     });
   }
@@ -158,11 +161,11 @@ export default class ListOfReturnSlips extends Component {
     this.setState({ storeId: storeId });
     console.log("user", user);
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if (domainData.label == "Textile") {
-      this.setState({ domaindataId: 1 });
-    } else if (domainData.label == "Retail") {
-      this.setState({ domaindataId: 2 });
-    }
+    // if (domainData.label == "Textile") {
+    //   this.setState({ domaindataId: 1 });
+    // } else if (domainData.label == "Retail") {
+    //   this.setState({ domaindataId: 2 });
+    // }
     if (user["custom:isSuperAdmin"] === "true") {
       this.state.domainDetails = JSON.parse(
         sessionStorage.getItem("selectedDomain")
@@ -192,7 +195,7 @@ export default class ListOfReturnSlips extends Component {
         },
         () => {
           console.log(this.state);
-          this.getStoreNames(this.state.domainId1);
+          this.getStoreNames(user["custom:clientId1"]);
         }
       );
     } else {
@@ -205,7 +208,7 @@ export default class ListOfReturnSlips extends Component {
         },
         () => {
           console.log(this.state);
-          this.getStoreNames(user["custom:domianId1"]);
+          this.getStoreNames(user["custom:clientId1"]);
         }
       );
     }
@@ -374,7 +377,7 @@ export default class ListOfReturnSlips extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="BARCODE NUMBER"
+                placeholder="Barcode Number"
                 value={this.state.barcode}
                 // onChange={(e) =>
                 //   this.setState({ barcodeTextileId: e.target.value })
@@ -428,7 +431,7 @@ export default class ListOfReturnSlips extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="BARCODE MRP <"
+                placeholder="Barcode MRP <"
                 value={this.state.itemMrpLessThan}
                 onChange={(e) =>
                   this.setState({ itemMrpLessThan: e.target.value })
@@ -443,7 +446,7 @@ export default class ListOfReturnSlips extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="BARCODE MRP >"
+                placeholder="Barcode MRP >"
                 value={this.state.itemMrpGreaterThan}
                 onChange={(e) =>
                   this.setState({ itemMrpGreaterThan: e.target.value })
@@ -459,7 +462,7 @@ export default class ListOfReturnSlips extends Component {
                   this.getBarcodes(0);
                 }}
               >
-                SEARCH{" "}
+                Search{" "}
               </button>
             </div>
           </div>
@@ -496,17 +499,28 @@ export default class ListOfReturnSlips extends Component {
               </tr>
              </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
-              {console.log(">>>.bclist", this.state.pageList)}
 
-              {this.state.pageList?.content?.length > 10 ? null : (
-                <ReactPageNation
+
+                {/* <ReactPageNation
+                  {...this.state.pageList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                  }}
+                /> */}
+              
+            </table>
+            <div className="row m-0 pb-3 mb-5 mt-3">
+            {this.state.totalPages > 1 ? (
+            <div className="d-flex justify-content-center">
+            <ReactPageNation
                   {...this.state.pageList}
                   changePage={(pageNumber) => {
                     this.changePage(pageNumber);
                   }}
                 />
-              )}
-            </table>
+                </div>
+            ):null}
+            </div>
           </div>
         </div>
       </div>

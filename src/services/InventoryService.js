@@ -17,8 +17,9 @@ class InventoryService {
         return axios.get(BASE_URL + INVENTORY_URLS.getAllUOMs);
     }
 
-    getAllDivisions() {
-        return axios.get(BASE_URL + INVENTORY_URLS.getAllDivisions);
+    getAllDivisions(domainType) {
+        const param  = '?domainType='+ domainType;
+        return axios.get(BASE_URL + INVENTORY_URLS.getAllDivisions + param);
     }
 
     getAllHsnList() {
@@ -29,13 +30,14 @@ class InventoryService {
     //     console.log("??/?",BASE_URL+INVENTORY_URLS.getAllHsnData+"?hsnCode="+hsnCode);
     //     return axios.get(BASE_URL+INVENTORY_URLS.getAllHsnData+"?hsnCode="+hsnCode);
     // }
-    getAllSections(id) {
-        const param1 = '?id=' + id;
+    getAllSections(id,domainType) {
+        const param1 = '?id=' + id +'&domainType=' + domainType;
         return axios.get(BASE_URL + INVENTORY_URLS.getAllSections + param1);
     }
 
-    getAllCategories() {
-        return axios.get(BASE_URL + INVENTORY_URLS.getAllCategories);
+    getAllCategories(domainType) {
+        const param  = '?domainType='+ domainType
+        return axios.get(BASE_URL + INVENTORY_URLS.getAllCategories +param);
     }
 
     getStoreNamesByIds(list) {
@@ -120,7 +122,7 @@ class InventoryService {
         let param = '';
         if (storeId && !fromdate && !todate) {
             param = '?storeId=' + storeId;
-        } else if (storeId && fromdate) {
+        } else if (storeId && fromdate && !todate) {
             param = `?storeId=${storeId}&fromDate=${fromdate ? fromdate : null}`;
         } else {
             param = `?storeId=${storeId}&fromDate=${fromdate ? fromdate : null}&toDate=${todate ? todate : null}`;

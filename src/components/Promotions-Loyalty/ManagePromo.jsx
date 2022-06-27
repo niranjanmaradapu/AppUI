@@ -242,7 +242,7 @@ export default class ManagePromo extends Component {
     }
     if (!searchStoreName || searchStoreName.length === 0) {
       formIsValid = false;
-      errors["searchStoreName"] = "Select Start Date";
+      errors["searchStoreName"] = "Select Promotion Name";
     }
     this.setState({ storeErrors: errors });               
     return formIsValid;
@@ -253,6 +253,7 @@ export default class ManagePromo extends Component {
     let storeIds = [];
     const user = JSON.parse(sessionStorage.getItem("user"));    
     const createdBy = user['custom:userId'];
+    const clientId = user['custom:clientId1'];
     const formDate = this.handleStoreData();
     if(formDate) {
     if(searchStoreName.length > 0) {
@@ -289,7 +290,8 @@ export default class ManagePromo extends Component {
         startDate: storeStartDate,
         priority: null,
         createdBy: createdBy,
-        promotionStatus: true
+        promotionStatus: true,
+        clientId
     }
     PromotionsService.addPromoToStore(requestObj).then((res) => {
       if(res.data.isSuccess === 'true') {
@@ -452,7 +454,9 @@ export default class ManagePromo extends Component {
     this.setState({ priority: e.target.value });
   }
   getAllStorePromos() {
-    PromotionsService.getAllStorePromos().then((res) => {
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const customClientId = user['custom:clientId1'];
+    PromotionsService.getAllStorePromos(customClientId).then((res) => {
       if(res.data.isSuccess === 'true') {   
         res.data.result.forEach((item) => {
           if(this.dateCompare(item.endDate)){
@@ -507,6 +511,7 @@ export default class ManagePromo extends Component {
     const obj = {
       startDate: updatePromoStartDate,
       endDate: updatePromoEndDate,
+      // promotionStatus: updatePromoStatus,
       id: checkedItem.id
     }
       console.log(">>>", updatePromoStartDate, updatePromoEndDate);
@@ -548,19 +553,23 @@ export default class ManagePromo extends Component {
     });
   }
   searchPromo() {
-    const {promoStatus, searchByStoreName, endDate, startDate, promotionName } = this.state;
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const customClientId = user['custom:clientId1'];
+    const {promoStatus,searchByStoreName, startDate ,endDate,promotionName} = this.state;
     const obj = {
-        promotionStartDate: startDate ? startDate : null,
-        promotionEndDate: endDate ? endDate : null,
+        startDate: startDate ? startDate : null,
+        endDate: endDate ? endDate : null,
         promotionName: promotionName ? promotionName : null,
-        isActive: promoStatus ? promoStatus : null,
-        storeName: searchByStoreName ? searchByStoreName.label : null
+        promotionStatus: JSON.parse(promoStatus ? promoStatus : null),
+        storeName: searchByStoreName ? searchByStoreName.label : null,
+        clientId: customClientId ? customClientId  : null
+       
     }
     // Need to handle search promotion
     PromotionsService.searchPromotion(obj).then((res) => {     
       if(res.data.isSuccess === 'true') {
         this.setState({
-          allStorePromos: res.data.result,
+          allStorePromos: res.data.result.content,
           promoStatus: '', 
           searchByStoreName: '',
           endDate: '', 
@@ -655,6 +664,27 @@ export default class ManagePromo extends Component {
   dateFormat = (d) => {
     let date = new Date(d)
     return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()
+}
+handlePromoStatus(e){
+  this.setState({promoStatus: e.target.value});
+}
+handleStore(e){
+  this.setState({store: e.target.value});
+}
+haandlePromoname(e) {
+  this.setState({
+    promotionName: e.target.value,
+  });
+}
+haandleEnddate(e) {
+  this.setState({
+    endDate: e.target.value
+  });
+}
+haandleStartdate(e) {
+  this.setState({
+    startDate: e.target.value
+  });
 }
 
   closeClonePopup() {
@@ -850,10 +880,10 @@ export default class ManagePromo extends Component {
           </ModalFooter>
         </Modal>
         <div className="row">
-          <div className="col-sm-2 col-6">
-            <div className="form-group mt-2 mb-3">
+          <div className="col-sm-2 col-6 sele">
+            <div className="form-group mt-2 mb-1">
                <label>Store Name</label>
-              <Select
+              <Select className="fs-14"
                 // isMulti
                 onChange={this.onSearchStoreNameChange}
                 options={this.state.storesList}
@@ -863,7 +893,7 @@ export default class ManagePromo extends Component {
           </div>
 
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
             <label>Promotion Name</label>
               <select value={this.state.promotionName} onChange={ (e) => this.haandlePromoname(e)} className="form-control">
                 <option>Select Promotion</option>
@@ -876,7 +906,7 @@ export default class ManagePromo extends Component {
             </div>
           </div>
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
                 <label>Start Date</label>
               <input type="date" className="form-control"
                   value={this.state.startDate}
@@ -885,7 +915,7 @@ export default class ManagePromo extends Component {
             </div>
           </div>
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
             <label>End Date</label>
             <input type="date" className="form-control"  
                 value={this.state.endDate}
@@ -894,7 +924,7 @@ export default class ManagePromo extends Component {
             </div>
           </div>
           <div className="col-sm-2 col-6 mt-2">
-            <div className="form-group mb-3">
+            <div className="form-group mb-1">
             <label>Status</label>
             <select value={this.state.promoStatus} onChange={(e) =>  this.handlePromoStatus(e)} className="form-control">
                 <option>Select Status</option>
@@ -906,13 +936,13 @@ export default class ManagePromo extends Component {
               </select>
             </div>
           </div>
-          <div className="col-sm-2 col-6 mt-2 pt-4">
-          <button className="btn-unic-redbdr" onClick={this.searchPromo}>SEARCH</button>
+          <div className="col-sm-2 col-6 mt-2 pt-4 p-0">
+          <button className="btn-unic-search active m-r-2 " onClick={this.searchPromo}>Search</button>
           <button
-              className="btn-unic-search active mt-1"
+              className="btn-unic-redbdr"
               onClick={this.addStore}
             >
-              <i className="icon-retail p-r-1"></i> Add Store
+              <i className="icon-store"></i> Add Store
             </button>
           </div>
           <div className="col-sm-4 col-12 pl-0 mb-3 scaling-center scaling-mb">
@@ -925,9 +955,9 @@ export default class ManagePromo extends Component {
              <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.cloneStore}>Clone</button>
             <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.savePriorityPopUp}>Change Promo Priority</button>
           </div>
-          <div className="col-6 text-right p-r-0 mt-4 align-self-center">
+          {/* <div className="col-6 text-right p-r-0 mt-4 align-self-center">
             <span className="mt-3 ">Show on page </span><span className="font-bold fs-14"> 1-10</span><span> out of 11</span><button className="btn-transparent" type="button"><img src={left} /></button><button className="btn-transparent" type="button"><img src={right} /></button>
-          </div>
+          </div> */}
           <div className="table-responsive p-0">
             <table className="table table-borderless mb-1 mt-2">
             <thead>
@@ -944,23 +974,34 @@ export default class ManagePromo extends Component {
             </thead>
             <tbody>
             {this.state.allStorePromos.length > 0 && this.state.allStorePromos.map((item, index) => {
-            let date = this.dateFormat(item.startDate || item.endDate)
+            let date = this.dateFormat(item.startDate);
+            let endDate = this.dateFormat(item.endDate);
             const {
               promotionName,
               storeName,
               priority,
               startDate,
-              endDate,
+              // endDate,
               promoStatus,
             } = item;
               return( 
               <tr key={index}>
-                  <td className="col-1 underline geeks"> <input type="checkbox" checked={item.isCheckBoxChecked}  onChange={(e) => this.handleChange(e,index, item)}/> <span className="pt-0 mt-0">{item.id}</span> </td>
+                  <td className="col-1 underline geeks"> 
+                  <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                  <input type="checkbox" className="form-check-input filled-in"
+                    checked={item.isCheckBoxChecked}  onChange={(e) => this.handleChange(e,index, item)}/>
+                  <span className="pt-0 mt-0">{item.id}</span> 
+                </div>
+
+                  {/* <input type="checkbox" checked={item.isCheckBoxChecked}  onChange={(e) => this.handleChange(e,index, item)}/> 
+                  <span className="pt-0 mt-0">{item.id}</span>  */}
+                  
+                  </td>
                   <td className="col-2">{item.promotionName}</td>
                   <td className="col-2">{item.storeName}</td>
                   <td className="col-2">{item.priority}</td>
                   <td className="col-2">{date}</td>
-                  <td className="col-2">{item.endDate}</td>
+                  <td className="col-2">{endDate}</td>
                   <td className="col-1">
                     {item.promotionStatus ? 
                       <button onClick={() => this.updatePromotionStatus(item)} className="btn-active">Active</button> : 

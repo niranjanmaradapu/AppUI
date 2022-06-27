@@ -105,7 +105,7 @@ export default class Rebarcoding extends Component {
       Rebarcoding: [],
       fromDate: '',
       toDate: '' ,
-      RebarcodeId:'',    
+      barcodeSearchId:'',    
      }, () => this.getAllBarcodes());
     }
     
@@ -165,8 +165,9 @@ export default class Rebarcoding extends Component {
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,
-        currentBarcodeId: this.state.barcodeSearchId,
+        currentBarcodeId: this.state.barcodeSearchId.trim(),
         storeId: this.state.selectedStoreId,
+        
       };
     // }
 
@@ -176,7 +177,7 @@ export default class Rebarcoding extends Component {
       pageNumber
     )
       .then((res) => {
-        if (res.data) {
+        if (res.data.content.length !== 0) {
           this.state.barcodesList = res.data;
           this.setState({
             barcodesList: this.state.barcodesList,
@@ -185,6 +186,7 @@ export default class Rebarcoding extends Component {
           // this.setEmployeeNames();
         } else {
           this.setState({ barcodesList: [] });
+          toast.error("No Record Found");
         }
       })
       .catch((error) => {
@@ -220,7 +222,7 @@ export default class Rebarcoding extends Component {
     this.setState({ storeIds: this.uniq() });
     this.getStoreNamesById();
   }
-
+  
   uniq() {
     return Array.from(new Set(this.state.sortedStoreIds));
   }
@@ -930,7 +932,7 @@ export default class Rebarcoding extends Component {
               {this.state.domainDetailsObj  === "Retail"
                 ? this.nameDiv()
                 : null}
-              <div class="row">
+              <div className="row">
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
                     <label>
@@ -1149,8 +1151,10 @@ export default class Rebarcoding extends Component {
                       this.setState({ toDate: e.target.value });
                       // console.log(">>>right");
                       // alert("right");
-                    } else {
-                      toast.error("To date should be greater than From date ");
+                    } 
+                    else
+                     {
+                      toast.error("Please select from date");
                       // alert("To date should be greater than From date ");
                       // console.log(">>>>wrong");
                     }
@@ -1158,7 +1162,7 @@ export default class Rebarcoding extends Component {
                 />
               </div>
             </div>
-            <div className="col-sm-3 col-12">
+            <div className="col-sm-2 col-12">
               <div className="form-group mt-2">
                 <label>Re-Barcode ID</label>
                 <input
@@ -1185,13 +1189,13 @@ export default class Rebarcoding extends Component {
                   this.setState({ pageNumber: 0 });
                 }}
               >
-                SEARCH
+                Search
               </button>
               <button
-                className="btn-unic-search active m-r-2 mt-2"
+                className="btn-clear m-r-2 mt-2"
                 onClick={this.clearBar}
                 >
-                CLEAR
+                Clear
               </button>
             </div>
            

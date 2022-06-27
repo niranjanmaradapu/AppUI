@@ -170,7 +170,7 @@ export default class User extends Component {
                     res.data.result.content.forEach(element => {
                         element.roleName = element.role.roleName ? element.role.roleName : "";
                     });
-                    this.setState({usersList: res.data.result, isUser: true});
+                    this.setState({usersList: res.data.result, totalPages: res.data.result.totalPages, isUser: true});
                 } else {
                     this.setState({usersList: [], isUser: false});
                 }
@@ -248,10 +248,10 @@ export default class User extends Component {
                this.setState({
                 //    usersList: res.data.result, 
                 usersList:  this.state.usersList, 
-                //    totalPages: res.data.result.totalPages,
+                   totalPages: res.data.totalPages,
                    isUser: true });
           
-                //    console.log("totalpages",this.state.totalPages);
+                   console.log("totalpages",this.state.totalPages);
             }
         });
     }
@@ -272,8 +272,8 @@ export default class User extends Component {
         URMService.getUserBySearch(obj).then(res=> {
             console.log(res);
             if(res) {
-                // const userDetails = res.data.result.content[0];
-                const userDetails = res?.data?.result;
+                const userDetails = res.data.result.content[0];
+                // const userDetails = res?.data?.result;
                 this.setState({
                     showModal: true,
                     name: userDetails.userName,
@@ -291,6 +291,7 @@ export default class User extends Component {
                     isSearch: false,
                     isSuperAdmin: userDetails.superAdmin,
                     userId: items.id,
+                    userStatus: userDetails.isActive
                 }, () => {
                     this.state.isSuperAdmin = this.state.isAdmin;
                     const user = sessionStorage.getItem('domainName');
@@ -447,7 +448,7 @@ export default class User extends Component {
             saveObj = {
                 "id": this.state.userId,
                 "email":this.state.email,	
-                "phoneNumber": "+91".concat(this.state.mobileNumber),
+                "phoneNumber":(this.state.mobileNumber),
                 "birthDate": this.state.dob,
                 "gender":this.state.gender,
                 "name":this.state.name,
@@ -480,7 +481,7 @@ export default class User extends Component {
         } else {
             saveObj = {
                 "email":this.state.email,	
-                "phoneNumber": "+91".concat(this.state.mobileNumber),
+                "phoneNumber":"+91".concat(this.state.mobileNumber),
                 "birthDate": this.state.dob,
                 "gender":this.state.gender,
                 "name":this.state.name,
@@ -587,11 +588,11 @@ export default class User extends Component {
                     <thead>
                         <tr className="m-0 p-0">
                             <th className="col-1">User ID </th>
-                            <th className="col-2">User Name</th>
+                            <th className="col-2 p-l-1">User Name</th>
                             {/* <th className="col-2">Email</th> */}
-                            <th className="col-1">Role</th>
-                            <th className="col-3">Store Name</th>
-                            <th className="col-2">Created Date</th>
+                            <th className="col-1 p-l-1">Role</th>
+                            <th className="col-3 p-l-1">Store Name</th>
+                            <th className="col-2 p-l-0">Created Date</th>
                             {/* <th className="col-1">Store</th> */}
                             <th className="col-1">Status</th>
                             <th className="col-1"></th>
@@ -607,17 +608,17 @@ export default class User extends Component {
                 
                 <div className="row m-0 pb-3 mb-5 mt-3">
 
-                {/* {this.state.totalPages > 1 ? ( */}
-<div className="d-flex justify-content-center">
-<ReactPageNation
-  {...this.state.usersList}
-  changePage={(pageNumber) => {
-    this.changePage(pageNumber);
-  }}
-/>
-</div>
-  {/* ) : null} */}
-</div>
+                {this.state.totalPages > 1 ? (
+                <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.usersList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div>
+                  ) : null} 
+                   </div>
                 </div>
             </div>
         )
@@ -891,7 +892,7 @@ capitalization= () => {
                                 <div className="col-12 col-sm-4 mt-3">
                                     <div className="form-group">
                                         <label>Mobile <span className="text-red font-bold">*</span></label>
-                                        <input type="text" className="form-control" placeholder="+91 " name="number"
+                                        <input type="text" className="form-control" placeholder="" name="number"
                                             value={this.state.mobileNumber} maxLength={errorLengthMax.mobileNumber}
                                             onChange={this.validation}
                                             autoComplete="off" />
@@ -1054,7 +1055,7 @@ capitalization= () => {
                     </ModalBody>
                     <ModalFooter>
                         <button className="btn-unic" onClick={this.hideCreateUser} name="cancel">Cancel</button>
-                        <button className="btn-unic active fs-12" onClick={this.addCreateUser} name="adduser">Add User</button>
+                        <button className="btn-unic active fs-12" onClick={this.addCreateUser} name="save">Save</button>
                     </ModalFooter>
                 </Modal>
                 <div className="row">
@@ -1069,12 +1070,13 @@ capitalization= () => {
                         </div>
                     </div>
                     <div className="col-12 col-sm-2 mt-2">
-                        <div className="form-group">
+                        <div className="form-group outline-remove">
                         <label>Role</label>
                         <input type="text" className="form-control" name ="role" placeholder="role" value={this.state.searchRole}
                                 onChange={(e) => this.setState({ searchRole: e.target.value })} />
                         </div>
                     </div>
+
                     <div className="col-12 col-sm-2 mt-2">
                         <div className="form-group">
                         <label>Store/Branch</label>
@@ -1082,9 +1084,10 @@ capitalization= () => {
                                 onChange={(e) => this.setState({ searchStore: e.target.value })} />
                         </div>
                     </div>
+                    
                     <div className="col-12 scaling-center scaling-mb col-sm-6 pt-4 mt-2 p-l-0">
-                        <button className="btn-unic-search active m-r-2"  name="search" onClick={this.searchUser}>SEARCH </button>
-                        <button className="btn-unic-search active m-r-2" name="clear" onClick={()=>{this.getUsers(0); this.setState({ pageNumber: 0 });}}>Clear </button>
+                        <button className="btn-unic-search active m-r-2"  name="search" onClick={this.searchUser}>Search </button>
+                        <button className="btn-clear m-r-2" name="clear" onClick={()=>{this.getUsers(0); this.setState({ pageNumber: 0 });}}>Clear </button>
                         <button className="btn-unic-search active" name="createuser" onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button>
                     </div>
 

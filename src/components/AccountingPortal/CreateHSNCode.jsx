@@ -85,6 +85,7 @@ export default class CreateHSNCode extends Component {
         AccountingPortalService.saveHsnCode(obj).then(response => {
           if (response) {
           toast.success(response.data.message);
+          toast.success("HSN code added sucessfully");
           this.closeHSNCode()
           this.getAllHsnCodes()
           }
@@ -516,7 +517,7 @@ slabValidation() {
           </div>
           <div className="col-sm-7 col-6 text-right">
             <button className="btn-unic-search mt-2 active"
-              onClick={this.addHSNCode}>Add HSN Code</button>
+              onClick={this.addHSNCode}><i className='icon-credit_notes'></i> Add HSN Code</button>
           </div>
         </div>
         <div className="table-responsive">

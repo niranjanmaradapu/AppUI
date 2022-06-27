@@ -25,7 +25,7 @@ export default class ListOfSaleBills extends Component {
       status: null,
       selectOption: [
         {
-          name: "RT STATUS",
+          name: "RT Status",
           id: "RT STATUS",
         },
         {
@@ -413,7 +413,7 @@ export default class ListOfSaleBills extends Component {
                 className="btn-unic-search active"
                 onClick={this.getReturnSlips}
               >
-                SEARCH{" "}
+                Search{" "}
               </button>
             </div>
           </div>

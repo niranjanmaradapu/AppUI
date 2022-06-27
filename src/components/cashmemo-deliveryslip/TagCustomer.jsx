@@ -19,6 +19,10 @@ export default class TagCustomer extends Component {
       mobileData: {
         customerId: "",
         name: "",
+        statusbar:"",
+        startDate:"",
+        endDate:"",
+        gvNumber1:"",
         mobileNumber: "",
         gstNumber: "",
         address: "",
@@ -284,9 +288,9 @@ export default class TagCustomer extends Component {
     //   "&gvNumber=GV" +
     //   this.state.gvNumber;
     const obj = {
-      fromDate: this.state.fromDate ? this.state.fromDate : undefined,
-      toDate: this.state.toDate ? this.state.toDate : undefined,
-      gvNumber: this.state.gvNumber ? this.state.gvNumber : undefined,
+      fromDate: this.state.startDate ? this.state.startDate : undefined,
+      toDate: this.state.endDate ? this.state.endDate : undefined,
+      gvNumber: this.state.gvNumber1 ? this.state.gvNumber1 : undefined,
     };
     console.log(">>>>>paramsss", obj);
     CreateDeliveryService.searchGiftVoucher(obj).then((res) => {
@@ -300,9 +304,9 @@ export default class TagCustomer extends Component {
   clearSearch() {
     this.setState({
       gvSearchList: [],
-      fromDate: "",
-      toDate: "",
-      gvNumber: "",
+      startDate: "",
+      endDate: "",
+      gvNumber1: "",
     });
   }
 
@@ -334,10 +338,10 @@ export default class TagCustomer extends Component {
                 id="start"
                 className="form-control"
                 name="trip-start"
-                value={this.state.fromDate}
+                value={this.state.startDate}
                 onChange={(e) =>
                   this.setState({
-                    fromDate: e.target.value,
+                    startDate: e.target.value,
                   })
                 }
               />
@@ -350,21 +354,21 @@ export default class TagCustomer extends Component {
                 type="date"
                 name="trip-start"
                 className="form-control"
-                value={this.state.toDate}
-                onChange={(e) => this.setState({ toDate: e.target.value })}
+                value={this.state.endDate}
+                onChange={(e) => this.setState({ endDate: e.target.value })}
               />
             </div>
           </div>
           <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
-              <label>GV NUMBER</label>
+              <label>GV Number</label>
               <input
                 type="number"
                 className="form-control"
                 min={0}
-                placeholder="GV NUMBER"
-                value={this.state.gvNumber}
-                onChange={(e) => this.setState({ gvNumber: e.target.value })}
+                placeholder="GV Number"
+                value={this.state.gvNumber1}
+                onChange={(e) => this.setState({ gvNumber1: e.target.value })}
               />
             </div>
           </div>
@@ -375,10 +379,10 @@ export default class TagCustomer extends Component {
                 className="btn-unic-search active m-r-2"
                 onClick={this.searchGiftVoucher}
               >
-                SEARCH
+                Search
               </button>
               <button
-                className="btn-unic-search active m-r-2"
+                className="btn-clear m-r-2"
                 onClick={() => {
                   this.clearSearch();
                 }}
@@ -409,7 +413,7 @@ export default class TagCustomer extends Component {
                   onChange={(e) => this.setState({ gvNumber: e.target.value })}
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["gvNumber"]}
                   </span>
                 </div>
@@ -449,7 +453,7 @@ export default class TagCustomer extends Component {
                   autoComplete="off"
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["fromDate"]}
                   </span>
                 </div>
@@ -477,7 +481,7 @@ export default class TagCustomer extends Component {
                   autoComplete="off"
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["toDate"]}
                   </span>
                 </div>
@@ -497,7 +501,7 @@ export default class TagCustomer extends Component {
                   onChange={(e) => this.setState({ amount: e.target.value })}
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["amount"]}
                   </span>
                 </div>
@@ -514,7 +518,7 @@ export default class TagCustomer extends Component {
                 className="btn-unic-search active mt-1 m-r-2"
                 onClick={this.addGiftVoucher}
               >
-                ADD GIFT VOUCHER
+                Add Gift Voucher
               </button>
             </div>
             <div className="col-12 col-sm-9">

@@ -425,7 +425,7 @@ export default class NewSale extends Component {
         "sgst": this.state.stateGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
-        "recievedAmount": this.state.cashAmount,
+        "recievedAmount": this.state.grandNetAmount,
         "returnAmount": this.state.returnCash,
         "lineItemsReVo": null,
         "paymentAmountType": [
@@ -2172,28 +2172,32 @@ export default class NewSale extends Component {
                         <ul>
                           <li>
                             <span>
-                              <img src={card} onClick={this.getCardModel} />
+                              {/* <img src={card} onClick={this.getCardModel} /> */}
+                              <i className="icon-card" onClick={this.getCardModel}></i>
                               <label>CARD</label>
                             </span>
 
                           </li>
                           <li>
                             <span>
-                              <img src={cash} onClick={this.getCashModel} />
+                              {/* <img src={cash} onClick={this.getCashModel} /> */}
+                              <i className="icon-cash" onClick={this.getCashModel}></i>
                               <label>CASH</label>
                             </span>
 
                           </li>
                           <li>
                             <span className="">
-                              <img src={upi} onClick={this.getUPIModel} />
+                              {/* <img src={upi} onClick={this.getUPIModel} /> */}
+                              <i className="icon-upi" onClick={this.getUPIModel}></i>
                               <label>UPI</label>
                             </span>
 
                           </li>
                           <li>
                             <span>
-                              <img src={qr} onClick={this.getCCModel} />
+                              {/* <img src={qr} onClick={this.getCCModel} /> */}
+                              <i className="icon-qr_new" onClick={this.getCCModel}></i>
                               <label>CC</label>
                             </span>
 
@@ -2202,7 +2206,8 @@ export default class NewSale extends Component {
                             this.state.isCredit && (
                               <li>
                                 <span className="">
-                                  <img src={upi} onClick={this.getCreditModel} />
+                                  {/* <img src={upi} onClick={this.getCreditModel} /> */}
+                                  <i className="icon-card" onClick={this.getCreditModel}></i>
                                   <label>CREDIT</label>
                                 </span>
 
@@ -2212,14 +2217,16 @@ export default class NewSale extends Component {
 
                           <li>
                             <span>
-                              <img src={khata} />
+                              {/* <img src={khata} /> */}
+                              <i className="icon-khata"></i>
                               <label>KHATA</label>
                             </span>
 
                           </li>
                           <li>
                             <span>
-                              <img src={khata} onClick={this.getGvModel} />
+                              {/* <img src={khata} onClick={this.getGvModel} /> */}
+                              <i className="icon-khata" onClick={this.getGvModel}></i>
                               <label> GV</label>
                             </span>
 

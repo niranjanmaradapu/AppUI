@@ -362,7 +362,8 @@ export default class ListOfPools extends Component {
               poolName: '',
               poolType: '',
               addNewRule: [],
-              updatedRuleVO: []
+              updatedRuleVO: [],
+              activeIndex: null
             });
             this.getPoolList();
         } else {
@@ -514,6 +515,7 @@ export default class ListOfPools extends Component {
          // ruleNumber: Math.max(...conditionsList.map(item => item.ruleNumber)),
          isUpdatable: true,
          isPoolEdited: true,
+         activeIndex: null,
          isAddPool: true,
          poolId: pool.poolId,
          poolName: pool.poolName,
@@ -562,7 +564,7 @@ export default class ListOfPools extends Component {
   } 
 
   closePoolRule() {
-    this.setState({ isAddPoolRule : false,  isPoolEdited: false });
+    this.setState({ isAddPoolRule : false,  isPoolEdited: false, activeIndex: null, });
   }
   handleCreatedBy(e) {
     this.setState({ createdBy: e.target.value });
@@ -1038,7 +1040,43 @@ SecondTab = () => {
                                 <tr className="m-0 p-0" key={ind}>
                                   <td className="col-3">{itm.columnName}</td>
                                   <td className="col-3">{itm.operatorSymbol}</td>
-                                  <td className="col-3">{itm.givenValue}</td>
+                                  <td  className="col-3">                                    
+                                    {this.state.isPoolEdited ? this.state.addedExcludedPoolRules[index].rules[ind].valueList ? <select
+                                      value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue} 
+                                      disabled                       
+                                      name="givenValue"
+                                      className="form-control">
+                                      {
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList &&
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList.map((item, i) => 
+                                          (<option key={i} value={item.value}>{item.label}</option>))
+                                      }
+                                      </select> : <input 
+                                        type="text" 
+                                        name="givenValue"
+                                        value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue}
+                                        disabled
+                                        className="form-control"
+                                      /> :
+                                      this.state.addedExcludedPoolRules[index].rules[ind].valueList ? <select
+                                      value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue.value} 
+                                      disabled                       
+                                      name="givenValue"
+                                      className="form-control">
+                                      {
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList &&
+                                          this.state.addedExcludedPoolRules[index].rules[ind].valueList.map((item, i) => 
+                                          (<option key={i} value={item.value}>{item.label}</option>))
+                                      }
+                                      </select> : <input 
+                                        type="text" 
+                                        name="givenValue"
+                                        value={this.state.addedExcludedPoolRules[index].rules[ind].givenValue}
+                                        disabled
+                                        className="form-control"
+                                      />
+                                      }
+                                  </td>  
                                 </tr>
                                 )
                           })}
@@ -1056,6 +1094,7 @@ SecondTab = () => {
 handleInclude = () => {
   this.setState({
     activeTab: 'INCLUDED',
+    activeIndex: null,
     // ruleNumber: this.state.ruleNumber,
     addNewRule: []
   });
@@ -1063,6 +1102,7 @@ handleInclude = () => {
 handleExclude = () => {
   this.setState({
     activeTab: 'EXCLUDED',
+    activeIndex: null,
     // ruleNumber: this.state.ruleNumber,
     addNewRule: []
   });
@@ -1341,9 +1381,9 @@ Tabs = () => {
             </div>
           </div>
           <div className="col-sm-4 col-12 pt-4 scaling-center scaling-mb">
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>SEARCH</button>
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearPool}>CLEAR</button>
-            <button className="btn-unic-redbdr mt-2" onClick={this.addPool}>Add Pool</button>
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>Search</button>
+            <button className="btn-clear m-r-2 mt-2" onClick={this.clearPool}>Clear</button>
+            <button className="btn-unic-redbdr mt-2" onClick={this.addPool}><i className='icon-sale'></i> Add Pool</button>
           </div>
           {/* <div className="col-sm-3 col-12 text-right pt-4 scaling-center scaling-mb">
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>SEARCH</button>

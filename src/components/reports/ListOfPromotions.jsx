@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import edit from "../../assets/images/edit.svg";
 import view from "../../assets/images/view.svg";
 import ListOfPromotionsService from "../../services/Reports/ListOfPromotionsService";
+import ReactPageNation from "../../commonUtils/Pagination";
 
 export default class ListOfPromotions extends Component {
   constructor(props) {
@@ -10,6 +11,8 @@ export default class ListOfPromotions extends Component {
     this.state = {
       // startDate: moment(new Date()).format("YYYY-MM-DD").toString(),
       // endDate: moment(new Date()).format("YYYY-MM-DD").toString(),
+      pageNumber:0,
+      totalPages:0,
       startDate: "",
       endDate: "",
       storeName: "",
@@ -19,9 +22,10 @@ export default class ListOfPromotions extends Component {
     };
     this.getPromotions = this.getPromotions.bind(this);
     this.preventMinus = this.preventMinus.bind(this);
+    this.changePage = this.changePage.bind(this);
   }
 
-  getPromotions() {
+  getPromotions(pageNumber) {
     const obj = {
       startDate: this.state.startDate ? this.state.startDate : undefined,
       endDate: this.state.endDate ? this.state.endDate : undefined,
@@ -29,17 +33,19 @@ export default class ListOfPromotions extends Component {
         ? parseInt(this.state.promoId)
         : undefined,
       storeName: this.state.storeName ? this.state.storeName : undefined,
+      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
-    ListOfPromotionsService.getPromotions(obj).then((res) => {
+    ListOfPromotionsService.getPromotions(obj,pageNumber).then((res) => {
       console.log(res.data.result);
       this.setState({
         promoList: res.data.result,
+        totalPages:res.data.result.totalPages
       });
     });
   }
 
   renderTableData() {
-    return this.state.promoList.map((items, index) => {
+    return this.state.promoList?.content?.map((items, index) => {
       const {
         promoId,
         promotionName,
@@ -154,6 +160,13 @@ export default class ListOfPromotions extends Component {
     }
   };
 
+  changePage(pageNumber) {
+    console.log(">>>page", pageNumber);
+    let pageNo = pageNumber + 1;
+    this.setState({ pageNumber: pageNo });
+    this.getPromotions(pageNumber); 
+  }
+
   render() {
     console.log("startdate", moment(new Date()).format("YYYY-DD-MM"));
     return (
@@ -209,13 +222,13 @@ export default class ListOfPromotions extends Component {
                 min="0"
                 onKeyPress={this.preventMinus}
                 className="form-control"
-                placeholder="PROMO ID"
+                placeholder="Promo ID"
                 value={this.state.promoId}
                 onChange={(e) => this.setState({ promoId: e.target.value })}
               />
             </div>
           </div>
-          <div className="col-6 col-sm-2 mt-2 mb-2">
+          {/* <div className="col-6 col-sm-2 mt-2 mb-2">
             <div className="form-group">
               <label>Store</label>
               <select
@@ -239,7 +252,7 @@ export default class ListOfPromotions extends Component {
                     </option>
                   );
                 })}
-              </select>
+              </select> */}
               {/* <input
                 type="text"
                 className="form-control"
@@ -247,11 +260,11 @@ export default class ListOfPromotions extends Component {
                 value={this.state.storeName}
                 onChange={(e) => this.setState({ storeName: e.target.value })}
               /> */}
-            </div>
-          </div>
+            {/* </div>
+          </div> */}
           <div className="col-6 col-sm-4 pt-4 scaling-mb mt-2">
-            <div className="form-group" onClick={this.getPromotions}>
-              <button className="btn-unic-search active">SEARCH </button>
+            <div className="form-group" onClick={()=>{this.getPromotions(0);this.setState({pageNumber:0})}}>
+              <button className="btn-unic-search active">Search </button>
             </div>
           </div>
         </div>
@@ -288,6 +301,18 @@ export default class ListOfPromotions extends Component {
              </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
             </table>
+            <div className="row m-0 pb-3 mb-5 mt-3">
+            {this.state.totalPages > 1 ? (
+            <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.promoList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div>
+            ):null}
+            </div>
           </div>
         </div>
       </div>

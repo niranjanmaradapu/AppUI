@@ -517,7 +517,7 @@ slabValidation() {
           </div>
           <div className="col-sm-7 col-6 text-right">
             <button className="btn-unic-search mt-2 active"
-              onClick={this.addHSNCode}>Add HSN Code</button>
+              onClick={this.addHSNCode}><i className='icon-credit_notes'></i> Add HSN Code</button>
           </div>
         </div>
         <div className="table-responsive">

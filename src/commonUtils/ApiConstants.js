@@ -34,8 +34,8 @@ export const CREATE_DELIVERY_SLIP_URL = {
 
     createTagCustomerToGv: "/new-sale/newsale/tagCustomerToGv",
     getReturnSlips: "/new-sale/newsale/getInvoiceDetails",
-     // saveReturnSlip: "/customer/customer/createReturnSlip",
-     saveReturnSlip: "/new-sale/return_slip/createReturnSlip",
+    // saveReturnSlip: "/customer/customer/createReturnSlip",
+    saveReturnSlip: "/new-sale/return_slip/createReturnSlip",
     getCustomerMobile: "/user-management/user/customer/mobileNo",
     getGiftVochers: "/new-sale/newsale/getlistofgv",
     saveGiftVoucher: "/new-sale/newsale/saveGv",
@@ -49,7 +49,7 @@ export const CREATE_DELIVERY_SLIP_URL = {
 
 export const NEW_SALE_URL = {
     getDslipData: "/new-sale/newsale/getdeliveryslip",
-    getDsAsbarcode:"/inventory/inventory-management/scan-barcode",
+    getDsAsbarcode: "/inventory/inventory-management/scan-barcode",
     getMobileData: "/new-sale/newsale/getcustomerdetailsbymobilenuber",
     getNetAmount: "/new-sale/newsale/getHsnDetails",
     getDiscountReasons: "/new-sale/newsale/discTypes",
@@ -59,7 +59,7 @@ export const NEW_SALE_URL = {
     // getHsnDetails: "/hsn-details/hsnDetails/getHsnDetails",
     getHsnDetails: "/hsn-details/hsn-details/getHsnDetails",
     getCheckPromo: "/connection-pool/promo/checkPromtionTextile",
-    getinvoiceLevelCheckProm:"/connection-pool/promo/invoiceLevelCheckPromtionTextile"
+    getinvoiceLevelCheckProm: "/connection-pool/promo/invoiceLevelCheckPromtionTextile"
 };
 
 export const CREATE_CUSTOMER_URL = {
@@ -71,8 +71,8 @@ export const GENERATE_RETURN_SLIPS_URL = {
     getMobileData: "/user-management/user/customer/mobileNo",
     saveCustomer: "/new-sale/newsale/savecustomerdetails",
     generateReturnSlip: "/customer/customer/createReturnSlip",
-     // generateReturnSlip: "/new-sale/return_slip/createReturnSlip",
-     getListOfReturnslips: "customer/getListOfReturnSlips"
+    // generateReturnSlip: "/new-sale/return_slip/createReturnSlip",
+    getListOfReturnslips: "customer/getListOfReturnSlips"
 };
 
 export const INVENTORY_URLS = {
@@ -85,7 +85,7 @@ export const INVENTORY_URLS = {
     getRetailBarcodeDetails: "/inventory/inventoryRetail/getBarcodeId",
     deleteRetailBarcode: "/inventory/inventoryRetail/deleteBarcode",
     savebulkRetail: "/inventory/inventoryRetail/saveProductList",
-    getHeadersData:"/inventory/inventory-management/properties",
+    getHeadersData: "/inventory/inventory-management/properties",
 
     // Textile
 
@@ -98,7 +98,7 @@ export const INVENTORY_URLS = {
     getAllSections: "/inventory/catalog/category",
     getAllCategories: "/inventory/catalog/categories",
     getAllHsnList: "/hsn-details/hsn-details/getHsnDetails",
-     // getAllHsnList: "/hsn-details/hsn-details/getHsnDetails",
+    // getAllHsnList: "/hsn-details/hsn-details/getHsnDetails",
     //  getAllHsnData:"hsn-details/hsn-details/getAllHsnDetails",
     getStoreNamesByIds: '/user-management/store/storeList',
     getReBarcodeTextileBarcodeDetails: '/inventory/inventory-management/adjustments/filter',
@@ -167,7 +167,7 @@ export const REPORTS_GRAPHS = {
 
 export const BARCODE_LIST_URL = {
     // listOfBarcodes: "/inventory/inventoryTextile/getAllBarcodeTextiles",
-    listOfBarcodes: "/inventory/inventoryTextile/getBarcodeTextileReports",
+    listOfBarcodes: "/inventory/inventory-management/getBarcodeTextileReports",
     updateBarcode: "/inventory/inventory-management/product",
     getStoresClientDomainId: "/user-management/store/getClientDomianStores"
 
@@ -214,7 +214,7 @@ export const USER_MANAGEMENT_URL = {
     getActiveUsers: "/user-management/reports/activeVsInactiveUsers",
     getStoresVsEmployee: "/user-management/reports/storesVsEmployees",
     deleteStore: "/user-management/store/deleteStore",
-    deleteUser:"/user-management/user/deleteUser"
+    deleteUser: "/user-management/user/deleteUser"
 
 };
 
@@ -245,7 +245,7 @@ export const PROMOTIONS_URL = {
     getAllStorePromos: "/connection-pool/promo/getAllStorePromos",
     promotionsSearching: "/connection-pool/promo/promotionsSearching",
     anyMatchingData: "/connection-pool/promo/anyMatchingData",
-    updatePromoStatus:  "/connection-pool/promo/updatePromoStatus"
+    updatePromoStatus: "/connection-pool/promo/updatePromoStatus"
 };
 
 export const ACCOUNTING_PORTAL = {

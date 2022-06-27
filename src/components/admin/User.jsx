@@ -588,11 +588,11 @@ export default class User extends Component {
                     <thead>
                         <tr className="m-0 p-0">
                             <th className="col-1">User ID </th>
-                            <th className="col-2">User Name</th>
+                            <th className="col-2 p-l-1">User Name</th>
                             {/* <th className="col-2">Email</th> */}
-                            <th className="col-1">Role</th>
-                            <th className="col-3">Store Name</th>
-                            <th className="col-2">Created Date</th>
+                            <th className="col-1 p-l-1">Role</th>
+                            <th className="col-3 p-l-1">Store Name</th>
+                            <th className="col-2 p-l-0">Created Date</th>
                             {/* <th className="col-1">Store</th> */}
                             <th className="col-1">Status</th>
                             <th className="col-1"></th>
@@ -1086,8 +1086,8 @@ capitalization= () => {
                     </div>
                     
                     <div className="col-12 scaling-center scaling-mb col-sm-6 pt-4 mt-2 p-l-0">
-                        <button className="btn-unic-search active m-r-2"  name="search" onClick={this.searchUser}>SEARCH </button>
-                        <button className="btn-unic-search active m-r-2" name="clear" onClick={()=>{this.getUsers(0); this.setState({ pageNumber: 0 });}}>Clear </button>
+                        <button className="btn-unic-search active m-r-2"  name="search" onClick={this.searchUser}>Search </button>
+                        <button className="btn-clear m-r-2" name="clear" onClick={()=>{this.getUsers(0); this.setState({ pageNumber: 0 });}}>Clear </button>
                         <button className="btn-unic-search active" name="createuser" onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button>
                     </div>
 

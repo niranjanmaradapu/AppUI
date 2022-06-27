@@ -262,7 +262,7 @@ export default class ListOfDeliverySlips extends Component {
                 className="btn-unic-search active"
                 onClick={this.getDeliverySlips}
               >
-                SEARCH{" "}
+                Search{" "}
               </button>
             </div>
           </div>

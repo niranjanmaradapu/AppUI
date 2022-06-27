@@ -96,6 +96,7 @@ export default class CreateNotes extends Component {
   }
 
   searchCreditNotes = (pageNumber) => {
+    if(this.state.fromDate || this.state.toDate || this.state.searchMobileNumber){
     const { storeId, fromDate, toDate, searchMobileNumber } = this.state;
    const reqOb =  {
       fromDate: fromDate,
@@ -115,6 +116,9 @@ export default class CreateNotes extends Component {
         toast.error("No Record Found")
       }
     });
+  }else{
+    toast.error("Please Give Any Input Field");
+  }
   }
 
   clearCreditNotes = () => {
@@ -492,10 +496,14 @@ changePage(pageNumber) {
                   var startDate = new Date(this.state.fromDate);
                   var endDate = new Date(e.target.value);
                   console.log(">>>", startDate, endDate);
+                  if(!this.state.fromDate){
+                    toast.error("Please Select From Date")
+                    console.log("++++++startdate+++++"+this.state.fromDate)
+                  }
                   if (startDate <= endDate) {
                     this.setState({ toDate: e.target.value });
                   } else {
-                    toast.error("Please select from date");
+                    toast.error("To Date Should Be Greater Than From Date");
                   }
                 }}
                 autoComplete="off"
@@ -506,7 +514,7 @@ changePage(pageNumber) {
             <div className="form-group mb-3">
             <label>Mobile</label>
               <input type="text" className="form-control"
-                placeholder="MOBILE NUMEBR" 
+                placeholder="Mobile Number" 
                 maxLength="10"
                 minLength="10"
                 value={this.state.searchMobileNumber}
@@ -529,9 +537,9 @@ changePage(pageNumber) {
           </div>
           <div className="col-sm-6 col-12 scaling-mb scaling-center pt-4">
             {/* <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchCreditNotes}>SEARCH</button> */}
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={()=>{this.searchCreditNotes(0); this.setState({ pageNumber: 0 });}}>SEARCH</button>
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearCreditNotes}>Clear</button>
-            <button className="btn-unic-search mt-2 active" onClick={this.addCredit}>Add Credit Notes</button>
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={()=>{this.searchCreditNotes(0); this.setState({ pageNumber: 0 });}}>Search</button>
+            <button className="btn-clear m-r-2 mt-2" onClick={this.clearCreditNotes}>Clear</button>
+            <button className="btn-unic-search mt-2 active" onClick={this.addCredit}><i className="icon-credit_notes"></i> Add Credit Notes</button>
           </div>
         </div>
         <div className="row m-0 p-0 scaling-center">

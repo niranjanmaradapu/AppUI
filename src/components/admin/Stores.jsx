@@ -437,8 +437,8 @@ export default class Stores extends Component {
                                 <th className="col-2">Store Name</th>
                                 <th className="col-2">Location</th>
                                 {/* <th className="col-2">Domain</th> */}
-                                <th className="col-2">Created By</th>
-                                <th className="col-2">Created Date</th>
+                                <th className="col-2 p-l-1">Created By</th>
+                                <th className="col-2 p-l-0">Created Date</th>
                                 <th className="col-2">Status</th>
                                 {/* <th className='col-2'>Status</th> */}
                                 <th className="col-1"></th>
@@ -521,7 +521,7 @@ export default class Stores extends Component {
 
         if (!this.state.stateName) {
             formIsValid = false;
-            errors["stateName"] = "Enter state Name";
+            errors["stateName"] = account_err_msg.stateName;
         }
 
 
@@ -877,9 +877,9 @@ export default class Stores extends Component {
                         </div>
                     </div>
                     <div className="col-sm-6 col-12 scaling-center scaling-mb mt-2  pt-4 p-l-0">
-                        <button className="btn-unic-search active m-r-2" onClick={this.searchStore}>SEARCH </button>
-                        <button className="btn-unic-search active m-r-2" onClick={this.getAllStores}>CLEAR </button>
-                        <button className="btn-unic-search active" onClick={this.showStores}><i className="icon-retail mr-1"></i>  Add Store </button>
+                        <button className="btn-unic-search active m-r-2" onClick={this.searchStore}>Search </button>
+                        <button className="btn-clear m-r-2" onClick={this.getAllStores}>Clear </button>
+                        <button className="btn-unic-search active" onClick={this.showStores}><i className="icon-store"></i>  Add Store </button>
                     </div>
                     <div>
                         {this.getStoreTable()}

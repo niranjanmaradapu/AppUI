@@ -358,14 +358,14 @@ export default class ListOfPromos extends Component {
           discountSubType: item
         }
         if(benfitType === 'XunitsFromBuyPool') {
-          obj = {...obj, numOfItemsFromBuyPool, itemValue: buyPoolValue}
+          obj = {...obj, poolVo: [], numOfItemsFromBuyPool, itemValue: buyPoolValue}
         }
         if(benfitType === 'XunitsFromGetPool') {
           let resultObj = {
             poolId : selectedPoolValue.value,
             poolName: selectedPoolValue.label
           }
-          obj = {...obj, numOfItemsFromGetPool, itemValue: getPoolValue,poolId: resultObj.poolId, poolName: resultObj.poolName}
+          obj = {...obj, numOfItemsFromGetPool, itemValue: getPoolValue, poolVo: [resultObj]}
         }
         if (promoApplyType === 'QuantitySlab' || promoApplyType === 'ValueSlab') {
             this.state.slabValues.map((item, ind) => {
@@ -1477,12 +1477,12 @@ handleBenefitFormData() {
             </div>
           </div>
           <div className="col-sm-4 col-6 mt-2 pt-3">
-          <button className="btn-unic-redbdr m-r-2 " onClick={this.searchPromotion}>SEARCH</button>
+          <button className="btn-unic-search active m-r-2 " onClick={this.searchPromotion}>Search</button>
           <button
-              className="btn-unic-search active mt-2  " 
+              className="btn-unic-redbdr mt-2  " 
               onClick={this.addPromo}
             >
-              <i className="icon-add_btn"></i> Add Promo
+              <i className="icon-sale"></i> Add Promo
               {/* <i className="icon-sale p-r-1"></i>Add Promo */}
             </button>
           </div>

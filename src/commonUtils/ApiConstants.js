@@ -83,6 +83,7 @@ export const INVENTORY_URLS = {
     addBarcodes: "/inventory/inventoryRetail/createBarcode",
     getAllBarcodesList: "/inventory/inventoryRetail/getAllBarcodes",
     getRetailBarcodeDetails: "/inventory/inventoryRetail/getBarcodeId",
+    updateBarcodesQuntity:"/inventory/inventory-management/product-qty",
     deleteRetailBarcode: "/inventory/inventoryRetail/deleteBarcode",
     savebulkRetail: "/inventory/inventoryRetail/saveProductList",
     getHeadersData: "/inventory/inventory-management/properties",

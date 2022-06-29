@@ -249,9 +249,9 @@ export default class Roles extends Component {
                         this.hideRoles();
                     }
                     if(this.state.roleName) {
-                        this.setState({isRoleName: true});
+                        this.setState({isRoleName: true, isEdit: false});
                     } else {
-                        this.setState({isRoleName: false});
+                        this.setState({isRoleName: false, isEdit: false});
                     }
                 });
     } else {   

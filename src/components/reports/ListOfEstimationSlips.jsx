@@ -30,7 +30,7 @@ export default class ListOfEstimationSlips extends Component {
       errors: {},
       selectOption: [
         {
-          name: "ES STATUS",
+          name: "ES Status",
           id: "DS STATUS",
         },
         {
@@ -367,7 +367,7 @@ if (startDate < endDate){
               <input
                 type="text"
                 className="form-control"
-                placeholder="ES NUMBER"
+                placeholder="ES Number"
                 value={this.state.dsNumber}
                 onChange={(e) => this.setState({ dsNumber: e.target.value })}
               />
@@ -379,7 +379,7 @@ if (startDate < endDate){
               <input
                 type="text"
                 className="form-control"
-                placeholder="BARCODE"
+                placeholder="Barcode"
                 value={this.state.barcode}
                 onChange={(e) => this.setState({ barcode: e.target.value })}
               />

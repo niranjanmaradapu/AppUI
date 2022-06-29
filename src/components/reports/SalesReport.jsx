@@ -384,7 +384,7 @@ export default class SalesReport extends Component {
                 value={this.state.billStatus}
                 onChange={(e) => this.setState({ billStatus: e.target.value })}
               >
-                <option>BILLPOSITION</option>
+                <option>Bill Position</option>
                 {/* <option>New</option>
                 <option>Pending</option> */}
 
@@ -399,7 +399,7 @@ export default class SalesReport extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="INVOICE/BILL NO"
+                placeholder="Invoice/Bill No"
                 value={this.state.invoiceNumber}
                 onChange={(e) =>
                   this.setState({ invoiceNumber: e.target.value })
@@ -426,7 +426,7 @@ export default class SalesReport extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="MOBILE NUMBER"
+                placeholder="Mobile Number"
                 value={this.state.custMobileNumber}
                 maxLength="10"
                 minLength="10"
@@ -450,7 +450,7 @@ export default class SalesReport extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="EMP ID"
+                placeholder="Emp ID"
                 value={this.state.empId}
                 onChange={(e) => this.setState({ empId: e.target.value })}
               />

@@ -419,7 +419,7 @@ export default class ListOfReturnSlips extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="EMP ID"
+                placeholder="Emp ID"
                 value={this.state.empId}
                 onChange={(e) => this.setState({ empId: e.target.value })}
               />

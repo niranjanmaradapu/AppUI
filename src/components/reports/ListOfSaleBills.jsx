@@ -401,7 +401,7 @@ export default class ListOfSaleBills extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="EMP ID"
+                placeholder="Emp ID"
                 value={this.state.createdBy}
                 onChange={(e) => this.setState({ createdBy: e.target.value })}
               />

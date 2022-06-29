@@ -192,8 +192,44 @@ export default class Roles extends Component {
         // const roleId = 
         const formValid = this.handleValidation();
         const valid = this.state.roleName.length < 3 && !this.state.descriptionName ? false : true ;
+        let parentIds = [];
+        let subIds = [];
+        let childIds = [];  
+        if(this.state.parentsList) {
+            parentIds = this.state.parentsList.map((parent) => {
+                let obj = {};
+                obj.id = parent.id;
+                return obj;
+            });
+        }          
+        if(this.state.childList) {
+            subIds = this.state.childList.map((child) => {   
+                let subChilds = {};                   
+                parentIds.forEach((p) => {
+                    if(child.parentPrivilegeId === p.id) {
+                        subChilds.id = child.id;
+                        subChilds.parentPrivilegeId = child.parentPrivilegeId;
+                    }
+                });
+                return subChilds;
+            });
+        }
+        if(this.state.selectedChilds) {
+            childIds =  this.state.selectedChilds.map((child) => {   
+                let childs = {};                     
+                subIds.forEach((s) => {
+                    if(child.subPrivillageId === s.id) {
+                        childs.id = child.id;
+                        childs.subPrivillageId = child.subPrivillageId;
+                        childs.parentPrivilegeId = s.parentPrivilegeId;
+                    }
+                });
+                return childs;
+            });
+        }
+            
+    const subPrivileges = this.groupByMultipleProperties(childIds);
     if(valid){
-
         if (formValid) {
             if (this.state.isEdit) {
                 const saveObj = {
@@ -202,11 +238,10 @@ export default class Roles extends Component {
                     "description": this.state.descriptionName,
                     "clientId": parseInt(this.state.clientId),
                     "createdBy": parseInt(this.state.loggedUser),
-                    "parentPrivileges": this.state.parentsList,
-                    "subPrivileges": this.state.childList,
+                    "parentPrivileges": parentIds,
+                    "subPrivileges": subPrivileges,
                     "roleId": this.state.roleId
                 }
-
                 URMService.editRole(saveObj).then((res) => {
                     if (res) {
                         toast.success(res.data.result);
@@ -219,44 +254,7 @@ export default class Roles extends Component {
                         this.setState({isRoleName: false});
                     }
                 });
-            } else {   
-                let parentIds = [];
-                let subIds = [];
-                let childIds = [];  
-                if(this.state.parentsList) {
-                    parentIds = this.state.parentsList.map((parent) => {
-                        let obj = {};
-                        obj.id = parent.id;
-                        return obj;
-                    });
-                }          
-                if(this.state.childList) {
-                    subIds = this.state.childList.map((child) => {   
-                        let subChilds = {};                   
-                        parentIds.forEach((p) => {
-                            if(child.parentPrivilegeId === p.id) {
-                                subChilds.id = child.id;
-                                subChilds.parentPrivilegeId = child.parentPrivilegeId;
-                            }
-                        });
-                        return subChilds;
-                    });
-                }
-                if(this.state.selectedChilds) {
-                    childIds =  this.state.selectedChilds.map((child) => {   
-                        let childs = {};                     
-                        subIds.forEach((s) => {
-                            if(child.subPrivillageId === s.id) {
-                                childs.id = child.id;
-                                childs.subPrivillageId = child.subPrivillageId;
-                                childs.parentPrivilegeId = s.parentPrivilegeId;
-                            }
-                        });
-                        return childs;
-                    });
-                }
-            
-            const subPrivileges = this.groupByMultipleProperties(childIds);
+    } else {   
             const saveObj = {
                 "roleName": this.state.roleName,
                 "searchCreatedBy": this.state.searchCreatedBy,
@@ -281,51 +279,71 @@ export default class Roles extends Component {
     }
       else {
             toast.info("Please Enter all mandatory fields");
-        }
-    
-   
+    }
 }
    
 
     getPrivilegesByDomainId() {
-        // let selectedDomainId = 0;
-        // this.state.domainList.forEach((ele, index) => {
-        //     if (ele.id === parseInt(this.state.domain)) {
-        //         if (ele.domaiName === "Textile") {
-        //             selectedDomainId = 1;
-        //         } else if (ele.domaiName === "Retail") {
-        //             selectedDomainId = 2;
-        //         }
-        //     }
-        // });
+        const { selectedChilds } = this.state;
+        if(this.state.isEdit) {
+            URMService.getAllPrivileges().then(res => { 
+                if (res) {
+                    this.setState({ productsList: res.data.webPrivileges});
+                    this.state.productsList.forEach((element, index) => {
+                        if (element.subPrivileges && element.subPrivileges.length > 0) {
+                            element.subPrivileges.forEach((sub, index) => {
+                                if(sub.childPrivillages && sub.childPrivillages.length > 0) {
+                                    sub.childPrivillages.forEach((child, i) => { 
+                                        selectedChilds.forEach((childPrivilege) => {
+                                            if(childPrivilege.id === child.id) {
+                                                child.checked = true;
+                                            }
+                                        });                                    
+                                    });
+                                }
+                            });
+                        }
 
+                    });
+                    this.getSelectedPrivileges(this.state.parentsList);
+                }
+            });
+        } else {
+            URMService.getAllPrivileges().then(res => { 
+                if (res) {
+                    this.setState({ productsList: res.data.webPrivileges});
+                    this.state.productsList.forEach((element, index) => {
+                        if (element.subPrivileges && element.subPrivileges.length > 0) {
+                            element.subPrivileges.forEach((sub, index) => {
+                                if(sub.childPrivillages && sub.childPrivillages.length > 0) {
+                                    sub.childPrivillages.forEach((child, i) => {
+                                     child.checked = false;
+                                    });
 
-        URMService.getAllPrivileges().then(res => { 
-            if (res) {
-                this.setState({ productsList: res.data.webPrivileges});
-                this.state.productsList.forEach((element, index) => {
-                    if (element.subPrivileges && element.subPrivileges.length > 0) {
-                        element.subPrivileges.forEach((sub, index) => {
-                            if(sub.childPrivillages && sub.childPrivillages.length > 0) {
-                                sub.childPrivillages.forEach((child, i) => {
-                                 child.checked = false;
-                                });
+                                }
+                            });
+                        }
 
-                            }
-                        });
-                    }
-
-                });
-
-             this.getSelectedPrivileges(this.state.parentsList);
-            }
-        });
+                    });
+                    this.getSelectedPrivileges(this.state.parentsList);
+                }
+            });
+      }
 
     }
 
     createRole() {
         this.setState({ showRole: true });
         this.getPrivilegesByDomainId();
+        if(this.state.isEdit) {
+            URMService.getSubPrivilegesbyRoleId(this.state.roleName).then(res => {
+                if(res) {
+                  this.setState({
+                      selectedChilds: res.data.childPrivilages
+                  })
+                }
+            });
+        }       
     }
 
     hide() {
@@ -554,6 +572,13 @@ getSelectedPrivileges(parentsList) {
             // domain: items.clientDomain.id
         }, () => {
             this.getPrivilegesByDomainId();
+            URMService.getSubPrivilegesbyRoleId(items.roleName).then(res => {
+                if(res) {
+                  this.setState({
+                      selectedChilds: res.data.childPrivilages
+                  })
+                }
+            });
         });
 
 
@@ -775,7 +800,7 @@ getSelectedPrivileges(parentsList) {
                     <div className="col-sm-6 pt-4 col-12 scaling-center scaling-mb mt-2 p-l-0 p-r-0">
                         <button className="btn-unic-search active m-r-2" onClick={this.searchRoles}>Search </button>
                         <button className="btn-unic-search active m-r-2" onClick={this.getAllRoles}>Clear </button>
-                        <button className="btn-unic-search active" onClick={this.showRoles}><i className="icon-create_customer"></i> Add Role </button>
+                        <button className="btn-unic-search active" onClick={this.showRoles}><i className="icon-add_role"></i> Add Role </button>
                     </div>
 
                 </div>

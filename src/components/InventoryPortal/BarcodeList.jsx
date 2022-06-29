@@ -1829,7 +1829,7 @@ export default class BarcodeList extends Component {
                     }
                   }}
                 />
-              </div>openBarcode
+              </div>
             </div>
             <div className="col-sm-2 col-12">
               <div className="form-group mt-2">

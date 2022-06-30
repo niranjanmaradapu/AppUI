@@ -171,7 +171,7 @@ export default class Roles extends Component {
     }
 
     hideRoles() {
-        this.setState({ showModal: false, parentsList: [], childList: [], selectedChilds: [] });
+        this.setState({ showModal: false, parentsList: [], childList: [], selectedChilds: [], mobileParentsList: [], mobileChildList: [], mobileSelectedChilds: [] });
     }
 
 

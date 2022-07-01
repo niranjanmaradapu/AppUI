@@ -211,6 +211,7 @@ export default class ProductsCombo extends Component {
         productTextiles: comboProductList,
         itemMrp: comboPrice
       }   
+      
        InventoryService.editProductCombo(requestObj).then((res) => {
         if (res) {
           toast.success(res.data.message);

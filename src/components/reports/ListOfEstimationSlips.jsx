@@ -299,8 +299,8 @@ export default class ListOfEstimationSlips extends Component {
                 type="date"
                 className="form-control"
                 placeholder="FROM DATE"
-                value={this.state.dateFrom}
-                onChange={(e) => this.setState({ dateFrom: e.target.value })}
+                value={this.state.fromDate}
+                onChange={(e) => this.setState({ fromDate: e.target.value })}
               />
             </div>
           </div>
@@ -317,9 +317,9 @@ if (startDate < endDate){
                 type="date"
                 className="form-control"
                 placeholder="TO DATE"
-                value={this.state.dateTo}
+                value={this.state.toDate}
                 onChange={(e) => {
-                  var startDate = new Date(this.state.dateFrom);
+                  var startDate = new Date(this.state.fromDate);
                   var endDate = new Date(e.target.value);
                   console.log(">>>", startDate, endDate);
                   if (startDate <= endDate) {
@@ -327,7 +327,8 @@ if (startDate < endDate){
                     // console.log(">>>right");
                     // alert("right");
                   } else {
-                    toast.error("To date should be greater than From date ");
+                    // alert("To date should be greater than From date ");
+                    toast.error("Please select from date");
                     // console.log(">>>>wrong");
                   }
                 }}

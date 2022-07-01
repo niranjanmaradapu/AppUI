@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import print from "../../assets/images/print.svg";
+import { toast } from "react-toastify";
 import view from "../../assets/images/view.svg";
 import ListOfSaleBillsService from "../../services/Reports/ListOfSaleBillsService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
@@ -359,8 +360,8 @@ export default class SalesReport extends Component {
                 type="date"
                 className="form-control"
                 placeholder="FROM DATE"
-                value={this.state.dateFrom}
-                onChange={(e) => this.setState({ dateFrom: e.target.value })}
+                value={this.state.fromDate}
+                onChange={(e) => this.setState({ fromDate: e.target.value })}
               />
             </div>
           </div>
@@ -371,8 +372,21 @@ export default class SalesReport extends Component {
                 type="date"
                 className="form-control"
                 placeholder="TO DATE"
-                value={this.state.dateTo}
-                onChange={(e) => this.setState({ dateTo: e.target.value })}
+                value={this.state.toDate}
+                onChange={(e) => {
+                  var startDate = new Date(this.state.fromDate);
+                  var endDate = new Date(e.target.value);
+                  console.log(">>>", startDate, endDate);
+                  if (startDate <= endDate) {
+                    this.setState({ toDate: e.target.value });
+                    // console.log(">>>right");
+                    // alert("right");
+                  } else {
+                    // alert("To date should be greater than From date ");
+                    toast.error("Please select from date");
+                    // console.log(">>>>wrong");
+                  }
+                }}
               />
             </div>
           </div>

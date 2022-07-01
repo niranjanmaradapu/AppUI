@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import edit from '../../assets/images/edit.svg';
+import uparrow from '../../assets/images/up_arrow.svg';
+import downarrow from '../../assets/images/down_arrow.svg';
+import { Collapse } from "react-collapse";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
 import URMService from '../../services/URM/URMService';
@@ -36,7 +39,10 @@ export default class Roles extends Component {
             mobileProductsList: [],
             mobileParentsList: [],
             mobileChildList: [],
-            mobileSelectedChilds: []
+            mobileSelectedChilds: [],
+            activePrevilegeType: '',
+            isMobileExpanded: false,
+            isWebExpanded: false
         }
         this.baseState = this.state;
         this.showRoles = this.showRoles.bind(this);
@@ -55,6 +61,10 @@ export default class Roles extends Component {
         this.setMobilePrivileges = this.setMobilePrivileges.bind(this);
         this.addedMobileRoles = this.addedMobileRoles.bind(this);
         this.getAddedMobileRoles = this.getAddedMobileRoles.bind(this);
+        this.toggleClass = this.toggleClass.bind(this);
+        this.toggleMobileClass = this.toggleMobileClass.bind(this);
+        this.moreLess = this.moreLess.bind(this);
+        this.moreLessMobile = this.moreLessMobile.bind(this);
     }
 
 
@@ -752,15 +762,18 @@ getSelectedMobilePrivileges(parentsList) {
                             <th className="col-3">Privileges</th>
                             <th className="col-3">Description</th>
                             <th className="col-3">Approved Privileges</th>
+                            {this.state.isMobileExpanded ? <i onClick={this.toggleMobileClass.bind(this, '')}>{this.moreLessMobile()}</i> : <i onClick={this.toggleMobileClass.bind(this, 'Mobile')}>{this.moreLess()}</i>}
                         </tr>
                     </thead>
                 </table>
+                <Collapse isOpened={this.state.activePrevilegeType === 'Mobile'}>
                 <table className="table table-borderless gfg mb-0">
                     <tbody>
 
                         {this.getAddedMobileRoles()}
                     </tbody>
                 </table>
+                </Collapse>
             </div>
         )
     }
@@ -776,18 +789,78 @@ getSelectedMobilePrivileges(parentsList) {
                             <th className="col-3">Privileges</th>
                             <th className="col-3">Description</th>
                             <th className="col-3">Approved Privileges</th>
+                            {this.state.isWebExpanded ? <i onClick={this.toggleClass.bind(this, '')}>{this.moreLess()}</i> : <i onClick={this.toggleClass.bind(this, 'Web')}>{this.moreLess()}</i>}
                         </tr>
                     </thead>
                 </table>
-                <table className="table table-borderless gfg mb-0">
+                <Collapse isOpened={this.state.activePrevilegeType === 'Web'}>
+                <table className="table table-borderless gfg mb-0 mt-1">
                     <tbody>
-
                         {this.getAddedRoles()}
                     </tbody>
                 </table>
+                </Collapse>
             </div>
         )
     }
+    toggleClass(previlegeType) {
+        if(previlegeType === 'Web') {
+            this.setState({
+               activePrevilegeType: previlegeType,
+               isWebExpanded: true,
+            });
+        } else {
+            this.setState({
+                activePrevilegeType: '',
+                isMobileExpanded: true,
+                isWebExpanded: false
+            });
+        }        
+      }
+      toggleMobileClass(previlegeType) {
+        if(previlegeType === 'Mobile') {
+            this.setState({
+               activePrevilegeType: previlegeType,
+               isMobileExpanded: true,
+            });
+        } else {
+            this.setState({
+                activePrevilegeType: '',
+                isMobileExpanded: false,
+                isWebExpanded: true
+            });
+        }        
+      }
+      moreLess() {
+        if (this.state.activePrevilegeType === 'Web') {
+          return (
+            <span>
+              <img src={uparrow} className="w-12 pb-2" />
+            </span>
+          );
+        } else {
+          return (
+            <span>
+              <img src={downarrow} className="w-12 pb-2" />
+            </span>
+          );
+        }
+      }
+      moreLessMobile() {
+        if (this.state.activePrevilegeType === 'Mobile') {
+          return (
+            <span>
+              <img src={uparrow} className="w-12 pb-2" />
+            </span>
+          );
+        } else {
+          return (
+            <span>
+              <img src={downarrow} className="w-12 pb-2" />
+            </span>
+          );
+        }
+      }
 
     groupByPrivilegeType = (array) => {
         let initialValue = {

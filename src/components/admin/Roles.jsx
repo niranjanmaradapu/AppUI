@@ -71,8 +71,8 @@ export default class Roles extends Component {
     searchRoles() {
         this.setState({ isSearch: true });
         const searchRole = {
-            "roleName": this.state.searchRole ? this.state.searchRole : null,
-            "createdBy": this.state.searchCreatedby ? this.state.searchCreatedby : null,
+            "roleName": this.state.searchRole ? this.state.searchRole.trim() : null,
+            "createdBy": this.state.searchCreatedby ? this.state.searchCreatedby.trim() : null,
             "createdDate": this.state.searchCreatedDate ? this.state.searchCreatedDate : null
         }
         URMService.getRolesBySearch(searchRole).then(res => {

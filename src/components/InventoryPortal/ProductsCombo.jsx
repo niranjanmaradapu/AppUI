@@ -14,6 +14,7 @@ export default class ProductsCombo extends Component {
       isAddCombo:false,
       comboName: '',
       comboQuantity: '',
+      id:'',
       qunatity:1,
       dsNumber: '',
       domainDetails: {},
@@ -28,7 +29,8 @@ export default class ProductsCombo extends Component {
       isEdit:false,
       fromDate: '',
       toDate: '',
-      comboPrice: ''
+      comboPrice: '',
+      selectedProductCombo: ''
     }
   this.addCombo = this.addCombo.bind(this);
   this.closeCombo = this.closeCombo.bind(this);
@@ -68,6 +70,7 @@ export default class ProductsCombo extends Component {
     this.setState({comboQuantity:"",
     comboName:"" , comboPrice:"" , dsNumber :""
   })
+  
   }
   clear = () => {
     this.setState({ 
@@ -126,8 +129,7 @@ export default class ProductsCombo extends Component {
         //   //   listOfProducts: [...this.state.listOfProducts, obj ]
         //   // });
         //   this.state.listOfProducts.push(res.data);
-       // }
-
+       // 
         
       } this.setState({ listOfProducts: this.state.listOfProducts, dsNumber: '' }, () => {
         this.state.listOfProducts.forEach((element) => {
@@ -141,8 +143,8 @@ export default class ProductsCombo extends Component {
       
     }
   }
-    
-  
+
+
 
     });
   }
@@ -158,51 +160,99 @@ export default class ProductsCombo extends Component {
     }
     });
   }
-  saveProductBundle() {
-    const { listOfProducts,barList, comboName, comboQuantity, comboDescription, selectedDomainId, selectedStoreId,comboPrice} = this.state;
-    const comboProductList = listOfProducts.map((itm) => {
-      const obj = {};
-      obj.id = itm.id;
-      obj.barcode = itm.barcode;
-      obj.qty = itm.qty;
-      obj.itemMrp = itm.itemMrp;
-      return obj;
-    });
- 
-    const requestObj = {
-      bundleQuantity: comboQuantity,
-      storeId: selectedStoreId,
-      description: comboDescription,
-      domainId: selectedDomainId,
-      name: comboName,
-      isEdit: false,
-      productTextiles: comboProductList,
-      itemMrp: comboPrice
-    }
   
-    if(this.handleValidation()){  
-      if(listOfProducts.length > 0) {
-        InventoryService.addProductDundle(requestObj).then((res) => {
-          if (res && res.data.isSuccess === "true") {
-            toast.success(res.data.message);
-            this.setState({ 
-              isAddCombo: false,
-              listOfProducts: [],
-              comboName: '',
-              comboQuantity: '',
-              comboDescription: '',
-              isEdit: false,
-              comboPrice: '',
-              selectedStoreId: selectedStoreId
-            }, () => this.getProductBundleList(selectedStoreId));
-          } else {
-            toast.success(res.data.message);
-          }
-        });
-      } else {
-        toast.info("Please Add Atleast One Product");
+  saveProductBundle() {
+    const { listOfProducts,barList, isEdit, comboName, comboQuantity, comboDescription, selectedDomainId, selectedStoreId,comboPrice, selectedProductCombo} = this.state;
+    if (isEdit) {
+       console.log('++++++++selectedProductCombo++++++++', selectedProductCombo);
+       const updatedProductTextiles = selectedProductCombo.productTextiles.map((itm) => {
+        const obj = {};
+        obj.id = itm.id;
+        obj.barcode = itm.barcode;
+        obj.qty = itm.qty;
+        obj.itemMrp = itm.itemMrp;
+        return obj;
+      });
+      const updatedObjReq = {
+        id: selectedProductCombo.id,
+        bundleQuantity: selectedProductCombo.bundleQuantity,
+        storeId: selectedProductCombo.storeId,
+        description: selectedProductCombo.description,
+        // domainId: selectedDomainId,
+        name: selectedProductCombo.name,
+        isEdit: true,
+        productTextiles: updatedProductTextiles,
+        itemMrp: selectedProductCombo.itemMrp
       }
-    }
+      InventoryService.getProductBundleUpdate(updatedObjReq).then((res) => {
+        if (res && res.data.isSuccess === "true") {
+          toast.success(res.data.message);
+        } 
+        
+      });
+     
+    } else {
+      const comboProductList = listOfProducts.map((itm) => {
+        const obj = {};
+        obj.id = itm.id;
+        obj.barcode = itm.barcode;
+        obj.qty = itm.qty;
+        obj.itemMrp = itm.itemMrp;
+        return obj;
+      });
+   
+      const requestObj = {
+        bundleQuantity: comboQuantity,
+        storeId: selectedStoreId,
+        description: comboDescription,
+        domainId: selectedDomainId,
+        name: comboName,
+        isEdit: false,
+        productTextiles: comboProductList,
+        itemMrp: comboPrice
+      }   
+       InventoryService.editProductCombo(requestObj).then((res) => {
+        if (res) {
+          toast.success(res.data.message);
+          this.setState({ 
+            isAddCombo: false,
+            listOfProducts: [],
+            comboName: '',
+            comboQuantity: '',
+            comboDescription: '',
+            isEdit: false,
+            comboPrice: '',
+            selectedStoreId: selectedStoreId
+          }, () => this.getProductBundleList(selectedStoreId));
+        }
+
+    });
+
+
+      if(this.handleValidation()){  
+        if(listOfProducts.length > 0) {
+          InventoryService.addProductDundle(requestObj).then((res) => {
+            if (res && res.data.isSuccess === "true") {
+              toast.success(res.data.message);
+              this.setState({ 
+                isAddCombo: false,
+                listOfProducts: [],
+                comboName: '',
+                comboQuantity: '',
+                comboDescription: '',
+                isEdit: false,
+                comboPrice: '',
+                selectedStoreId: selectedStoreId
+              }, () => this.getProductBundleList(selectedStoreId));
+            } else {
+              toast.success(res.data.message);
+            }
+          });
+        } else {
+          toast.info("Please Add Atleast One Product");
+        }
+      }
+    }    
 }
 
 handleChange (){
@@ -228,7 +278,7 @@ handleChange (){
       }
       if(!this.state.comboPrice){
         formIsValid = false;
-        error["comboPrice"] = 'Enter Combo Name';
+        error["comboPrice"] = 'Enter Combo Price';
         }
      //combo quantity
       if(!this.state.comboQuantity){
@@ -248,13 +298,15 @@ handleChange (){
     this.setState({ listOfProducts })
   }
   editProductCombo = (item) => {
+    console.log('++++++item+++++++++', item);
   this.setState({
     isEdit: true,
     isAddCombo : true,
     comboName: item.name, 
     comboQuantity: item.bundleQuantity, 
     listOfProducts: item.productTextiles,
-    comboPrice: item.itemMrp
+    comboPrice: item.itemMrp,
+    selectedProductCombo: item
     
   });
   }
@@ -344,7 +396,7 @@ handleChange (){
                   <input
                     type="text"
                     className="form-control"
-                    disabled={this.state.isEdit}
+                    // disabled={this.state.isEdit}
                     value={this.state.dsNumber}
                     placeholder="ENTER BARCODE"
                     onChange={(e) => this.setState({ dsNumber: e.target.value })}

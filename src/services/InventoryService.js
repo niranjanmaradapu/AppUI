@@ -16,6 +16,9 @@ class InventoryService {
     getUOMs() {
         return axios.get(BASE_URL + INVENTORY_URLS.getAllUOMs);
     }
+    getProductBundleUpdate(update) {
+        return axios.put(BASE_URL + INVENTORY_URLS.addProductBundleUpdate,update);
+    }
 
     getAllDivisions(domainType) {
         const param  = '?domainType='+ domainType;

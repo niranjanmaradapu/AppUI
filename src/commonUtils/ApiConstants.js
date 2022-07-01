@@ -106,7 +106,9 @@ export const INVENTORY_URLS = {
     savebulkTextile: "/inventory/inventoryTextile/saveProductTextileList",
     addBulkTextile: "/inventory/inventory-management/add-bulk-products",
     addProductBundle: "/inventory/productBundle/add",
-    getAllProductBundleList: "/inventory/productBundle/all"
+    getAllProductBundleList: "/inventory/productBundle/all",
+    addProductBundleUpdate: "/inventory/productBundle/update"
+
 };
 
 

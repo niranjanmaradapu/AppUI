@@ -152,7 +152,8 @@ export const ESTIMATIONSLIP_LIST_URL = {
 
 export const RETURNSLIPS_LIST_URL = {
     returnslipsList: "/new-sale/return_slip/getListOfReturnSlips",
-    returnslipDetials: "/customer/customer/getReturnSlipsDetails",
+    // returnslipDetials: "/customer/customer/getReturnSlipsDetails",
+    returnslipDetials: "/new-sale/return_slip/getReturnSlipsDetails",
 };
 
 
@@ -178,7 +179,7 @@ export const BARCODE_LIST_URL = {
 
 export const PROMOTIONS_LIST_URL = {
     // promotionsList:"/promo/promo/listOfPromotionsBySearch",
-    promotionsList: "/connection-pool/promo/listOfPromotionsBySearch",
+    promotionsList: "/connection-pool/promo/promotionsSearching",
     getStoresClientDomainId: "/user-management/store/getClientDomianStores"
 };
 

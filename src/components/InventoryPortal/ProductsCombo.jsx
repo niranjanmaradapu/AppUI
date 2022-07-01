@@ -187,10 +187,20 @@ export default class ProductsCombo extends Component {
       InventoryService.getProductBundleUpdate(updatedObjReq).then((res) => {
         if (res && res.data.isSuccess === "true") {
           toast.success(res.data.message);
+          this.setState({ 
+            isAddCombo: false,
+            listOfProducts: [],
+            comboName: '',
+            comboQuantity: '',
+            comboDescription: '',
+            isEdit: false,
+            comboPrice: '',
+            selectedStoreId: selectedStoreId
+          }, () => this.getProductBundleList(selectedStoreId));
         } 
         
       });
-     
+    
     } else {
       const comboProductList = listOfProducts.map((itm) => {
         const obj = {};
@@ -211,23 +221,7 @@ export default class ProductsCombo extends Component {
         productTextiles: comboProductList,
         itemMrp: comboPrice
       }   
-      
-       InventoryService.editProductCombo(requestObj).then((res) => {
-        if (res) {
-          toast.success(res.data.message);
-          this.setState({ 
-            isAddCombo: false,
-            listOfProducts: [],
-            comboName: '',
-            comboQuantity: '',
-            comboDescription: '',
-            isEdit: false,
-            comboPrice: '',
-            selectedStoreId: selectedStoreId
-          }, () => this.getProductBundleList(selectedStoreId));
-        }
 
-    });
 
 
       if(this.handleValidation()){  

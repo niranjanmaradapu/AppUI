@@ -932,7 +932,7 @@ export default class BarcodeList extends Component {
           <td className="col-1">{value}</td>
           <td className="col-1">{domainType}</td>
           <td className="col-2 text-center">
-            {/* <img src={edit} className="w-12 pb-2"  onClick={this.openEditBarcode}/> */}
+            {/* <img src={Barcode Details} className="w-12 pb-2"  onClick={this.openEditBarcode}/> */}
             <img
               src={edit}
               className="w-12 pb-2"

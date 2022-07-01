@@ -230,13 +230,13 @@ export default class BarcodeList extends Component {
       this.getHsnDetails(event.target.value);
     //  this.getHeaders(e.target.value)
     if(event.target.value ==="Textile"){
-     
+
       this.getAllDivisions(event.target.value);
-     
+
       this.getAllCategories(event.target.value);
      //  this.loadErrorMsgs();
     }
-    
+
 
   }
   handleChange = (e) => {
@@ -403,6 +403,7 @@ export default class BarcodeList extends Component {
   }
 
   getAllUoms() {
+    this.setState({uomsList: []})
     InventoryService.getUOMs().then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
@@ -605,7 +606,7 @@ export default class BarcodeList extends Component {
       this.getAllSubsections(this.state.section,this.state.selectedDomain);
     }
   }
-  
+
   updateBarcodesQuntity(barcodeId) {
     InventoryService.updateBarcodesQuntity(
       barcodeId,
@@ -850,7 +851,7 @@ export default class BarcodeList extends Component {
       hsnCode: this.state.hsnCode,
     };
     InventoryService.updateBarcodesQuntity(
-      
+
     ).then((res) => {
       if (res.data) {
         toast.success("Barcode updated Sucessfully");
@@ -861,7 +862,7 @@ export default class BarcodeList extends Component {
         this.getAllBarcodes(0);
       }
     });
-    
+
 
   }
 
@@ -1206,7 +1207,7 @@ export default class BarcodeList extends Component {
               Sub Section
               <span className="text-red font-bold">*</span>
             </label>
-            {/* <select className="form-control"> 
+            {/* <select className="form-control">
           <option>Select Sub Section</option>
         </select> */}
 
@@ -1631,7 +1632,7 @@ export default class BarcodeList extends Component {
                     <input
                       type="number"
                       className="form-control"
-                      
+
                       min="0"
                       onKeyPress={this.preventMinus}
                       placeholder="₹ 00"
@@ -1850,7 +1851,7 @@ export default class BarcodeList extends Component {
                 />
 
                 {/* <button type="button" className="scan">
-                <img src={scan} /> 
+                <img src={scan} />
                 SCAN
                 </button> */}
               </div>
@@ -1875,7 +1876,7 @@ export default class BarcodeList extends Component {
               >
                 <i className="icon-scan m-r-1"></i> Add Barcode
               </button>
-              {/*          
+              {/*
               <input onChange={this.handleExcelChange}  type='file' accept='.xlsx'/> */}
 
               <input

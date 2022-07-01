@@ -92,6 +92,42 @@ class CeateDeliverySlip extends Component {
     const user = JSON.parse(sessionStorage.getItem('user'));
     this.setState({ storeId: storeId, domainId: user["custom:clientId1"] });
     this.getHsnDetails();
+    this.keyBinds()
+  }
+
+  keyBinds() {
+    window.addEventListener('keydown', (e) => { // For Generating Esslip
+      if(e.altKey && String.fromCharCode(e.keyCode).toLocaleLowerCase() === 'n') {
+        e.preventDefault()
+        e.stopPropagation()
+        if(this.state.barList.length>0){
+          this.generateEstimationSlip()
+        }
+      }
+    })
+    window.addEventListener('keydown', (e) => { // For Check Promo Discount
+      if(e.altKey && String.fromCharCode(e.keyCode).toLocaleLowerCase() === 'k') {
+        e.preventDefault()
+        e.stopPropagation()
+           if(this.state.barList.length>0){
+        this.checkPromo()
+           }
+      }
+    })
+    window.addEventListener('keydown', (e) => { // For Connecting Printer
+      if(e.ctrlKey && String.fromCharCode(e.keyCode).toLocaleLowerCase() === 'p') {
+        e.preventDefault()
+        e.stopPropagation()
+        this.openPrinterPopup()
+      }
+    })
+    window.addEventListener('keydown', (e) => { // Hiding Printer
+      if(e.key === 'Escape'){
+        e.preventDefault()
+        e.stopPropagation()
+        this.hideModal()
+      }
+    })
   }
 
   getHsnDetails() {
@@ -162,6 +198,7 @@ class CeateDeliverySlip extends Component {
           ).then((res) => {
 
             if (res.data) {
+              // this.keyBinds()
               let count = false;
               // res.data.result.salesMan = this.state.copysmNumber;
               if (this.state.itemsList.length === 0) {
@@ -359,8 +396,8 @@ class CeateDeliverySlip extends Component {
       this.state.isDeliveryCreated && (
         <div className="rect-head">
           <div className="col p-l-3 pt-1 p-r-3 pb-3 text-right">
-            {/* <button className="btn-unic m-r-2">Clear Promotion</button> 
-          <button className="btn-unic m-r-2">Hold Estimation Slip</button> 
+            {/* <button className="btn-unic m-r-2">Clear Promotion</button>
+          <button className="btn-unic m-r-2">Hold Estimation Slip</button>
           <button className="btn-unic m-r-2">Generate Estimation Slip</button>  */}
             <button
               className="btn-nobdr"
@@ -403,6 +440,7 @@ class CeateDeliverySlip extends Component {
               disabled={!this.state.isgetLineItems}
             >
               Generate Estimation Slip
+              (Alt+n)
             </button>
           </div>
 
@@ -734,7 +772,7 @@ class CeateDeliverySlip extends Component {
 
   render() {
     return (
-      
+
         <div className="maincontent">
           {/* <h5>Estimation Slip</h5> */}
           {/* <h5> {t("EstimationSlip")}</h5> */}
@@ -834,7 +872,7 @@ class CeateDeliverySlip extends Component {
                     placeholder="Enter Barcode"
                   />
                   {/* <button type="button"className="scan">
-                               <img src={scan}/> SCAN  
+                               <img src={scan}/> SCAN
                 </button> */}
                 </div>
                 {/* <div>
@@ -876,13 +914,14 @@ class CeateDeliverySlip extends Component {
                     disabled={!this.state.isCheckPromo}
                   >
                     Check Promo Discount
+                    (Alt+k)
                   </button>
                 </div>
               </div>
               <div className="col-sm-2 col-6 pt-4 mt-1 cursor">
                 <img src={print}></img> <span className="text-red"
                   onClick={this.openPrinterPopup}
-                >Connect To Printer</span>
+                >Connect To Printer (Ctrl+p)</span>
               </div>
               <div className="col-sm-3 scaling-ptop col-6">
                 <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">

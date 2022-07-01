@@ -457,7 +457,7 @@ class Header extends Component {
 
           this.setState({dropData:dropData})
          this.setState({moduleNames: header});
-         
+         this.setState({ selectedCategory: header[0]});
     } else if(user["custom:isSuperAdmin"] === "true") {
       const clientId =  user["custom:clientId1"];
     //   URMService.getMasterDomainsList().then((res) => {
@@ -672,7 +672,7 @@ class Header extends Component {
     eventBus.dispatch("subHeader", { message: item.id });
     console.log(this.state.moduleNames);
     this.state.moduleNames.forEach(ele => {
-      if (ele.id == e.target.value) {
+      if (ele.name == e.target.value) {
         if(ele.path) {
           parentPath = ele.path;
         } else {

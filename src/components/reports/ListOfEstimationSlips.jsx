@@ -78,7 +78,6 @@ export default class ListOfEstimationSlips extends Component {
     };
 
     ListOfEstimationSlipsService.getEstimationSlips(obj,pageNumber).then((res) => {
-      if (res.data.content.length !== 0) {
       console.log("data", res.data.result);
       if (res.data.result.deliverySlipVo) {
         res.data.result.deliverySlipVo.map((prop, i) => {
@@ -92,9 +91,6 @@ export default class ListOfEstimationSlips extends Component {
               })
               .join(",");
           }
-         else {
-          toast.error("No Record Found");
-        }
           if (prop.lineItems.length > 0) {
             netValueData = Array.prototype.map
               .call(prop.lineItems, function (item) {
@@ -107,7 +103,6 @@ export default class ListOfEstimationSlips extends Component {
           prop.review = false;
         });
       }
-    }
 
       this.setState({
         dsList: res?.data?.result?.deliverySlip,
@@ -304,8 +299,8 @@ export default class ListOfEstimationSlips extends Component {
                 type="date"
                 className="form-control"
                 placeholder="FROM DATE"
-                value={this.state.fromDate}
-                onChange={(e) => this.setState({ fromDate: e.target.value })}
+                value={this.state.dateFrom}
+                onChange={(e) => this.setState({ dateFrom: e.target.value })}
               />
             </div>
           </div>
@@ -322,9 +317,9 @@ if (startDate < endDate){
                 type="date"
                 className="form-control"
                 placeholder="TO DATE"
-                value={this.state.toDate}
+                value={this.state.dateTo}
                 onChange={(e) => {
-                  var startDate = new Date(this.state.fromDate);
+                  var startDate = new Date(this.state.dateFrom);
                   var endDate = new Date(e.target.value);
                   console.log(">>>", startDate, endDate);
                   if (startDate <= endDate) {
@@ -332,8 +327,7 @@ if (startDate < endDate){
                     // console.log(">>>right");
                     // alert("right");
                   } else {
-                    // alert("To date should be greater than From date ");
-                    toast.error("Please select from date");
+                    toast.error("To date should be greater than From date ");
                     // console.log(">>>>wrong");
                   }
                 }}

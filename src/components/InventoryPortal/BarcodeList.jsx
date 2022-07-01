@@ -226,12 +226,17 @@ export default class BarcodeList extends Component {
 
     this.setState({ selectedDomain: event.target.value, domainDetailsObj: event.target.value }, () =>
       console.log(this.state.domainDetailsObj));
+      this.getAllUoms();
+      this.getHsnDetails(event.target.value);
     //  this.getHeaders(e.target.value)
-     this.getAllUoms();
-     this.getAllDivisions(event.target.value);
-     this.getHsnDetails(event.target.value);
-     this.getAllCategories(event.target.value);
-    //  this.loadErrorMsgs();
+    if(event.target.value ==="Textile"){
+     
+      this.getAllDivisions(event.target.value);
+     
+      this.getAllCategories(event.target.value);
+     //  this.loadErrorMsgs();
+    }
+    
 
   }
   handleChange = (e) => {
@@ -932,7 +937,7 @@ export default class BarcodeList extends Component {
           <td className="col-1">{value}</td>
           <td className="col-1">{domainType}</td>
           <td className="col-2 text-center">
-            {/* <img src={edit} className="w-12 pb-2"  onClick={this.openEditBarcode}/> */}
+            {/* <img src={Barcode Details} className="w-12 pb-2"  onClick={this.openEditBarcode}/> */}
             <img
               src={edit}
               className="w-12 pb-2"
@@ -1375,7 +1380,7 @@ export default class BarcodeList extends Component {
         this.state.uom &&
         this.state.empId &&
         this.state.storeId &&
-        this.state.stockValue &&
+        // this.state.stockValue &&
         this.state.hsnCode &&
         this.state.productValidity &&
         this.state.status &&

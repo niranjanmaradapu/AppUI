@@ -16,7 +16,6 @@ import Table from 'react-bootstrap/Table';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
-import Hotkeys from 'react-hot-keys';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { withTranslation } from 'react-i18next';
 import { saveDataInIndexDB, getDataFromIndexDB } from '../../utility.js';
@@ -85,20 +84,7 @@ class CeateDeliverySlip extends Component {
 
 
   }
-  onKeyDown(keyName, e, handle) {
-    console.log("test:onKeyDown", keyName, e, handle)
-    // this.setState({
-    //   output: `onKeyDown ${keyName}`,
-    // });
-    if (keyName === 'shift+a') {
-      this.checkPromo();
 
-    }
-    if (keyName === 'shift+z') {
-      this.generateEstimationSlip();
-
-    }
-  }
 
 
   componentWillMount() {
@@ -748,10 +734,7 @@ class CeateDeliverySlip extends Component {
 
   render() {
     return (
-      <Hotkeys
-        keyName="shift+a,shift+z"
-        onKeyDown={this.onKeyDown.bind(this)}
-      >
+      
         <div className="maincontent">
           {/* <h5>Estimation Slip</h5> */}
           {/* <h5> {t("EstimationSlip")}</h5> */}
@@ -918,7 +901,6 @@ class CeateDeliverySlip extends Component {
 
           {/* <ToastContainer /> */}
         </div>
-      </Hotkeys>
     );
   }
 }

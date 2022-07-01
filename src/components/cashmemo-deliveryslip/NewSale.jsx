@@ -6,7 +6,6 @@ import barcode from "../../assets/images/barcode.svg";
 import card from "../../assets/images/card.svg";
 import cash from "../../assets/images/cash.svg";
 import upi from "../../assets/images/upi.svg";
-import Hotkeys from 'react-hot-keys';
 import qr from "../../assets/images/qr_new.svg";
 import khata from "../../assets/images/khata.svg";
 import NewSaleService from "../../services/NewSaleService";
@@ -172,20 +171,7 @@ export default class NewSale extends Component {
 
     //this.handler = this.handler.bind(this);
   }
-  onKeyDown(keyName, e, handle) {
-    console.log("test:onKeyDown", keyName, e, handle)
-    // this.setState({
-    //   output: `onKeyDown ${keyName}`,
-    // });
-    if(keyName === 'shift+s'){
-      this.getCardModel();
-
-    }
-    if(keyName === 'shift+x'){
-      this.getCashModel();
-
-    }
-  }
+  
 
   componentWillMount() {
 
@@ -905,7 +891,7 @@ export default class NewSale extends Component {
     //   this.setState({ stateGST: 70, centralGST: 70 });
     //   console.log("Checking the slab")
     // }
-    const grandTotal = this.state.netPayableAmount + this.state.centralGST + this.state.stateGST;
+    const grandTotal = this.state.netPayableAmount;
     this.setState({ grandNetAmount: grandTotal, totalAmount: grandTotal });
 
 
@@ -1599,10 +1585,7 @@ export default class NewSale extends Component {
       },
     };
     return (
-      <Hotkeys 
-      keyName="shift+s,shift+x" 
-      onKeyDown={this.onKeyDown.bind(this)}
-    >
+     
 
       <div className="maincontent pt-0">
 
@@ -2438,7 +2421,7 @@ export default class NewSale extends Component {
 
 
       </div>
-     </Hotkeys>
+     
     );
   }
 }

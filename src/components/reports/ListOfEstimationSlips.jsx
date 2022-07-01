@@ -132,6 +132,8 @@ export default class ListOfEstimationSlips extends Component {
     filterData[0].lineItems.map((d) => {
       obj = {
         barCode: d.barCode,
+        section:d.section,
+        subSection:d.subSection,
         // salesMan: filterData[0].salesMan,
         userId: d.userId,
         quantity: d.quantity,
@@ -190,6 +192,8 @@ export default class ListOfEstimationSlips extends Component {
       return this.state.popupData.map((items, index) => {
         const {
           barCode,
+          section,
+          subSection,
           salesman,
           userId,
           quantity,
@@ -200,7 +204,9 @@ export default class ListOfEstimationSlips extends Component {
         } = items;
         return (
           <tr className="m-0 p-0">
-            <td className="col-2">{barCode}</td>
+            <td className="col-1">{barCode}</td>
+            <td className="col-1">{section}</td>
+            <td className="col-1">{subSection}</td>
             <td className="col-1">{userId}</td>
             <td className="col-1">{quantity}</td>
             <td className="col-1">{netValue}</td>
@@ -254,8 +260,10 @@ export default class ListOfEstimationSlips extends Component {
                 <thead>
                   <tr className="m-0 p-0">
                     {/* <th className="col-1"> </th> */}
-                    <th className="col-2">BARCODE</th>
-                    <th className="col-1">SM</th>
+                    <th className="col-1">BARCODE</th>
+                    <th className="col-1">SECTION</th>
+                    <th className="col-1">SUB-SECTion</th>
+                    <th className="col-1">SM ID</th>
                     <th className="col-1">QTY</th>
                     <th className="col-1">ITEM MRP</th>
                     <th className="col-2">GROSS AMOUNT</th>
@@ -402,7 +410,7 @@ if (startDate < endDate){
               <tr className="m-0 p-0">
                 <th className="col-1">S.NO</th>
                 <th className="col-1">ES Number</th>
-                <th className="col-2">ES DATE</th>
+                <th className="col-2">ES DATE & Time</th>
                 <th className="col-1">ES STATUS</th>
                 <th className="col-2">GROSS AMOUNT</th>
                 <th className="col-1">PROMO DISC</th>

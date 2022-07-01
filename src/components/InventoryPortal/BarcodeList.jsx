@@ -133,6 +133,7 @@ export default class BarcodeList extends Component {
     this.inputReference = React.createRef();
     this.deleteBarcode = this.deleteBarcode.bind(this);
     this.preventMinus = this.preventMinus.bind(this);
+    this.updateBarcodesQuntity = this.updateBarcodesQuntity.bind(this);
   }
 
   openBarcode() {
@@ -146,7 +147,14 @@ export default class BarcodeList extends Component {
     this.setState({ isAddBarcode: false });
     this.stateReset();
   }
-  openEditBarcode(barcodeId) {
+  openEditBarcode(barcodeId,Value) {
+    this.setState({popupVlaue:Value})
+    this.setState({ isAddBarcode: true });
+    this.setState({ isEdit: true });
+    this.getbarcodeDetails(barcodeId);
+  }
+
+  EditBarcode(barcodeId){
     this.setState({ isAddBarcode: true });
     this.setState({ isEdit: true });
     this.getbarcodeDetails(barcodeId);
@@ -161,6 +169,7 @@ export default class BarcodeList extends Component {
     });
 
   }
+
 
   componentWillMount() {
     this.state.domainDetailsObj = undefined;
@@ -591,7 +600,69 @@ export default class BarcodeList extends Component {
       this.getAllSubsections(this.state.section,this.state.selectedDomain);
     }
   }
-
+  
+  updateBarcodesQuntity(barcodeId) {
+    InventoryService.updateBarcodesQuntity(
+      barcodeId,
+      this.state.domainDetailsObj,
+      this.state.selectedStoreId
+    ).then((res) => {
+      const barcode = res.data;
+      if (res.data) {
+        if (
+          this.state.domainDetailsObj &&
+          this.state.domainDetailsObj === "Retail"
+        ) {
+          this.setState({
+            status: barcode.status,
+            id: this.state.productTextileId,
+            stockValue: barcode.stockValue ? barcode.stockValue : "",
+            qty: barcode.qty ? barcode.qty : "",
+            barcodeId: barcode.barcodeId,
+            name: barcode.name,
+            colour: barcode.colour,
+            costPrice: barcode.costPrice,
+            listPrice: barcode.listPrice,
+            productValidity: barcode.productValidity,
+            storeId: barcode.storeId,
+            empId: barcode.empId,
+            uom: barcode.uom,
+            productItemId: barcode.productItemId,
+            hsnCode: barcode.hsnCode,
+            batchNo: barcode.batchNo,
+          });
+        } else {
+          this.setState({
+            status: barcode.status,
+            stockValue: barcode.stockValue ? barcode.stockValue : "",
+            qty: barcode.qty ? barcode.qty : "",
+            barcodeId: barcode.barcodeId,
+            productTextileId: barcode.id,
+            id: this.state.productTextileId,
+            barcodeTextileId: barcode.barcodeTextileId,
+            costPrice: barcode.costPrice,
+            storeId: barcode.storeId,
+            empId: barcode.empId,
+            uom: barcode.uom,
+            division: barcode.division,
+            section: barcode.section,
+            listPrice: barcode.itemMrp,
+            subSection: barcode.subSection,
+            category: barcode.category,
+            batchNo: barcode.batchNo,
+            colour: barcode.colour,
+            hsnCode: barcode.hsnCode,
+            name: barcode.name,
+            domainDetailsObj: barcode.domainType,
+            selectedDomain: barcode.domainType
+          });
+        }
+        this.setDropdowns(true);
+      } else {
+        toast.error(res.data.message);
+      }
+    });
+  }
   addBarcode() {
     let domainInfo = this.state.domainDetailsObj;
     this.state.textileFieldsErr = false;
@@ -677,6 +748,7 @@ export default class BarcodeList extends Component {
       hsnCode: "",
       colour: "",
       qty: "",
+      popupVlaue:"",
       selectedDomain: "",
       domainDetailsObj: "",
       retailFieldsErr: false,
@@ -735,7 +807,8 @@ export default class BarcodeList extends Component {
     InventoryService.addBarcode(
       saveJson,
       this.state.domainDetailsObj,
-      this.state.isEdit
+      this.state.isEdit,
+      this.state.popupVlaue
     ).then((res) => {
       if (res.data) {
         toast.success("Barcode updated Sucessfully");
@@ -745,6 +818,46 @@ export default class BarcodeList extends Component {
         this.getAllBarcodes(0);
       }
     });
+  }
+  updateBarcodesQuntity(){
+    let domainInfo = this.state.domainDetailsObj;
+    let saveJson = {};
+    saveJson = {
+      status: this.state.edit ? this.state.status : null,
+      productValidity: this.state.edit ? this.state.productValidity : null,
+      id: this.state.productTextileId,
+      division: parseInt(this.state.division),
+      section: parseInt(this.state.section),
+      subSection: parseInt(this.state.subSection),
+      category: parseInt(this.state.category),
+      batchNo: this.state.batchNo,
+      colour: this.state.colour,
+      name: this.state.name,
+      qty: this.state.qty,
+      costPrice: this.state.costPrice,
+      itemMrp: parseInt(this.state.listPrice),
+      storeId: this.state.storeId,
+      domainType: this.state.domainDetailsObj,
+      empId: this.state.empId,
+      uom: this.state.uom,
+      productTextileId: this.state.productTextileId,
+      // hsnMasterId: this.state.hsnCode,
+      hsnCode: this.state.hsnCode,
+    };
+    InventoryService.updateBarcodesQuntity(
+      
+    ).then((res) => {
+      if (res.data) {
+        toast.success("Barcode updated Sucessfully");
+        this.setState({ isAddBarcode: true });
+        this.setState({isEdit:true})
+        this.stateReset();
+        this.props.history.push("/barcodeList");
+        this.getAllBarcodes(0);
+      }
+    });
+    
+
   }
 
   deleteBarcode(id) {
@@ -861,10 +974,16 @@ export default class BarcodeList extends Component {
               <td className="col-1">{domainType}</td>
               <td className="col-2 text-center">
                 {/* <img src={edit} className="w-12 pb-2"  onClick={this.openEditBarcode}/> */}
+                  { <button
+                className="btn-unic-redbdr mt-2"
+                onClick={() => this.openEditBarcode(barcode,'REBAR')}
+              >
+                 REBARCODE
+              </button> }
                 <img
                   src={edit}
                   className="w-12 pb-2"
-                  onClick={() => this.openEditBarcode(barcode)}
+                  onClick={() => this.openEditBarcode(barcode,'EDIT')}
                 />
                 <i
                   className="icon-delete m-l-2 fs-16"
@@ -1507,6 +1626,7 @@ export default class BarcodeList extends Component {
                     <input
                       type="number"
                       className="form-control"
+                      
                       min="0"
                       onKeyPress={this.preventMinus}
                       placeholder="₹ 00"
@@ -1534,6 +1654,7 @@ export default class BarcodeList extends Component {
                       onKeyPress={this.preventMinus}
                       placeholder="₹ 00"
                       value={this.state.listPrice}
+                      disabled={this.state.popupVlaue === "EDIT"}
                       onChange={(e) =>
                         this.setState({ listPrice: e.target.value })
                       }

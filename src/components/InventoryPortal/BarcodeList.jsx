@@ -417,6 +417,7 @@ export default class BarcodeList extends Component {
   }
 
   getHsnDetails() {
+    this.setState({hsnList: []})
     InventoryService.getAllHsnList().then((res) => {
       res.data.result.forEach((ele, index) => {
         const obj = {

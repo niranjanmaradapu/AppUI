@@ -141,10 +141,10 @@ export default class Rebarcoding extends Component {
         () => {
            this.getAllStoresList();
           this.getAllBarcodes();
-          this.getAllUoms();
-          this.getAllDivisions();
-          this.getHsnDetails();
-          this.getAllCategories();
+          // this.getAllUoms();
+          // this.getAllDivisions();
+          // this.getHsnDetails();
+          // this.getAllCategories();
         }
       );
     }

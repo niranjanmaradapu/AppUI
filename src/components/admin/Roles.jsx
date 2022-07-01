@@ -226,19 +226,42 @@ export default class Roles extends Component {
         //         }
         //     }
         // });
-        URMService.getAllPrivileges().then(res => {
-            if (res) {
-                this.setState({ productsList: res.data.webPrivileges});
-                this.state.productsList.forEach((element, index) => {
-                    if (element.subPrivileges && element.subPrivileges.length > 0) {
-                        element.subPrivileges.forEach((child, index) => {
-                            child.checked = false;
-                        });
-                    }
-                });
-                this.getSelectedPrivileges(this.state.parentsList, this.state.childList);
-            }
-        });
+        if(this.state.isEdit) {
+            URMService.getAllPrivileges().then(res => {
+                if (res) {
+                    this.setState({ productsList: res.data.webPrivileges});
+                    this.state.productsList.forEach((element, index) => {
+                        if (element.subPrivileges && element.subPrivileges.length > 0) {
+                            element.subPrivileges.forEach((child, index) => {
+                                 this.state.childList.forEach((childPrivilege) => {
+                                    if(childPrivilege.id === child.id) {
+                                        child.checked = true;
+                                        this.state.parentsList.push(element)
+                                    }
+                                 });   
+                            });
+                       }
+                    });
+                    const childList = this.removeDuplicates(this.state.childList, "name");
+                    this.setState({ productsList: this.state.productsList, childList: childList, parentsList:  this.state.parentsList});
+                }
+            });
+        } else {
+            URMService.getAllPrivileges().then(res => {
+                if (res) {
+                    this.setState({ productsList: res.data.webPrivileges});
+                    this.state.productsList.forEach((element, index) => {
+                        if (element.subPrivileges && element.subPrivileges.length > 0) {
+                            element.subPrivileges.forEach((child, index) => {
+                                child.checked = false;
+                            });
+                        }
+                    });
+                    this.getSelectedPrivileges(this.state.parentsList, this.state.childList);
+                }
+            });
+        }
+       
     }
     createRole() {
         this.setState({ showRole: true });
@@ -307,7 +330,6 @@ getSelectedPrivileges(parentsList, childList) {
         this.setState({ productsList: this.state.productsList });
     }
     getPrivilegesList() {
-        console.log("++++++++++++++++++productsList+++++++++++++++"+this.state.productsList);
         return this.state.productsList.length > 0 && this.state.productsList.map((node, i) => {
             const parentName = node.name;
             const label = <span className="node">{parentName}</span>
@@ -375,20 +397,27 @@ getSelectedPrivileges(parentsList, childList) {
         )
     }
     editRole(items) {
-        this.setState({
-            showModal: true,
-            roleName: items.roleName,
-            isEdit: true,
-            searchCreatedBy: items.searchCreatedBy,
-            descriptionName: items.description,
-            childList: items.subPrivilege,
-            parentsList: items.parentPrivilege,
-            roleId: items.id,
-            isSearch: false,
-            isRoleName:true,
-            // domain: items.clientDomain.id
-        }, () => {
-            this.getPrivilegesByDomainId();
+        URMService.getSubPrivilegesbyRoleId(items.roleName).then(res => {
+            if(res) {
+              //  const result = this.groupByPrivilegeType(res.data.childPrivilages);
+              this.setState({
+                showModal: true,
+                roleName: items.roleName,
+                isEdit: true,
+                searchCreatedBy: items.searchCreatedBy,
+                descriptionName: items.description,
+                // childList: res.data.childPrivilages,
+                childList: res.data.subPrivileges,
+                parentsList: res.data.parentPrivileges,
+                roleId: items.id,
+                isSearch: false,
+                isRoleName:true,
+                // domain: items.clientDomain.id
+            }, () => {
+                this.getPrivilegesByDomainId();
+            });
+               
+            }
         });
     }
     getRoleTable() {

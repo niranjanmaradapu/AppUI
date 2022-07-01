@@ -22,12 +22,28 @@ export default class SalesReport extends Component {
       custMobileNumber: null,
       billStatus: null,
       invoiceNumber: null,
+      dsNumber:null,
+      barcode:null,
       empId: null,
       sbList: [],
       sbDetailsList: [],
       isView: false,
       domainId: "",
       storeId: "",
+      selectOption: [
+        {
+          name: "Bill Status",
+          id: "Bill Status",
+        },
+        {
+          name: "Completed",
+          id: "Completed",
+        },
+        {
+          name: "Cancelled",
+          id: "Cancelled",
+        },
+      ],
     };
     this.getSaleBills = this.getSaleBills.bind(this);
     this.viewReport = this.viewReport.bind(this);
@@ -59,6 +75,12 @@ export default class SalesReport extends Component {
       invoiceNumber: this.state.invoiceNumber
         ? this.state.invoiceNumber
         : undefined,
+        dsNumber: this.state.dsNumber
+        ? this.state.dsNumber
+        : undefined,
+        barcode: this.state.barcode
+        ? this.state.barcode
+        : undefined,
       empId: this.state.empId ? this.state.empId : undefined,
       // domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
@@ -83,25 +105,32 @@ export default class SalesReport extends Component {
     let obj = {
       barCode: "",
       section: "",
+      discType:'',
+      approvedBy:"",
+      reason:"",
       empId: "",
       hsnCode: "",
       quantity: "",
       itemPrice: "",
       discount: "",
-      taxLabel: "",
+      // taxLabel: "",
       // taxableAmount: "",
-      taxValue: "",
+      // taxValue: "",
       cgst: "",
       sgst: "",
       igst: "",
+      cess:"",
       netValue: "",
     };
     let detailsArry = [];
     filterData[0].lineItemsReVo.map((d) => {
       obj = {
         empId: filterData[0].empId,
-        itemPrice: d.itemPrice,
-        discount: d.discount,
+        approvedBy:filterData[0].approvedBy,
+        discType:filterData[0].discType,
+        reason:filterData[0].reason,
+       // itemPrice: d.itemPrice,
+        discount: filterData[0].discount,
         barCode: d.barCode,
         section: d.section,
         netValue: d.netValue,
@@ -118,6 +147,7 @@ export default class SalesReport extends Component {
         cgst: d.cgst,
         sgst: d.sgst,
         igst: d.igst,
+        cess:d.cess,
       };
       detailsArry.push(obj);
     });
@@ -150,6 +180,8 @@ export default class SalesReport extends Component {
     return this.state.sbList?.content?.map((items, index) => {
       const {
         invoiceNumber,
+        netPayableAmount,
+        discount,
         empId,
         createdDate,
         status,
@@ -159,14 +191,16 @@ export default class SalesReport extends Component {
       return (
         <tr className="" key={index}>
           <td className="col-1">{index + 1}</td>
-          <td className="col-3">{invoiceNumber}</td>
-          <td className="col-2">{empId}</td>
+          <td className="col-2">{invoiceNumber}</td>
+          <td className="col-2">{netPayableAmount}</td>
+          <td className="col-1">{discount}</td>
+          <td className="col-1">{empId}</td>
           <td className="col-2">{createdDate}</td>
           {/* <td className="col-2">
             {billStatus && <button className="btn-active">{billStatus}</button>}
           </td> */}
-          <td className="col-2">{status}</td>
-          <td className="col-2 text-center">
+          {/* <td className="col-2">{status}</td> */}
+          <td className="col-1 text-center">
             <img src={print} className="w-12 m-r-2 pb-2" />
             <img
               src={view}
@@ -189,17 +223,21 @@ export default class SalesReport extends Component {
         const {
           barCode,
           section,
+          discType,
+          approvedBy,
+          reason,
           empId,
           hsnCode,
           quantity,
           itemPrice,
           discount,
-          taxLabel,
-          taxValue,
+          // taxLabel,
+          // taxValue,
           // taxableAmount,
           cgst,
           sgst,
           igst,
+          cess,
           netValue,
         } = items;
         return (
@@ -207,16 +245,20 @@ export default class SalesReport extends Component {
             <td width="15%">{barCode}</td>
             <td width="10%">{section}</td>
             {/* <td width="10%">{section}</td> */}
+            <th width="10%">{discType}</th>
+            <th width="5%">{approvedBy}</th>
+            <th width="10%">{reason}</th>
             <td width="5%">{empId}</td>
             <td width="10%">{hsnCode}</td>
             <td width="5%">{quantity}</td>
             <td width="5%">{itemPrice}</td>
             <td width="5%">{discount}</td>
-            <td width="5%">{taxLabel}</td>
-            <td width="10%">{taxValue}</td>
+           {/* <td width="5%">{taxLabel}</td>
+            <td width="10%">{taxValue}</td> */}
+            <td width="5%">{sgst}</td>
             <td width="5%">{cgst}</td>
-            <td width="10%">{sgst}</td>
             <td width="5%">{igst}</td>
+            <td width="5%">{cess}</td>
             <td width="10%">{netValue}</td>
           </tr>
         );
@@ -243,6 +285,15 @@ export default class SalesReport extends Component {
   }
 
 
+  handleSelect(e) {
+    if (e.target.value != "Bill Status") {
+      this.setState({
+        billStatus: e.target.value,
+      });
+    }
+  }
+
+
   changePage(pageNumber) {
     console.log(">>>page", pageNumber);
     let pageNo = pageNumber + 1;
@@ -263,7 +314,7 @@ export default class SalesReport extends Component {
             <div className="row mb-2">
               <div className="col-3">
                 <div className="">
-                  <label>Memo No : </label>{" "}
+                  <label>Invoice No : </label>{" "}
                   <span className="font-bold fs-13">
                     {" "}
                     {this.state.invoiceNumber}
@@ -305,16 +356,21 @@ export default class SalesReport extends Component {
                   <tr className="m-0 p-0">
                     <th width="15%">Barcode</th>
                     <th width="10%">Section</th>
-                    <th width="5%">EMPID</th>
+                    <th width="10%">Type Of Discount</th>
+                    <th width="10%">ApprovedBy</th>
+                    <th width="10%">Reason</th>
+                    <th width="5%">Emp ID</th>
                     <th width="10%">HSN Code</th>
                     <th width="5%">QTY</th>
-                    <th width="5%">mrp</th>
-                    <th width="5%">Disc</th>
-                    <th width="5%">GST%</th>
-                    <th width="10%">Tax Amount</th>
+                    <th width="5%">MRP</th>
+                    {/* <th width="10%">Excl Tax Amount</th> */}
+                    <th width="5%">Discount</th>
+                    {/* <th width="5%">GST%</th> */}
+                    {/* <th width="10%">Tax Amount</th> */}
+                    <th width="5%">SGST</th>
                     <th width="5%">CGST</th>
-                    <th width="10%">SGST</th>
                     <th width="5%">IGST</th>
+                    <th width="5%">CESS</th>
                     <th width="10%">Net Amount</th>
                   </tr>
                 </thead>
@@ -382,24 +438,65 @@ export default class SalesReport extends Component {
               <select
                 className="form-control"
                 value={this.state.billStatus}
-                onChange={(e) => this.setState({ billStatus: e.target.value })}
+                onChange={(e) => {
+                  this.handleSelect(e);
+                }}
+                // onChange={(e) => this.setState({ billStatus: e.target.value })}
               >
-                <option>BILLPOSITION</option>
+                {/* <option>Bill Position</option> */}
                 {/* <option>New</option>
                 <option>Pending</option> */}
 
-                <option>success</option>
-                <option>Cancelled</option>
+                {/* <option>Completed</option>
+                <option>Cancelled</option> */}
+                 {this.state.selectOption.map((i) => {
+                  return (
+                    <option key={i.id} value={i.id}>
+                      {i.name}
+                    </option>
+                  );
+                })}
               </select>
             </div>
           </div>
+
+
+          <div className="col-12 col-sm-2 mt-2">
+            <div className="form-group">
+              <label>DS Number</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="DS Number"
+                value={this.state.dsNumber}
+                onChange={(e) => this.setState({ dsNumber: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="col-12 col-sm-2 mt-2">
+            <div className="form-group">
+              <label>Barcode</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Barcode"
+                value={this.state.barcode}
+                onChange={(e) => this.setState({barcode: e.target.value })}
+              />
+            </div>
+          </div>
+
+
+
+
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
               <label>Invoice / Bill No</label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="INVOICE/BILL NO"
+                placeholder="Invoice/Bill No"
                 value={this.state.invoiceNumber}
                 onChange={(e) =>
                   this.setState({ invoiceNumber: e.target.value })
@@ -426,7 +523,7 @@ export default class SalesReport extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="MOBILE NUMBER"
+                placeholder="Mobile Number"
                 value={this.state.custMobileNumber}
                 maxLength="10"
                 minLength="10"
@@ -446,17 +543,17 @@ export default class SalesReport extends Component {
           </div>
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
-              <label>EMP ID</label>
+              <label>Emp ID</label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="EMP ID"
+                placeholder="Emp ID"
                 value={this.state.empId}
                 onChange={(e) => this.setState({ empId: e.target.value })}
               />
             </div>
           </div>
-          <div className="col-sm-4 col-12 mt-2 scaling-mb scaling-center">
+          <div className="col-sm-4 col-12 mt-4 scaling-mb scaling-center">
             <div className="form-group">
               <button
                 className="btn-unic-search active"
@@ -476,11 +573,13 @@ export default class SalesReport extends Component {
               <thead>
                 <tr className="m-0 p-0">
                   <th className="col-1">S.NO</th>
-                  <th className="col-3">Invoice Number</th>
-                  <th className="col-2">EMP ID</th>
-                  <th className="col-2">INVOICE DATE</th>
-                  <th className="col-2">Bill Position</th>
-                  <th className="col-2"></th>
+                  <th className="col-2">Invoice Number</th>
+                  <th className="col-2">Total Amount</th>
+                  <th className="col-1">Discount</th>
+                  <th className="col-1">EMP ID</th>
+                  <th className="col-2">CREATED DATE & TIME</th>
+                  {/* <th className="col-2">Bill Position</th> */}
+                  <th className="col-1">ACTIONS</th>
                 </tr>
               </thead>
               {/* <tbody>

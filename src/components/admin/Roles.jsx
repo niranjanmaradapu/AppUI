@@ -918,11 +918,11 @@ getSelectedMobilePrivileges(parentsList) {
                                 </thead>
                                 <tbody>
                                  <div style={{ maxWidth: '1000px', width: '50%', float: 'left'}}>
-                                  <h3>Web</h3>
+                                  {this.state.productsList.length > 0 && <h3>Web</h3>}
                                      {this.getPrivilegesList()}
                                   </div>
                                   <div style={{maxWidth: '1000px', width: '50%', float: 'right'}}>
-                                    <h3>Mobile</h3>
+                                    {this.state.mobileProductsList.length > 0 && <h3>Mobile</h3>}
                                     {this.getMobilePrivilegesList()}
                                   </div>
                                 </tbody>

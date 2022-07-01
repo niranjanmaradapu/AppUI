@@ -754,9 +754,9 @@ getSelectedMobilePrivileges(parentsList) {
         return this.state.mobileChildList && this.state.mobileChildList.length > 0 && (
             <div>
                 <div className="row mt-3">
-                    <h6 className="text-red mb-2 fs-14"></h6>
+                {this.state.mobileSelectedChilds.length > 0 && <h6 className="text-red mb-2 fs-14">Mobile Privileges</h6>}
                 </div>
-                <table className="table table-borderless mb-0">
+                {this.state.mobileSelectedChilds.length > 0 && <table className="table table-borderless mb-0">
                     <thead>
                         <tr className="">
                             <th className="col-3">Privileges</th>
@@ -765,7 +765,7 @@ getSelectedMobilePrivileges(parentsList) {
                             {this.state.isMobileExpanded ? <i onClick={this.toggleMobileClass.bind(this, '')}>{this.moreLessMobile()}</i> : <i onClick={this.toggleMobileClass.bind(this, 'Mobile')}>{this.moreLess()}</i>}
                         </tr>
                     </thead>
-                </table>
+                </table>}
                 <Collapse isOpened={this.state.activePrevilegeType === 'Mobile'}>
                 <table className="table table-borderless gfg mb-0">
                     <tbody>
@@ -781,7 +781,7 @@ getSelectedMobilePrivileges(parentsList) {
         return this.state.childList && this.state.childList.length > 0 && (
             <div>
                 <div className="row mt-3">
-                    <h6 className="text-red mb-2 fs-14"></h6>
+                    <h6 className="text-red mb-2 fs-14">Web Privileges</h6>
                 </div>
                 <table className="table table-borderless mb-0">
                     <thead>

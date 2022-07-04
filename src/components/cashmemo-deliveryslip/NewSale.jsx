@@ -138,7 +138,8 @@ export default class NewSale extends Component {
       // open: false,
       pathFlag:false,
       isEnableProccedtoCheck: false,
-
+      isTagCustomer:false,
+      isKathaModel:false
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -168,6 +169,9 @@ export default class NewSale extends Component {
     this.getUPILink = this.getUPILink.bind(this);
     this.getinvoiceLevelCheckPromo=this.getinvoiceLevelCheckPromo.bind(this);
     this.invoiceLevelCheckPromo=this.invoiceLevelCheckPromo.bind(this);
+    this.getKathaModel=this.getKathaModel.bind(this);
+    this.hideKathaModel=this.hideKathaModel.bind(this);
+    this.confirmKathaModel = this.confirmKathaModel.bind(this);
 
 
     //this.handler = this.handler.bind(this);
@@ -421,16 +425,30 @@ export default class NewSale extends Component {
     //   }
     // })
   }
+  getKathaModel() {
+    this.setState({ isKathaModel: true });
+  }
 
+  hideKathaModel() {
+    this.setState({ isKathaModel: false });
+  }
   getCreditModel() {
     this.setState({ isCreditModel: true, payCreditAmount: this.state.grandNetAmount });
-
   }
 
   hideCreditModel() {
     this.setState({ isCreditModel: false });
   }
+  confirmKathaModel(){
+     this.setState({ isPayment: false })
+    const obj = {
 
+      "paymentType": "PKT",
+      "paymentAmount": this.state.grandNetAmount
+    }
+    this.state.paymentType.push(obj);
+    this.createInvoice()
+  }
   confirmCreditModel() {
 
     if (this.state.creditAmount < this.state.grandNetAmount) {
@@ -1335,6 +1353,7 @@ export default class NewSale extends Component {
             totalAmount:0,
             couponAmount:0,
             isCredit: false,
+            isTagCustomer:false,
             enablePayment: false
 
 
@@ -1500,7 +1519,8 @@ export default class NewSale extends Component {
         const mobileData = res.data.result;
         this.setState({
           userId: res.data.result.userId,
-          customerFullName: res.data.result.userName
+          customerFullName: res.data.result.userName,
+          isTagCustomer:true
         });
 
         this.state.mobileData = {
@@ -1802,6 +1822,61 @@ export default class NewSale extends Component {
           </ModalFooter>
 
         </Modal>
+        <Modal isOpen={this.state.isKathaModel} size="lg">
+          <ModalHeader>
+            Katha Payment
+          </ModalHeader>
+          <ModalBody>
+          <div className="row">
+              <div className="col-4">
+                {/* <label> Cash: </label> */}
+              </div>
+              <div className="col-8">
+                {/* <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.payCreditAmount}
+                  onChange={(e) =>
+                    this.setState({ payCreditAmount: e.target.value })
+                  }
+                /> */}
+                <span>Adding Payment Details on Katha</span>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-4">
+                <label>Katha Amount: </label>
+              </div>
+              <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div>
+            </div>
+          
+
+          </ModalBody>
+          <ModalFooter>
+            <button className="btn-unic" onClick={this.hideKathaModel}>
+              Cancel
+            </button>
+            <button
+              className="btn-unic active fs-12"
+              // className={"fs-12" + (this.state.isCreditConfirm ? "btn-unic btn-disable" : "btn-unic active")}
+               onClick={this.confirmKathaModel}
+            >
+              Confirm
+            </button>
+          </ModalFooter>
+
+        </Modal>
+
+
 
 
         <Modal isOpen={this.state.isCreditModel} size="lg">
@@ -2299,14 +2374,26 @@ export default class NewSale extends Component {
                             )
                           }
 
-                          <li>
+                          {
+                            this.state.isTagCustomer && (
+                              <li>
+                                <span className="">
+                                  {/* <img src={upi} onClick={this.getCreditModel} /> */}
+                                  <i className="icon-khata" onClick={this.getKathaModel}></i>
+                                  <label>KHATA</label>
+                                </span>
+
+                              </li>
+                            )
+                          }
+                          {/* <li>
                             <span>
-                              {/* <img src={khata} /> */}
+                             
                               <i className="icon-khata"></i>
                               <label>KHATA</label>
                             </span>
 
-                          </li>
+                          </li> */}
                           <li>
                             <span>
                               {/* <img src={khata} onClick={this.getGvModel} /> */}

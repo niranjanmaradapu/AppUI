@@ -31,7 +31,8 @@ const PrinterStatusBill = (type,barcode,object) => {
     let ePosDev = new window.epson.ePOSDevice();
     ePosDevice = ePosDev;
 
-    ePosDev.connect(printerIPAddress, printerPort, (data) => {
+    ePosDev.connect(printerIPAddress, printerPort, (data) => callBack_connect(data))
+    function callBack_connect(data) {
       if (data === "OK") {
         sessionStorage.setItem('print_config',data);
         ePosDev.createDevice(
@@ -154,9 +155,11 @@ const PrinterStatusBill = (type,barcode,object) => {
           }
         );
       } else {
-        throw data;
+       setTimeout(()=> {
+        ePosDev.connect(printerIPAddress, printerPort, this.callBack_connect());
+       }, 5000)
       }
-    });
+    };
  
 };
 

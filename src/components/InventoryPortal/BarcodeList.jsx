@@ -224,7 +224,7 @@ export default class BarcodeList extends Component {
     //   }
     // })
 
-    this.setState({ selectedDomain: event.target.value, domainDetailsObj: event.target.value }, () =>
+    this.setState({ selectedDomain: event.target.value, domainDetailsObj: event.target.value ,divisionsList:[]}, () =>
       console.log(this.state.domainDetailsObj));
       this.getAllUoms();
       this.getHsnDetails(event.target.value);
@@ -603,6 +603,10 @@ export default class BarcodeList extends Component {
 
   setDropdowns(isEdit) {
     if (isEdit && this.state.domainDetailsObj === "Textile") {
+      this.getAllDivisions(this.state.selectedDomain);
+      this.getHsnDetails();
+      this.getAllUoms();
+      this.getAllCategories(this.state.selectedDomain);
       this.getAllSections(this.state.division,this.state.selectedDomain);
       this.getAllSubsections(this.state.section,this.state.selectedDomain);
     }
@@ -736,6 +740,7 @@ export default class BarcodeList extends Component {
   }
 
   stateReset() {
+    console.log("++++++++++++++++sra+++++++++++++++++++")
     this.setState({
       status: "",
       stockValue: "",
@@ -987,7 +992,7 @@ export default class BarcodeList extends Component {
                   <button
                 className="drop-tog p-1 p-t-0 m-r-2" title="Rebarcode"
                 onClick={() => this.openEditBarcode(barcode,'REBAR')}>
-                 <i className="icon-barcode_s"></i>
+                 <i className="icon-scan"></i>
               </button> }
                 <img
                   src={edit}

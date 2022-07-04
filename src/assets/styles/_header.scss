@@ -175,6 +175,7 @@
                     height: 53px !important;
                     border-radius: 0px !important;
                     border: 0px solid #E2E2E2 !important;
+                   
                 }
             }
             & li:hover{
@@ -326,11 +327,17 @@
     -webkit-flex-shrink: 0;
     -ms-flex-negative: 0;
     flex-shrink: 0;
-    margin-top: -12px !important;
+    margin-top: -21px !important;
     box-sizing: border-box;
+}
+& .css-1wa3eu0-placeholder{
+    visibility: hidden !important;
 }
 .css-g1d714-ValueContainer {
     padding: 0px 8px !important;
+    position: relative;
+    /* width: 100%; */
+    top: -20px;
 }
 .css-1wa3eu0-placeholder{
     font-size: 13px !important;

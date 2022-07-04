@@ -837,6 +837,35 @@ class Header extends Component {
            
               
               <div className="header-right float-right">
+
+              {/* <Dropdown>
+                    <Dropdown.Toggle className="drop-tog" variant="success">
+                      Select Category
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item>
+                      <img className="" src={portal_menu} /> Customer Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <img src={Inventory_img} /> Inventory Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Promotions_img} /> Promotions & Loyalty
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Accounting_img} /> Accounting Potal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Reports_img} /> Reports
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={URM_img} /> URM Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={HR_img} /> HR Portal
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown> */}
                 <ul className="navbar-nav">
                   {/* <li className="nav-item upper-case">{this.props.user.name}</li> */}
                   {/* <li className="nav-item upper-case">Ashok</li>  */}
@@ -850,7 +879,7 @@ class Header extends Component {
                       </div>
                       <div className="itemMain-right text-left">
                         <div className='text_parent'>
-                        <span className="text-left p-l-2 mb-0 ellipsis">{this.state.user[0].toUpperCase()+this.state.user.substring(1)}</span>
+                        <span className="text-left p-l-2 mb-0 ellipsis pt-2">{this.state.user[0].toUpperCase()+this.state.user.substring(1)}</span>
                         </div>
                         <Select className="align drop_select"
                           value={this.state.selectedOption} // set selected value

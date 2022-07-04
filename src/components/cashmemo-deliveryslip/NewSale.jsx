@@ -2425,7 +2425,7 @@ export default class NewSale extends Component {
                         {
                   this.state.enablePayment && (
                     <div className="pay p-l-0">
-                      <h5 className="fs-14 mb-0 font-bold pt-3">Payment Type</h5>
+                      <h5 className="fs-14 font-bold pt-3">Payment Type</h5>
                         <ul>
                           <li>
                             <span>

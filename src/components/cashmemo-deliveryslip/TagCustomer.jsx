@@ -460,7 +460,7 @@ export default class TagCustomer extends Component {
             </div>
             <div className="col-12 col-sm-9">
             <div className="row">
-            <h5 className="mt-2 mb-0 fs-18">Gift Voucher Filters</h5>
+            <h5 className="mt-2 mb-0 fs-18">Filters</h5>
           <div className="col-6 col-sm-3 mt-2 mb-2">
             <div className="form-group">
               <label>From Date</label>

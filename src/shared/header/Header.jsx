@@ -878,8 +878,8 @@ class Header extends Component {
                         <i className="icon-tag_customer"></i>
                       </div>
                       <div className="itemMain-right text-left">
-                        <div className='text_parent'>
-                        <span className="text-left p-l-2 mb-0 ellipsis pt-2">{this.state.user[0].toUpperCase()+this.state.user.substring(1)}</span>
+                        <div className='text_parent pt-2'>
+                        <span className="text-left p-l-2 mb-0 ellipsis">{this.state.user[0].toUpperCase()+this.state.user.substring(1)}</span>
                         </div>
                         <Select className="align drop_select"
                           value={this.state.selectedOption} // set selected value

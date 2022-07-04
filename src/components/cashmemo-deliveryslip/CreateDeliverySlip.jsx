@@ -91,7 +91,7 @@ class CeateDeliverySlip extends Component {
     const storeId = sessionStorage.getItem("storeId");
     const user = JSON.parse(sessionStorage.getItem('user'));
     this.setState({ storeId: storeId, domainId: user["custom:clientId1"] });
-    this.getHsnDetails();
+    // this.getHsnDetails();
     this.keyBinds()
   }
 

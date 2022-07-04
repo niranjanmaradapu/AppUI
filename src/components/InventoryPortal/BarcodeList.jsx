@@ -981,11 +981,13 @@ export default class BarcodeList extends Component {
               <td className="col-1">{domainType}</td>
               <td className="col-2 text-center">
                 {/* <img src={edit} className="w-12 pb-2"  onClick={this.openEditBarcode}/> */}
-                  { <button
-                className="btn-unic-redbdr mt-2"
-                onClick={() => this.openEditBarcode(barcode,'REBAR')}
-              >
-                 REBARCODE
+
+                  { 
+                  
+                  <button
+                className="drop-tog p-1 p-t-0 m-r-2" title="Rebarcode"
+                onClick={() => this.openEditBarcode(barcode,'REBAR')}>
+                 <i className="icon-scan"></i>
               </button> }
                 <img
                   src={edit}

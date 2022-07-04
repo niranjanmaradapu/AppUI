@@ -987,7 +987,7 @@ export default class BarcodeList extends Component {
                   <button
                 className="drop-tog p-1 p-t-0 m-r-2" title="Rebarcode"
                 onClick={() => this.openEditBarcode(barcode,'REBAR')}>
-                 <i className="icon-scan"></i>
+                 <i className="icon-barcode_s"></i>
               </button> }
                 <img
                   src={edit}

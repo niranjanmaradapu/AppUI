@@ -443,10 +443,11 @@ export default class NewSale extends Component {
      this.setState({ isPayment: false })
     const obj = {
 
-      "paymentType": "PKT",
+      "paymentType": "PKTPENDING",
       "paymentAmount": this.state.grandNetAmount
     }
     this.state.paymentType.push(obj);
+    this.setState({ isKathaModel: false });
     this.createInvoice()
   }
   confirmCreditModel() {
@@ -1001,8 +1002,8 @@ export default class NewSale extends Component {
 
     });
 
-    this.setState({ centralGST:cgst });
-    this.setState({ stateGST:sgst });
+    this.setState({ centralGST:Math.round(cgst) });
+    this.setState({ stateGST:Math.round(sgst )});
 
     // if (!slabCheck) {
     //   this.setState({ stateGST: 70, centralGST: 70 });

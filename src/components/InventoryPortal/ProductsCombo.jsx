@@ -206,7 +206,7 @@ export default class ProductsCombo extends Component {
         const obj = {};
         obj.id = itm.id;
         obj.barcode = itm.barcode;
-        obj.qty = itm.qty;
+        obj.qty = itm.quantity;
         obj.itemMrp = itm.itemMrp;
         return obj;
       });

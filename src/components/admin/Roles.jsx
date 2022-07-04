@@ -456,9 +456,9 @@ getSelectedPrivileges(parentsList, childList) {
                                 <th className="col-2">Role</th>
                                 {/* <th className="col-2">Domain</th> */}
                                 <th className="col-2">Created By</th>
-                                <th className="col-2 p-l-1">Created Date</th>
-                                <th className="col-1 p-l-0">User Count</th>
-                                <th className="col-2 p-l-0">Description</th>
+                                <th className="col-2">Created Date</th>
+                                <th className="col-1">User Count</th>
+                                <th className="col-2">Description</th>
                                 <th className="col-1"></th>
                             </tr>
                         </thead>

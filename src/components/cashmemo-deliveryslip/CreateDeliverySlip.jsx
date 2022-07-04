@@ -918,10 +918,10 @@ class CeateDeliverySlip extends Component {
                   </button>
                 </div>
               </div>
-              <div className="col-sm-2 col-6 pt-4 mt-1 cursor">
-                <img src={print}></img> <span className="text-red"
+              <div className="col-sm-2 col-6 p-l-0 p-r-0 pt-4 cursor">
+                 <button type="button" className="btn-unic scaling-mb"
                   onClick={this.openPrinterPopup}
-                >Connect To Printer (Ctrl+p)</span>
+                ><i className="icon-print"></i> Connect To Printer <span className="fs-10">(Ctrl+p)</span> </button>
               </div>
               <div className="col-sm-3 scaling-ptop col-6">
                 <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">

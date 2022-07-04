@@ -458,7 +458,7 @@ class CeateDeliverySlip extends Component {
             <div className="rect-red m-0">
               <div className="row">
                 <div className="col-3"></div>
-                <div className="col-2 text-center">
+                <div className="col-2">
                   <label>TOTAL QTY</label>
                   <h6 className="pt-2">{this.state.totalQuantity}</h6>
                 </div>
@@ -468,13 +468,13 @@ class CeateDeliverySlip extends Component {
                   <h6 className="pt-2">{this.state.mrpAmount} ₹</h6>
                 </div> */}
                 <div className="col-2"></div>
-                <div className="col-2">
+                <div className="col-2 p-l-0">
                   <label>PROMO DISCOUNT</label>
                   <h6 className="pt-2">{this.state.promoDisc} ₹</h6>
                 </div>
                 <div className="col-1"></div>
-                <div className="col-2  pt-2  text-red p-r-4">
-                  <label className="text-red ">GRAND TOTAL</label>
+                <div className="col-2 pt-2 text-red p-r-4 p-l-0">
+                  <label className="text-red">GRAND TOTAL</label>
                   <h6 className="fs-16 text-red ">{this.state.mrpAmount} ₹</h6>
                 </div>
               </div>
@@ -490,8 +490,8 @@ class CeateDeliverySlip extends Component {
   renderDivData() {
 
     return (
-      <div className="table-responsive">
-        <table className="table table-borderless mb-1">
+      <div className="table-responsive t-scroll">
+        <table className="table table-borderless mb-0">
           <thead>
             <tr>
               {/* <th className="col-1"> </th> */}
@@ -507,8 +507,7 @@ class CeateDeliverySlip extends Component {
               <th className="col-2">Total</th>
             </tr>
           </thead>
-        </table>
-        <table className="table table-borderless mb-1 gfg">
+     
           <tbody>
             {this.state.barList.map((items, index) => {
               return (
@@ -521,7 +520,7 @@ class CeateDeliverySlip extends Component {
                       htmlFor="check1"></label> */}
                         {/* <img src={dress1} className="mt-2" /> */}
                       </div>
-                      <div className="td_align pt-0">
+                      <div className="td_align pt-0 p-l-0">
                         {/* <label>{items.productTextile.itemCode}</label> */}
                         <label className="">{items.barcode}</label>
                       </div>
@@ -541,7 +540,7 @@ class CeateDeliverySlip extends Component {
                   <td className="col-1">₹{items.itemMrp}</td>
                   <td className="col-2"></td>
                   <td className="col-1"> {items?.itemDiscount}</td>
-                  <td className="col-2 w-100">₹ {items.totalMrp}
+                  <td className="col-2 pt-0 w-100">₹ {items.totalMrp}
                     <i className="icon-delete m-l-2"
                       onClick={(e) => {
                         this.state.itemsList.splice(index, 1);

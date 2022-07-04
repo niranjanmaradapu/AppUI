@@ -455,7 +455,7 @@ class CeateDeliverySlip extends Component {
                          </ul>
                      </div> */}
             <div>{this.renderDivData()}</div>
-            <div className="rect-cardred m-0">
+            <div className="rect-red m-0">
               <div className="row">
                 <div className="col-3"></div>
                 <div className="col-2 text-center">
@@ -513,17 +513,17 @@ class CeateDeliverySlip extends Component {
             {this.state.barList.map((items, index) => {
               return (
                 <tr key={index}>
-                  <td className="col-3 geeks">
+                  <td className="col-3">
                     <div className="d-flex">
                       <div className="custom-control t_image custom-checkbox V1_checkbox-label mt-3">
                         {/* <input className="custom-control-input" type="checkbox" id="check1" /> */}
                         {/* <label className="custom-control-label V1_custom-control-label p-t-0 fs-14"
                       htmlFor="check1"></label> */}
-                        <img src={dress1} className="mt-2" />
+                        {/* <img src={dress1} className="mt-2" /> */}
                       </div>
-                      <div className="td_align ">
+                      <div className="td_align pt-0">
                         {/* <label>{items.productTextile.itemCode}</label> */}
-                        <label className="pt-3">{items.barcode}</label>
+                        <label className="">{items.barcode}</label>
                       </div>
 
                     </div>
@@ -907,14 +907,14 @@ class CeateDeliverySlip extends Component {
                 </button> */}
                   <button
                     className={
-                      "btn-login btn-create" +
+                      "btn-login btn-create fs-14" +
                       (!this.state.isCheckPromo ? " btn-disable" : "")
                     }
                     onClick={this.checkPromo}
                     disabled={!this.state.isCheckPromo}
                   >
                     Check Promo Discount
-                    (Alt+k)
+                    <span className="fs-10"> (Alt+k)</span>
                   </button>
                 </div>
               </div>

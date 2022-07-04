@@ -420,7 +420,7 @@ export default class GenerateReturnSlip extends Component {
                   <input
                     type="search"
                     className="form-control"
-                    placeholder="CUSTMER PHONE NUMBER"
+                    placeholder="Customer Phone Number"
                     maxLength="10"
                     // value={this.state.mobileNo}
                     value={this.state.mobileNumber}

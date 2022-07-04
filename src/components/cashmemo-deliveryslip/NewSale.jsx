@@ -1599,7 +1599,7 @@ export default class NewSale extends Component {
 
 
     return this.state.showTable && (
-      <div className="p-l-0">
+      <div className="p-l-0 t-scroll">
         {/* {
           this.state.isTextile && ( */}
             <div className="table-responsive">
@@ -1708,19 +1708,17 @@ export default class NewSale extends Component {
     return (
 
 
-      <div className="maincontent pt-0">
+      <div className="maincontent pt-0 o-flow">
 
 
-        <Modal isOpen={this.state.isUPIModel} size="lg">
+        <Modal isOpen={this.state.isUPIModel} size="sm">
           <ModalHeader>
             UPI
           </ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="col-4">
+          <ModalBody className="p-3">
+            <div className="row mt-2 mb-3">
+              <div className="form-group">
                 <label>Net Payable Amount: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1729,12 +1727,19 @@ export default class NewSale extends Component {
                   disabled
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div> */}
             </div>
-            <div className="row">
-              <div className="col-4">
+            <div className="row mb-2">
+              <div className="form-group">
                 <label>Mobile Number: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1749,6 +1754,21 @@ export default class NewSale extends Component {
 
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  minLength="10"
+                  maxlength="10"
+                  value={this.state.upiMobilenumber}
+                  autoComplete="off"
+                  onChange={(e) =>
+                    this.setState({ upiMobilenumber: e.target.value })
+                  }
+
+                />
+              </div> */}
             </div>
           </ModalBody>
           <ModalFooter>
@@ -1766,16 +1786,14 @@ export default class NewSale extends Component {
         </Modal>
 
 
-        <Modal isOpen={this.state.isCCModel} size="lg">
+        <Modal isOpen={this.state.isCCModel} size="sm">
           <ModalHeader>
             Cash & Card Payment
           </ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="col-4">
+          <ModalBody className="p-3">
+            <div className="row mt-2 mb-3">
+              <div className="form-group">
                 <label>Net Payable Amount: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1784,12 +1802,19 @@ export default class NewSale extends Component {
                   disabled
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div> */}
             </div>
-            <div className="row">
-              <div className="col-4">
+            <div className="row mb-2">
+              <div className="form-group">
                 <label>Collected Cash: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1808,6 +1833,25 @@ export default class NewSale extends Component {
 
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.ccCollectedCash}
+                  onChange={(e) =>
+                    this.setState({ ccCollectedCash: e.target.value }, () => {
+                      if (this.state.ccCollectedCash < this.state.grandNetAmount) {
+                        let ccReturn = this.state.grandNetAmount - this.state.ccCollectedCash;
+                        this.setState({ ccCardCash: ccReturn });
+                        console.log("+++++++++++++++++"+ccReturn);
+
+                      }
+                    })
+                  }
+
+                />
+              </div> */}
             </div>
           </ModalBody>
           <ModalFooter>
@@ -1823,16 +1867,17 @@ export default class NewSale extends Component {
           </ModalFooter>
 
         </Modal>
-        <Modal isOpen={this.state.isKathaModel} size="lg">
+        <Modal isOpen={this.state.isKathaModel} size="sm">
           <ModalHeader>
             Katha Payment
           </ModalHeader>
-          <ModalBody>
-          <div className="row">
-              <div className="col-4">
+          <ModalBody className="p-3">
+          <div className="row mt-2 mb-3">
+              <div className="form-group">
                 {/* <label> Cash: </label> */}
+                <span>Adding Payment Details on Katha</span>
               </div>
-              <div className="col-8">
+              {/* <div className="col-8"> */}
                 {/* <input
                   type="text"
                   name="cash"
@@ -1842,14 +1887,12 @@ export default class NewSale extends Component {
                     this.setState({ payCreditAmount: e.target.value })
                   }
                 /> */}
-                <span>Adding Payment Details on Katha</span>
-              </div>
+                {/* <span>Adding Payment Details on Katha</span> */}
+              {/* </div> */}
             </div>
-            <div className="row">
-              <div className="col-4">
+            <div className="row mb-2">
+              <div className="form-group">
                 <label>Katha Amount: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1858,6 +1901,15 @@ export default class NewSale extends Component {
                   disabled
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div> */}
             </div>
           
 
@@ -1880,16 +1932,14 @@ export default class NewSale extends Component {
 
 
 
-        <Modal isOpen={this.state.isCreditModel} size="lg">
+        <Modal isOpen={this.state.isCreditModel} size="sm">
           <ModalHeader>
             Credit Payment
           </ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="col-4">
+          <ModalBody className="p-3">
+            <div className="row mt-2 mb-3">
+              <div className="form-group">
                 <label>Credit Amount: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1898,12 +1948,19 @@ export default class NewSale extends Component {
                   disabled
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.creditAmount}
+                  disabled
+                />
+              </div> */}
             </div>
-            <div className="row">
-              <div className="col-4">
+            <div className="row mb-2">
+              <div className="form-group">
                 <label> Cash: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1914,6 +1971,17 @@ export default class NewSale extends Component {
                   }
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.payCreditAmount}
+                  onChange={(e) =>
+                    this.setState({ payCreditAmount: e.target.value })
+                  }
+                />
+              </div> */}
             </div>
 
           </ModalBody>
@@ -1937,16 +2005,14 @@ export default class NewSale extends Component {
 
         <Modal
           isOpen={this.state.isgvModel}
-          size="lg"
+          size="sm"
           onRequestHide={this.hideGVModel}
         >
           <ModalHeader>Issue GV Number</ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="col-4">
+          <ModalBody className="p-3">
+            <div className="row mt-2 mb-3">
+              <div className="form-group">
                 <label> GV Number: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1958,8 +2024,19 @@ export default class NewSale extends Component {
                   autoComplete="off"
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.gvNumber}
+                  onChange={(e) =>
+                    this.setState({ gvNumber: e.target.value })
+                  }
+                  autoComplete="off"
+                />
+              </div> */}
             </div>
-            <br></br>
           </ModalBody>
           <ModalFooter>
             <button className="pt-2 btn-bdr" onClick={this.hideGVModel}>
@@ -2051,16 +2128,14 @@ export default class NewSale extends Component {
         </Modal>
         <Modal
           isOpen={this.state.isCash}
-          size="lg"
+          size="sm"
           onRequestHide={this.hideCashModal}
         >
           <ModalHeader>Cash Payment</ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="col-4">
+          <ModalBody className="p-3 ">
+            <div className="row mt-2 mb-3">
+              <div className="form-group">
                 <label>Net Payable Amount: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -2069,12 +2144,19 @@ export default class NewSale extends Component {
                   disabled
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div> */}
             </div>
-            <div className="row">
-              <div className="col-4">
+            <div className="row mb-2">
+              <div className="form-group">
                 <label>Collected Cash: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -2086,8 +2168,20 @@ export default class NewSale extends Component {
                   }
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  id="collectedCash"
+                  className="form-control"
+                  value={this.state.cashAmount}
+                  onChange={(e) =>
+                    this.setState({ cashAmount: e.target.value })
+                  }
+                />
+              </div> */}
             </div>
-            <br></br>
+            {/* <br></br> */}
           </ModalBody>
           <ModalFooter>
             <button className="pt-2 btn-bdr" onClick={this.hideCashModal}>
@@ -2156,13 +2250,13 @@ export default class NewSale extends Component {
                    <div className="newsale-body-left">
                    <div className="">
               <div className="row m-r-0">
-                <div className="col-12 col-sm-4">
+                <div className="col-12 col-sm-3 p-r-0 mt-2">
                   <div className="form-group fm-height">
 
                     {/* {
                       this.state.isTextile && ( */}
                         <div>
-                           <label>ES Number</label>
+                           {/* <label>ES Number</label> */}
                           {/* <input type="text" className="form-control frm-pr"
                             value={this.state.dsNumber}
                             onKeyPress={this.getDeliverySlipDetails}
@@ -2211,24 +2305,24 @@ export default class NewSale extends Component {
                   this.state.showTable && (
 
 
-                    <div className="col-12 col-sm-8 scaling-center p-t-5 text-right p-r-0">
+                    <div className="col-12 col-sm-9 scaling-center p-t-2 text-right">
 
                       <button
                         type="button"
-                        className={"m-r-2  scaling-mb " + (this.state.isCredit ? " btn-unic btn-disable" : " btn-unic active")}
+                        className={"m-r-2  scaling-mb " + (this.state.isTagCustomer ? " btn-unic btn-disable" : " btn-unic active")}
                         onClick={this.toggleModal}
-                      >Tag Customer (Alt+t) </button>
+                      >Tag Customer <span className="fs-10">(Alt+t)</span> </button>
                       <button
                         className={" m-r-2 scaling-mb " + (this.state.isBillLevel ? "btn-unic btn-disable" : "btn-unic active")}
                         onClick={this.showDiscount}
                         disabled={(this.state.isBillLevel )}
-                        >Bill Level Discount (Alt+b)</button>
+                        >Bill Level Discount <span className="fs-10">(Alt+b)</span></button>
                         <button
                         type="button"
-                        className="btn-unic m-r-2 active scaling-mb"
+                        className="btn-unic active scaling-mb"
                         onClick={this.invoiceLevelCheckPromo}
 
-                        > Check Promo Discount (Alt+k)
+                        > Check Promo Discount <span className="fs-10">(Alt+k)</span>
                         </button>
 
                     </div>
@@ -2241,7 +2335,7 @@ export default class NewSale extends Component {
               </div>
               <div className="row m-0 p-0">
                 <div className="col-12 col-sm-4 scaling-center p-l-0">
-                  <h5 className="fs-18">
+                  <h5 className="fs-14">
                     Order Details
                   </h5>
                 </div>
@@ -2253,7 +2347,7 @@ export default class NewSale extends Component {
                   this.state.showTable && (
 
                     <div className="p-l-0">
-                      <div className="rect-cardred m-0">
+                      <div className="rect-red m-0">
                         <div className="row">
                           <div className="col-2 text-center">
                             <label>Items : <span className="font-bold"> {this.state.barCodeList.length}</span></label>
@@ -2278,63 +2372,66 @@ export default class NewSale extends Component {
 
                         </div>
                       </div>
-
-                      <div className="row p-0 m-0 mt-2">
-                        <div className="col-6 p-l-0">
-                          <h5 className="mb-0 mt-2 fs-18">
-                            Customer Details
-                          </h5>
-                        </div>
-                        <div className="col-6"></div>
-                        <table className="table table-borderless mb-0 mt-2 p-l-0 p-r-0">
-                          <thead>
-                            <tr className="m-0 p-0">
-                              <th className="col-3">NAME</th>
-                              <th className="col-3">MOBILE NUMBER</th>
-                              <th className="col-3">LOYALTY POINTS</th>
-                              <th className="col-3">EXPIRY DATE</th>
-
-                            </tr>
-                          </thead>
-                        </table>
-                        <table className="table table-borderless gfg mb-0 p-l-0 p-r-0">
-                          <tbody>
-                            <tr>
-                              <td className="col-3 geeks">
-                                {/* John Peter */}
-                                {this.state.customerFullName}
-                              </td>
-                              <td className="col-3"> {this.state.customerMobilenumber}</td>
-                              <td className="col-3">
-                                <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                                  {/* <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" /> */}
-                                  <label className="form-check-label" htmlFor="roundedExample2"> </label>
-
-
-                                </div>
-                              </td>
-                              <td className="col-3"></td>
-
-                            </tr>
-
-                          </tbody>
-                        </table>
                       </div>
-                    </div>
 
-                  )
-                }
+)
+}
 
-       {
+<div className="row p-0 m-0 mt-2">
+{
+                  this.state.isTagCustomer && (
+
+                    <div className="col-6 p-l-0 t-scroll">
+                    <h5 className="mb-0 mt-2 fs-14">
+                      Customer Details
+                    </h5>
+                    <table className="table table-borderless mb-0 mt-2 p-l-0 p-r-0">
+                    <thead>
+                      <tr className="m-0 p-0">
+                        <th className="col-3">NAME</th>
+                        <th className="col-3">MOBILE</th>
+                        <th className="col-3">REWARDS</th>
+                        <th className="col-3">EXPIRY</th>
+
+                      </tr>
+                    </thead>
+                  </table>
+                  <table className="table table-borderless mb-0 p-l-0 p-r-0">
+                    <tbody>
+                      <tr>
+                        <td className="col-3 geeks">
+                          {/* John Peter */}
+                          {this.state.customerFullName}
+                        </td>
+                        <td className="col-3"> {this.state.customerMobilenumber}</td>
+                        <td className="col-3">
+                          <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                            {/* <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" /> */}
+                            <label className="form-check-label" htmlFor="roundedExample2"> </label>
+
+
+                          </div>
+                        </td>
+                        <td className="col-3"></td>
+
+                      </tr>
+
+                    </tbody>
+                  </table>
+                  </div>
+
+                  )}
+                  <div className="col-6 p-l-0">
+                        {
                   this.state.enablePayment && (
                     <div className="pay p-l-0">
-                      <h5 className="fs-18 mb-2 font-bold pt-3">Payment Type</h5>
+                      <h5 className="fs-14 mb-0 font-bold pt-3">Payment Type</h5>
                         <ul>
                           <li>
                             <span>
                               {/* <img src={card} onClick={this.getCardModel} /> */}
                               <i className="icon-card" onClick={this.getCardModel}></i>
-                              <label>CARD (F1)</label>
+                              <label>CARD <div className="key">(F1)</div></label>
                             </span>
 
                           </li>
@@ -2342,7 +2439,7 @@ export default class NewSale extends Component {
                             <span>
                               {/* <img src={cash} onClick={this.getCashModel} /> */}
                               <i className="icon-cash" onClick={this.getCashModel}></i>
-                              <label>CASH (F2)</label>
+                              <label>CASH <div className="key">(F2)</div></label>
                             </span>
 
                           </li>
@@ -2399,7 +2496,7 @@ export default class NewSale extends Component {
                             <span>
                               {/* <img src={khata} onClick={this.getGvModel} /> */}
                               <i className="icon-khata" onClick={this.getGvModel}></i>
-                              <label> GV</label>
+                              <label>GV</label>
                             </span>
 
                           </li>
@@ -2409,6 +2506,12 @@ export default class NewSale extends Component {
                     </div>
                   )
                 }
+                        </div>
+
+</div>
+
+
+    
               </div>
             </div>
                   </div>

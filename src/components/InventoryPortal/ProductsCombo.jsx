@@ -27,6 +27,7 @@ export default class ProductsCombo extends Component {
       listOfProductBundle: [],
       commonFieldsErr:false,
       isEdit:false,
+      deletFlag : true,
       fromDate: '',
       toDate: '',
       comboPrice: '',
@@ -43,6 +44,9 @@ export default class ProductsCombo extends Component {
   }
   componentWillMount() {
     const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
+    if(this.state.isEdit){
+      this.setState({deletFlag:false})
+    }
     let domainId;
     // if(selectedDomain.label === 'Textile') {
     //   domainId = 1;
@@ -391,7 +395,7 @@ handleChange (){
                   <input
                     type="text"
                     className="form-control"
-                    // disabled={this.state.isEdit}
+                     disabled={this.state.isEdit}
                     value={this.state.dsNumber}
                     placeholder="ENTER BARCODE"
                     onChange={(e) => this.setState({ dsNumber: e.target.value })}
@@ -442,9 +446,13 @@ handleChange (){
                    
                                         </div>
                                         {/* <span style={{ color: "red" }}>{this.state.error["listOfProducts"]}</span> */}
+                                        
                                       </th>
+           
                                       {this.state.listOfProducts.length > 1 && <td className="col-1 text-center">
-                                        <i onClick={() => this.handleRemoveSpecificRow(index)} className="icon-delete m-l-2 fs-16"></i>
+                                       
+                                       <i onClick={() => this.handleRemoveSpecificRow(index)}  className="icon-delete m-l-2 fs-16" ></i>
+                                       
                                       </td>}
                                       </tr> 
                                     )
@@ -459,7 +467,9 @@ handleChange (){
               Cancel
             </button>
             <button
-              className="btn-unic active fs-12"
+              className="btn-unic active fs-12 + btn-disable"
+              
+              disabled={this.state.isEdit}
               onClick={this.saveProductBundle}
             >
               Save

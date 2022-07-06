@@ -473,6 +473,7 @@ export default class NewSale extends Component {
 
       this.state.paymentType.push(obj);
     }
+    this.setState({cashAmount:this.state.grandNetAmount , payingAmount:this.state.grandNetAmount})
     const grandAmount = this.state.grandNetAmount >= this.state.payCreditAmount ? this.state.grandNetAmount - this.state.payCreditAmount : 0
     this.setState({isCreditAmount: true, grandNetAmount:grandAmount});
 

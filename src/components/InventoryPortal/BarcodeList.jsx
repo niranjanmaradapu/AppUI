@@ -507,7 +507,7 @@ export default class BarcodeList extends Component {
 
   dateFormat = (d) => {
     let date = new Date(d)
-    return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes()
+    return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
   }
 
   getAllStoresList() {
@@ -561,7 +561,7 @@ export default class BarcodeList extends Component {
             colour: barcode.colour,
             costPrice: barcode.costPrice,
             listPrice: barcode.listPrice,
-            productValidity: barcode.productValidity,
+            productValidity: this.dateFormat(barcode.createdDate),
             storeId: barcode.storeId,
             empId: barcode.empId,
             uom: barcode.uom,
@@ -577,6 +577,7 @@ export default class BarcodeList extends Component {
             barcodeId: barcode.barcodeId,
             productTextileId: barcode.id,
             barcodeTextileId: barcode.barcodeTextileId,
+                productValidity: barcode.createdDate.split("T")[0],
             costPrice: barcode.costPrice,
             storeId: barcode.storeId,
             empId: barcode.empId,
@@ -602,10 +603,10 @@ export default class BarcodeList extends Component {
   }
 
   setDropdowns(isEdit) {
+    this.getHsnDetails();
+    this.getAllUoms();
     if (isEdit && this.state.domainDetailsObj === "Textile") {
       this.getAllDivisions(this.state.selectedDomain);
-      this.getHsnDetails();
-      this.getAllUoms();
       this.getAllCategories(this.state.selectedDomain);
       this.getAllSections(this.state.division,this.state.selectedDomain);
       this.getAllSubsections(this.state.section,this.state.selectedDomain);

@@ -320,12 +320,43 @@ handleChange (){
       }
     });
   }
-  handleQtyChange = (idx, e) => {
-    let listOfProducts = this.state.listOfProducts;
-    listOfProducts[idx][e.target.name] = e.target.value;
-    this.setState({ listOfProducts });
+  handleQtyChange = (idx,item, e) => {
+    // let listOfProducts = this.state.listOfProducts;
+    // listOfProducts[idx][e.target.value] = e.target.value;
+    // this.setState({ listOfProducts });
+    // this.setState({ isgetLineItems: true })
+    if (e.target.value !== "") {
+      item.quantity = parseInt(e.target.value);
+      let qty = item.quantity;
+      if (item.quantity <= item.qty) {
+        this.setState({ qty: e.target.value });
+
+
+        item.quantity = parseInt(e.target.value);
+        //let totalcostMrp = item.itemMrp * parseInt(e.target.value);
+
+        //item.totalMrp = totalcostMrp
+
+      } else {
+        //this.setState({ isgetLineItems: false })
+        toast.info("Insufficient Quantity");
+      }
+    } else {
+      item.quantity = parseInt(e.target.value);
+    }
+
+    let totalqty = 0;
+    this.state.listOfProductBundle.forEach(bardata => {
+      // grandTotal = grandTotal + bardata.totalMrp;
+      // promoDiscount = promoDiscount + bardata?.itemDiscount;
+      totalqty = totalqty + parseInt(bardata.quantity)
+    });
+
+    this.setState({ qty: totalqty });
+
+
+  
   }
- 
   preventMinus = (e) => {
     if (e.code === "Minus") {
       e.preventDefault();
@@ -441,7 +472,7 @@ handleChange (){
                                             disabled={this.state.isEdit}
                                             placeholder=""
                                             value={!this.state.isEdit ? item.quantity : item.qty}
-                                            onChange={e => this.handleQtyChange(index, e)}
+                                            onChange={e => this.handleQtyChange(index,item, e)}
                                           />
                    
                                         </div>
@@ -467,8 +498,8 @@ handleChange (){
               Cancel
             </button>
             <button
-              className="btn-unic active fs-12 + btn-disable"
-              
+              //className="btn-unic active fs-12 + btn-disable"
+              className={!this.state.isEdit? "btn-unic active fs-12" : "btn-disable"}
               disabled={this.state.isEdit}
               onClick={this.saveProductBundle}
             >

@@ -147,10 +147,13 @@ export default class SalesReport extends Component {
   }
 
   renderTableData() {
+    console.log("this.state.sbList?.content",this.state.sbList.content)
     return this.state.sbList?.content?.map((items, index) => {
       const {
         invoiceNumber,
         empId,
+        netPayableAmount,
+        discount,
         createdDate,
         status,
         billStatus,
@@ -159,8 +162,10 @@ export default class SalesReport extends Component {
       return (
         <tr className="" key={index}>
           <td className="col-1">{index + 1}</td>
-          <td className="col-3">{invoiceNumber}</td>
-          <td className="col-2">{empId}</td>
+          <td className="col-2">{invoiceNumber}</td>
+          <td className="col-1">{empId}</td>
+          <td className="col-2">{netPayableAmount}</td>
+          <td className="col-1">{discount}</td>
           <td className="col-2">{createdDate}</td>
           {/* <td className="col-2">
             {billStatus && <button className="btn-active">{billStatus}</button>}
@@ -194,6 +199,8 @@ export default class SalesReport extends Component {
           quantity,
           itemPrice,
           discount,
+          approvedBy,
+          reason,
           taxLabel,
           taxValue,
           // taxableAmount,
@@ -212,6 +219,8 @@ export default class SalesReport extends Component {
             <td width="5%">{quantity}</td>
             <td width="5%">{itemPrice}</td>
             <td width="5%">{discount}</td>
+            <td width="10%">{approvedBy}</td>
+            <td width="5%">{reason}</td>
             <td width="5%">{taxLabel}</td>
             <td width="10%">{taxValue}</td>
             <td width="5%">{cgst}</td>
@@ -310,7 +319,8 @@ export default class SalesReport extends Component {
                     <th width="5%">QTY</th>
                     <th width="5%">mrp</th>
                     <th width="5%">Disc</th>
-                    <th width="5%">GST%</th>
+                    <th width="10%">APPROVED BY</th>
+                    <th width="5%">REASON</th>
                     <th width="10%">Tax Amount</th>
                     <th width="5%">CGST</th>
                     <th width="10%">SGST</th>
@@ -388,7 +398,7 @@ export default class SalesReport extends Component {
                 {/* <option>New</option>
                 <option>Pending</option> */}
 
-                <option>success</option>
+                <option>Completed</option>
                 <option>Cancelled</option>
               </select>
             </div>
@@ -476,8 +486,10 @@ export default class SalesReport extends Component {
               <thead>
                 <tr className="m-0 p-0">
                   <th className="col-1">S.NO</th>
-                  <th className="col-3">Invoice Number</th>
-                  <th className="col-2">EMP ID</th>
+                  <th className="col-2">Invoice Number</th>
+                  <th className="col-1">EMP ID</th>
+                  <th className="col-2">TOTAL AMOUNT</th>
+                  <th className="col-1">DISCOUNT</th>
                   <th className="col-2">INVOICE DATE</th>
                   <th className="col-2">Bill Position</th>
                   <th className="col-2"></th>

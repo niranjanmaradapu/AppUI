@@ -291,21 +291,29 @@ export default class Roles extends Component {
             this.state.parentsList.push(obj);
             this.state.childList.push(selectedChild);
         } else {
+            this.state.parentsList = this.removeDuplicates(this.state.parentsList, "name");
             // Removing childs
             let index1 = this.state.childList.findIndex(ele => ele.name === selectedChild.name);
             this.state.childList.splice(index1, 1);
             let isParent = false;
             if (this.state.parentsList.length > 0 && this.state.childList.length > 0) {
                 this.state.childList.forEach(child => {
-                    if (child.parentPrivillageId === selectedNode.id) {
+                    if (child.parentPrivilegeId === selectedNode.id) {
                         isParent = true;
                     }
                 });
             }
             if (!isParent) {
-                let index = this.state.parentsList.findIndex(ele => ele.name === selectedNode.name);
+                let index = this.state.parentsList.findIndex(ele => ele.id === selectedNode.id);
                 this.state.parentsList.splice(index, 1);
             }
+            let parentsObjList =  this.state.parentsList.map((parent, ind) => {
+                let obj = {};
+                obj.id = parent.id;
+                obj.name = parent.name;
+                return obj;
+            });
+            this.state.parentsList = parentsObjList;
         }
         const parentsList = this.removeDuplicates(this.state.parentsList, "name");
         this.setState({ parentsList: parentsList });

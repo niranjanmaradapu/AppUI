@@ -110,6 +110,10 @@ export default class ListOfReturnSlips extends Component {
           hsnCode:d.hsnCode,
           costPrice:d.costPrice,
           batchNo:d.batchNo,
+          category:d.category,
+          division:d.division,
+          name:d.name,
+          domainType:d.domainType,
           originalBarcodeCreatedAt:d.originalBarcodeCreatedAt,
           storeId: d.storeId,
           empId: d.empId,
@@ -142,10 +146,15 @@ export default class ListOfReturnSlips extends Component {
       barcode: "",
       hsnCode:"",
       batchNo:"",
+      category:"",
+      division:"",
+      domainType:"",
+      name:"",
+      empId:"",
       costPrice:"",
       itemMrp: "",
       originalBarcodeCreatedAt:"",
-      storeName: "",
+      // storeName: "",
       // qty: "",
     };
 
@@ -153,6 +162,11 @@ export default class ListOfReturnSlips extends Component {
       barcode: filterData[0].barcode,
       hsnCode: filterData[0].hsnCode,
       batchNo: filterData[0].batchNo,
+      category: filterData[0].category,
+      division: filterData[0].division,
+      domainType: filterData[0].domainType,
+      name:filterData[0].name,
+      empId:filterData[0].empId,
       costPrice: filterData[0].costPrice,
       itemMrp: filterData[0].itemMrp,
       originalBarcodeCreatedAt: filterData[0].originalBarcodeCreatedAt,
@@ -296,14 +310,19 @@ export default class ListOfReturnSlips extends Component {
   renderPopupTableData() {
     if (this.state.popupData) {
       // return this.state.popupData.map((items, index) => {
-      const { barcode,batchNo,costPrice,hsnCode,originalBarcodeCreatedAt,itemMrp, storeName, qty } = this.state.popupData;
+      const { barcode,hsnCode,batchNo,category,division,domainType,name,empId,costPrice,originalBarcodeCreatedAt,itemMrp, storeName, qty } = this.state.popupData;
       return (
         <tr>
           <td className="col-2">{barcode}</td>
-          <td className="col-2">{hsnCode}</td>
-          <td className="col-2">{batchNo}</td>
-          <td className="col-2">{costPrice}</td>
-          <td className="col-2">{itemMrp}</td>
+          <td className="col-1">{hsnCode}</td>
+          <td className="col-1">{batchNo}</td>
+          <td className="col-1">{category}</td>
+          <td className="col-1">{division}</td>
+          <td className="col-1">{domainType}</td>
+          <td className="col-1">{name}</td>
+          <td className="col-1">{empId}</td>
+          <td className="col-1">{costPrice}</td>
+          <td className="col-1">{itemMrp}</td>
           <td className="col-2">{originalBarcodeCreatedAt}</td>
          </tr>
       );
@@ -321,10 +340,15 @@ export default class ListOfReturnSlips extends Component {
                 <thead>
                   <tr className="m-0 p-0">
                     <th className="col-2">BARCODE</th>
-                    <th className="col-2">HSNCODE</th>
-                    <th className="col-2">BATCH NO.</th>
-                    <th className="col-2">COST PRICE</th>
-                    <th className="col-2">MRP</th>
+                    <th className="col-1">HSNCODE</th>
+                    <th className="col-1">BATCH NO.</th>
+                    <th className="col-1">CATEGORY</th>
+                    <th className="col-1">DIVISION</th>
+                    <th className="col-1">DOMAIN</th>
+                    <th className="col-1">NAME</th>
+                    <th className="col-1">EMP ID</th>
+                    <th className="col-1">COST PRICE</th>
+                    <th className="col-1">MRP</th>
                     <th className="col-2">CREATED DATE</th>
                     </tr>
                 </thead>
@@ -458,7 +482,7 @@ export default class ListOfReturnSlips extends Component {
 
           <div className="col-6 col-sm-2 mt-2">
             <div className="form-group">
-              <label>Barcode MRP GraterThan </label>
+              <label>Barcode MRP GreaterThan </label>
               <input
                 type="text"
                 className="form-control"

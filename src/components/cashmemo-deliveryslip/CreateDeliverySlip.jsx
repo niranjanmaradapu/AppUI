@@ -23,6 +23,7 @@ import NewSaleService from "../../services/NewSaleService";
 import PrinterStatusBill from "../../commonUtils/PrintService";
 import { errorLengthMin, errorLengthMax, createDelivery_Err_Msg } from "../../commonUtils/Errors";
 import print from '../../assets/images/print_red.svg';
+import eventBus from "../../commonUtils/eventBus";
 class CeateDeliverySlip extends Component {
   constructor(props) {
     super(props);
@@ -66,7 +67,8 @@ class CeateDeliverySlip extends Component {
       ],
       dropValue: "",
       isGenerate: false,
-      lineItemsList: []
+      lineItemsList: [],
+      printBtn: false,
     };
     //  this.getDeliverySlips();
     this.getDataFromDB();
@@ -93,6 +95,17 @@ class CeateDeliverySlip extends Component {
     this.setState({ storeId: storeId, domainId: user["custom:clientId1"] });
     // this.getHsnDetails();
     this.keyBinds()
+    var item_value = sessionStorage.getItem("print_config");
+    console.log({ item_value });
+    eventBus.on("printerStatus", (data) => {
+      console.log({data})
+      if(data.message === "OK"){
+          this.setState({printBtn: true})
+      }
+    })
+    if (item_value === "OK") {
+    this.setState({printBtn: true})
+  } 
   }
 
   keyBinds() {
@@ -732,6 +745,8 @@ class CeateDeliverySlip extends Component {
   connectPrinter() {
     sessionStorage.setItem("printerIp", JSON.stringify(this.state.ipAddress));
     sessionStorage.setItem("printerPort", JSON.stringify(this.state.port));
+    let print = "connected"
+    PrinterStatusBill('start', print,null)
     this.hideModal()
   }
   generateNew() {
@@ -917,11 +932,17 @@ class CeateDeliverySlip extends Component {
                   </button>
                 </div>
               </div>
+              {this.state.printBtn ?
+              <div className="col-sm-2 col-6 p-l-0 p-r-0 pt-4 cursor">
+                <h3 className="fs-12">Printer Connected</h3>
+              </div>
+              :              
               <div className="col-sm-2 col-6 p-l-0 p-r-0 pt-4 cursor">
                  <button type="button" className="btn-unic scaling-mb"
                   onClick={this.openPrinterPopup}
                 ><i className="icon-print"></i> Connect To Printer <span className="fs-10">(Ctrl+p)</span> </button>
               </div>
+  }
               <div className="col-sm-3 scaling-ptop col-6">
                 <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
                   <input type="checkbox" className="form-check-input filled-in"

@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import eventBus from "./eventBus";
 
 
 const PrinterStatusBill = (type,barcode,object) => {
@@ -35,6 +36,7 @@ const PrinterStatusBill = (type,barcode,object) => {
     function callBack_connect(data) {
       if (data === "OK") {
         sessionStorage.setItem('print_config',data);
+        eventBus.dispatch("printerStatus", {message: data})
         ePosDev.createDevice(
           "local_printer",
           ePosDev.DEVICE_TYPE_PRINTER,
@@ -73,7 +75,12 @@ const PrinterStatusBill = (type,barcode,object) => {
               // prn.send();
            
              // *************************PRINT BILL*****************************
-             if(type === "DSNUM"){
+             if(type === "start"){
+              prn.addTextPosition(205);
+              prn.addTextVPosition(205);
+              prn.addText('Printer Connected\n')
+             }
+             else if(type === "DSNUM"){
                let dsNum= barcode
               // prn.addTextPosition(212);
               // prn.addTextVPosition(486);

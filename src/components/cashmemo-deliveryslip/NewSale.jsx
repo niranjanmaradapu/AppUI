@@ -2251,7 +2251,7 @@ export default class NewSale extends Component {
                    <div className="newsale-body-left">
                    <div className="">
               <div className="row m-r-0">
-                <div className="col-12 col-sm-3 p-r-0 mt-2">
+                <div className="col-12 col-sm-3 p-r-0 mt-4">
                   <div className="form-group fm-height">
 
                     {/* {

@@ -379,7 +379,7 @@ if (startDate < endDate){
               <input
                 type="text"
                 className="form-control"
-                placeholder="BARCODE"
+                placeholder="Barcode"
                 value={this.state.barcode}
                 onChange={(e) => this.setState({ barcode: e.target.value })}
               />

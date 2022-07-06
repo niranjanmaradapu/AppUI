@@ -934,7 +934,7 @@ class CeateDeliverySlip extends Component {
               </div>
               {this.state.printBtn ?
               <div className="col-sm-2 col-6 p-l-0 p-r-0 pt-4 cursor">
-                <h3 className="fs-12">Printer Connected</h3>
+                <label className="d-flex"><i className="text-green font-bold fs-25 icon-printer_connected"></i> <span className="text-green  mt-1 fs-17 m-l-1">Printer Connected </span></label>
               </div>
               :              
               <div className="col-sm-2 col-6 p-l-0 p-r-0 pt-4 cursor">

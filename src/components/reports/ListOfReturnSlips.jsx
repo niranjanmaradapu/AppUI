@@ -494,7 +494,7 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-2 scaling-mb mt-2 pt-4">
+          <div className="col-6 col-sm-2 scaling-mb mt-2 pt-0">
             <div className="form-group">
               <button
                 className="btn-unic-search active"
@@ -502,7 +502,7 @@ export default class ListOfReturnSlips extends Component {
                   this.getBarcodes(0);
                 }}
               >
-                Search{" "}
+                Search
               </button>
             </div>
           </div>

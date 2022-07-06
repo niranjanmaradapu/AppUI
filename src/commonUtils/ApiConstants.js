@@ -147,6 +147,7 @@ export const DELIVERYSLIPS_LIST_URL = {
 
 export const ESTIMATIONSLIP_LIST_URL = {
     estimationslipsList: "/new-sale/newsale/getlistofdeliveryslips",
+    deleteDsNumber: "/new-sale/newsale/deletedeliveryslip"
 };
 
 

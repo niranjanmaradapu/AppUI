@@ -20,7 +20,7 @@ export default class ListOfEstimationSlips extends Component {
       totalPages:0,
       status: null,
       barcode: null,
-      dsNumber: null,
+      dsNumber: "",
       dsList: [],
       dsDetailsList: [],
       itemId: "",
@@ -51,6 +51,7 @@ export default class ListOfEstimationSlips extends Component {
     this.viewReport = this.viewReport.bind(this);
     this.closeViewReport = this.closeViewReport.bind(this);
     this.changePage = this.changePage.bind(this);
+    this.deleteEstimationSlip=this.deleteEstimationSlip.bind(this);
   }
 
   componentWillMount() {
@@ -109,6 +110,18 @@ export default class ListOfEstimationSlips extends Component {
         dsDetailsList: res.data.result.deliverySlip,
         totalPages:res.data.result.deliverySlip.totalPages
       });
+    });
+  }
+
+  deleteEstimationSlip(dsNumber){
+     ListOfEstimationSlipsService.deleteEstimationSlip(dsNumber).then((res) => {
+      console.log("dsnumber",this.state.dsNumber);
+     if(res.data.result){
+        toast.success(res.data.result);
+     }else{
+      toast.error(res.data.message);
+     }
+      
     });
   }
 
@@ -178,7 +191,9 @@ export default class ListOfEstimationSlips extends Component {
                 this.viewReport(dsNumber);
               }}
             />
-            <i className="icon-delete m-l-2 fs-16"></i>
+            <i className="icon-delete m-l-2 fs-16"
+             onClick={() => this.deleteEstimationSlip(items.dsNumber)}> 
+           </i>
           </td>
         </tr>
       );
@@ -379,7 +394,7 @@ if (startDate < endDate){
               <input
                 type="text"
                 className="form-control"
-                placeholder="Barcode"
+                placeholder="BARCODE"
                 value={this.state.barcode}
                 onChange={(e) => this.setState({ barcode: e.target.value })}
               />

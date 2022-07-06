@@ -19,6 +19,7 @@ export default class ListOfSaleBills extends Component {
       barcode: null,
       rsList: [],
       rsDetailsList: [],
+      detailsArr:[],
       rsData: [],
       isView: false,
       domainId: "",
@@ -96,19 +97,17 @@ export default class ListOfSaleBills extends Component {
 
       this.setState({
         rsList: res.data.result.content,
-        rsDetailsList: res.data.result.content,
+        // rsDetailsList: res.data.result.content,
       });
     });
   }
 
   getReturnslipDetails(rtNumber) {
     ListOfReturnSlipsService.getReturnslipDetails(rtNumber).then((res) => {
-      console.log("..........", res.data.result);
-
-      let data = res?.data?.result;
-
-      console.log("dataaaa", data);
-
+      // console.log("..........", res.data.result);
+      if(res?.data?.result){
+        let data = res?.data?.result;
+      // console.log("dataaaa", data);
       let obj = {
         rtNo:"",
         createdDate:"",
@@ -117,55 +116,34 @@ export default class ListOfSaleBills extends Component {
         barCode: "",
         customerName:"",
         mobileNumber:"",
-        // section: "",
-        // hsnCode: "",
-        // quantity: "",
-        // grossValue: "",
-        // discount: "",
-        // gst: "",
-        // taxableAmount: "",
-        // cgst: "",
-        // sgst: "",
-        // igst: "",
-        // netValue: "",
       };
-
-      let detailsArr = [];
-        data?.barcode?.map((d) => {
-        obj = {
-          rtNumber:d.rtNo,
-          createdDate:d.createdDate,
-          barCode: d.taggedItems.barCode,
-          createdBy:d.createdBy,
-        amount:d.taggedItems.amount,
-        barCode: d.barCode,
-        customerName:d.customerName,
-        mobileNumber:d.mobileNumber,
-          // section: d.section,
-          // hsnCode: d.hsnDetailsVo.hsnCode,
-          // quantity: d.quantity,
-          // grossValue: d.grossValue,
-          // discount: d.discount,
-          // gst: d.hsnDetailsVo.taxVo.gst,
-          // taxableAmount: d.hsnDetailsVo.taxVo.taxableAmount,
-          // cgst: d.hsnDetailsVo.taxVo.cgst,
-          // sgst: d.hsnDetailsVo.taxVo.cgst,
-          // igst: d.hsnDetailsVo.taxVo.igst,
-          // netValue: d.netValue,
+     let detailsArr = [];
+     data?.taggedItems?.map((d) => {
+         obj = {
+        rtNo:data.rtNo,
+        createdDate:data.createdDate,
+        createdBy:data.createdBy,
+        amount:d.amount,
+        barcode: d.barCode,
+        customerName:data.customerName,
+        mobileNumber:data.mobileNumber
         };
+        console.log(">>>>>>obj",obj)
+        detailsArr.push(obj);
       });
-      detailsArr.push(obj);
-      console.log("?>>>>popup", detailsArr);
+     
+      console.log("?>>>>popup",detailsArr);
       this.setState({
-        customerName: data.customerName,
-        rtNumber: data.rtNumber,
+        customerName:data.customerName,
+        rtNo: data.rtNo,
         mobileNumber: data.mobileNumber,
         createdDate: data.createdDate,
         rsDetailsList: detailsArr,
-
         isView: true,
       });
+    }
     });
+  
   }
 
   closeViewReport() {
@@ -209,9 +187,9 @@ export default class ListOfSaleBills extends Component {
   //   }
 
   renderPopupTableData() {
-    console.log("enterrrr",this.state.rsDetailsList);
-    if (this.state.rsDetailsList) {
-      return this.state.rsDetailsList.map((items, index) => {
+    console.log("this.state.rsDetailsList",this.state.rsDetailsList);
+    // if (this.state.rsDetailsList) {
+      return this.state?.rsDetailsList?.map((items, index) => {
         const {
           rtNo,
           createdDate,
@@ -220,36 +198,20 @@ export default class ListOfSaleBills extends Component {
           barCode,
           customerName,
           mobileNumber,
-          // section,
-          // hsnCode,
-          // quantity,
-          // grossValue,
-          // discount,
-          // gst,
-          // taxableAmount,
-          // cgst,
-          // sgst,
-          // igst,
-          // netValue,
-        } = items;
+          } = items;
         return (
           <tr key={index}>
-            <td>{rtNo}</td>
-            <td>{createdDate}</td>
-            <td>{createdBy}</td>
-            <td>{amount}</td>
-            <td>{barCode}</td>
-            <td>{customerName}</td>
-            <td>{mobileNumber}</td>
-            {/* <td>{taxableAmount}</td>
-            <td>{cgst}</td>
-            <td>{sgst}</td>
-            <td>{igst}</td>
-            <td>{netValue}</td> */}
+            <td className="col-2">{rtNo}</td>
+            <td className="col-2">{createdDate}</td>
+            <td className="col-1">{createdBy}</td>
+            <td className="col-1">{amount}</td>
+            <td className="col-2">{barCode}</td>
+            <td className="col-2">{customerName}</td>
+            <td className="col-2">{mobileNumber}</td>
           </tr>
         );
       });
-    }
+    
   }
 
   handleSelect(e) {
@@ -272,7 +234,7 @@ export default class ListOfSaleBills extends Component {
                   <label>Return Memo No : </label>{" "}
                   <span className="font-bold fs-13">
                     {" "}
-                    {this.state.rtNumber}
+                    {this.state.rtNo}
                   </span>
                 </div>
               </div>
@@ -309,18 +271,13 @@ export default class ListOfSaleBills extends Component {
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
-                    <th className="">RTNo</th>
-                    <th className="">RT Date & Time</th>
-                    <th className="">Emp ID</th>
-                    <th className="">Amount</th>
-                    <th className="">Barcode</th>
-                    <th className="">Customer Name</th>
-                    <th className="">cust Mobile No.</th>
-                    {/* <th className="">Taxable Amount</th> */}
-                    {/* <th className="">CGST</th>
-                    <th className="">SGST</th>
-                    <th className="">IGST</th> */}
-                    {/* <th className="">Net Amount</th> */}
+                    <th className="col-2">RTNo</th>
+                    <th className="col-2">RT Date & Time</th>
+                    <th className="col-1">Emp ID</th>
+                    <th className="col-1">Amount</th>
+                    <th className="col-2">Barcode</th>
+                    <th className="col-2">Customer Name</th>
+                    <th className="col-2">cust Mobile No.</th>
                   </tr>
                 </thead>
                 {/* <tbody>

@@ -567,7 +567,7 @@ export default class User extends Component {
                       <button className="btn-inactive">Inactive</button>}
                   </td>
                     <td className="col-1">
-                    {!isSuperAdmin ? <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} name="image" /> : <img src={edit} className="w-12 m-r-2 pb-2" name="image" />}
+                    {items.stores.length > 0 ? <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} name="image" /> : <img src={edit} className="w-12 m-r-2 pb-2" name="image" />}
                     {/* <i className="icon-delete"onClick={(e) => this.deleteUser(items)}></i> */}
                     </td>
                 </tr>

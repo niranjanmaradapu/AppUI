@@ -948,7 +948,7 @@ capitalization= () => {
                                     </select>
                         </div>
                         </div> */}
-                             <div className="col-12 col-sm-12">
+                             {/* <div className="col-12 col-sm-12">
                              <div className="form-check checkbox-rounded checkbox-living-coral-filled pt-1">
                                         <input type="checkbox" className="form-check-input filled-in mt-1" id="admin"
                                          name="superadmin" 
@@ -957,7 +957,7 @@ capitalization= () => {
                                       onChange={(e) => this.setSuperAdmin(e)}/>
                                         <label className="form-check-label" name="remember" htmlFor="remember">Is Super Admin</label>
                                     </div>
-                                </div>
+                                </div> */}
                                 {/* <div className="col-12 col-sm-4 scaling-mb">
                                     <div className="form-group">
                                         <label>Domain {!this.state.isSuperAdmin && <span className="text-red font-bold">*</span>}</label>

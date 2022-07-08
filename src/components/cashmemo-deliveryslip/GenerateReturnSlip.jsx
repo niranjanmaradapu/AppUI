@@ -23,7 +23,7 @@ export default class GenerateReturnSlip extends Component {
       slectedItems:[],
       netValueSum:[],
       returnSlipTotal: 0,
-      isgenerateReturnSlip: true,
+      isgenerateReturnSlip: false,
       mobileNumber: null,
       createdBy: 0,
       comments: null,
@@ -142,7 +142,7 @@ export default class GenerateReturnSlip extends Component {
 
   getReturnSlipDetails() {
     const obj = {
-      invoiceNo: this.state.invoiceNo,
+      invoiceNo: this.state.invoiceNo.trim(),
       // mobileNo: this.state.mobileNo,
       mobileNumber: this.state.mobileNumber,
       domianId: 1, //this feild is mandatory
@@ -567,6 +567,8 @@ export default class GenerateReturnSlip extends Component {
                         : "btn-unic active")
                     }
                     onClick={this.generateReturn}
+                    disabled="this.state.isGenerateReturnSlip"
+
                   >
                     GENERATE RETURN SLIP
                   </button>

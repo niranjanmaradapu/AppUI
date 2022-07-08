@@ -5,6 +5,8 @@ import view from "../../assets/images/view.svg";
 import ListOfBarcodesService from "../../services/Reports/ListOfBarcodesService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import ReactPageNation from "../../commonUtils/Pagination";
+import { TimeScale } from "chart.js";
+import { toast } from "react-toastify";
 
 export default class ListOfReturnSlips extends Component {
   constructor(props) {
@@ -407,7 +409,17 @@ export default class ListOfReturnSlips extends Component {
                 className="form-control"
                 placeholder="TO DATE"
                 value={this.state.toDate}
-                onChange={(e) => this.setState({ toDate: e.target.value })}
+                onChange={(e) => {
+                  var startDate=new Date(this.state.fromDate);
+                  var endDate=new Date(e.target.value);
+                  if(startDate<=endDate){
+                    this.setState({toDate:e.target.value})
+                  }
+                  else
+                  {
+                    toast.error("To date should be greater than From date");
+                  }
+                }}
               />
             </div>
           </div>
@@ -419,40 +431,10 @@ export default class ListOfReturnSlips extends Component {
                 className="form-control"
                 placeholder="Barcode Number"
                 value={this.state.barcode}
-                // onChange={(e) =>
-                //   this.setState({ barcodeTextileId: e.target.value })
-                // }
                 onChange={(e) => this.setState({ barcode: e.target.value })}
               />
             </div>
           </div>
-          {/* <div className="col-6 col-sm-2 mt-2 mb-2">
-            <div className="form-group">
-              <label>Store</label>
-              <select
-                className="form-control"
-                value={this.state.storeId}
-                onChange={(e) => {
-                  const selectedValue = this.state.storeList.filter((item) => {
-                    return item.id == e.target.value;
-                  });
-                  this.setState({
-                    storeId: e.target.value,
-                    storeName: selectedValue[0].name,
-                  });
-                }}
-              >
-                {this.state.storeList.map((i) => {
-                  return (
-                    <option key={i.id} value={i.id}>
-                      {i.name}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-          </div> */}
-
           <div className="col-6 col-sm-2 mt-2">
             <div className="form-group">
               <label>EMP ID</label>
@@ -524,30 +506,8 @@ export default class ListOfReturnSlips extends Component {
                   <th className="col-2">VIEW</th>
                 </tr>
               </thead>
-              {/* <tbody>
-              <tr className="">
-                <td className="col-1">01</td>
-                <td className="col-2">BAR00001</td>
-                <td className="col-2">Kukatpally</td>
-                <td className="col-2">EMP123</td>
-                <td className="col-1">10</td>
-                <td className="col-2">₹ 2,000</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-             </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
-
-
-                {/* <ReactPageNation
-                  {...this.state.pageList}
-                  changePage={(pageNumber) => {
-                    this.changePage(pageNumber);
-                  }}
-                /> */}
-              
+ 
             </table>
             <div className="row m-0 pb-3 mb-5 mt-3">
             {this.state.totalPages > 1 ? (

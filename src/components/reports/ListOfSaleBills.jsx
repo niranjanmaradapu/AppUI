@@ -4,6 +4,7 @@ import view from "../../assets/images/view.svg";
 import ListOfReturnSlipsService from "../../services/Reports/ListOfReturnSlipsService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
+import { toast } from "react-toastify";
 export default class ListOfSaleBills extends Component {
   constructor(props) {
     super(props);
@@ -340,7 +341,17 @@ export default class ListOfSaleBills extends Component {
                 className="form-control"
                 placeholder="TO DATE"
                 value={this.state.dateTo}
-                onChange={(e) => this.setState({ dateTo: e.target.value })}
+                onChange={(e) => {
+                  var startDate=new Date(this.state.dateFrom);
+                  var endDate=new Date(e.target.value);
+                  if(startDate<=endDate){
+                    this.setState({dateTo:e.target.value});
+                  }
+                  else
+                  {
+                    toast.error("To date should be greater than From date")
+                  }
+                }}
               />
             </div>
           </div>

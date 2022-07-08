@@ -582,7 +582,7 @@ handleValidation () {
                       <td className="col-2">{items.createdDate}</td>
                       <td className="col-2">₹ {items.amount}</td>
                       <td className="col-2">{items.approvedBy}</td>
-                      <td className="col-2 underline geeks"><a onClick={() => this.addMore(items)}>Pay More</a></td>
+                      <td className="col-2 underline geeks"><a onClick={() => this.addMore(items)}>Pay Due</a></td>
                       <td className="col-1">
                         {/* <img src={edit} className="w-12 pb-2" />
                         <i className="icon-delete m-l-2 fs-16"></i> */}

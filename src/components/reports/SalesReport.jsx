@@ -221,7 +221,6 @@ export default class SalesReport extends Component {
             <td width="5%">{discount}</td>
             <td width="10%">{approvedBy}</td>
             <td width="5%">{reason}</td>
-            <td width="5%">{taxLabel}</td>
             <td width="10%">{taxValue}</td>
             <td width="5%">{cgst}</td>
             <td width="10%">{sgst}</td>

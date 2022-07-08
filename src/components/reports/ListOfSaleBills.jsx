@@ -124,7 +124,7 @@ export default class ListOfSaleBills extends Component {
         createdDate:data.createdDate,
         createdBy:data.createdBy,
         amount:d.amount,
-        barcode: d.barCode,
+        barCode: d.barCode,
         customerName:data.customerName,
         mobileNumber:data.mobileNumber
         };

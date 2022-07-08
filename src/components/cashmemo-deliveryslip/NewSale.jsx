@@ -1146,7 +1146,7 @@ export default class NewSale extends Component {
 
   saveDiscount() {
     console.log(this.state.manualDisc);
-    if (this.state.manualDisc <= this.state.grandNetAmount) {
+    if (this.state.manualDisc < this.state.grandNetAmount) {
 
       if (Object.keys(this.state.selectedDisc).length !== 0 && this.state.manualDisc !== 0 && this.state.discApprovedBy !== '') {
         // this.state.netPayableAmount = 0;
@@ -1166,13 +1166,13 @@ export default class NewSale extends Component {
         this.setState({isBillLevel: false})
       }
     } else {
-      toast.error("Please enter sufficient amount");
+      toast.error("Bill level discount should be less than Payable Amount");
       this.setState({isBillLevel: false})
     }
 
 
   }
-
+  
   getDiscountReasons() {
     NewSaleService.getDiscountReasons().then((res) => {
       if (res.status === 200) {
@@ -1185,11 +1185,15 @@ export default class NewSale extends Component {
           };
           this.state.discReasons.push(obj);
         });
-      } else {
+    } else {
         toast.error(res.data);
       }
-    });
+    })
   }
+  
+  
+   
+
 
   handleChange(e) {
     const regex = /^[0-9\b]+$/;

@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { number } from "prop-types";
 import { stringify } from "querystring";
 import * as xlsx from "xlsx";
+import { formatDate } from "../../commonUtils/FormatDate";
 import ReactPageNation from "../../commonUtils/Pagination";
 import PrintBarcode from "../../commonUtils/checkPrinter";
 // import paginationFactory, {
@@ -505,10 +506,7 @@ export default class BarcodeList extends Component {
     });
   }
 
-  dateFormat = (d) => {
-    let date = new Date(d)
-    return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-  }
+ 
 
   getAllStoresList() {
     URMService.getStoresByDomainId(this.state.clientId).then(
@@ -561,7 +559,7 @@ export default class BarcodeList extends Component {
             colour: barcode.colour,
             costPrice: barcode.costPrice,
             listPrice: barcode.listPrice,
-            productValidity: this.dateFormat(barcode.createdDate),
+            productValidity: barcode.createdDate,
             storeId: barcode.storeId,
             empId: barcode.empId,
             uom: barcode.uom,
@@ -974,7 +972,7 @@ export default class BarcodeList extends Component {
             id,
             domainType
           } = items;
-          let date = this.dateFormat(items.originalBarcodeCreatedAt);
+          let date = formatDate (items.originalBarcodeCreatedAt);
 
           return (
             <tr key={index}>

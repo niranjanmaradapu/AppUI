@@ -90,13 +90,26 @@ export default class Rebarcoding extends Component {
     this.setState({ isAddBarcode: false });
     this.stateReset();
   }
+  
+ 
 
   openEditBarcode(barcodeId) {
     this.setState({ isAddBarcode: true });
     this.setState({ isEdit: true });
+    this.setDropdowns(false);
+    this.stateReset();
     this.getbarcodeDetails(barcodeId);
+   
   }
-
+  clearBar = () => {
+    this.setState({ 
+      Rebarcoding: [],
+      fromDate: '',
+      toDate: '' ,
+      barcodeSearchId:'',    
+     }, () => this.getAllBarcodes());
+    }
+    
   componentWillMount() {
     // this.state.domainDetails = JSON.parse(
     //   sessionStorage.getItem("selectedDomain")
@@ -129,15 +142,15 @@ export default class Rebarcoding extends Component {
         () => {
            this.getAllStoresList();
           this.getAllBarcodes();
-          this.getAllUoms();
-          this.getAllDivisions();
-          this.getHsnDetails();
-          this.getAllCategories();
+          // this.getAllUoms();
+          // this.getAllDivisions();
+          // this.getHsnDetails();
+          // this.getAllCategories();
         }
       );
     }
   }
-
+  
   getAllBarcodes(pageNumber) {
     let saveJson = {};
     // if (
@@ -153,8 +166,9 @@ export default class Rebarcoding extends Component {
       saveJson = {
         fromDate: this.state.fromDate,
         toDate: this.state.toDate,
-        currentBarcodeId: this.state.barcodeSearchId,
+        currentBarcodeId: this.state.barcodeSearchId.trim(),
         storeId: this.state.selectedStoreId,
+        
       };
     // }
 
@@ -164,7 +178,7 @@ export default class Rebarcoding extends Component {
       pageNumber
     )
       .then((res) => {
-        if (res.data) {
+        if (res.data.content.length !== 0) {
           this.state.barcodesList = res.data;
           this.setState({
             barcodesList: this.state.barcodesList,
@@ -173,6 +187,7 @@ export default class Rebarcoding extends Component {
           // this.setEmployeeNames();
         } else {
           this.setState({ barcodesList: [] });
+          toast.error("No Record Found");
         }
       })
       .catch((error) => {
@@ -208,7 +223,7 @@ export default class Rebarcoding extends Component {
     this.setState({ storeIds: this.uniq() });
     this.getStoreNamesById();
   }
-
+  
   uniq() {
     return Array.from(new Set(this.state.sortedStoreIds));
   }
@@ -283,8 +298,8 @@ export default class Rebarcoding extends Component {
     });
   }
 
-  getAllDivisions() {
-    InventoryService.getAllDivisions().then((res) => {
+  getAllDivisions(value) {
+    InventoryService.getAllDivisions(value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -316,8 +331,8 @@ export default class Rebarcoding extends Component {
   //   });
   // }
 
-  getAllSections(id) {
-    InventoryService.getAllSections(id).then((res) => {
+  getAllSections(id,value) {
+    InventoryService.getAllSections(id,value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -330,8 +345,8 @@ export default class Rebarcoding extends Component {
     });
   }
 
-  getAllSubsections(id) {
-    InventoryService.getAllSections(id).then((res) => {
+  getAllSubsections(id,value) {
+    InventoryService.getAllSections(id,value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -344,8 +359,8 @@ export default class Rebarcoding extends Component {
     });
   }
 
-  getAllCategories() {
-    InventoryService.getAllCategories().then((res) => {
+  getAllCategories(value) {
+    InventoryService.getAllCategories(value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -357,6 +372,12 @@ export default class Rebarcoding extends Component {
       this.setState({ categoriesList: this.state.categoriesList });
     });
   }
+  dateFormat = (d) => {
+    let date = new Date(d)
+    
+    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
+}
+
 
   getAllStoresList() {
     URMService.getStoresByDomainId(this.state.clientId).then(
@@ -442,8 +463,13 @@ export default class Rebarcoding extends Component {
             hsnCode: barcode.hsnCode,
             name: barcode.name,
           });
+          this.getAllCategories(this.state.domainDetailsObj);
         // }
-        this.setDropdowns(true);
+     
+          this.getAllSections(this.state.division,this.state.domainDetailsObj);
+          this.getAllSubsections(this.state.section,this.state.domainDetailsObj);
+          this.getAllDivisions(this.state.domainDetailsObj)
+        
       } else {
         toast.error(res.data.message);
       }
@@ -605,6 +631,7 @@ export default class Rebarcoding extends Component {
 
   barcodesListTableTextile() {
     return this.state.barcodesList?.content?.map((items, index) => {
+      let date = this.dateFormat(items.createdDate)
       const {
         currentBarcodeId,
         toBeBarcodeId,
@@ -618,7 +645,7 @@ export default class Rebarcoding extends Component {
           <td className="col-2 ">{currentBarcodeId}</td>
           <td className="col-2">{createdBy}</td>
           {/* <td className="col-2">-</td> */}
-          <td className="col-2">{createdDate}</td>
+          <td className="col-2">{date}</td>
           <td className="col-2 text-center">
             <img src={print} className="w-12 pb-2 m-r-2" />
             <img
@@ -911,7 +938,7 @@ export default class Rebarcoding extends Component {
               {this.state.domainDetailsObj  === "Retail"
                 ? this.nameDiv()
                 : null}
-              <div class="row">
+              <div className="row">
                 <div className="col-sm-4 col-12 mt-3">
                   <div className="form-group">
                     <label>
@@ -1130,8 +1157,10 @@ export default class Rebarcoding extends Component {
                       this.setState({ toDate: e.target.value });
                       // console.log(">>>right");
                       // alert("right");
-                    } else {
-                      toast.error("To date should be greater than From date ");
+                    } 
+                    else
+                     {
+                      toast.error("Please select from date");
                       // alert("To date should be greater than From date ");
                       // console.log(">>>>wrong");
                     }
@@ -1139,7 +1168,7 @@ export default class Rebarcoding extends Component {
                 />
               </div>
             </div>
-            <div className="col-sm-3 col-12">
+            <div className="col-sm-2 col-12">
               <div className="form-group mt-2">
                 <label>Re-Barcode ID</label>
                 <input
@@ -1166,17 +1195,14 @@ export default class Rebarcoding extends Component {
                   this.setState({ pageNumber: 0 });
                 }}
               >
-                SEARCH
+                Search
               </button>
-              {/* <button
-                className="btn-unic-search active m-r-2 mt-2"
-                onClick={() => {
-                  this.stateReset();
-                  this.getAllBarcodes(0);
-                }}
-              >
-                CLEAR
-              </button> */}
+              <button
+                className="btn-clear m-r-2 mt-2"
+                onClick={this.clearBar}
+                >
+                Clear
+              </button>
             </div>
            
           </div>

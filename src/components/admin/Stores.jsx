@@ -40,8 +40,15 @@ export default class Stores extends Component {
             isSearch: false,
             gstNumber: "",
             isGstNumber: false,
+            isState:false,
+            isDistrict:false,
             loggedUser:"",
-            searchDistrict:0
+            searchDistrict:0,
+            storesStatus: [
+                { value: true, label: 'Active' },
+                { value:  false, label: 'Inactive' },
+            ],
+            storeStatus: ''
         }
 
         this.showStores = this.showStores.bind(this);
@@ -52,6 +59,7 @@ export default class Stores extends Component {
         this.validation = this.validation.bind(this);
         this.searchStore = this.searchStore.bind(this);
         this.getAllStores = this.getAllStores.bind(this);
+        this.deleteStore = this.deleteStore.bind(this);
         this.handleValidation = this.handleValidation.bind(this);
     }
 
@@ -71,6 +79,8 @@ export default class Stores extends Component {
             isEdit: false,
             isSearch: false,
             isGstNumber: false,
+            isState:false,
+            isDistrict:false,
             gstNumber:"",
           
 
@@ -119,6 +129,12 @@ export default class Stores extends Component {
         }
 
 
+    }
+
+    handleStoreStatus = (e) => {
+     this.setState({
+         storeStatus: e.target.value
+     })
     }
 
     getStates() {
@@ -235,12 +251,16 @@ export default class Stores extends Component {
         });
     }
 
-
+    dateFormat = (d) => {
+        let date = new Date(d)
+        
+        return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
+    }
+    
+    
     saveStores() {
 
         const formValid = this.handleValidation();
-     
-      
         console.log(this.state.loggedUser);
         if (formValid) {
             let saveObj;
@@ -259,13 +279,14 @@ export default class Stores extends Component {
                     "createdDate": "",
                     "stateCode": this.state.stateName,
                     "gstNumber": parseInt(this.state.gstNumber),
-                    "clientId":parseInt(this.state.clientId)
+                    "clientId":parseInt(this.state.clientId),
+                    "isActive": this.state.storeStatus
 
                 }
 
                 URMService.editStore(saveObj).then(res => {
                     if (res) {
-                        toast.success("Store Saved Successfully");
+                        toast.success("Store updated Successfully");
                         this.getAllStores();
                     }
 
@@ -283,7 +304,8 @@ export default class Stores extends Component {
                     "createdBy":  parseInt(this.state.loggedUser),
                     "stateCode": this.state.stateName,
                     "gstNumber": this.state.gstNumber,
-                    "clientId":parseInt(this.state.clientId)
+                    "clientId":parseInt(this.state.clientId),
+                    "isActive": this.state.storeStatus
                 }
                 URMService.saveStore(saveObj).then(res => {
                     if (res) {
@@ -319,16 +341,63 @@ export default class Stores extends Component {
             domain: items.domainId, storeName: items.name,
             gstNumber:items.gstNumber,
             isGstNumber:true,
+            isState:true,
+            isDistrict:true,
             isEdit: true,
             selectedStore: items,
-            isSearch: false
+            isSearch: false,
+            storeStatus: items.isActive
         }, () => {
             this.getDistricts();
         });
     }
+    deleteStore(items) {
+        console.log(">>>>item", items.id);
+
+    
+        URMService.deleteStore(items.id).then(
+          (res) => {
+            if (res.data && res.data.isSuccess === "true") {
+              toast.success(res.data.result);
+              this.props.history.push("/stores");
+            //   this.stateReset();
+              this.getAllStores(0);
+              console.log(".....storeId", items.id);
+            } else {
+              toast.error(res.data.message);
+            }
+          }
+        );
+      }
+      stateReset(){
+        this.setState({
+            address: "",
+        area: "",
+        cityId: "",
+        clientId: "",
+        createdBy:"",
+        createdDate: "",
+        districtId: "",
+        domainId: "",
+        domainName: "",
+        gstNumber: "",
+        id: "",
+        isActive:false,
+        lastModifyedDate: null,
+        name: "",
+        phoneNumber: "",
+        stateCode: "",
+        stateId: "",
+        storeOwner: "",
+        userName: "",
+          })
+
+
+    }    
 
     getTableData() {
         return this.state.storesList.map((items, index) => {
+            let date = this.dateFormat(items.createdDate)
             // const { storeManager, createdDate,clientDomianlId["domaiName"], createdBy, cityId, name, domain } = items;
             return (
 
@@ -336,12 +405,18 @@ export default class Stores extends Component {
                     <td className="col-1">{index + 1}</td>
                     <td className="col-2">{items.name}</td>
                     <td className="col-2">{items.cityId}</td>
-                    <td className="col-2">{items.domainName}</td>
+                    {/* <td className="col-2">{items.domainName}</td> */}
                     <td className="col-2">{items.userName}</td>
-                    <td className="col-2">{items.createdDate}</td>
+                    <td className="col-2">{date}</td>
+                    <td className="col-2">
+                    {items.isActive ? 
+                      <button className="btn-active">Active</button> : 
+                      <button className="btn-inactive">Inactive</button>}
+                    </td>
                     <td className="col-1">
                         <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editStore(items)} />
-                        <i className="icon-delete"></i></td>
+                        {/* <i className="icon-delete"onClick={(e) => this.deleteStore(items)}></i> */}
+                    </td>
                 </tr>
 
             );
@@ -361,9 +436,11 @@ export default class Stores extends Component {
                                 <th className="col-1">Store ID </th>
                                 <th className="col-2">Store Name</th>
                                 <th className="col-2">Location</th>
-                                <th className="col-2">Domain</th>
-                                <th className="col-2">Created By</th>
-                                <th className="col-2">Created Date</th>
+                                {/* <th className="col-2">Domain</th> */}
+                                <th className="col-2 p-l-1">Created By</th>
+                                <th className="col-2 p-l-0">Created Date</th>
+                                <th className="col-2">Status</th>
+                                {/* <th className='col-2'>Status</th> */}
                                 <th className="col-1"></th>
                             </tr>
                         </thead>
@@ -412,10 +489,10 @@ export default class Stores extends Component {
         // }
 
         //Domain 
-        if (!this.state.domain) {
-            formIsValid = false;
-            errors["domain"] = account_err_msg.domain;
-        }
+        // if (!this.state.domain) {
+        //     formIsValid = false;
+        //     errors["domain"] = account_err_msg.domain;
+        // }
 
 
 
@@ -444,7 +521,7 @@ export default class Stores extends Component {
 
         if (!this.state.stateName) {
             formIsValid = false;
-            errors["stateName"] = "Enter state Name";
+            errors["stateName"] = account_err_msg.stateName;
         }
 
 
@@ -473,6 +550,17 @@ export default class Stores extends Component {
         this.setState({ errors: errors });
         return formIsValid;
 
+    }
+
+    capitalization= () => {
+      const { storeName } = this.state;
+      if(storeName) {
+        const store_name =   storeName[0].toLocaleUpperCase() + storeName.substring(1);
+        this.setState({
+          storeName: store_name
+        })
+      }
+     
     }
 
 
@@ -545,8 +633,8 @@ export default class Stores extends Component {
                                 </div>
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
-                                    <placeholder>Select</placeholder>
                                         <label>State<span className="text-red font-bold">*</span></label>
+                                      
                                         {/* <select className="form-control" value={this.state.stateName}
                                             onChange={(e) => this.setState({ stateName: e.target.value })}
                                         >
@@ -558,8 +646,10 @@ export default class Stores extends Component {
                                         {/* <span style={{ color: "red" }}>{this.state.errors["stateName"]}</span> */}
 
                                         <select className="form-control" value={this.state.stateName}
-
-                                            onChange={(e) => this.setState({ stateName: e.target.value, isGstNumber:false, gstNumber:"" }, () => {
+                                        disabled={this.state.isState}
+                                        
+                                            onChange={(e) => this.setState({ stateName: e.target.value, isGstNumber:false,isState:false,
+                                                isDistrict:false, gstNumber:"" }, () => {
                                                 this.getDistricts();
                                                 this.getGSTNumber();
                                             })}>
@@ -578,6 +668,7 @@ export default class Stores extends Component {
                                     <div className="form-group">
                                         
                                         <label>District<span className="text-red font-bold">*</span></label>
+                                      
                                         {/* <select className="form-control" value={this.state.district}
                                             onChange={(e) => this.setState({ district: e.target.value })}>
                                             <option> Select </option>
@@ -587,6 +678,7 @@ export default class Stores extends Component {
                                         </select> */}
 
                                         <select className="form-control" value={this.state.district}
+                                          disabled={this.state.isDistrict}
                                             onChange={(e) => this.setState({ district: e.target.value })}>
                                             
                                             {districtList}
@@ -700,7 +792,7 @@ export default class Stores extends Component {
                                         <input type="text" className="form-control"
                                             value={this.state.storeName}
                                             maxLength ={errorLengthMax.storeName}
-                                            onChange={(e) => this.setState({ storeName: e.target.value })} />
+                                            onChange={(e) => this.setState({ storeName: e.target.value })} />                                            
                                         
                                     </div>
                                     <div>
@@ -722,6 +814,22 @@ export default class Stores extends Component {
                                             <span style={{ color: "red" }}>{this.state.errors["gstNumber"]}</span>
                                         </div>
                                     
+                                </div>
+                                <div className="col-sm-4 col-12">
+                                    <div className="form-group">
+                                        <label>Status <span className="text-red font-bold">*</span></label>
+                                            <select value={this.state.storeStatus} onChange={(e) =>  this.handleStoreStatus(e)} className="form-control">
+                                                <option>Select Status</option>
+                                                { 
+                                                this.state.storesStatus &&
+                                                this.state.storesStatus.map((item, i) => 
+                                                (<option key={i} value={item.value}>{item.label}</option>))
+                                                }
+                                            </select>
+                                        <div>
+                                          <span style={{ color: "red" }}>{this.state.errors["role"]}</span>
+                                        </div>
+                                    </div>
                                 </div>
                                 
 
@@ -769,9 +877,9 @@ export default class Stores extends Component {
                         </div>
                     </div>
                     <div className="col-sm-6 col-12 scaling-center scaling-mb mt-2  pt-4 p-l-0">
-                        <button className="btn-unic-search active m-r-2" onClick={this.searchStore}>SEARCH </button>
-                        <button className="btn-unic-search active m-r-2" onClick={this.getAllStores}>CLEAR </button>
-                        <button className="btn-unic-search active" onClick={this.showStores}><i className="icon-retail mr-1"></i>  Add Store </button>
+                        <button className="btn-unic-search active m-r-2" onClick={this.searchStore}>Search </button>
+                        <button className="btn-clear m-r-2" onClick={this.getAllStores}>Clear </button>
+                        <button className="btn-unic-search active" onClick={this.showStores}><i className="icon-store"></i>  Add Store </button>
                     </div>
                     <div>
                         {this.getStoreTable()}

@@ -16,6 +16,7 @@ export const update_Pass_Err_Msg = {
 };
 export const urmErrorMessages = {
     roleName:"Please Enter 3 Or More Characters",
+    createdBy:"",
     descriptionName:" Please Enter Description",
     name:"Please Enter 3 Or More Characters",
     mobileNumber:"Please Enter Valid Mobile Number",
@@ -70,6 +71,7 @@ export const errorLengthMin ={
 };
 export const errorLengthMax ={
     roleName: 25,
+    createdBy:10,
     name : 25,
     mobileNumber:10,
     storeName:25,

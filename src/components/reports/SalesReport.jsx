@@ -7,6 +7,7 @@ import view from "../../assets/images/view.svg";
 import ListOfSaleBillsService from "../../services/Reports/ListOfSaleBillsService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
+import ReactPageNation from "../../commonUtils/Pagination";
 
 export default class SalesReport extends Component {
   constructor(props) {
@@ -16,6 +17,8 @@ export default class SalesReport extends Component {
       dateTo: moment(new Date()).format("YYYY-MM-DD").toString(),
       // dateFrom: "",
       // dateTo: "",
+      pageNumber:0,
+      totalPages:0,
       custMobileNumber: null,
       billStatus: null,
       invoiceNumber: null,
@@ -30,21 +33,22 @@ export default class SalesReport extends Component {
     this.viewReport = this.viewReport.bind(this);
     this.closeViewReport = this.closeViewReport.bind(this);
     this.validation = this.validation.bind(this);
+    this.changePage = this.changePage.bind(this);
   }
 
   componentWillMount() {
     const storeId = sessionStorage.getItem("storeId");
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if (domainData.label == "Textile") {
-      this.setState({ domainId: 1 });
-    } else if (domainData.label == "Retail") {
-      this.setState({ domainId: 2 });
-    }
+    // if (domainData.label == "Textile") {
+    //   this.setState({ domainId: 1 });
+    // } else if (domainData.label == "Retail") {
+    //   this.setState({ domainId: 2 });
+    // }
 
     this.setState({ storeId: storeId });
   }
 
-  getSaleBills() {
+  getSaleBills(pageNumber) {
     const obj = {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
       dateTo: this.state.dateTo ? this.state.dateTo : undefined,
@@ -56,16 +60,17 @@ export default class SalesReport extends Component {
         ? this.state.invoiceNumber
         : undefined,
       empId: this.state.empId ? this.state.empId : undefined,
-      domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
+      // domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
-    ListOfSaleBillsService.getSaleBills(obj).then((res) => {
+    ListOfSaleBillsService.getSaleBills(obj,pageNumber).then((res) => {
       console.log(res.data.result);
-      let data = res.data.result.newSaleVo;
+      let data = res.data.result.newSale;
 
       this.setState({
-        sbList: res.data.result.newSaleVo,
-        sbDetailsList: res.data.result.newSaleVo,
+        sbList: res.data.result.newSale,
+        sbDetailsList: res.data.result.newSale.content,
+        totalPages:res.data.result.newSale.totalPages
       });
     });
   }
@@ -142,10 +147,13 @@ export default class SalesReport extends Component {
   }
 
   renderTableData() {
-    return this.state.sbList.map((items, index) => {
+    console.log("this.state.sbList?.content",this.state.sbList.content)
+    return this.state.sbList?.content?.map((items, index) => {
       const {
         invoiceNumber,
         empId,
+        netPayableAmount,
+        discount,
         createdDate,
         status,
         billStatus,
@@ -154,8 +162,10 @@ export default class SalesReport extends Component {
       return (
         <tr className="" key={index}>
           <td className="col-1">{index + 1}</td>
-          <td className="col-3">{invoiceNumber}</td>
-          <td className="col-2">{empId}</td>
+          <td className="col-2">{invoiceNumber}</td>
+          <td className="col-1">{empId}</td>
+          <td className="col-2">{netPayableAmount}</td>
+          <td className="col-1">{discount}</td>
           <td className="col-2">{createdDate}</td>
           {/* <td className="col-2">
             {billStatus && <button className="btn-active">{billStatus}</button>}
@@ -189,6 +199,8 @@ export default class SalesReport extends Component {
           quantity,
           itemPrice,
           discount,
+          approvedBy,
+          reason,
           taxLabel,
           taxValue,
           // taxableAmount,
@@ -207,6 +219,8 @@ export default class SalesReport extends Component {
             <td width="5%">{quantity}</td>
             <td width="5%">{itemPrice}</td>
             <td width="5%">{discount}</td>
+            <td width="10%">{approvedBy}</td>
+            <td width="5%">{reason}</td>
             <td width="5%">{taxLabel}</td>
             <td width="10%">{taxValue}</td>
             <td width="5%">{cgst}</td>
@@ -235,6 +249,16 @@ export default class SalesReport extends Component {
     } else {
       // toast.error("pls enter numbers");
     }
+  }
+
+
+  changePage(pageNumber) {
+    console.log(">>>page", pageNumber);
+    let pageNo = pageNumber + 1;
+    this.setState({ pageNumber: pageNo });
+    // this.getUserBySearch(pageNumber);
+    // this.searchUser(pageNumber);
+    this.getSaleBills(pageNumber); 
   }
 
   render() {
@@ -295,7 +319,8 @@ export default class SalesReport extends Component {
                     <th width="5%">QTY</th>
                     <th width="5%">mrp</th>
                     <th width="5%">Disc</th>
-                    <th width="5%">GST%</th>
+                    <th width="10%">APPROVED BY</th>
+                    <th width="5%">REASON</th>
                     <th width="10%">Tax Amount</th>
                     <th width="5%">CGST</th>
                     <th width="10%">SGST</th>
@@ -373,7 +398,7 @@ export default class SalesReport extends Component {
                 {/* <option>New</option>
                 <option>Pending</option> */}
 
-                <option>success</option>
+                <option>Completed</option>
                 <option>Cancelled</option>
               </select>
             </div>
@@ -445,9 +470,9 @@ export default class SalesReport extends Component {
             <div className="form-group">
               <button
                 className="btn-unic-search active"
-                onClick={this.getSaleBills}
+                onClick={()=>{this.getSaleBills(0);this.setState({pageNumber:0})}}
               >
-                SEARCH{" "}
+                Search
               </button>
             </div>
           </div>
@@ -461,8 +486,10 @@ export default class SalesReport extends Component {
               <thead>
                 <tr className="m-0 p-0">
                   <th className="col-1">S.NO</th>
-                  <th className="col-3">Invoice Number</th>
-                  <th className="col-2">EMP ID</th>
+                  <th className="col-2">Invoice Number</th>
+                  <th className="col-1">EMP ID</th>
+                  <th className="col-2">TOTAL AMOUNT</th>
+                  <th className="col-1">DISCOUNT</th>
                   <th className="col-2">INVOICE DATE</th>
                   <th className="col-2">Bill Position</th>
                   <th className="col-2"></th>
@@ -485,6 +512,17 @@ export default class SalesReport extends Component {
                 </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
             </table>
+            <div className="row m-0 pb-3 mb-5 mt-3">
+            {this.state.totalPages > 1 ? (
+            <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.sbList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div>
+                   ):null}</div>
           </div>
         </div>
       </div>

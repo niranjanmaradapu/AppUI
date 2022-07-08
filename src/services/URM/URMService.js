@@ -25,6 +25,10 @@ class URMService {
     editStore(saveObj) {
         return axios.put(BASE_URL+USER_MANAGEMENT_URL.editStore, saveObj);
     }
+    deleteStore(id){
+        const param = '?id=' + id;
+        return axios.delete(BASE_URL+USER_MANAGEMENT_URL.deleteStore + param);
+    }
 
    
 
@@ -35,7 +39,7 @@ class URMService {
     }
    
     getAllStores(clientId) {
-        const param = '?clientId='+ clientId; 
+        const param = '?clientId='+ clientId+'&isActive=false'; 
         return axios.get(BASE_URL+USER_MANAGEMENT_URL.getAllStores+param);
     }
 
@@ -45,7 +49,7 @@ class URMService {
     }
 
     getStoresByDomainId(clientId) {
-        const param = '?clientId='+ clientId; 
+        const param = '?clientId='+ clientId+ '&isActive=true'; 
         return axios.get(BASE_URL+USER_MANAGEMENT_URL.getAllStores+param);
     }
 
@@ -60,6 +64,10 @@ class URMService {
 
     editUser(saveObj) {
         return axios.put(BASE_URL+USER_MANAGEMENT_URL.editUser, saveObj);
+    }
+    deleteUser(id){
+        const param = '?id=' + id;
+        return axios.delete(BASE_URL+USER_MANAGEMENT_URL.deleteUser + param);
     }
 
     saveRole(saveObj) {

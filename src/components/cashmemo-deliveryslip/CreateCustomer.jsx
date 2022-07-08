@@ -47,12 +47,6 @@ export default class CreateCustomer extends Component {
       formIsValid = false;
       errors["name"] = addCustomer_Err_Msg.name;
     }
-  
-  
-
-   
-
-
     
      // Mobile
      
@@ -125,6 +119,7 @@ validation(e) {
     this.state.phoneNumber = "+91" + this.state.phoneNumber;
     CreateDeliveryService.addCustomer(this.state).then(res => {
       if (res) {
+        toast.success("AddCustomer Created Successfully");
         toast.success(res.data.result.body);
         this.setState({
           email: "",
@@ -171,13 +166,13 @@ validation(e) {
                   <div className="form-group">
                   <label>Customer Name  <span className="text-red font-bold" name="bold">*</span></label>
                     <input type="text" className="form-control"
-                      placeholder="CUSTOMER NAME " autoFocus
+                      placeholder="Customer Name " autoFocus
                       value={this.state.name}
                       maxLength={errorLengthMax.name}
                       onChange={(e) => this.setState({ name: e.target.value, username: e.target.value })}
                       autoComplete="off" />
                     <div>
-                      <span style={{ color: "red" }}>{this.state.errors["name"]}</span>
+                      <span className="fs-12" style={{ color: "red" }}>{this.state.errors["name"]}</span>
                     </div>
                   </div>
                 </div>
@@ -185,13 +180,13 @@ validation(e) {
                   <div className="form-group">
                   <label>Mobile Number  <span className="text-red font-bold" name="bold">*</span></label>
                     <input type="text" className="form-control"
-                      placeholder="MOBILE NUMBER " autoFocus
+                      placeholder="Mobile Number " autoFocus
                       value={this.state.phoneNumber} maxLength={errorLengthMax.phoneNumber}
                       onChange={this.validation}
                       // onChange={(e) => this.setState({ phoneNumber: e.target.value })}
                       autoComplete="off" />
                     <div>
-                      <span style={{ color: "red" }}>{this.state.errors["mobileNumber"]}</span>
+                      <span className="fs-12" style={{ color: "red" }}>{this.state.errors["phoneNumber"]}</span>
                     </div>
                   </div>
                 </div>
@@ -200,12 +195,12 @@ validation(e) {
                 <label>Email</label>
                   <div className="form-group">
                     <input type="email" className="form-control"
-                      placeholder="EMAIL *" autoFocus
+                      placeholder="Email *" autoFocus
                       value={this.state.email}
                       onChange={(e) => this.setState({ email: e.target.value })}
                       autoComplete="off" />
                     <div>
-                      <span style={{ color: "red" }}>{this.state.errors["email"]}</span>
+                      <span className="fs-12" style={{ color: "red" }}>{this.state.errors["email"]}</span>
                     </div>
                   </div>
                 </div>
@@ -213,16 +208,16 @@ validation(e) {
                 <label>Gender</label>
                   <select className="form-control" value={this.state.gender}
                     onChange={(e) => this.setState({ gender: e.target.value })} >
-                    <option>GENDER</option>
-                    <option>MALE</option>
-                    <option>FEMALE</option>
+                    <option>Gender</option>
+                    <option>Male</option>
+                    <option>Female</option>
                   </select>
                 </div>
                 <div className="col-sm-4 col-12 mt-4">
                 <label>Address</label>
                   <div className="form-group">
                     <input type="text" className="form-control"
-                      placeholder="ADDRESS" value={this.state.address}
+                      placeholder="Address" value={this.state.address}
                       onChange={(e) => this.setState({ address: e.target.value })} autoComplete="off" />
                   </div>
                 </div>
@@ -231,11 +226,11 @@ validation(e) {
                   <div className="form-group">
                     <input type="text" className="form-control"
                     minLength={15} maxLength={15}
-                      placeholder="GST NUMBER" value={this.state.gstNumber}
+                      placeholder="GST Number" value={this.state.gstNumber}
                       onChange={(e) => this.setState({ gstNumber: e.target.value })} autoComplete="off"
                     />
                      <div>
-                      <span style={{ color: "red" }}>{this.state.errors["gstNumber"]}</span>
+                      <span className="fs-12" style={{ color: "red" }}>{this.state.errors["gstNumber"]}</span>
                     </div>
                     </div>
                   </div>
@@ -287,7 +282,7 @@ validation(e) {
                   </div>
                 </div> */}
                 <div className="col-12 mt-4">
-                  <button className="btn-unic-search active m-r-2" onClick={this.addCustomer}>ADD CUSTOMER</button>
+                  <button className="btn-unic-search active m-r-2" onClick={this.addCustomer}>Add Customer</button>
                 </div>
               </div>
             </div>

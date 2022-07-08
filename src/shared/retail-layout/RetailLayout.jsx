@@ -23,9 +23,10 @@ import Dashboard from '../../components/dashboard/Dashboard';
 import HRPortal from '../../components/HRPortal/HRPortal';
 import BarcodeList from '../../components/InventoryPortal/BarcodeList';
 import InventoryList from '../../components/InventoryPortal/InventoryList';
-import ListOfPools from '../../components/Promotions&Loyalty/ListOfPools';
-import LoyaltyPoints from '../../components/Promotions&Loyalty/LoyaltyPoints';
-import ManagePromo from '../../components/Promotions&Loyalty/ManagePromo';
+import ListOfPools from '../../components/Promotions-Loyalty/ListOfPools';
+import LoyaltyPoints from '../../components/Promotions-Loyalty/LoyaltyPoints';
+import ManagePromo from '../../components/Promotions-Loyalty/ManagePromo';
+import ListOfPromos from '../../components/Promotions-Loyalty/ListOfPromos';
 import ListOfDeliverySlips from '../../components/reports/ListOfDeliverySlips';
 import ListOfPromotions from '../../components/reports/ListOfPromotions';
 import ListOfReturnSlips from '../../components/reports/ListOfReturnSlips';
@@ -250,6 +251,12 @@ export default class RetailLayout extends Component {
                                     exact={true}
                                     component={ManagePromo}
                                 />
+                                
+                                <PrivateRoute
+                                    path='/listOfPromos'
+                                    exact={true}
+                                    component={ListOfPromos}
+                                />  
                                 
 
                                 <PrivateRoute

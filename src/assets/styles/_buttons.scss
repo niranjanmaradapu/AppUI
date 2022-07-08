@@ -12,6 +12,30 @@
         border-radius: 5px;
         outline: none !important;
     } 
+    &-forgot{
+        width:100%;
+        height:42px;
+        color:$secondary-color;
+        font-size:16px;
+        text-align: center;
+        cursor: pointer;
+        background-color: $grey-ultralight !important;
+        border: 0px solid #fff;
+        border-radius: 5px;
+        outline: none !important;
+    }
+    &-register{
+        width:100%;
+        height:42px;
+        color:$secondary-color;
+        font-size:16px;
+        text-align: center;
+        cursor: pointer;
+        background-color: transparent !important;
+        border: 1px solid $secondary-color;
+        border-radius: 5px;
+        outline: none !important;
+    }
     &-login{
         width:100%;
         height:36px;
@@ -248,6 +272,7 @@
        height:38px;
        color:#fff;
        padding:2%;
+       padding-top: 0.99% !important;
        font-size:12px;
        text-align: center;
        cursor: no-drop !important;
@@ -459,8 +484,8 @@
     color:#858585;
     font-size:14px;
     cursor: pointer;
-    padding-right: 1.4rem;
     padding-left: 1.4rem;
+    padding-right: 1.4rem;
     padding-top: 0;
     height:36px;
     border:1px solid #858585;
@@ -474,6 +499,75 @@
         background-color: $primary-color;
         border:1px solid $primary-color;
         color:$white;
+    }
+    &-redbdr{
+        background-color: $white;
+        color:$primary-color;
+        font-size:14px;
+        cursor: pointer;
+        padding-right: 1.1rem;
+        padding-left: 1.1rem;
+        padding-top: 0;
+        height:36px;
+        border:1px solid $primary-color;
+        border-radius: 5px;
+        &:hover{
+            background-color: $primary-color;
+            border:1px solid $primary-color;
+            color:$white;
+        }
+        & .active{
+            background-color: $primary-color;
+            border:1px solid $primary-color;
+            color:$white;
+        }
+    }
+    &-search{
+        background-color: $white;
+        color:#858585;
+        font-size:14px;
+        cursor: pointer;
+        padding-left:0.5rem;
+        padding-right:0.5rem;
+        height:36px;
+        padding-top:0px;
+        border:1px solid #858585;
+        border-radius: 5px;
+        &:hover{
+            background-color: $primary-color;
+            border:1px solid $primary-color;
+            color:$white;
+        }
+        & .active{
+            background-color: $primary-color;
+            border:1px solid $primary-color;
+            color:$white;
+        }
+    }
+}
+&-nav{
+    background-color: transparent;
+    color:#858585;
+    font-size:14px;
+    cursor: pointer;
+    padding-right: 1.1rem;
+    padding-left: 1.1rem;
+    padding-top: 0;
+    padding-bottom: 7px;
+    height: 44px;
+    border:0px solid #858585;
+    border-radius: 0px;
+    &:hover{
+        background-color: transparent !important;
+        border: 0px solid #000;
+        border-bottom:2px solid $primary-color !important;
+        color:$primary-color !important;
+    }
+    & .active{
+        background-color: transparent !important;
+        border: 0px solid #000 !important;
+        border-bottom:2px solid $primary-color !important;
+        color:$primary-color !important;
     }
     &-redbdr{
         background-color: $white;
@@ -520,7 +614,23 @@
         }
     }
 }
-
+&-clear{
+    border: 1px solid $secondary-color;
+    cursor: pointer;
+    background-color: #ffffff;
+    color: $secondary-color;
+    font-size: 14px;
+    cursor: pointer;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    height: 36px;
+    padding-top: 0px;
+    border-radius: 5px;
+    &:hover{
+        background-color: $secondary-color;
+        color: $white;
+    }
+}
 
 }
 
@@ -564,8 +674,48 @@
     }
 }
 
+@media only screen and (min-width:1610px) and (max-width:1920px) {
+    .form-group .scan {
+        position: relative;
+        top: -36px;
+        left: 78%;
+        background-color: #353C40;
+        color: #ffffff;
+        border: 0px solid #ffffff;
+        cursor: pointer;
+        outline: none !important;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+        width: 90px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 7px;
+        padding-bottom: 9px;
+        font-size: 14px;
+    }
 
+}
+@media only screen and (min-width:1440px) and (max-width:1600px) {
+    .form-group .scan {
+        position: relative;
+        top: -36px;
+        left: 73%;
+        background-color: #353C40;
+        color: #ffffff;
+        border: 0px solid #ffffff;
+        cursor: pointer;
+        outline: none !important;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+        width: 90px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 7px;
+        padding-bottom: 9px;
+        font-size: 14px;
+    }
 
+}
 @media only screen and (min-width:320px) and (max-width:700px) {
 .btn-unic {
     background-color: #ffffff;
@@ -598,4 +748,55 @@
     padding-bottom: 9px;
     font-size: 14px;
 }
+}
+
+.drop{
+    &-tog{
+        color: #ed1c24 !important;
+        background-color: transparent !important;
+        border: 0px solid #fff !important;
+        font-size: 16px !important;
+        // border-bottom: 1px solid #ed1c24 !important;
+        // padding-bottom: 20px;
+        border-radius: 0px !important;
+        cursor: pointer;
+        font-weight: 600 !important;
+        outline: none !important;
+        &:hover{
+            color: #ed1c24;
+            background-color: transparent;
+            border-bottom: 1px solid #ed1c24;
+        }
+    }
+}
+.btn-check:focus+.btn-success, .btn-success:focus {
+    // color: #fff;
+    // background-color:;
+    // border-color: #146c43;
+    box-shadow: none !important;
+}
+.dropdown{
+    &-menu{
+        -webkit-box-shadow: 1px 1px 7px rgba(0,0,0,0.09);/*For webkit browsers*/
+        -moz-box-shadow: 1px 1px 7px rgba(0,0,0,0.09);/*For Firefox*/
+        box-shadow: 1px 1px 7px rgba(0,0,0,0.09);
+        border: 1px solid #DBDCE0 !important;
+        color: #343C3F !important;
+        font-weight: 600 !important;
+        padding: 10px !important; 
+        width: 220px;
+    }
+    &-item{
+        color: #343C3F !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        padding: 8px !important;
+        & img{
+            padding-right:10px;
+        }
+        &:hover{
+            color: #ed1c24 !important;
+            background-color: transparent !important;
+        }
+    }
 }

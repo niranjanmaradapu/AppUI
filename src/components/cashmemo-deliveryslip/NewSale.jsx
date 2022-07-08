@@ -18,6 +18,7 @@ import CreateDeliveryService from "../../services/CreateDeliveryService";
 import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
 import { NEW_SALE_URL } from "../../commonUtils/ApiConstants";
+import PrinterStatusBill from "../../commonUtils/PrintService";
 
 
 
@@ -66,7 +67,7 @@ export default class NewSale extends Component {
       dropValue: "",
       grandNetAmount: 0,
       grandReceivedAmount: 0.0,
-      payingAmount:0, 
+      payingAmount:0,
       grandBalance: 0,
       returnCash: 0,
       totalAmount:0,
@@ -133,8 +134,12 @@ export default class NewSale extends Component {
       balanceCreditAmount: "",
       isreturnCreditCash: false,
       upiAmount:0,
-      isCheckPromo:false
+      isCheckPromo:false,
       // open: false,
+      pathFlag:false,
+      isEnableProccedtoCheck: false,
+      isTagCustomer:false,
+      isKathaModel:false
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -164,10 +169,14 @@ export default class NewSale extends Component {
     this.getUPILink = this.getUPILink.bind(this);
     this.getinvoiceLevelCheckPromo=this.getinvoiceLevelCheckPromo.bind(this);
     this.invoiceLevelCheckPromo=this.invoiceLevelCheckPromo.bind(this);
-    
+    this.getKathaModel=this.getKathaModel.bind(this);
+    this.hideKathaModel=this.hideKathaModel.bind(this);
+    this.confirmKathaModel = this.confirmKathaModel.bind(this);
+
 
     //this.handler = this.handler.bind(this);
   }
+
 
   componentWillMount() {
 
@@ -182,9 +191,115 @@ export default class NewSale extends Component {
     // }
 
     // this.getHsnDetails();
-
+    this.getPath();
+    this.keyBinds();
   }
 
+  keyBinds() {
+    window.addEventListener('keydown', (e) => { // For Check Promo Discount
+      if(e.altKey && String.fromCharCode(e.keyCode).toLocaleLowerCase() === 'k') {
+        e.preventDefault()
+        e.stopPropagation()
+        if(this.state.barCodeList.length > 0){
+          this.invoiceLevelCheckPromo()
+        }
+      }
+    })
+    window.addEventListener('keydown', (e) => { // For Tag Customer
+      if(e.altKey && String.fromCharCode(e.keyCode).toLocaleLowerCase() === 't') {
+        e.preventDefault()
+        e.stopPropagation()
+        if(this.state.barCodeList.length > 0){
+          this.toggleModal()
+        }
+      }
+    })
+    window.addEventListener('keydown', (e) => { // For Bill Level Discount
+      if(e.altKey && String.fromCharCode(e.keyCode).toLocaleLowerCase() === 'b') {
+        e.preventDefault()
+        e.stopPropagation()
+        if(this.state.barCodeList.length > 0){
+          this.showDiscount()
+        }
+      }
+    })
+
+
+    window.addEventListener('keydown', (e) => { // For CARD Model Popup
+      if(e.key === 'F1'){
+        e.preventDefault()
+        e.stopPropagation()
+        if(this.state.barCodeList.length > 0){
+          this.getCardModel()
+        }
+      }
+    })
+    window.addEventListener('keydown', (e) => { // For Cash Model Popup
+      if(e.key === 'F2'){
+        e.preventDefault()
+        e.stopPropagation()
+        if(this.state.barCodeList.length > 0){
+          this.getCashModel()
+        }
+      }
+    })
+    window.addEventListener('keydown', (e) => { // For Applying all Popups
+      if(e.ctrlKey && e.key === 'Enter'){
+        e.preventDefault()
+        e.stopPropagation()
+        if(this.state.isCash){ // For cash model
+          this.getReturnAmount()
+        }else if(this.state.openn){ // For Tagging customer
+          this.tagCustomer()
+        }else if(this.state.isBillingDisc){ // For Bill level Disc
+          this.saveDiscount()
+        }
+      }
+    })
+    window.addEventListener('keydown', (e) => { // For Closing all Model Popup
+      if(e.code === 'Escape'){
+        e.preventDefault()
+        e.stopPropagation()
+        if(this.state.isCash){ // For Cash model
+          this.hideCashModal()
+        }else if(this.state.openn){ // For Tagging customer
+          this.hideModal()
+        }else if(this.state.isBillingDisc){ // For Bill level Disc
+          this.hideDiscount()
+        }
+      }
+    })
+    window.addEventListener('keydown', (e) => { // For Proceed to Checkout
+        if(e.altKey && String.fromCharCode(e.keyCode).toLocaleLowerCase() === 'n') {
+          e.preventDefault()
+          e.stopPropagation()
+          if(this.state.isEnableProccedtoCheck){
+            this.savePayment()
+          }
+        }
+      })
+  }
+
+
+
+  getPath(){
+    const role = JSON.parse(sessionStorage.getItem("user"));
+    URMService.getSubPrivilegesbyRoleId(role["custom:roleName"]).then(res => {
+      if(res) {
+      //  this.setState({buttonsList: res.data.result});
+      const subPrivilegesList = res.data.subPrivileges;
+      for(let i=0;i<subPrivilegesList.length;i++){
+        if(subPrivilegesList[i].childPath === '/createdeliveryslip')
+        {
+          this.setState({pathFlag:true})
+        }
+      }
+      // this.props.history.push(subPrivilegesList[0].childPath)
+      console.log(this.state.pathFlag)
+      }
+    });
+
+  }
   getHsnDetails() {
     NewSaleService.getHsnDetails().then(response => {
       if (response) {
@@ -231,6 +346,7 @@ export default class NewSale extends Component {
     this.setState({
       isCash: false,
       cashAmount: 0,
+      isEnableProccedtoCheck: false
     });
   };
 
@@ -261,6 +377,8 @@ export default class NewSale extends Component {
       isCashSelected: true,
     });
   };
+
+
 
   getCCModel() {
     this.setState({ isCCModel: true },
@@ -307,16 +425,31 @@ export default class NewSale extends Component {
     //   }
     // })
   }
+  getKathaModel() {
+    this.setState({ isKathaModel: true });
+  }
 
+  hideKathaModel() {
+    this.setState({ isKathaModel: false });
+  }
   getCreditModel() {
     this.setState({ isCreditModel: true, payCreditAmount: this.state.grandNetAmount });
-
   }
 
   hideCreditModel() {
     this.setState({ isCreditModel: false });
   }
+  confirmKathaModel(){
+     this.setState({ isPayment: false })
+    const obj = {
 
+      "paymentType": "PKTPENDING",
+      "paymentAmount": this.state.grandNetAmount
+    }
+    this.state.paymentType.push(obj);
+    this.setState({ isKathaModel: false });
+    this.createInvoice()
+  }
   confirmCreditModel() {
 
     if (this.state.creditAmount < this.state.grandNetAmount) {
@@ -340,6 +473,7 @@ export default class NewSale extends Component {
 
       this.state.paymentType.push(obj);
     }
+    this.setState({cashAmount:this.state.grandNetAmount , payingAmount:this.state.grandNetAmount})
     const grandAmount = this.state.grandNetAmount >= this.state.payCreditAmount ? this.state.grandNetAmount - this.state.payCreditAmount : 0
     this.setState({isCreditAmount: true, grandNetAmount:grandAmount});
 
@@ -358,7 +492,7 @@ export default class NewSale extends Component {
     sessionStorage.removeItem("recentSale");
     const storeId = sessionStorage.getItem("storeId");
     let obj;
-    if (this.state.isTextile) {
+    //if (this.state.isTextile) {
       obj = {
 
         "natureOfSale": "InStore",
@@ -387,10 +521,10 @@ export default class NewSale extends Component {
 
         "userId": this.state.userId ? this.state.userId : null,
         "createdBy": this.state.createdBy,
-        "sgst": this.state.centralGST,
+        "sgst": this.state.stateGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
-        "recievedAmount": this.state.cashAmount,
+        "recievedAmount": this.state.grandNetAmount,
         "returnAmount": this.state.returnCash,
         "lineItemsReVo": null,
         "paymentAmountType": [
@@ -407,7 +541,7 @@ export default class NewSale extends Component {
 
       }
 
-
+      console.log("+++++++++++++++++conirm3+++++++++++")
 
       NewSaleService.saveSale(obj).then((res) => {
         if (res) {
@@ -453,7 +587,7 @@ export default class NewSale extends Component {
         }
       });
 
-    }
+    // }
 
   }
 
@@ -506,7 +640,7 @@ export default class NewSale extends Component {
         } else if(grandTotal <= res.data.result.value)  {
           toast.error("Please purchase greater than coupon amount")
         }
-       
+
       } else {
         toast.error(res.data.result);
       }
@@ -533,14 +667,14 @@ export default class NewSale extends Component {
     }
 }, 5000);
 
-  } 
+  }
 
 //   startTimer() {
 //     timer = setInterval(function() {
 //         alert("5 seconds are up");
 //     }, 5000);
 // }
- 
+
 //  stopTimer() {
 //     alert("Timer stopped");
 //     clearInterval(timer);
@@ -548,7 +682,7 @@ export default class NewSale extends Component {
 
   pay = () => {
     if (this.state.isUPIModel) {
-      // this.getPaymentResposne() 
+      // this.getPaymentResposne()
       const obj = {
         "amount": this.state.upiAmount,
         "description":"payment description",
@@ -558,7 +692,7 @@ export default class NewSale extends Component {
           "email":"kadali7799@gmail.com"
           }
       }
-  
+
       const token = JSON.parse(sessionStorage.getItem('token'));
           const uninterceptedAxiosInstance = axios.create();
       uninterceptedAxiosInstance.post('http://14.98.164.17:9097/paymentgateway/razorpay/create-payment-link', obj,{
@@ -572,11 +706,11 @@ export default class NewSale extends Component {
       });
 
 
-      
+
       // NewSaleService.payment(this.state.grandNetAmount, this.state.newSaleId).then((res) => {
       //   this.setState({ isUPIModel: false });
       //   const data = JSON.parse(res.data.result);
-      //   if (res.data.result) {   
+      //   if (res.data.result) {
       //   }
       // var instance = new Razorpay({ key_id: data.id, key_secret: 'rzp_test_z8jVsg0bBgLQer' })
       // instance.paymentLink.create({
@@ -625,6 +759,10 @@ export default class NewSale extends Component {
             let status = true
             const param = '?razorPayId=' + response.razorpay_order_id + '&payStatus=' + status;
             const result = axios.post(BASE_URL + NEW_SALE_URL.saveSale + param, {});
+            // Printer Service used for Testing
+           // PrinterStatusBill('INVOICE', this.state.newSaleId,data.amount)
+
+
 
 
           },
@@ -717,60 +855,122 @@ export default class NewSale extends Component {
     let costPrice = 0;
     let discount = 0;
     let total = 0;
+    let netTotal=0;
     this.state.barCodeList = [];
     this.state.finalList = [];
     this.state.rBarCodeList = [];
     const obj = {
       "dsNumber": this.state.dsNumber.trim(),
     }
+    const storeId = sessionStorage.getItem("storeId");
     this.state.dsNumberList.push(obj);
     if (e.key === "Enter") {
-    NewSaleService.getDeliverySlipDetails(this.state.dsNumber.trim()).then((res) => {
+    NewSaleService.getDeliverySlipDetails(this.state.dsNumber.trim(),this.state.pathFlag,storeId).then((res) => {
       this.setState({ showTable: true });
-      this.state.dlslips.push(res.data.result);
-      if (this.state.dlslips.length > 1) {
-        const barList = this.state.dlslips.filter(
-          (test, index, array) =>
-            index ===
-            array.findIndex((findTest) => findTest.dsNumber === test.dsNumber)
-        );
+      if(!this.state.pathFlag){
+        this.state.dlslips.push(res.data.result);
+        if (this.state.dlslips.length > 1) {
+          const barList = this.state.dlslips.filter(
+            (test, index, array) =>
+              index ===
+              array.findIndex((findTest) => findTest.dsNumber === test.dsNumber)
+          );
 
-        if (barList.length > 1) {
-          let lineStorage = [];
-          barList.forEach((element, index) => {
-            let lineItems = element.lineItems;
-            lineStorage = [...lineStorage, ...lineItems];
-          });
+          if (barList.length > 1) {
+            let lineStorage = [];
+            barList.forEach((element, index) => {
+              let lineItems = element.lineItems;
+              lineStorage = [...lineStorage, ...lineItems];
+            });
 
-          this.setState({ barCodeList: lineStorage,dsNumber: '' });
+            this.setState({ barCodeList: lineStorage,dsNumber: '' });
+
+          } else {
+            this.setState({ barCodeList: barList[0].lineItems, dsNumber: ''  });
+          }
 
         } else {
-          this.setState({ barCodeList: barList[0].lineItems, dsNumber: ''  });
+
+            this.setState({ barCodeList: this.state.dlslips[0].lineItems , dsNumber: ''});
+
+
+          // this.state.barCodeList = this.state.dlslips.lineItems;
+        }
+        this.state.barCodeList.forEach((barCode, index) => {
+          costPrice = costPrice + barCode.itemPrice;
+          discount = discount + barCode.discount;
+          total = total + barCode.grossValue;
+          netTotal= netTotal+barCode.grossValue;
+
+        });
+
+        discount = discount + this.state.manualDisc;
+
+        this.setState({
+          netPayableAmount: total,
+     grandNetAmount: netTotal,
+          totalPromoDisc: discount,
+          grossAmount: costPrice,
+        });
+
+        if (this.state.barCodeList.length > 0) {
+          this.setState({ enablePayment: true });
+        }
+      }else{
+        this.state.dlslips.push(res.data.lineItems);
+        if (this.state.dlslips.length > 1) {
+          const barList = this.state.dlslips.filter(
+            (test, index, array) =>
+              index ===
+              array.findIndex((findTest) => findTest.barCode === test.barCode)
+          );
+
+          if (barList.length > 1) {
+            // let lineStorage = [];
+            // barList.forEach((element, index) => {
+            //   let lineItems = element.lineItems;
+            //   lineStorage = [...lineStorage, ...lineItems];
+            // });
+
+            this.setState({ barCodeList:  this.state.dlslips,dsNumber: '' });
+
+          } else {
+            this.setState({ barCodeList: this.state.dlslips, dsNumber: ''  });
+          }
+
+        } else {
+            this.setState({ barCodeList:res.data.lineItems , dsNumber: ''});
+
+
+          // this.state.barCodeList = this.state.dlslips.lineItems;
+        }
+        this.state.barCodeList.forEach((barCode, index) => {
+          costPrice = costPrice + barCode.itemPrice;
+          discount = discount + barCode.discount;
+          total = total + barCode.grossValue;
+          netTotal= netTotal+barCode.grossValue;
+        });
+
+        discount = discount + this.state.manualDisc;
+
+        this.setState({
+          netPayableAmount: total,
+          grandNetAmount: netTotal,
+          totalPromoDisc: discount,
+          grossAmount: costPrice,
+        });
+        // const grandTotal = this.state.netPayableAmount;
+        // this.setState({ grandNetAmount: grandTotal, totalAmount: grandTotal });
+
+        if (this.state.barCodeList.length > 0) {
+          this.setState({ enablePayment: true });
         }
 
-      } else {
-        this.setState({ barCodeList: this.state.dlslips[0].lineItems , dsNumber: ''});
-        // this.state.barCodeList = this.state.dlslips.lineItems;
       }
 
-      this.state.barCodeList.forEach((barCode, index) => {
-        costPrice = costPrice + barCode.itemPrice;
-        discount = discount + barCode.discount;
-        total = total + barCode.netValue;
-      });
 
-      discount = discount + this.state.manualDisc;
 
-      this.setState({
-        netPayableAmount: total,
 
-        totalPromoDisc: discount,
-        grossAmount: costPrice,
-      });
-
-      if (this.state.barCodeList.length > 0) {
-        this.setState({ enablePayment: true });
-      }
 
       this.getTaxAmount();
     });
@@ -796,21 +996,21 @@ export default class NewSale extends Component {
       //   slabCheck = true;
 
       // }
-    
+
        sgst= sgst+barData.sgst
        cgst= cgst+barData.cgst
        totalTax = sgst+cgst
 
     });
 
-    this.setState({ centralGST:cgst });
-    this.setState({ stateGST:sgst });
+    this.setState({ centralGST:Math.round(cgst) });
+    this.setState({ stateGST:Math.round(sgst )});
 
     // if (!slabCheck) {
     //   this.setState({ stateGST: 70, centralGST: 70 });
     //   console.log("Checking the slab")
     // }
-    const grandTotal = this.state.netPayableAmount + this.state.centralGST + this.state.centralGST;
+    const grandTotal = this.state.netPayableAmount;
     this.setState({ grandNetAmount: grandTotal, totalAmount: grandTotal });
 
 
@@ -840,8 +1040,8 @@ export default class NewSale extends Component {
   invoiceLevelCheckPromo(){
     console.log("string");
     this.getinvoiceLevelCheckPromo();
-    
-    
+
+
   }
   getinvoiceLevelCheckPromo()  {
     let costPrice = 0;
@@ -875,20 +1075,20 @@ export default class NewSale extends Component {
      return obj;
     });
     console.log("+++++++++++++++++++++++", requestObj );
-   
+
     NewSaleService.getinvoiceLevelCheckPro(1,storeId,requestObj).then((res) => {
       if (res.status === 200) {
         console.log(res);
         this.setState({
           barCodeList: res.data.result
         });
-        
+
         this.state.barCodeList.forEach((barCode, index) => {
           costPrice = costPrice + barCode.itemPrice;
           discount = discount + barCode.discount;
           total = total + barCode.netValue;
         });
-  
+
         discount = discount + this.state.manualDisc;
         discAppliedTotal = this.state.grandNetAmount-discount;
         console.log(discAppliedTotal)
@@ -901,7 +1101,7 @@ export default class NewSale extends Component {
         if (this.state.barCodeList.length > 0) {
           this.setState({ enablePayment: true });
         }
-  
+
         // this.getTaxAmount();
       }else {
         this.toast.error("no Promo Available");
@@ -997,7 +1197,7 @@ export default class NewSale extends Component {
   }
 
   getReturnAmount = () => {
-
+    this.setState({isEnableProccedtoCheck: true})
     if (this.state.barCodeList.length > 0 || this.state.barCodeRetailList.length > 0) {
       this.setState({ isPayment: false });
     }
@@ -1020,7 +1220,7 @@ export default class NewSale extends Component {
       } );
       this.setState({isCash: false});
 
-    } else if(collectedCash < this.state.grandNetAmount) {
+    } else if(collectedCash < this.state.grandNetAmount ||collectedCash!=="" ) {
      // this.state.grandNetAmount = this.state.grandNetAmount - collectedCash;
      toast.error("Please collect suffient amount");
     } else {
@@ -1046,7 +1246,7 @@ export default class NewSale extends Component {
 
     this.state.paymentType.push(obj);
 
-   
+
     //  this.hideCashModal();
   };
 
@@ -1056,6 +1256,7 @@ export default class NewSale extends Component {
   }
 
   savePayment() {
+    this.setState({isEnableProccedtoCheck: false})
     this.state.discType = this.state.dropValue;
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     if (this.state.showDiscReason) {
@@ -1073,7 +1274,7 @@ export default class NewSale extends Component {
     this.setState({ netCardPayment: this.state.grandNetAmount })
     sessionStorage.removeItem("recentSale");
     const storeId = sessionStorage.getItem("storeId");
-    
+
     let obj;
     //  if (this.state.isTextile) {
       obj = {
@@ -1102,9 +1303,11 @@ export default class NewSale extends Component {
 
         "offlineNumber": null,
 
+        "mobileNumber": this.state.mobileData.mobileNumber,
+
         "userId": this.state.userId ? this.state.userId : null,
 
-        "sgst": this.state.centralGST,
+        "sgst": this.state.stateGST,
         "cgst": this.state.centralGST,
         "dlSlip": this.state.dsNumberList,
         "lineItemsReVo": null,
@@ -1121,6 +1324,10 @@ export default class NewSale extends Component {
 
       NewSaleService.saveSale(obj).then((res) => {
         if (res) {
+          if(!this.state.isCard){
+            // Printer Service used for Testing
+            PrinterStatusBill('INVOICE',res.data.result,this.state.barCodeList)
+          }
           this.setState({ isBillingDetails: false, dsNumber: "",upiAmount: this.state.grandNetAmount, finalList: [] });
           this.setState({
             customerName: " ",
@@ -1148,7 +1355,9 @@ export default class NewSale extends Component {
             totalAmount:0,
             couponAmount:0,
             isCredit: false,
-            
+            isTagCustomer:false,
+            enablePayment: false
+
 
 
 
@@ -1167,8 +1376,8 @@ export default class NewSale extends Component {
         }
       });
 
-    // } 
-    
+    // }
+
     // else if (this.state.isRetail) {
     //   let lineItems = [];
     //   this.state.retailBarCodeList.forEach((barCode, index) => {
@@ -1312,7 +1521,8 @@ export default class NewSale extends Component {
         const mobileData = res.data.result;
         this.setState({
           userId: res.data.result.userId,
-          customerFullName: res.data.result.userName
+          customerFullName: res.data.result.userName,
+          isTagCustomer:true
         });
 
         this.state.mobileData = {
@@ -1335,7 +1545,7 @@ export default class NewSale extends Component {
           if (response) {
             console.log(response);
             if (response.data.result && response.data.result.length > 0) {
-              this.setState({ isCredit: true, creditAmount: response.data.result[0].actualAmount });
+              this.setState({ isCredit: true, creditAmount: response.data.result[0].amount });
             }
           }
         });
@@ -1390,11 +1600,11 @@ export default class NewSale extends Component {
 
 
     return this.state.showTable && (
-      <div className="p-l-0">
+      <div className="p-l-0 t-scroll">
         {/* {
           this.state.isTextile && ( */}
             <div className="table-responsive">
-              
+
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
@@ -1405,7 +1615,7 @@ export default class NewSale extends Component {
                     <th className="col-2">Discount</th>
                     <th className="col-1">Sgst</th>
                     <th className="col-1">Cgst</th>
-                    <th className="col-2">Gross Amount</th>
+                    <th className="col-2">Gross</th>
                   </tr>
                 </thead>
 
@@ -1423,7 +1633,7 @@ export default class NewSale extends Component {
                         <td className="col-2">₹ {items.discount}</td>
                         <td className="col-1">₹ {items.sgst}</td>
                         <td className="col-1">₹ {items.cgst}</td>
-                        <td className="col-2">₹ {items.netValue}</td>
+                        <td className="col-2">₹ {items.grossValue}</td>
                       </tr>
                     );
                   })}
@@ -1498,19 +1708,18 @@ export default class NewSale extends Component {
     };
     return (
 
-      <div className="maincontent">
+
+      <div className="maincontent pt-0 o-flow">
 
 
-        <Modal isOpen={this.state.isUPIModel} size="lg">
+        <Modal isOpen={this.state.isUPIModel} size="sm">
           <ModalHeader>
             UPI
           </ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="col-4">
+          <ModalBody className="p-3">
+            <div className="row mt-2 mb-3">
+              <div className="form-group">
                 <label>Net Payable Amount: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1519,12 +1728,19 @@ export default class NewSale extends Component {
                   disabled
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div> */}
             </div>
-            <div className="row">
-              <div className="col-4">
+            <div className="row mb-2">
+              <div className="form-group">
                 <label>Mobile Number: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1539,6 +1755,21 @@ export default class NewSale extends Component {
 
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  minLength="10"
+                  maxlength="10"
+                  value={this.state.upiMobilenumber}
+                  autoComplete="off"
+                  onChange={(e) =>
+                    this.setState({ upiMobilenumber: e.target.value })
+                  }
+
+                />
+              </div> */}
             </div>
           </ModalBody>
           <ModalFooter>
@@ -1556,16 +1787,14 @@ export default class NewSale extends Component {
         </Modal>
 
 
-        <Modal isOpen={this.state.isCCModel} size="lg">
+        <Modal isOpen={this.state.isCCModel} size="sm">
           <ModalHeader>
             Cash & Card Payment
           </ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="col-4">
+          <ModalBody className="p-3">
+            <div className="row mt-2 mb-3">
+              <div className="form-group">
                 <label>Net Payable Amount: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1574,12 +1803,19 @@ export default class NewSale extends Component {
                   disabled
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div> */}
             </div>
-            <div className="row">
-              <div className="col-4">
+            <div className="row mb-2">
+              <div className="form-group">
                 <label>Collected Cash: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1590,6 +1826,7 @@ export default class NewSale extends Component {
                       if (this.state.ccCollectedCash < this.state.grandNetAmount) {
                         let ccReturn = this.state.grandNetAmount - this.state.ccCollectedCash;
                         this.setState({ ccCardCash: ccReturn });
+                        console.log("+++++++++++++++++"+ccReturn);
 
                       }
                     })
@@ -1597,6 +1834,25 @@ export default class NewSale extends Component {
 
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.ccCollectedCash}
+                  onChange={(e) =>
+                    this.setState({ ccCollectedCash: e.target.value }, () => {
+                      if (this.state.ccCollectedCash < this.state.grandNetAmount) {
+                        let ccReturn = this.state.grandNetAmount - this.state.ccCollectedCash;
+                        this.setState({ ccCardCash: ccReturn });
+                        console.log("+++++++++++++++++"+ccReturn);
+
+                      }
+                    })
+                  }
+
+                />
+              </div> */}
             </div>
           </ModalBody>
           <ModalFooter>
@@ -1612,18 +1868,79 @@ export default class NewSale extends Component {
           </ModalFooter>
 
         </Modal>
+        <Modal isOpen={this.state.isKathaModel} size="sm">
+          <ModalHeader>
+            Katha Payment
+          </ModalHeader>
+          <ModalBody className="p-3">
+          <div className="row mt-2 mb-3">
+              <div className="form-group">
+                {/* <label> Cash: </label> */}
+                <span>Adding Payment Details on Katha</span>
+              </div>
+              {/* <div className="col-8"> */}
+                {/* <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.payCreditAmount}
+                  onChange={(e) =>
+                    this.setState({ payCreditAmount: e.target.value })
+                  }
+                /> */}
+                {/* <span>Adding Payment Details on Katha</span> */}
+              {/* </div> */}
+            </div>
+            <div className="row mb-2">
+              <div className="form-group">
+                <label>Katha Amount: </label>
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div> */}
+            </div>
+          
+
+          </ModalBody>
+          <ModalFooter>
+            <button className="btn-unic" onClick={this.hideKathaModel}>
+              Cancel
+            </button>
+            <button
+              className="btn-unic active fs-12"
+              // className={"fs-12" + (this.state.isCreditConfirm ? "btn-unic btn-disable" : "btn-unic active")}
+               onClick={this.confirmKathaModel}
+            >
+              Confirm
+            </button>
+          </ModalFooter>
+
+        </Modal>
 
 
-        <Modal isOpen={this.state.isCreditModel} size="lg">
+
+
+        <Modal isOpen={this.state.isCreditModel} size="sm">
           <ModalHeader>
             Credit Payment
           </ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="col-4">
+          <ModalBody className="p-3">
+            <div className="row mt-2 mb-3">
+              <div className="form-group">
                 <label>Credit Amount: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1632,12 +1949,19 @@ export default class NewSale extends Component {
                   disabled
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.creditAmount}
+                  disabled
+                />
+              </div> */}
             </div>
-            <div className="row">
-              <div className="col-4">
+            <div className="row mb-2">
+              <div className="form-group">
                 <label> Cash: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1648,6 +1972,17 @@ export default class NewSale extends Component {
                   }
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.payCreditAmount}
+                  onChange={(e) =>
+                    this.setState({ payCreditAmount: e.target.value })
+                  }
+                />
+              </div> */}
             </div>
 
           </ModalBody>
@@ -1671,16 +2006,14 @@ export default class NewSale extends Component {
 
         <Modal
           isOpen={this.state.isgvModel}
-          size="lg"
+          size="sm"
           onRequestHide={this.hideGVModel}
         >
           <ModalHeader>Issue GV Number</ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="col-4">
+          <ModalBody className="p-3">
+            <div className="row mt-2 mb-3">
+              <div className="form-group">
                 <label> GV Number: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1692,8 +2025,19 @@ export default class NewSale extends Component {
                   autoComplete="off"
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  className="form-control"
+                  value={this.state.gvNumber}
+                  onChange={(e) =>
+                    this.setState({ gvNumber: e.target.value })
+                  }
+                  autoComplete="off"
+                />
+              </div> */}
             </div>
-            <br></br>
           </ModalBody>
           <ModalFooter>
             <button className="pt-2 btn-bdr" onClick={this.hideGVModel}>
@@ -1785,16 +2129,14 @@ export default class NewSale extends Component {
         </Modal>
         <Modal
           isOpen={this.state.isCash}
-          size="lg"
+          size="sm"
           onRequestHide={this.hideCashModal}
         >
           <ModalHeader>Cash Payment</ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="col-4">
+          <ModalBody className="p-3 ">
+            <div className="row mt-2 mb-3">
+              <div className="form-group">
                 <label>Net Payable Amount: </label>
-              </div>
-              <div className="col-8">
                 <input
                   type="text"
                   name="cash"
@@ -1803,15 +2145,23 @@ export default class NewSale extends Component {
                   disabled
                 />
               </div>
-            </div>
-            <div className="row">
-              <div className="col-4">
-                <label>Collected Cash: </label>
-              </div>
-              <div className="col-8">
+              {/* <div className="col-8">
                 <input
                   type="text"
                   name="cash"
+                  className="form-control"
+                  value={this.state.grandNetAmount}
+                  disabled
+                />
+              </div> */}
+            </div>
+            <div className="row mb-2">
+              <div className="form-group">
+                <label>Collected Cash: </label>
+                <input
+                  type="text"
+                  name="cash"
+                  id="collectedCash"
                   className="form-control"
                   value={this.state.cashAmount}
                   onChange={(e) =>
@@ -1819,8 +2169,20 @@ export default class NewSale extends Component {
                   }
                 />
               </div>
+              {/* <div className="col-8">
+                <input
+                  type="text"
+                  name="cash"
+                  id="collectedCash"
+                  className="form-control"
+                  value={this.state.cashAmount}
+                  onChange={(e) =>
+                    this.setState({ cashAmount: e.target.value })
+                  }
+                />
+              </div> */}
             </div>
-            <br></br>
+            {/* <br></br> */}
           </ModalBody>
           <ModalFooter>
             <button className="pt-2 btn-bdr" onClick={this.hideCashModal}>
@@ -1884,27 +2246,18 @@ export default class NewSale extends Component {
             </button>
           </ModalFooter>
         </Modal>
-
-        <div className="row">
-          <div className="col-6 pt-2">
-
-          </div>
-          <div className="col-6 text-right pb-2">
-
-          </div>
-        </div>
-
-        <div className="">
           <div className="row">
-            <div className="col-sm-8 col-12">
-              <div className="row">
-                <div className="col-12 col-sm-4">
-                  <div className="form-group">
+            <div className="newsale-body p-r-1">
+                   <div className="newsale-body-left">
+                   <div className="">
+              <div className="row m-r-0">
+                <div className="col-12 col-sm-3 p-r-0 mt-4">
+                  <div className="form-group fm-height">
 
                     {/* {
                       this.state.isTextile && ( */}
                         <div>
-                           <label>ES Number</label>
+                           {/* <label>ES Number</label> */}
                           {/* <input type="text" className="form-control frm-pr"
                             value={this.state.dsNumber}
                             onKeyPress={this.getDeliverySlipDetails}
@@ -1918,8 +2271,8 @@ export default class NewSale extends Component {
                   onKeyPress={this.getDeliverySlipDetails}
                   placeholder="ES Number"
                   // onChange={(e) => this.setState({ dsNumber: e.target.value })}
-                  onChange={(e) => this.setState({ dsNumber: e.target.value }, () => { 
-                    this.getDeliverySlipDetails(e) 
+                  onChange={(e) => this.setState({ dsNumber: e.target.value }, () => {
+                    this.getDeliverySlipDetails(e)
                   })}
                 />
                           <button type="button" className="scan" onClick={this.getDeliverySlipDetails}>
@@ -1949,39 +2302,30 @@ export default class NewSale extends Component {
 
                   </div>
                 </div>
-
-              </div>
-              <div className="row m-0 p-0">
-                <div className="col-12 col-sm-4 scaling-center p-l-0">
-                  <h5 className="mt-1 fs-18 mb-3">
-                    Order Details
-                  </h5>
-                </div>
-
                 {
                   this.state.showTable && (
 
 
-                    <div className="col-12 col-sm-8 scaling-center text-right p-r-0">
+                    <div className="col-12 col-sm-9 scaling-center p-t-2 text-right">
 
                       <button
                         type="button"
-                        className={"m-r-2  scaling-mb" + (this.state.isCredit ? "btn-unic btn-disable" : "btn-unic active")}
+                        className={"m-r-2  scaling-mb " + (this.state.isTagCustomer ? " btn-unic btn-disable" : " btn-unic active")}
                         onClick={this.toggleModal}
-                      >Tag Customer </button>
+                      >Tag Customer <span className="fs-10">(Alt+t)</span> </button>
                       <button
                         className={" m-r-2 scaling-mb " + (this.state.isBillLevel ? "btn-unic btn-disable" : "btn-unic active")}
                         onClick={this.showDiscount}
                         disabled={(this.state.isBillLevel )}
-                        >Bill Level Discount</button>
+                        >Bill Level Discount <span className="fs-10">(Alt+b)</span></button>
                         <button
                         type="button"
-                        className="btn-unic m-r-2 active scaling-mb"
+                        className="btn-unic active scaling-mb"
                         onClick={this.invoiceLevelCheckPromo}
-                      
-                        > Check Promo Discount
+
+                        > Check Promo Discount <span className="fs-10">(Alt+k)</span>
                         </button>
-                      
+
                     </div>
 
 
@@ -1989,13 +2333,22 @@ export default class NewSale extends Component {
                   )
                 }
 
+              </div>
+              <div className="row m-0 p-0">
+                <div className="col-12 col-sm-4 scaling-center p-l-0">
+                  <h5 className="fs-14">
+                    Order Details
+                  </h5>
+                </div>
 
-                <div>{this.showOrderDetails()}</div>
+
+
+                <div className="p-l-0">{this.showOrderDetails()}</div>
                 {
                   this.state.showTable && (
 
-                    <div>
-                      <div className="rect-cardred m-0">
+                    <div className="p-l-0">
+                      <div className="rect-red m-0">
                         <div className="row">
                           <div className="col-2 text-center">
                             <label>Items : <span className="font-bold"> {this.state.barCodeList.length}</span></label>
@@ -2020,58 +2373,153 @@ export default class NewSale extends Component {
 
                         </div>
                       </div>
-
-                      <div className="row p-0 m-0 mt-2">
-                        <div className="col-6 p-l-0">
-                          <h5 className="mt-2">
-                            Customer Details
-                          </h5>
-                        </div>
-                        <div className="col-6"></div>
-                        <table className="table table-borderless mb-1 mt-2">
-                          <thead>
-                            <tr className="m-0 p-0">
-                              <th className="col-3">NAME</th>
-                              <th className="col-3">MOBILE NUMBER</th>
-                              <th className="col-3">LOYALTY POINTS</th>
-                              <th className="col-3">EXPIRY DATE</th>
-
-                            </tr>
-                          </thead>
-                        </table>
-                        <table className="table table-borderless gfg mb-0">
-                          <tbody>
-                            <tr>
-                              <td className="col-3 geeks">
-                                {/* John Peter */}
-                                {this.state.customerFullName}
-                              </td>
-                              <td className="col-3"> {this.state.customerMobilenumber}</td>
-                              <td className="col-3">
-                                <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
-                                  {/* <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" /> */}
-                                  <label className="form-check-label" htmlFor="roundedExample2"> </label>
-
-
-                                </div>
-                              </td>
-                              <td className="col-3"></td>
-
-                            </tr>
-
-                          </tbody>
-                        </table>
                       </div>
-                    </div>
 
+)
+}
+
+<div className="row p-0 m-0 mt-2">
+{
+                  this.state.isTagCustomer && (
+
+                    <div className="col-6 p-l-0 t-scroll">
+                    <h5 className="mb-0 mt-2 fs-14">
+                      Customer Details
+                    </h5>
+                    <table className="table table-borderless mb-0 mt-2 p-l-0 p-r-0">
+                    <thead>
+                      <tr className="m-0 p-0">
+                        <th className="col-3">NAME</th>
+                        <th className="col-3">MOBILE</th>
+                        <th className="col-3">REWARDS</th>
+                        <th className="col-3">EXPIRY</th>
+
+                      </tr>
+                    </thead>
+                  </table>
+                  <table className="table table-borderless mb-0 p-l-0 p-r-0">
+                    <tbody>
+                      <tr>
+                        <td className="col-3 geeks">
+                          {/* John Peter */}
+                          {this.state.customerFullName}
+                        </td>
+                        <td className="col-3"> {this.state.customerMobilenumber}</td>
+                        <td className="col-3">
+                          <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
+                            {/* <input type="checkbox" className="form-check-input filled-in" id="roundedExample2" /> */}
+                            <label className="form-check-label" htmlFor="roundedExample2"> </label>
+
+
+                          </div>
+                        </td>
+                        <td className="col-3"></td>
+
+                      </tr>
+
+                    </tbody>
+                  </table>
+                  </div>
+
+                  )}
+                  <div className="col-6 p-l-0">
+                        {
+                  this.state.enablePayment && (
+                    <div className="pay p-l-0">
+                      <h5 className="fs-14 font-bold pt-3">Payment Type</h5>
+                        <ul>
+                          <li>
+                            <span>
+                              {/* <img src={card} onClick={this.getCardModel} /> */}
+                              <i className="icon-card" onClick={this.getCardModel}></i>
+                              <label>CARD <div className="key">(F1)</div></label>
+                            </span>
+
+                          </li>
+                          <li>
+                            <span>
+                              {/* <img src={cash} onClick={this.getCashModel} /> */}
+                              <i className="icon-cash" onClick={this.getCashModel}></i>
+                              <label>CASH <div className="key">(F2)</div></label>
+                            </span>
+
+                          </li>
+                          <li>
+                            <span className="">
+                              {/* <img src={upi} onClick={this.getUPIModel} /> */}
+                              <i className="icon-upi" onClick={this.getUPIModel}></i>
+                              <label>UPI</label>
+                            </span>
+
+                          </li>
+                          <li>
+                            <span>
+                              {/* <img src={qr} onClick={this.getCCModel} /> */}
+                              <i className="icon-qr_new" onClick={this.getCCModel}></i>
+                              <label>CC</label>
+                            </span>
+
+                          </li>
+                          {
+                            this.state.isCredit && (
+                              <li>
+                                <span className="">
+                                  {/* <img src={upi} onClick={this.getCreditModel} /> */}
+                                  <i className="icon-card" onClick={this.getCreditModel}></i>
+                                  <label>CREDIT</label>
+                                </span>
+
+                              </li>
+                            )
+                          }
+
+                          {
+                            this.state.isTagCustomer && (
+                              <li>
+                                <span className="">
+                                  {/* <img src={upi} onClick={this.getCreditModel} /> */}
+                                  <i className="icon-khata" onClick={this.getKathaModel}></i>
+                                  <label>KHATA</label>
+                                </span>
+
+                              </li>
+                            )
+                          }
+                          {/* <li>
+                            <span>
+                             
+                              <i className="icon-khata"></i>
+                              <label>KHATA</label>
+                            </span>
+
+                          </li> */}
+                          <li>
+                            <span>
+                              {/* <img src={khata} onClick={this.getGvModel} /> */}
+                              <i className="icon-khata" onClick={this.getGvModel}></i>
+                              <label>GV</label>
+                            </span>
+
+                          </li>
+
+
+                        </ul>
+                    </div>
                   )
                 }
+                        </div>
 
+</div>
+
+
+    
               </div>
             </div>
-            <div className="col-sm-4 col-12">
-              <div className="rect-grey pb-3">
-                <h5 className="m-b-5">Billing summary</h5>
+                  </div>
+                  <div className="newsale-body-right">
+                  <div className="">
+              <div className="billing pb-3">
+                <h5 className="">Billing summary</h5>
                 <div className="row">
                   <div className="col-5">
                     <label>Total Amount</label>
@@ -2102,38 +2550,38 @@ export default class NewSale extends Component {
                 <div className="payment">
                 <div className="row">
                     <div className="col-5 p-r-0 pt-1">
-                      <label>Total Amount</label>
+                      <label className="text-secondary">Total Amount</label>
                     </div>
                     <div className="col-7 p-l-0 pt-1 text-right">
-                      <label className="font-bold">₹ {this.state.totalAmount}</label>
+                      <label className="font-bold text-secondary">₹ {this.state.totalAmount}</label>
                     </div>
                   </div>
                   <div className="row">
                     <div className="col-5 p-r-0 pt-1">
-                      <label>Promo Discount</label>
+                      <label className="text-green">Promo Discount</label>
                     </div>
                     <div className="col-7 p-l-0 pt-1 text-right">
-                      <label className="font-bold">₹ {this.state.totalPromoDisc}</label>
+                      <label className="font-bold text-green">₹ {this.state.totalPromoDisc}</label>
                     </div>
                   </div>
                   <div className="row">
                     <div className="col-5 p-r-0 pt-1">
-                      <label>Payable Amount</label>
+                      <label className="text-secondary">Payable Amount</label>
                     </div>
                     <div className="col-7 p-l-0 pt-1 text-right">
-                      <label className="font-bold">₹ {this.state.grandNetAmount}</label>
+                      <label className="font-bold text-secondary">₹ {this.state.grandNetAmount}</label>
                     </div>
                   </div>
 
-                 
+
                 {
                   this.state.isBillingDiscount && (
                     <div className="row">
                     <div className="col-5">
-                      <label>Billing Discount</label>
+                      <label className="text-secondary">Billing Discount</label>
                     </div>
                     <div className="col-7 text-right">
-                      <label className="font-bold">₹ {this.state.manualDisc}</label>
+                      <label className="font-bold text-secondary">₹ {this.state.manualDisc}</label>
                     </div>
                   </div>
                   )
@@ -2144,24 +2592,24 @@ export default class NewSale extends Component {
                       <div>
                             <div className="row">
                       <div className="col-5">
-                        <label>Credit Amount</label>
+                        <label className="text-secondary">Credit Amount</label>
                       </div>
                       <div className="col-7 text-right">
-                        <label className="font-bold">₹ {this.state.creditAmount}</label>
+                        <label className="font-bold text-secondary">₹ {this.state.creditAmount}</label>
                       </div>
                     </div>
                     <div className="row">
                       <div className="col-5">
-                        <label>Payed Amount</label>
+                        <label className="text-secondary">Payed Amount</label>
                       </div>
                       <div className="col-7 text-right">
-                        <label className="font-bold">₹ {this.state.payCreditAmount}</label>
+                        <label className="font-bold text-secondary">₹ {this.state.payCreditAmount}</label>
                       </div>
                     </div>
                       </div>
-                      
-                  
-                    
+
+
+
                     )
                   }
 
@@ -2171,10 +2619,10 @@ export default class NewSale extends Component {
                     this.state.isreturnCreditCash && (
                       <div className="row">
                         <div className="col-5 p-r-0 pt-1">
-                          <label>Balance Amount</label>
+                          <label className="text-secondary">Balance Amount</label>
                         </div>
                         <div className="col-7 p-l-0 pt-1 text-right">
-                          <label className="font-bold">₹ {this.state.balanceCreditAmount}</label>
+                          <label className="font-bold text-secondary">₹ {this.state.balanceCreditAmount}</label>
                         </div>
                       </div>
                     )
@@ -2183,25 +2631,25 @@ export default class NewSale extends Component {
 
                   {
                     this.state.returnCash >= 0  && (
-                      <div> 
+                      <div>
                         <div className="row">
                         <div className="col-5 p-r-0 pt-1">
-                          <label>Collected Amount</label>
+                          <label className="text-secondary">Collected Amount</label>
                         </div>
                         <div className="col-7 p-l-0 pt-1 text-right">
-                          <label className="font-bold">₹ {this.state.cashAmount}</label>
+                          <label className="font-bold text-secondary">₹ {this.state.cashAmount}</label>
                         </div>
                       </div>
                       <div className="row">
                         <div className="col-5 p-r-0 pt-1">
-                          <label>Return Amount</label>
+                          <label className="text-orange">Return Amount</label>
                         </div>
                         <div className="col-7 p-l-0 pt-1 text-right">
-                          <label className="font-bold">₹ {this.state.returnCash}</label>
+                          <label className="font-bold text-orange">₹ {this.state.returnCash}</label>
                         </div>
                       </div>
                       </div>
-                      
+
                     )
                   }
 
@@ -2209,16 +2657,16 @@ export default class NewSale extends Component {
                     this.state.couponAmount > 0 && (
                       <div className="row">
                       <div className="col-5">
-                        <label>Coupon Applied</label>
+                        <label className="text-green">Coupon Applied</label>
                       </div>
                       <div className="col-7 text-right">
-                        <label className="font-bold">₹ {this.state.couponAmount}</label>
+                        <label className="font-bold text-green">₹ {this.state.couponAmount}</label>
                       </div>
                     </div>
                     )
                   }
 
-                  
+
 
 
 
@@ -2245,92 +2693,28 @@ export default class NewSale extends Component {
                   )
                 }
 
-                {
-                  this.state.enablePayment && (
-                    <div>
-                      <label className="fs-18 pt-3">Payment Type</label>
-                      <div className="list row">
-                        <ul>
-                          <li>
-                            <span>
-                              <img src={card} onClick={this.getCardModel} />
-                              <label>CARD</label>
-                            </span>
-
-                          </li>
-                          <li>
-                            <span>
-                              <img src={cash} onClick={this.getCashModel} />
-                              <label>CASH</label>
-                            </span>
-
-                          </li>
-                          <li>
-                            <span className="">
-                              <img src={upi} onClick={this.getUPIModel} />
-                              <label>UPI</label>
-                            </span>
-
-                          </li>
-                          <li>
-                            <span>
-                              <img src={qr} onClick={this.getCCModel} />
-                              <label>CC</label>
-                            </span>
-
-                          </li>
-                          {
-                            this.state.isCredit && (
-                              <li>
-                                <span className="">
-                                  <img src={upi} onClick={this.getCreditModel} />
-                                  <label>CREDIT</label>
-                                </span>
-
-                              </li>
-                            )
-                          }
-
-                          <li>
-                            <span>
-                              <img src={khata} />
-                              <label>KHATA</label>
-                            </span>
-
-                          </li>
-                          <li>
-                            <span>
-                              <img src={khata} onClick={this.getGvModel} />
-                              <label> GV</label>
-                            </span>
-
-                          </li>
-
-
-                        </ul>
-                      </div>
-                    </div>
-                  )
-                }
 
 
 
-                <div className="mt-3">
+
+                <div className="p-t-3">
                   <button
-                    className={"mt-1 w-100 " + (this.state.grandNetAmount !== 0 || this.state.totalAmount === 0 ? "btn-unic btn-disable" : "btn-unic active")} 
+                    className={"mt-1 w-100 " + (this.state.grandNetAmount !== 0 || this.state.totalAmount === 0 ? "btn-unic btn-disable" : "btn-unic active")}
                     onClick={this.savePayment}
                     disabled={(this.state.grandNetAmount !== 0 || this.state.totalAmount === 0 )}
-                  >PROCEED TO CHECKOUT</button>
+                  >PROCEED TO CHECKOUT (Alt+n)</button>
                   {/* <button className="btn-unic p-2 w-100">HOLD PAYMENT</button> */}
                 </div>
               </div>
             </div>
-
-          </div>
+                  </div>
+            </div>
         </div>
 
 
+
       </div>
+
     );
   }
 }

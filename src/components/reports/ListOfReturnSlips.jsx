@@ -14,6 +14,8 @@ export default class ListOfReturnSlips extends Component {
       toDate: "",
       // startRecordNumber: 0,
       // numberOfRecords: 5,
+      pageNumber:0,
+      totalPages:0,
       barcodeTextileId: "",
       barcode: "",
       store: "",
@@ -57,19 +59,19 @@ export default class ListOfReturnSlips extends Component {
 
   getBarcodes(pageNumber) {
     const obj = {
-      fromDate: this.state.fromDate ? this.state.fromDate : undefined,
-      toDate: this.state.toDate ? this.state.toDate : undefined,
+      fromDate: this.state.fromDate ? this.state.fromDate : null,
+      toDate: this.state.toDate ? this.state.toDate : null,
       // startRecordNumber: 0,
       // numberOfRecords: 5,
       barcodeTextileId: this.state.barcodeTextileId
         ? parseInt(this.state.barcodeTextileId)
         : undefined,
-      barcode: this.state.barcode ? this.state.barcode : undefined,
+      barcode: this.state.barcode ? this.state.barcode : null,
       // storeName: this.state.store ? this.state.store : undefined,
       storeId:
         this.state.storeId && this.state.storeId != 0
           ? this.state.storeId
-          : undefined,
+          : "",
 
       empId: this.state.empId ? this.state.empId : undefined,
       itemMrpLessThan: this.state.itemMrpLessThan
@@ -105,6 +107,14 @@ export default class ListOfReturnSlips extends Component {
         });
         obj = {
           barcode: d.barcode,
+          hsnCode:d.hsnCode,
+          costPrice:d.costPrice,
+          batchNo:d.batchNo,
+          category:d.category,
+          division:d.division,
+          name:d.name,
+          domainType:d.domainType,
+          originalBarcodeCreatedAt:d.originalBarcodeCreatedAt,
           storeId: d.storeId,
           empId: d.empId,
           qty: d.qty,
@@ -120,6 +130,7 @@ export default class ListOfReturnSlips extends Component {
         // barcodeData: a,
         bcList: a,
         bcDetailsList: a,
+        totalPages:res.data.result.totalPages
       });
     });
   }
@@ -133,16 +144,34 @@ export default class ListOfReturnSlips extends Component {
     console.log("filterdata", filterData);
     let obj = {
       barcode: "",
+      hsnCode:"",
+      batchNo:"",
+      category:"",
+      division:"",
+      domainType:"",
+      name:"",
+      empId:"",
+      costPrice:"",
       itemMrp: "",
-      storeName: "",
-      qty: "",
+      originalBarcodeCreatedAt:"",
+      // storeName: "",
+      // qty: "",
     };
 
     obj = {
       barcode: filterData[0].barcode,
+      hsnCode: filterData[0].hsnCode,
+      batchNo: filterData[0].batchNo,
+      category: filterData[0].category,
+      division: filterData[0].division,
+      domainType: filterData[0].domainType,
+      name:filterData[0].name,
+      empId:filterData[0].empId,
+      costPrice: filterData[0].costPrice,
       itemMrp: filterData[0].itemMrp,
-      storeName: filterData[0].storeName,
-      qty: filterData[0].qty,
+      originalBarcodeCreatedAt: filterData[0].originalBarcodeCreatedAt,
+      // storeName: filterData[0].storeName,
+      // qty: filterData[0].qty,
     };
 
     //console.log("after insert a", a);
@@ -158,11 +187,11 @@ export default class ListOfReturnSlips extends Component {
     this.setState({ storeId: storeId });
     console.log("user", user);
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if (domainData.label == "Textile") {
-      this.setState({ domaindataId: 1 });
-    } else if (domainData.label == "Retail") {
-      this.setState({ domaindataId: 2 });
-    }
+    // if (domainData.label == "Textile") {
+    //   this.setState({ domaindataId: 1 });
+    // } else if (domainData.label == "Retail") {
+    //   this.setState({ domaindataId: 2 });
+    // }
     if (user["custom:isSuperAdmin"] === "true") {
       this.state.domainDetails = JSON.parse(
         sessionStorage.getItem("selectedDomain")
@@ -192,7 +221,7 @@ export default class ListOfReturnSlips extends Component {
         },
         () => {
           console.log(this.state);
-          this.getStoreNames(this.state.domainId1);
+          this.getStoreNames(user["custom:clientId1"]);
         }
       );
     } else {
@@ -205,7 +234,7 @@ export default class ListOfReturnSlips extends Component {
         },
         () => {
           console.log(this.state);
-          this.getStoreNames(user["custom:domianId1"]);
+          this.getStoreNames(user["custom:clientId1"]);
         }
       );
     }
@@ -281,14 +310,21 @@ export default class ListOfReturnSlips extends Component {
   renderPopupTableData() {
     if (this.state.popupData) {
       // return this.state.popupData.map((items, index) => {
-      const { barcode, itemMrp, storeName, qty } = this.state.popupData;
+      const { barcode,hsnCode,batchNo,category,division,domainType,name,empId,costPrice,originalBarcodeCreatedAt,itemMrp, storeName, qty } = this.state.popupData;
       return (
         <tr>
           <td className="col-2">{barcode}</td>
-          <td className="col-2">{itemMrp}</td>
-          <td className="col-2">{storeName}</td>
-          <td className="col-2">{qty}</td>
-        </tr>
+          <td className="col-1">{hsnCode}</td>
+          <td className="col-1">{batchNo}</td>
+          <td className="col-1">{category}</td>
+          <td className="col-1">{division}</td>
+          <td className="col-1">{domainType}</td>
+          <td className="col-1">{name}</td>
+          <td className="col-1">{empId}</td>
+          <td className="col-1">{costPrice}</td>
+          <td className="col-1">{itemMrp}</td>
+          <td className="col-2">{originalBarcodeCreatedAt}</td>
+         </tr>
       );
     }
   }
@@ -304,10 +340,17 @@ export default class ListOfReturnSlips extends Component {
                 <thead>
                   <tr className="m-0 p-0">
                     <th className="col-2">BARCODE</th>
-                    <th className="col-2">MRP</th>
-                    <th className="col-2">STORE</th>
-                    <th className="col-2">QTY</th>
-                  </tr>
+                    <th className="col-1">HSNCODE</th>
+                    <th className="col-1">BATCH NO.</th>
+                    <th className="col-1">CATEGORY</th>
+                    <th className="col-1">DIVISION</th>
+                    <th className="col-1">DOMAIN</th>
+                    <th className="col-1">NAME</th>
+                    <th className="col-1">EMP ID</th>
+                    <th className="col-1">COST PRICE</th>
+                    <th className="col-1">MRP</th>
+                    <th className="col-2">CREATED DATE</th>
+                    </tr>
                 </thead>
                 {/* <tbody>
                   <tr>
@@ -374,7 +417,7 @@ export default class ListOfReturnSlips extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="BARCODE NUMBER"
+                placeholder="Barcode Number"
                 value={this.state.barcode}
                 // onChange={(e) =>
                 //   this.setState({ barcodeTextileId: e.target.value })
@@ -416,7 +459,7 @@ export default class ListOfReturnSlips extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="EMP ID"
+                placeholder="Emp ID"
                 value={this.state.empId}
                 onChange={(e) => this.setState({ empId: e.target.value })}
               />
@@ -428,7 +471,7 @@ export default class ListOfReturnSlips extends Component {
               <input
                 type="text"
                 className="form-control"
-                placeholder="BARCODE MRP <"
+                placeholder="Barcode MRP <"
                 value={this.state.itemMrpLessThan}
                 onChange={(e) =>
                   this.setState({ itemMrpLessThan: e.target.value })
@@ -439,11 +482,11 @@ export default class ListOfReturnSlips extends Component {
 
           <div className="col-6 col-sm-2 mt-2">
             <div className="form-group">
-              <label>Barcode MRP GraterThan </label>
+              <label>Barcode MRP GreaterThan </label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="BARCODE MRP >"
+                placeholder="Barcode MRP >"
                 value={this.state.itemMrpGreaterThan}
                 onChange={(e) =>
                   this.setState({ itemMrpGreaterThan: e.target.value })
@@ -451,7 +494,7 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-2 scaling-mb mt-2 pt-4">
+          <div className="col-6 col-sm-2 scaling-mb mt-2 pt-0">
             <div className="form-group">
               <button
                 className="btn-unic-search active"
@@ -459,7 +502,7 @@ export default class ListOfReturnSlips extends Component {
                   this.getBarcodes(0);
                 }}
               >
-                SEARCH{" "}
+                Search
               </button>
             </div>
           </div>
@@ -496,17 +539,28 @@ export default class ListOfReturnSlips extends Component {
               </tr>
              </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
-              {console.log(">>>.bclist", this.state.pageList)}
 
-              {this.state.pageList?.content?.length > 10 ? null : (
-                <ReactPageNation
+
+                {/* <ReactPageNation
+                  {...this.state.pageList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                  }}
+                /> */}
+              
+            </table>
+            <div className="row m-0 pb-3 mb-5 mt-3">
+            {this.state.totalPages > 1 ? (
+            <div className="d-flex justify-content-center">
+            <ReactPageNation
                   {...this.state.pageList}
                   changePage={(pageNumber) => {
                     this.changePage(pageNumber);
                   }}
                 />
-              )}
-            </table>
+                </div>
+            ):null}
+            </div>
           </div>
         </div>
       </div>

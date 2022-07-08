@@ -85,6 +85,7 @@ export default class CreateHSNCode extends Component {
         AccountingPortalService.saveHsnCode(obj).then(response => {
           if (response) {
           toast.success(response.data.message);
+          toast.success("HSN code added sucessfully");
           this.closeHSNCode()
           this.getAllHsnCodes()
           }
@@ -373,7 +374,7 @@ slabValidation() {
                 <div className="form-group">
                   <label>Description <span className="text-red font-bold" name="bold">*</span></label>
                   <select value={this.state.descprition} className="form-control" onChange={this.handleSelectChangeDesc}>
-                  <option>Select Description</option>
+                  <option value="" disabled>Select Description</option>
                    {descDataList}
                   </select >
                 </div>
@@ -383,7 +384,7 @@ slabValidation() {
                 <div className="form-group">
                   <label>Tax Applies ON <span className="text-red font-bold" name="bold">*</span></label>                
                   <select value={this.state.taxAppliesOn} className="form-control" onChange={this.handleSelectChangeTaxList}>
-                  <option>Select Tax Applies ON</option>
+                  <option value="" disabled>Select Tax Applies ON</option>
                     {taxAppliesList}
                   </select >                
                 </div>
@@ -406,7 +407,7 @@ slabValidation() {
                 </div>             
                 {(this.state.taxAppliedType  === '' || this.state.taxAppliedType  === 'Hsncode') && <div className="col-4 mt-3">
                 <div className="form-group">
-                  <label>TAX Label <span className="text-red font-bold" name="bold">*</span></label>
+                  <label> Label <span className="text-red font-bold" name="bold">*</span></label>
                   <select value={this.state.taxId} onChange={(e) => this.handleSelectChangeAllTax(e)} className="form-control">
                       <option>Select Tax Label</option>
                         { 
@@ -516,7 +517,7 @@ slabValidation() {
           </div>
           <div className="col-sm-7 col-6 text-right">
             <button className="btn-unic-search mt-2 active"
-              onClick={this.addHSNCode}>Add HSN Code</button>
+              onClick={this.addHSNCode}><i className='icon-credit_notes'></i> Add HSN Code</button>
           </div>
         </div>
         <div className="table-responsive">

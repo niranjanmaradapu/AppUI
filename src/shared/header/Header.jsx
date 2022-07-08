@@ -1,5 +1,7 @@
 import { getDefaultNormalizer } from '@testing-library/react';
 import React, { Component, useEffect } from 'react'
+import 'bootstrap/dist/css/bootstrap.css';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { withRouter } from "react-router-dom";
 import cashmemo from "../../assets/images/cash_memo.svg";
 import profile from "../../assets/images/profile.svg";
@@ -7,6 +9,14 @@ import Select from 'react-select';
 import { browserHistory } from 'react-router';
 import logosm from '../../assets/images/easy_retail_logo.svg';
 import portal_icon from '../../assets/images/c_portal.svg';
+import portal_menu from '../../assets/images/c_portal_dark.svg';
+import Inventory_img from '../../assets/images/inventory_portal.svg';
+import Promotions_img from '../../assets/images/promotions_loyal.svg';
+import Accounting_img from '../../assets/images/accounting_portal.svg';
+import Reports_img from '../../assets/images/reports_chart.svg';
+import URM_img from '../../assets/images/URM_portal.svg';
+import HR_img from '../../assets/images/HR_portal.svg';
+
 import search from '../../assets/images/search.svg';
 import list from "../../assets/images/all_modules.svg";
 import arrow from "../../assets/images/circle_arrow.svg";
@@ -74,7 +84,14 @@ class Header extends Component {
     super(props)
     this.state = {
       userData: {},
-
+    //   selectedCategory: {
+    //   "id": "2",
+    //   "name": "Accounting Portal",
+    //   "parentImage": "icon-r_brand fs-30 i_icon",
+    //   "path": "/stores"
+    // },
+    selectedCategory: {},
+      selectedImage: '',
       headerName: '',
       domainTitle: '',
       dropData: [],
@@ -440,7 +457,7 @@ class Header extends Component {
 
           this.setState({dropData:dropData})
          this.setState({moduleNames: header});
-         
+         this.setState({ selectedCategory: header[0]});
     } else if(user["custom:isSuperAdmin"] === "true") {
       const clientId =  user["custom:clientId1"];
     //   URMService.getMasterDomainsList().then((res) => {
@@ -469,6 +486,7 @@ class Header extends Component {
         URMService.getSelectedPrivileges(user["custom:roleName"]).then(res => {
           if(res && res.data && res.data){
             this.setState({moduleNames: res.data.parentPrivileges});
+            this.setState({ selectedCategory: res.data.parentPrivileges[0]});
             eventBus.dispatch("subHeader", { message: (res.data && res.data.parentPrivileges.length>0)?res.data.parentPrivileges[0].id:"" });
           }
          
@@ -646,15 +664,15 @@ class Header extends Component {
 
   
 
-  handleSelectChange = (e) => {
+  handleSelectChange = (e, item, image) => {
     console.log(e.target.value);
     const domainName = sessionStorage.getItem("domainName");
     let parentPath;
-    this.setState({headertype: e.target.value});
-    eventBus.dispatch("subHeader", { message: e.target.value });
+    this.setState({headertype: e.target.value, selectedCategory: item, selectedImage: image});
+    eventBus.dispatch("subHeader", { message: item.id });
     console.log(this.state.moduleNames);
     this.state.moduleNames.forEach(ele => {
-      if (ele.id == e.target.value) {
+      if (ele.name == e.target.value) {
         if(ele.path) {
           parentPath = ele.path;
         } else {
@@ -725,11 +743,57 @@ class Header extends Component {
             </div>
             <div className="col-6">
               <div className="module_select">
-                <img src={portal_icon} />
+              <Dropdown>
+                      {this.state.selectedCategory === ''? <Dropdown.Toggle className="drop-tog" variant="success">Select Module</Dropdown.Toggle>
+                       : <Dropdown.Toggle className="drop-tog" variant="success">{this.state.selectedCategory.name}</Dropdown.Toggle> }
+                      <Dropdown.Menu>
+                        {modules.map((item, i) => (                        
+                          <Dropdown.Item
+                            key={i}
+                            as="button"
+                            href={item.path}
+                            value={item.name}
+                            onClick={(e) => this.handleSelectChange(e, item, item.parentImage)}
+                          >
+                             {/* <img src={item.parentImage} />*/} {item.name} 
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown.Menu>
+                    </Dropdown>
+                {/* <img src={portal_icon} />
                 <select value={this.state.headertype} onChange={this.handleSelectChange}>
 
                   {modulesList}
-                </select >
+                </select > */}
+
+                {/* <Dropdown>
+                    <Dropdown.Toggle className="drop-tog" variant="success">
+                      Select Category
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item>
+                      <img className="" src={portal_menu} /> Customer Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <img src={Inventory_img} /> Inventory Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Promotions_img} /> Promotions & Loyalty
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Accounting_img} /> Accounting Potal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Reports_img} /> Reports
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={URM_img} /> URM Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={HR_img} /> HR Portal
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown> */}
               </div>
             </div>
           </div>
@@ -751,13 +815,13 @@ class Header extends Component {
           <div className="row">
             <div className="col-sm-7">
               <div className='head-text'>
-                  Role : <span> {this.state.roleName}</span>
+                  Role : <span> {this.state.roleName[0].toUpperCase()+this.state.roleName.substring(1)}</span>
               </div>
               {
             this.state.storenameFlag  && (<div className='head-text'>
                 
                 
-                Store : <span> {this.state?.storeName}</span>
+                Store : <span> {this.state?.storeName[0].toUpperCase()+this.state?.storeName.substring(1)}</span>
               
               </div>)
            }
@@ -773,6 +837,35 @@ class Header extends Component {
            
               
               <div className="header-right float-right">
+
+              {/* <Dropdown>
+                    <Dropdown.Toggle className="drop-tog" variant="success">
+                      Select Category
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item>
+                      <img className="" src={portal_menu} /> Customer Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <img src={Inventory_img} /> Inventory Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Promotions_img} /> Promotions & Loyalty
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Accounting_img} /> Accounting Potal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Reports_img} /> Reports
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={URM_img} /> URM Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={HR_img} /> HR Portal
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown> */}
                 <ul className="navbar-nav">
                   {/* <li className="nav-item upper-case">{this.props.user.name}</li> */}
                   {/* <li className="nav-item upper-case">Ashok</li>  */}
@@ -785,8 +878,10 @@ class Header extends Component {
                         <i className="icon-tag_customer"></i>
                       </div>
                       <div className="itemMain-right text-left">
-                        <span className="text-left p-l-2 mb-0">{this.state.user}</span>
-                        <Select className="align"
+                        <div className='text_parent pt-2'>
+                        <span className="text-left p-l-2 mb-0 ellipsis">{this.state.user[0].toUpperCase()+this.state.user.substring(1)}</span>
+                        </div>
+                        <Select className="align drop_select"
                           value={this.state.selectedOption} // set selected value
                           options={this.state.dropData} // set list of the data
                           onChange={this.handleChange} // assign onChange function

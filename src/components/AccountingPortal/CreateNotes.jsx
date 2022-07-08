@@ -7,8 +7,9 @@ import AccountingPortalService from '../../services/AccountingPortal/AccountingP
 import ecommerce from "../../assets/images/ecommerce.svg";
 import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
-import { NEW_SALE_URL } from "../../commonUtils/ApiConstants";
+import { ACCOUNTING_PORTAL } from "../../commonUtils/ApiConstants";
 import {errorLengthMin, errorLengthMax, creditNotes_Err_Msg } from './Error';
+import ReactPageNation from "../../commonUtils/Pagination";
 
 export default class CreateNotes extends Component {
 
@@ -16,6 +17,8 @@ export default class CreateNotes extends Component {
     super(props);
     this.state = {
       isCredit: false,
+      pageNumber:0,
+      totalPages:0,
       mobileNumber: "",
       storeName: "",
       userName: "",
@@ -48,6 +51,7 @@ export default class CreateNotes extends Component {
     this.saveCredit = this.saveCredit.bind(this);
     this.getCreditNotes = this.getCreditNotes.bind(this);
     this.handleValidation = this.handleValidation.bind(this);
+    this.changePage = this.changePage.bind(this);
   }
 
   componentWillMount() {
@@ -67,7 +71,11 @@ export default class CreateNotes extends Component {
     this.setState({ isCredit: false, isAddMore: false, mobileNumber: '', customerData: '', creditAmount: '', transactionType: '',isEdit: false,error:{}});
   }
 
-
+  dateFormat = (d) => {
+    let date = new Date(d)
+    
+    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
+}
   getCreditNotes() {
     const accountType ='CREDIT';
     const { storeId } = this.state;
@@ -81,12 +89,14 @@ export default class CreateNotes extends Component {
     }
     AccountingPortalService.getCreditNotes(reqOb).then(response => {
       if (response) {
-        this.setState({ creditData: response.data.content });
+        // this.setState({ creditData: response.data.content });
+        this.setState({ creditData: response.data,totalPages: response.data.totalPages });
       }
     });
   }
 
-  searchCreditNotes = () => {
+  searchCreditNotes = (pageNumber) => {
+    if(this.state.fromDate || this.state.toDate || this.state.searchMobileNumber){
     const { storeId, fromDate, toDate, searchMobileNumber } = this.state;
    const reqOb =  {
       fromDate: fromDate,
@@ -96,11 +106,19 @@ export default class CreateNotes extends Component {
       accountType: "CREDIT",
       customerId: null
     }
-    AccountingPortalService.getCreditNotes(reqOb).then(response => {
-      if (response) {
-          this.setState({ creditData: response.data.content });
+    AccountingPortalService.getCreditNotes(reqOb,pageNumber).then(response => {
+      if (response.data.content.length !== 0) {
+        this.state.creditData=response?.data;
+          this.setState({ creditData: response.data, totalPages: response.data.totalPages });
+      }
+      else{
+        this.setState({ creditData: [] });
+        toast.error("No Record Found")
       }
     });
+  }else{
+    toast.error("Please Give Any Input Field");
+  }
   }
 
   clearCreditNotes = () => {
@@ -250,7 +268,7 @@ export default class CreateNotes extends Component {
         toast.success("Payment Done Successfully");
         let status = true
         const param = '?razorPayId=' + response.razorpay_order_id + '&payStatus=' + status;
-        const result = axios.post(BASE_URL + NEW_SALE_URL.saveSale + param, {});
+        const result = axios.post(BASE_URL + ACCOUNTING_PORTAL.payconfirmation + param, {});
       },
       prefill: {
         name: "Kadali",
@@ -261,7 +279,18 @@ export default class CreateNotes extends Component {
     const paymentObject = new window.Razorpay(options);
     paymentObject.open();
     this.closeCredit();
+    this.getCreditNotes();
   });
+}
+
+
+changePage(pageNumber) {
+  console.log(">>>page", pageNumber);
+  let pageNo = pageNumber + 1;
+  this.setState({ pageNumber: pageNo });
+  // this.getUserBySearch(pageNumber);
+  // this.searchUser(pageNumber);
+  this.searchCreditNotes(pageNumber); 
 }
 
   render() {
@@ -462,7 +491,21 @@ export default class CreateNotes extends Component {
               <input type="date" className="form-control"
                 placeholder="TO DATE" 
                 value={this.state.toDate}
-                onChange={(e) => this.setState({ toDate: e.target.value })}
+                // onChange={(e) => this.setState({ toDate: e.target.value })}
+                onChange={(e) =>{
+                  var startDate = new Date(this.state.fromDate);
+                  var endDate = new Date(e.target.value);
+                  console.log(">>>", startDate, endDate);
+                  if(!this.state.fromDate){
+                    toast.error("Please Select From Date")
+                    console.log("++++++startdate+++++"+this.state.fromDate)
+                  }
+                  if (startDate <= endDate) {
+                    this.setState({ toDate: e.target.value });
+                  } else {
+                    toast.error("To Date Should Be Greater Than From Date");
+                  }
+                }}
                 autoComplete="off"
                 />
             </div>
@@ -471,7 +514,7 @@ export default class CreateNotes extends Component {
             <div className="form-group mb-3">
             <label>Mobile</label>
               <input type="text" className="form-control"
-                placeholder="MOBILE NUMEBR" 
+                placeholder="Mobile Number" 
                 maxLength="10"
                 minLength="10"
                 value={this.state.searchMobileNumber}
@@ -493,9 +536,10 @@ export default class CreateNotes extends Component {
             </div>
           </div>
           <div className="col-sm-6 col-12 scaling-mb scaling-center pt-4">
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchCreditNotes}>SEARCH</button>
-            <button className="btn-unic-search active m-r-2 mt-2" onClick={this.clearCreditNotes}>Clear</button>
-            <button className="btn-unic-search mt-2 active" onClick={this.addCredit}>Add Credit Notes</button>
+            {/* <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchCreditNotes}>SEARCH</button> */}
+            <button className="btn-unic-search active m-r-2 mt-2" onClick={()=>{this.searchCreditNotes(0); this.setState({ pageNumber: 0 });}}>Search</button>
+            <button className="btn-clear m-r-2 mt-2" onClick={this.clearCreditNotes}>Clear</button>
+            <button className="btn-unic-search mt-2 active" onClick={this.addCredit}><i className="icon-credit_notes"></i> Add Credit Notes</button>
           </div>
         </div>
         <div className="row m-0 p-0 scaling-center">
@@ -516,17 +560,18 @@ export default class CreateNotes extends Component {
                 </tr>
               </thead>
               <tbody>
-                {this.state.creditData.map((items, index) => {
+                {this.state.creditData?.content?.map((items, index) => {
+                  let date = this.dateFormat(items.createdDate)
                   return (
                     <tr key={index}>
                       <td className="col-1 underline geeks">{items.customerId}</td>
                       <td className="col-2">{items.customerName}</td>
                       <td className="col-1">{items.storeId}</td>
-                      <td className="col-1">{items.createdDate}</td>
+                      <td className="col-1">{date}</td>
                       <td className="col-2">₹ {items.usedAmount}</td>
                       <td className="col-1">₹ {items.amount}</td>
                       <td className="col-2">{items.createdBy}</td>
-                      <td className="col-1 underline geeks"><a onClick={() => this.addMore(items)}>Pay More</a></td>
+                      <td className="col-1 underline geeks"><a onClick={() => this.addMore(items)}>Add Credit</a></td>
                       <td className="col-1">
                         {/* <img src={edit} className="w-12 pb-2" />
                         <i className="icon-delete m-l-2 fs-16"></i> */}
@@ -535,10 +580,26 @@ export default class CreateNotes extends Component {
                     </tr>
                   );
                 })}
-                {this.state.creditData.length === 0 && <tr>No records found!</tr>}
+                {/* {this.state.creditData.length === 0 && <tr>No records found!</tr>} */}
               </tbody>
            
             </table>
+
+            <div className="row m-0 pb-3 mb-5 mt-3">
+
+{this.state.totalPages > 1 ? (
+            <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.creditData}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div>
+                   ) : null} 
+                   </div>
+
+
           </div>
 
         </div>

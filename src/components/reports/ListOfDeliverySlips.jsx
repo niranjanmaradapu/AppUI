@@ -54,9 +54,7 @@ export default class ListOfDeliverySlips extends Component {
         parseInt(this.state.storeId) && parseInt(this.state.storeId) != 0
           ? parseInt(this.state.storeId)
           : undefined,
-      domainId: this.state.domaindataId
-        ? parseInt(this.state.domaindataId)
-        : undefined,
+     //  domainId: this.state.domaindataId ? parseInt(this.state.domaindataId) : undefined,
 
       store: {
         id:
@@ -88,6 +86,11 @@ export default class ListOfDeliverySlips extends Component {
           totMrp: data.totalMrp,
           billValue: data.billValue,
           totalDiscount: data.totalDiscount,
+          totalSgst:data.totalSgst,
+          totalCgst:data.totalCgst,
+          totalIgst:data.totalIgst,
+          totalCess:data.totalCess
+
         });
       })
       .catch((e) => {});
@@ -116,11 +119,11 @@ export default class ListOfDeliverySlips extends Component {
     this.setState({ storeId: storeId });
     console.log("user", user);
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if (domainData.label == "Textile") {
-      this.setState({ domaindataId: 1 });
-    } else if (domainData.label == "Retail") {
-      this.setState({ domaindataId: 2 });
-    }
+    // if (domainData.label == "Textile") {
+    //   this.setState({ domaindataId: 1 });
+    // } else if (domainData.label == "Retail") {
+    //   this.setState({ domaindataId: 2 });
+    // }
     if (user["custom:isSuperAdmin"] === "true") {
       this.state.domainDetails = JSON.parse(
         sessionStorage.getItem("selectedDomain")
@@ -137,7 +140,7 @@ export default class ListOfDeliverySlips extends Component {
         },
         () => {
           console.log(this.state);
-          this.getStoreNames(this.state.domainId1);
+          this.getStoreNames(user["custom:clientId1"]);
         }
       );
     } else {
@@ -150,7 +153,7 @@ export default class ListOfDeliverySlips extends Component {
         },
         () => {
           console.log(this.state);
-          this.getStoreNames(user["custom:domianId1"]);
+          this.getStoreNames(user["custom:clientId1"]);
         }
       );
     }
@@ -182,13 +185,18 @@ export default class ListOfDeliverySlips extends Component {
   renderTableData() {
     console.log(">>>>>>>>dataa", this.state.dsList);
     return this.state.dsList.map((items, index) => {
-      const { totalMrp, totalDiscount, billValue, transction } = items;
+      const { totalMrp, totalDiscount, billValue, transction,storeId,totalSgst,totalCgst,totalIgst,totalCess } = items;
       return (
         <tr className="" key={index}>
-          <td className="col-3">{transction}</td>
+          <td className="col-2">{transction}</td>
           <td className="col-2">₹ {totalMrp}</td>
-          <td className="col-3">₹ {totalDiscount}</td>
-          <td className="col-3">₹ {billValue}</td>
+          <td className="col-2">₹ {totalDiscount}</td>
+          <td className="col-2">₹ {billValue}</td>
+          <td className="col-1">{storeId}</td>
+          <td className="col-1">{totalSgst}</td>
+          <td className="col-1">{totalCgst}</td>
+          <td className="col-1">{totalIgst}</td>
+          <td className="col-1">{totalCess}</td>
         </tr>
       );
     });
@@ -264,7 +272,7 @@ export default class ListOfDeliverySlips extends Component {
                 className="btn-unic-search active"
                 onClick={this.getDeliverySlips}
               >
-                SEARCH{" "}
+                Search{" "}
               </button>
             </div>
           </div>
@@ -289,10 +297,16 @@ export default class ListOfDeliverySlips extends Component {
             <table className="table table-borderless mb-1 mt-2">
               <thead>
                 <tr className="m-0 p-0">
-                  <th className="col-3">TRANSACTION</th>
+               
+                 <th className="col-2">TRANSACTION</th>
                   <th className="col-2">TOTAL MRP</th>
-                  <th className="col-3">PROMO OFFER</th>
-                  <th className="col-3">INVOICE AMOUNT</th>
+                  <th className="col-2">PROMO OFFER</th>
+                  <th className="col-2">INVOICE AMOUNT</th>
+                  <th className="col-1">SRORE ID</th>
+                  <th className="col-1">SGST</th>
+                  <th className="col-1">CGST</th>
+                  <th className="col-1">IGST</th>
+                  <th className="col-1">CESS</th>
                 </tr>
               </thead>
               {/* <tbody>
@@ -316,17 +330,21 @@ export default class ListOfDeliverySlips extends Component {
           </div>
           <div className="rect-cardred m-0 mb-4">
             <div className="row">
-              <div className="col-1 col-sm-3 text-center"></div>
+              {/* <div className="col-1 col-sm-3 text-center"></div> */}
+              <div className="col-1 col-sm-2 text-center"></div>
 
-              <div className="col-3 col-sm-2">
+              {/* <div className="col-3 col-sm-2"> */}
+             <div className="col-1 col-sm-2">
                 <label>TOTAL MRP</label>
                 {/* <h6 className="pt-2">₹ 7,500.00</h6> */}
-                <h6 className="pt-2">₹ {this.state.totMrp}</h6>
+                <h6 className="pt-1">₹ {this.state.totMrp}</h6>
               </div>
-              <div className="col-5 col-sm-4">
+              {/* <div className="col-5 col-sm-4"> */}
+              <div className="col-4 col-sm-2">
                 <label>TOTAL PROMO OFFER</label>
                 <h6 className="pt-2">₹ {this.state.totalDiscount}</h6>
               </div>
+              {/* <div className="col-3 col-sm-2  pt-2 text-left text-red p-r-4"> */}
               <div className="col-3 col-sm-2  pt-2 text-left text-red p-r-4">
                 <label className="text-red ">GRAND TOTAL</label>
                 <h6 className="fs-16 text-red ">₹ {this.state.billValue}</h6>

@@ -24,7 +24,7 @@ import { forgot_err_msg} from "../../commonUtils/Errors";
 import { update_Pass_Err_Msg} from "../../commonUtils/Errors";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import URMService from "../../services/URM/URMService";
-
+// import font from "../../assets/fonticons"
 class Login extends Component {
   constructor(props) {
     super(props);
@@ -1250,7 +1250,7 @@ if (emailReg.test(this.state.registerEmail) === false) {
                         /> */}
                       </div>
 
-                      <div class="col d-flex">
+                      <div className="col d-flex">
                         <button
                           className="btn-login_v1 mt-3 m-r-2"
                           onClick={this.registerClient}

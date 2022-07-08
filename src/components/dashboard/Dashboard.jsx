@@ -98,7 +98,7 @@ export default class Dashboard extends Component {
 
     getTodaysSale() {
         MainDashboardService.getTodaySale(this.state.storeId, this.state.domainId).then(response => {
-            console.log("Todays Sale", response.data.result.amount);
+            // console.log("Todays Sale", response.data.result.amount);
             if (response) {
                 if (response.data.result !== null) {
                     this.setState({ todaysSale: response.data.result.amount });
@@ -110,7 +110,7 @@ export default class Dashboard extends Component {
 
     getMonthlySale() {
         MainDashboardService.getMonthlySale(this.state.storeId, this.state.domainId).then(response => {
-            console.log("Monthly Sale", response.data.result.amount);
+            // console.log("Monthly Sale", response.data.result.amount);
             if (response) {
                 if (response.data.result !== null) {
                     this.setState({ monthlySale: response.data.result.amount });

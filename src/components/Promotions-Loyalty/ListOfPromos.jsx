@@ -8,7 +8,7 @@ import PromotionsService from "../../services/PromotionsService";
 import URMService from '../../services/URM/URMService';
 import Select from "react-select";
 
-export default class ManagePromo extends Component {
+export default class ListOfPromos extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -19,11 +19,6 @@ export default class ManagePromo extends Component {
       deletePromoConformation: false,
       selectedItem: '',
       isItemChecked: '',
-      stores: [
-        { value: 'Kukatpally', label: 'Kukatpally' },
-        { value: 'KPHB-9thPhase', label: 'KPHB-9th Phase' },
-        { value: 'Ameerpet', label: 'Ameerpet' },    
-      ],
       promoStatuses: [
         { value: true, label: 'Active' },
         { value:  false, label: 'Inactive' },
@@ -48,6 +43,8 @@ export default class ManagePromo extends Component {
       listOfGetPools: [],
       selectedPools: [],
       applicability: '',
+      isApplicability: false,
+      isPromoApplyType:false,
       description: '',
       printNameOnBill: '',
       promoName: '',
@@ -173,30 +170,18 @@ export default class ManagePromo extends Component {
 
     this.addPromo = this.addPromo.bind(this);
     this.closePromo = this.closePromo.bind(this);
-    this.addStore = this.addStore.bind(this);
-    this.closeStore = this.closeStore.bind(this);
     this.addBenefits = this.addBenefits.bind(this);
     this.editBenefits = this.editBenefits.bind(this);
     this.closeBenefits = this.closeBenefits.bind(this);
     this.closePromotionPopup = this.closePromotionPopup.bind(this);
     this.handleDeletPromo = this.handleDeletPromo.bind(this);
-    this.handleStore = this.handleStore.bind(this);
-    this.searchPromo = this.searchPromo.bind(this);
-    this.promotionUpdate = this.promotionUpdate.bind(this);
+    this.handleStore = this.handleStore.bind(this);    
     this.getPoolList = this.getPoolList.bind(this);
-    this.savePromotion = this.savePromotion.bind(this);
-    this.cloneStore = this.cloneStore.bind(this);
-    this.closeClonePopup = this.closeClonePopup.bind(this);
-    this.addPromoToStore = this.addPromoToStore.bind(this);
-    this.cloneStoreName = this.cloneStoreName.bind(this);
-    this.savePriority = this.savePriority.bind(this);
+    this.savePromotion = this.savePromotion.bind(this);      
     this.addSlab = this.addSlab.bind(this);
     this.addBenfit = this.addBenfit.bind(this);
     this.addBenefitsList = this.addBenefitsList.bind(this);
-    this.getEditBenfitByIndex = this.getEditBenfitByIndex.bind(this);
-    this.getAllStorePromos = this.getAllStorePromos.bind(this);
-    this.showPramotionStoreMapping = this.showPramotionStoreMapping.bind(this);
-    this.showPromotionsList  = this.showPromotionsList.bind(this);
+    this.getEditBenfitByIndex = this.getEditBenfitByIndex.bind(this);    
     this.handleValidation = this.handleValidation.bind(this);
     this.handleBenefitFormData = this.handleBenefitFormData.bind(this);
     this.slabData = this.slabData.bind(this);
@@ -204,184 +189,10 @@ export default class ManagePromo extends Component {
     this.updatePromotionStatus = this.updatePromotionStatus.bind(this); 
   }
   componentDidMount() {
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    const clientDomainId = user["custom:clientDomians"].split(",")[0];
-      URMService.getDomainName(clientDomainId).then(res => {
-        if(res) {
-          const obj  = {
-            value: clientDomainId,
-            label: res.data.result.domaiName
-          }
-          this.setState({ selectedOption: obj }, () => {this.getDomainsList()});
-        }
-      });
-    // this.getPromoList();
-    // this.getPoolList();
-   //  this.getDomainsList();
-    this.getAllStorePromos();
+    this.getPromoList();
+    this.getPoolList();
   }
 
-   dateCompare = (endDate) => {
-    let currentDate = new Date();
-    let today = new Date();
-    let dd = String(today.getDate()).padStart(2, '0');
-    let mm = String(today.getMonth() + 1).padStart(2, '0');
-    let yyyy = today.getFullYear();
-    currentDate = yyyy+'-'+ mm + '-' + dd ;
-    if(endDate < currentDate) {
-       return true;
-    }
-    //  else if(endDate === currentDate) {
-    //    return false;
-    // } else 
-    // if( endDate > currentDate) {
-    //   return false;
-    // }
-}
-  getDomainsList() {
-    const { selectedOption } = this.state;    
-     const user = JSON.parse(sessionStorage.getItem('user'));
-     const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));  
-     if(selectedOption.label === 'Textile') {
-      this.setState({ clientDomainaId: user["custom:clientId1"], 
-                      clientId: 1 // res.data.result[1].domain[0].id
-                    }, () =>  {this.getPromoList(); this.getAllStoresList();});
-    } else {
-      this.setState({ clientDomainaId: user["custom:clientId1"], 
-                      clientId: 2 // res.data.result[0].domain[0].id 
-                    }, () =>  { this.getPromoList(); this.getAllStoresList();});
-       }      
-    }
-    getAllStoresList() {
-      const { selectedOption } = this.state;
-      const user = JSON.parse(sessionStorage.getItem('user'));
-      // const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain')); 
-      // URMService.getStoresByDomainId(user["custom:domianId1"]).then((res) => { 
-        URMService.getStoresByDomainId(selectedOption.value).then((res) => { 
-          if(res) {
-            const result = res.data.result.map((item) => {
-              const obj = {};
-                obj.value = item.id;
-                obj.label = item.name;
-                obj.location = item.address
-              return obj;         
-            });
-            this.setState({storesList: result}, () => this.getPoolList());
-          }
-      }); 
-  }
-  addPromoToStore() {
-    const { storeStartDate, storeEndDate, storePromoName, storePromoType, storeName, searchStoreName} = this.state;
-    let promoIds = []; 
-    let storeIds = [];
-    const user = JSON.parse(sessionStorage.getItem("user"));    
-    const createdBy = user['custom:userId'];
-    const formDate = this.handleStoreData();
-    if(formDate) {
-    if(searchStoreName.length > 0) {
-      promoIds = searchStoreName.map(item => {
-        const obj = {};
-        obj.promoId = item.value;
-        obj.promotionName = item.label;
-         return obj;
-      });
-    } else {
-      let obj = {};
-      obj.promoId = searchStoreName.value;
-      obj.promotionName = searchStoreName.label;
-      promoIds.push(obj);
-    }
-    
-    if(storeName.length > 1) {
-      storeIds =  storeName.map((item) => {
-        const obj = {};
-        obj.id = item.value;
-        obj.name = item.label;
-        return obj;
-      });
-     } else {
-      const obj = {};
-      obj.id = storeName.value;
-      obj.name = storeName.label;
-      storeIds.push(obj);
-     }
-    const requestObj = {
-        promotions: promoIds,
-        stores: storeIds,
-        endDate: storeEndDate,
-        startDate: storeStartDate,
-        priority: null,
-        createdBy: createdBy,
-        promotionStatus: true
-    }
-    PromotionsService.addPromoToStore(requestObj).then((res) => {
-      if(res.data.isSuccess === 'true') {
-        toast.success(res.data.message);
-        this.setState({
-          isAddStore: false,
-          storeStartDate: '',
-          storeEndDate: '',
-          storePromoName: '', 
-          storePromoType: '', 
-          storeName: ''
-        }, () => this.getAllStorePromos());
-      } else {
-        toast.success(res.data.message);
-      }
-    });
-  } else {
-    toast.info('Select All Mandatary Fields');
-  }
-  }
-  cloneStoreName() {
-    const { cloneStoreName, checkedItem } = this.state;
-    const obj = {
-      // promoToStoreId : checkedItem.id,
-      id: checkedItem.id,
-      storeName: cloneStoreName.label,
-      storeId: cloneStoreName.value,
-    }
-    
-    if(cloneStoreName !== '') {
-      PromotionsService.clonePromotionByStore(obj).then((res) => {
-        if(res.data.isSuccess === 'true') {
-          toast.success(res.data.message);
-          this.setState({
-            isPramotionChecked: false,
-            closeClone: false,
-            cloneStoreName: '',
-            checkedItem: ''
-          }, () => this.getAllStorePromos());
-        } else {
-          toast.error(res.data.message);
-        }
-        // this.getPromoList();
-      });
-    } else {
-      toast.info("Select Store Name");
-    }    
-  }
-  savePriority() {
-    const { checkedItem, priority } = this.state;
-    const obj = {
-        priority: priority,
-        // promoToStoreId: checkedItem.id
-        id: checkedItem.id
-    }
-    PromotionsService.updatePriority(obj).then((res) => {
-      if(res.data.isSuccess === 'true') {
-        toast.success(res.data.message);
-        this.setState({
-          isSavePriority: false,
-          isPramotionChecked: false,
-          priority: '',
-          checkedItem: ''
-        }, () => this.getAllStorePromos());
-      } else {
-        toast.error(res.data.message);
-      }
-    });
-  }
   getPoolList() {
     const { clientId } = this.state;
     const user = JSON.parse(sessionStorage.getItem("user"));
@@ -405,7 +216,10 @@ export default class ManagePromo extends Component {
         });
        this.setState({ 
          listOfPools: result,
-         listOfGetPools: listOfGetPools
+         listOfGetPools: listOfGetPools,
+         isApplicability:false,
+         isPromoApplyType:false,
+
         });    
       }     
      });
@@ -422,6 +236,8 @@ export default class ManagePromo extends Component {
           isPromoEdit: false,
           promoId: '',
           applicability: '',
+          isApplicability:false,
+          isPromoApplyType:false,
           buyAny: '',
           description: '',
           createdBy: '',
@@ -442,20 +258,6 @@ export default class ManagePromo extends Component {
           benfitsPayload: [],
           slabValues: []
     });
-  }
-
-  addStore() {
-    this.setState({ isAddStore: true });
-  }
-  showPramotionStoreMapping() {
-    this.setState({ displayPromotions: true }, () => this.getAllStorePromos());
-  }
-  showPromotionsList() {
-    this.setState({ displayPromotions: false }, () => this.getPromoList());
-  }
-
-  closeStore() {
-    this.setState({ isAddStore: false });
   }
 
   addBenefits() {
@@ -495,6 +297,7 @@ export default class ManagePromo extends Component {
       discountOn: obj.benfitVo.discount,
       item: obj.benfitVo.discountSubType,
       getPoolValue: obj.benfitVo.itemValue,
+      buyPoolValue: obj.benfitVo.itemValue,
       selectedPoolValue: poolObj,
       promoBenfitId: obj.benfitVo.benfitId,
       numOfItemsFromGetPool: obj.benfitVo.numOfItemsFromGetPool,
@@ -555,14 +358,14 @@ export default class ManagePromo extends Component {
           discountSubType: item
         }
         if(benfitType === 'XunitsFromBuyPool') {
-          obj = {...obj, numOfItemsFromBuyPool, itemValue: buyPoolValue}
+          obj = {...obj, poolVo: [], numOfItemsFromBuyPool, itemValue: buyPoolValue}
         }
         if(benfitType === 'XunitsFromGetPool') {
           let resultObj = {
             poolId : selectedPoolValue.value,
             poolName: selectedPoolValue.label
           }
-          obj = {...obj, numOfItemsFromGetPool, itemValue: getPoolValue,poolId: resultObj.poolId, poolName: resultObj.poolName}
+          obj = {...obj, numOfItemsFromGetPool, itemValue: getPoolValue, poolVo: [resultObj]}
         }
         if (promoApplyType === 'QuantitySlab' || promoApplyType === 'ValueSlab') {
             this.state.slabValues.map((item, ind) => {
@@ -601,41 +404,9 @@ export default class ManagePromo extends Component {
         });
   } else {
     toast.warning("Enter All Mandatary fields");
-  }
-    // obj = {};
+  }   
 }
-  promotionUpdate() {
-    const {checkedItem } = this.state;
-    this.setState({
-      updatePromoStartDate: checkedItem.startDate,
-      updatePromoEndDate: checkedItem.endDate,
-      updatePromoStatus: checkedItem.promotionStatus, 
-      promotionUpdate: true 
-    });
-  }
-  savePriorityPopUp = () =>  {
-    this.setState({ isSavePriority: true });
-  }
-  savePriorityPopUpClose = () => {
-    this.setState({ isSavePriority: false });
-  }
-  handlePriority = (e) => {
-    this.setState({ priority: e.target.value });
-  }
-  getAllStorePromos() {
-    PromotionsService.getAllStorePromos().then((res) => {
-      if(res.data.isSuccess === 'true') {   
-        res.data.result.forEach((item) => {
-          if(this.dateCompare(item.endDate)){
-           item.promotionStatus = false;
-          }    
-         });     
-        this.setState({
-          allStorePromos: res.data.result
-        });
-      }
-    });
-  }
+  
   getPromoList() {
     const { clientId } = this.state;
     const user = JSON.parse(sessionStorage.getItem("user"));
@@ -678,56 +449,7 @@ export default class ManagePromo extends Component {
       deletePromoConformation: true,
       selectedItem: item
     });
-  }
-  
-  updatePromoDates = () => {
-    const { updatePromoStartDate, updatePromoEndDate, updatePromoStatus, checkedItem } = this.state;   
-    const obj = {
-      startDate: updatePromoStartDate,
-      endDate: updatePromoEndDate,
-      promotionStatus: updatePromoStatus,
-      id: checkedItem.id
-    }
-      console.log(">>>", updatePromoStartDate, updatePromoEndDate);
-      if (updatePromoStartDate <= updatePromoEndDate) {
-      //  this.setState({ updatePromoEndDate: this.target.value });
-      
-      PromotionsService.updatePromotionDates(obj).then((res) => {
-        if(res.data.isSuccess === 'true') {
-          toast.success(res.data.message);
-          this.setState({
-            promotionUpdate: false,
-            isPramotionChecked: false,
-            updatePromoStartDate: '',
-            updatePromoEndDate: '',
-            updatePromoStatus: '', 
-            checkedItem: ''
-          });
-          this.getAllStorePromos();
-        } else {
-          toast.success(res.data.message);
-        }
-      });
-    // }
-  }else {
-    toast.error("To date should be greater than From date ");
-    
-  }
-
-}
-  closeUpdatePromotion = () => {
-    const { checkedItem, allStorePromos } = this.state;
-    allStorePromos.forEach((item) => {
-      if(item.id === checkedItem.id) {
-          item.isCheckBoxChecked = false;
-      }
-    });
-    this.setState({
-      promotionUpdate: false,
-      isPramotionChecked: false,
-      checkedItem: ''
-    });
-  }
+  }  
   haandleSearchPromotionType = (e) => {
     this.setState({searchPromotionType: e.target.value});
   }
@@ -737,7 +459,6 @@ export default class ManagePromo extends Component {
   searchPromotion = () => {
     const { searchPromotionType, searchPromoStatus} = this.state;
     const requestObj = {
-      // isActive: searchPromoStatus,
       applicability : searchPromotionType 
     }
     PromotionsService.promotionsSearching(requestObj).then((res) => {
@@ -745,8 +466,7 @@ export default class ManagePromo extends Component {
         toast.success(res.data.message);
         this.setState({
           listOfPromos: res.data.result,
-          searchPromotionType: '',
-          // searchPromoStatus: ''
+          searchPromotionType: ''
         });
       } else {
         toast.success(res.data.message);
@@ -777,6 +497,8 @@ export default class ManagePromo extends Component {
 
   closePromotionPopup() {
     this.setState({ deletePromoConformation: false });
+    // this.setState({ ispromoApplyType: false });
+
   }
   handleDeletPromo() {
     const { selectedItem } = this.state;
@@ -790,60 +512,18 @@ export default class ManagePromo extends Component {
       }    
     });
   }
-  searchPromo() {
-    const {promoStatus, searchByStoreName, endDate, startDate, promotionName } = this.state;
-    const obj = {
-        promotionStartDate: startDate ? startDate : null,
-        promotionEndDate: endDate ? endDate : null,
-        promotionName: promotionName ? promotionName : null,
-        isActive: promoStatus ? promoStatus : null,
-        storeName: searchByStoreName ? searchByStoreName.label : null
-    }
-    // Need to handle search promotion
-    PromotionsService.searchPromotion(obj).then((res) => {     
-      if(res.data.isSuccess === 'true') {
-        this.setState({
-          allStorePromos: res.data.result,
-          promoStatus: '', 
-          searchByStoreName: '',
-          endDate: '', 
-          startDate: '', 
-          promotionName: ''
-        });        
-      }     
-    });
-  }
+  
   addPromo() {
     this.setState({ isAddPromo: true });
   }
   
-  addStore() {
-    this.setState({ isAddStore: true });
-  }
-
-  // addBenefits() {
-  //   this.setState({ isAddBenefits: true });
-  // }
-
-  // closeBenefits() {
-  //   this.setState({ isAddBenefits: false });
-  // }
-  updatePromoStartDate(e) {
-    this.setState({ updatePromoStartDate: e.target.value });
-  }
-  updatePromoEndDate(e) {
-    this.setState({ updatePromoEndDate: e.target.value });
-  }
-  updatePromoStatus(e) {
-    this.setState({ updatePromoStatus: e.target.value });
-  }
-
   handelPromoType(e) {
     this.setState({ promoType: e.target.value });
   }
   handelApplicability(e) {
     this.state.errors["applicability"] = '';
     this.setState({ applicability: e.target.value });
+       
   }
   handelIsTaxExtra(e) {
     this.state.errors["isTaxExtra"] = '';
@@ -852,6 +532,7 @@ export default class ManagePromo extends Component {
   handlePromoApplyType(e) {
     this.state.errors["promoApplyType"] = '';
     this.setState({ promoApplyType: e.target.value });
+    // this.setState({ isPromoApplyType: false });
   }
   handlePrintNameOnBill(e) {
     this.state.errors["printNameOnBill"] = '';
@@ -883,59 +564,13 @@ export default class ManagePromo extends Component {
     this.state.storeErrors["storeEndDate"] = '';
     this.setState({ storeEndDate: e.target.value });
   }
-  handleChange(e, index, item) {
-    if(e.target.checked) {
-      this.state.allStorePromos.forEach((itm, ind) => {
-        if(index === ind){
-          itm.isCheckBoxChecked = true;
-        } else {
-          itm.isCheckBoxChecked = false;
-        }
-      });
-      this.setState({
-        isPramotionChecked: true,
-        checkedItem: item
-      });
-    } else {
-      this.state.allStorePromos.forEach((itm, ind) => {
-        if(index === ind){
-          itm.isCheckBoxChecked = false;
-        }
-      });
-      this.setState({
-        isPramotionChecked: false,
-        checkedItem: ''
-      });
-    }
-  }
   onChange = opt => {
     this.state.errors["selectedPools"] = '';
     this.setState({
       selectedPools: opt
     });
   };
-  onStoreNameChange = selectedstore => {
-    this.state.storeErrors["storeName"] = '';
-    this.setState({
-      storeName: selectedstore
-    });
-  }
-  onSearchStoreNameChange = selectedSore => {
-    this.setState({
-      searchByStoreName: selectedSore
-    });
-  }
-  onSearchStorePromoNameChange = selectedPromotions =>{
-    this.state.storeErrors["searchStoreName"] = '';
-    this.setState({
-      searchStoreName: selectedPromotions
-    });
-  }
-  oncloneStoreNameChange = selectedstore => {
-    this.setState({
-      cloneStoreName : selectedstore
-    });
-  }
+ 
   selectedPoolValueChange = selectedstore => {
     this.state.benfitErrors["selectedPoolValue"] = '';
     this.setState({
@@ -983,17 +618,6 @@ export default class ManagePromo extends Component {
       this.setState({
         slabValues: slabValueRes,
         benfitVoArray: benfitVo
-        //   benfitType: benfitObj.benfitType,
-        //   discountType: benfitObj.discountType,
-        //   discountOn: benfitObj.discount,
-        //   item: benfitObj.percentageDiscountOn,
-        //   getPoolValue: benfitObj.itemValue,
-        //   buyPoolValue: benfitObj.itemValue,
-        //   promoApplyType: benfitObj.promoApplyType,
-        //  // selectedPoolValue: poolObj,
-        //   promoBenfitId: benfitObj.benfitId,
-        //   numOfItemsFromGetPool: benfitObj.numOfItemsFromGetPool,
-        //   numOfItemsFromBuyPool: benfitObj.numOfItemsFromBuyPool
       });
     } else if(promo.benfitVo.length > 0){
       benfitVo = promo.benfitVo[0];
@@ -1025,6 +649,8 @@ export default class ManagePromo extends Component {
       promoId: promo.promoId,
       isAddPromo: true,
       isPromoEdit: true,
+      isApplicability:true,
+      isPromoApplyType:true,
       // editedPromo: promo
         applicability: promo.applicability,
         buyAny: promo.buyItemsFromPool,
@@ -1036,17 +662,12 @@ export default class ManagePromo extends Component {
         selectedPools: result,
         printNameOnBill: promo.printNameOnBill,
         priority: null,
-        domainId: promo.clientId,
+        // domainId: promo.clientId,
         promoApplyType: promo.promoApplyType,
         promoName: promo.promotionName,
         promoType: promo.promoType
     });
   }
-  // checkObjectProperties = () => {
-  //   return obj.promotionSlabVo.map((obj) => {
-  //     return !Object.values(obj.benfitVo).every(o => o === null || o === '');       
-  //    });
-  // }
   handleValidation() {
     const { selectedPools,
       applicability,
@@ -1193,7 +814,7 @@ handleBenefitFormData() {
         promotionSlabVo:( promoApplyType === 'FixedQuantity' || promoApplyType === 'AnyQuantity') ? [] : benfitsPayload,
         printNameOnBill: printNameOnBill,
         priority: null,
-        domainId: clientId,
+        // domainId: clientId,
         promoApplyType: promoApplyType,
         promotionName: promoName
       //  promoType: promoType
@@ -1218,7 +839,7 @@ handleBenefitFormData() {
         poolVo: result,
         printNameOnBill: printNameOnBill,
         // priority: null,
-        domainId: clientId,
+        // domainId: clientId,
         storeId: selectedstoreData.storeId,
         clientId: user['custom:clientId1'],
         promoApplyType: promoApplyType,
@@ -1259,6 +880,8 @@ handleBenefitFormData() {
             this.setState({
               selectedPools: [],
               applicability: '',
+              isApplicability:true,
+              isPromoApplyType:true,
               description: '',
               printNameOnBill: '',
               promoName: '',
@@ -1282,20 +905,6 @@ handleBenefitFormData() {
     }
       
   }
-  cloneStore() {
-    this.setState({ closeClone: true });
-  }
-
-  closeClonePopup() {
-    const { checkedItem, allStorePromos } = this.state;
-    allStorePromos.forEach((item) => {
-       if(item.id === checkedItem.id) {
-          item.isCheckBoxChecked = false;
-       }
-    });
-    this.setState({ closeClone: false, cloneStoreName: '', isPramotionChecked: false,  checkedItem: ''});
-  }
-
   handleItemValue(e) {
     this.state.benfitErrors["item"] = '';
     this.setState({ item: e.target.value });
@@ -1344,7 +953,6 @@ handleBenefitFormData() {
     this.setState({ buyAny: e.target.value });
   }
   addSlab() {
-    // const { toSlabValue, fromSlabValue } = this.state;
     const slabData = this.slabData();
     if(slabData) {
       const toSlab = this.state.toSlabValue;
@@ -1359,7 +967,6 @@ handleBenefitFormData() {
         fromSlabValue: ''
       });
     }
-    // this.state.slabValues.push(obj);
   }
   handleRemoveSlab = (idx) => {
       const slabValues = [...this.state.slabValues]
@@ -1546,7 +1153,7 @@ handleBenefitFormData() {
                         }
                   </select> : 
                   <select value={this.state.item} onChange={(e) => this.handleItemValue(e)} className="form-control">
-                  <option>Select Discount Subtype <span className="text-red font-bold" name="bold">*</span></option>
+                  <option>Select Discount Subtype</option>
                       {   
                         this.state.fixedAmoutItemLabels &&
                         this.state.fixedAmoutItemLabels.map((item, i) => 
@@ -1563,29 +1170,6 @@ handleBenefitFormData() {
               Cancel
             </button>
             <button className="btn-unic active fs-12" onClick={this.addBenfit}>
-              Save
-            </button>
-           </ModalFooter>
-           </Modal>
-           <Modal isOpen={this.state.isSavePriority} size="md">
-           <ModalHeader>
-             Change Promo Priority
-           </ModalHeader>
-           <ModalBody>
-           <div className="row">
-              <div className="col-6">
-              <div className="form-group">
-                  <label>Priority</label>
-                  <input type="text" value={this.state.priority} onChange={(e) => this.handlePriority(e)} className="form-control" placeholder="" />
-                </div>
-              </div>
-             </div> 
-           </ModalBody>
-           <ModalFooter>
-           <button className="btn-unic" onClick={this.savePriorityPopUpClose}>
-              Cancel
-            </button>
-            <button className="btn-unic active fs-12" onClick={this.savePriority}>
               Save
             </button>
            </ModalFooter>
@@ -1624,7 +1208,11 @@ handleBenefitFormData() {
               <div className="col-3 mt-3">
                 <div className="form-group">
                   <label>Applicability <span className="text-red font-bold" name="bold">*</span></label>
-                    <select value={this.state.applicability} onChange={(e) => this.handelApplicability(e)} className="form-control">
+                    <select value={this.state.applicability}
+                    disabled={this.state.isApplicability}
+                    onChange={(e) => this.handelApplicability(e)}
+                  
+                     className="form-control">
                       <option>Select</option>
                         { 
                             this.state.applicabilies &&
@@ -1639,7 +1227,10 @@ handleBenefitFormData() {
                 <div className="form-group">
                   <label className="">Promotion Apply Type <span className="text-red font-bold" name="bold">*</span></label>
                   {this.state.applicability === 'promotionForWholeBill' ?  
-                  <select value={this.state.promoApplyType} onChange={(e) => this.handlePromoApplyType(e)} className="form-control">
+                  <select value={this.state.promoApplyType} 
+                  disabled={this.state.isPromoApplyType}
+                  onChange={(e) => this.handlePromoApplyType(e)} className="form-control">
+                    
                     <option>Select</option>
                         { 
                           this.state.promoApplyTypesForWholeBill &&
@@ -1648,7 +1239,9 @@ handleBenefitFormData() {
                         }
                   </select>
                   : 
-                  <select value={this.state.promoApplyType} onChange={(e) => this.handlePromoApplyType(e)} className="form-control">
+                  <select value={this.state.promoApplyType} 
+                  disabled={this.state.isPromoApplyType} 
+                  onChange={(e) => this.handlePromoApplyType(e)} className="form-control">
                     <option>Select</option>
                         { 
                           this.state.promoApplyTypes &&
@@ -1703,7 +1296,7 @@ handleBenefitFormData() {
                 </div>
               </div>
               <div className="col-3 mt-3">
-              <div className="form-group">
+              <div className="form-group sele">
                  <label className="">Add Buy Pools <span className="text-red font-bold" name="bold">*</span></label> 
                     <Select
                       isMulti
@@ -1739,7 +1332,7 @@ handleBenefitFormData() {
                   </div>
                   <span style={{ color: "red" }}>{this.state.slabErrors["toSlabValue"]}</span>
                 </div>
-                <div className="col-3 mt-3 pt-2">
+                <div className="col-3 mt-4 pt-2 p-l-0">
                   <button className="btn-nobdr text-red p-t-3" type="button" onClick={this.addSlab}>+ Add Slab</button>
                 </div>
                 <div className="col-12">
@@ -1786,118 +1379,6 @@ handleBenefitFormData() {
             </button>
           </ModalFooter>
         </Modal>
-        <Modal isOpen={this.state.closeClone} size="md">
-          <ModalHeader>Clone Promo To Store</ModalHeader>
-            <ModalBody>
-              <div className="row">
-                  <div className="col-6">
-                    <div className="form-group">
-                      <label>Store <span className="text-red font-bold" name="bold">*</span></label>
-                      <Select
-                        // isMulti
-                        onChange={this.oncloneStoreNameChange}
-                        options={this.state.storesList}
-                        value={this.state.cloneStoreName}
-                      />
-                    </div>
-                  </div>
-                </div>
-            </ModalBody>
-            <ModalFooter>
-              <button className="btn-unic" onClick={this.closeClonePopup}>
-                Cancel
-              </button>
-              <button className="btn-unic active fs-12" onClick={this.cloneStoreName}>
-                Save
-              </button>
-            </ModalFooter>
-          </Modal>
-        <Modal isOpen={this.state.isAddStore} size="md">
-          <ModalHeader>Add Promo To Store</ModalHeader>
-          <ModalBody>
-            <div className="row">
-              <div className="col-12">
-                <h6 className="mb-2 fs-14">Please add promo codes to store</h6>
-              </div>
-              <div className="col-6">
-                <div className="form-group">
-                  <label>Promotion Type</label>
-                  <select value={this.state.storePromoType} onChange={(e) => this.handleStorePromoType(e)}className="form-control">
-                    <option>Select Type</option>
-                    { 
-                      this.state.storePromotypes &&
-                      this.state.storePromotypes.map((item, i) => 
-                      (<option key={i} value={item.value}>{item.label}</option>))
-                    }
-                  </select>
-                </div>
-              </div>
-              <div className="col-6">
-                <div className="form-group">
-                  <label>Promotion Name <span className="text-red font-bold" name="bold">*</span></label>
-                  {this.state.storePromoType === 'By_Promotion' &&  this.state.storePromoType !== '' ? 
-                    <Select
-                        // isMulti
-                        onChange={this.onSearchStorePromoNameChange}
-                        options={this.state.storePromoList}
-                        value={this.state.searchStoreName}
-                    /> 
-                    : 
-                    <Select
-                        isMulti
-                        onChange={this.onSearchStorePromoNameChange}
-                        options={this.state.storePromoList}
-                        value={this.state.searchStoreName}
-                    />}    
-                </div>
-                <span style={{ color: "red" }}>{this.state.storeErrors["searchStoreName"]}</span>
-              </div>
-              <div className="col-6 mt-3">
-                <div className="form-group">
-                  <label>Start Date <span className="text-red font-bold" name="bold">*</span></label>
-                  <input type="date" value={this.state.storeStartDate}  onChange={(e) => this.handleStoreStartDate(e)} className="form-control" />
-                </div>
-                <span style={{ color: "red" }}>{this.state.storeErrors["storeStartDate"]}</span>
-              </div>
-              <div className="col-6 mt-3">
-                <div className="form-group">
-                  <label>End Date <span className="text-red font-bold" name="bold">*</span></label>
-                  <input type="date" value={this.state.storeEndDate} onChange={(e) => this.handleStoreEndDate(e)} className="form-control" />
-                </div>
-                <span style={{ color: "red" }}>{this.state.storeErrors["storeEndDate"]}</span>
-              </div>
-              <div className="col-6 mt-3">
-                <div className="form-group">
-                  <label>Store <span className="text-red font-bold" name="bold">*</span></label>
-                  {this.state.storePromoType === 'By_Promotion' && this.state.storePromoType !== '' ?
-                    <Select
-                      isMulti
-                      onChange={this.onStoreNameChange}
-                      options={this.state.storesList}
-                      value={this.state.storeName}
-                   /> 
-                  :  
-                    <Select
-                      // isMulti
-                      onChange={this.onStoreNameChange}
-                      options={this.state.storesList}
-                      value={this.state.storeName}
-                    />                    
-                  }
-                </div>
-              </div>
-              <span style={{ color: "red" }}>{this.state.storeErrors["storeName"]}</span>
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <button className="btn-unic" onClick={this.closeStore}>
-              Cancel
-            </button>
-            <button className="btn-unic active fs-12" onClick={this.addPromoToStore}>
-              Save
-            </button>
-          </ModalFooter>
-        </Modal>
         <Modal isOpen={this.state.deletePromoConformation} size="md">
           <ModalHeader>Delete Promo</ModalHeader>
           <ModalBody>
@@ -1917,83 +1398,6 @@ handleBenefitFormData() {
             </button>
           </ModalFooter>
         </Modal>
-        <Modal isOpen={this.state.promotionUpdate} size="xl">
-          <ModalHeader>Modify Promo Validity</ModalHeader>
-          <ModalBody>
-          <div className="row">
-              <div className="col-3 mt-3">
-                <div className="form-group">
-                  <label>Start Date <span className="text-red font-bold" name="bold">*</span></label>
-                  <input value={this.state.updatePromoStartDate} onChange={(e) => this.updatePromoStartDate(e)} type="date" className="form-control" />
-                </div>
-              </div>
-              <div className="col-3 mt-3">
-                <div className="form-group">
-                  <label>End Date <span className="text-red font-bold" name="bold">*</span></label>
-                  <input value={this.state.updatePromoEndDate}   onChange={(e) => this.updatePromoEndDate(e)} type="date" className="form-control"/>
-                  <div></div>
-                  
-                </div>
-              </div>
-              <div className="col-3 mt-3">
-                <div className="form-group">
-                  <label>Status</label>
-                  <select value={this.state.updatePromoStatus} onChange={(e) => this.updatePromoStatus(e)} className="form-control">
-                    <option>Select Status</option>
-                    { 
-                      this.state.promoStatuses &&
-                      this.state.promoStatuses.map((item, i) => 
-                      (<option key={i} value={item.value}>{item.label}</option>))
-                    }
-                  </select>
-                </div>
-              </div>
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <button className="btn-unic" onClick={this.closeUpdatePromotion}>
-              Cancel
-            </button>
-            <button
-              className="btn-unic active fs-12"
-              onClick={this.updatePromoDates}
-            >
-              Save
-            </button>
-          </ModalFooter>
-        </Modal>
-        <div className="row m-0 p-0 scaling-center">  
-          <div className="col-6 p-l-0">
-            <button
-              // className="btn-unic-search active m-1 mt-1"
-              className={!this.state.displayPromotions ? 'btn-unic-search active m-1 mt-1' : 'btn-unic-search m-1 mt-1' }
-              onClick={this.showPromotionsList}
-            >
-              <i className="icon-retail p-r-1"></i> List Of Promotions
-            </button>
-
-            <button
-              // className="btn-unic-search  m-1 mt-1"
-              className={this.state.displayPromotions ? 'btn-unic-search active m-1 mt-1' : 'btn-unic-search m-1 mt-1' }
-              onClick={this.showPramotionStoreMapping}
-            >
-              <i className="icon-retail p-r-1"></i> Manage Promotions
-            </button>
-
-            {!this.state.displayPromotions && <button
-              className="btn-unic-search active m-r-2 mt-1"
-              onClick={this.addPromo}
-            >
-              <i className="icon-sale p-r-1"></i>Add Promo
-            </button> }
-            {this.state.displayPromotions && <button
-              className="btn-unic-search active mt-1"
-              onClick={this.addStore}
-            >
-              <i className="icon-retail p-r-1"></i> Add Store
-            </button>}
-          </div>
-       </div>
         {this.state.displayPromotions && <div className="row">
           <div className="col-sm-2 col-6">
             <div className="form-group mt-2 mb-3">
@@ -2059,7 +1463,7 @@ handleBenefitFormData() {
         </div>}
 
         {!this.state.displayPromotions && <div className="row">
-          <div className="col-sm-2 col-6 mt-2">
+          <div className="col-sm-3 col-6 mt-2">
             <div className="form-group mb-3">
             <label>Promo Type</label>
               <select value={this.state.searchPromotionType} onChange={ (e) => this.haandleSearchPromotionType(e)} className="form-control">
@@ -2072,24 +1476,23 @@ handleBenefitFormData() {
                 </select>
             </div>
           </div>
-          <div className="col-sm-2 col-6 mt-2 pt-4">
-          <button className="btn-unic-redbdr" onClick={this.searchPromotion}>SEARCH</button>
+          <div className="col-sm-4 col-6 mt-2 pt-3">
+          <button className="btn-unic-search active m-r-2 " onClick={this.searchPromotion}>Search</button>
+          <button
+              className="btn-unic-redbdr mt-2  " 
+              onClick={this.addPromo}
+            >
+              <i className="icon-sale"></i> Add Promo
+              {/* <i className="icon-sale p-r-1"></i>Add Promo */}
+            </button>
           </div>
         </div>}
-
-
         <div className="row m-0 p-0 scaling-center">  
           <div className="col-6 p-l-0">
-          <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Promotions</h5>
-            {this.state.displayPromotions && <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.promotionUpdate}>Modify Validity</button>}
-            {this.state.displayPromotions && <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.cloneStore}>Clone</button>}
-            {this.state.displayPromotions &&  <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.savePriorityPopUp}>Change Promo Priority</button>}
-          </div>
-          <div className="col-6 text-right p-r-0 mt-4 align-self-center">
-            <span className="mt-3 ">Show on page </span><span className="font-bold fs-14"> 1-10</span><span> out of 11</span><button className="btn-transparent" type="button"><img src={left} /></button><button className="btn-transparent" type="button"><img src={right} /></button>
+            <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Promotions</h5>
           </div>
           <div className="table-responsive p-0">
-            {!this.state.displayPromotions ? <table className="table table-borderless mb-1 mt-2">
+            <table className="table table-borderless mb-1 mt-2">
               <thead>
                 <tr className="m-0 p-0">
                   <th className="col-1"># Promo-ID</th>
@@ -2125,44 +1528,7 @@ handleBenefitFormData() {
                 })}
                 {this.state.listOfPromos.length == 0  && <tr>No records found!</tr>}              
               </tbody>
-            </table> : 
-            <table className="table table-borderless mb-1 mt-2">
-            <thead>
-              <tr className="m-0 p-0">
-                <th className="col-1"># Mapping Id</th>
-                <th className="col-2">Promotion</th>
-                <th className="col-2">Store</th>
-                <th className="col-2">Priority</th>
-                <th className="col-2">Start Date</th>
-                <th className="col-2">End Date</th>
-                <th className="col-1">Status</th>
-                <th className="col-1"></th>
-              </tr>
-            </thead>
-            <tbody>
-            {this.state.allStorePromos.length > 0 && this.state.allStorePromos.map((item, index) => {
-              return( 
-              <tr key={index}>
-                <td className="col-1 underline geeks"> <input type="checkbox" checked={item.isCheckBoxChecked}  onChange={(e) => this.handleChange(e,index, item)}/> <span className="pt-0 mt-0">{item.id}</span> </td>
-                <td className="col-2">{item.promotionName}</td>
-                <td className="col-2">{item.storeName}</td>
-                <td className="col-2">{item.priority}</td>
-                <td className="col-2">{item.startDate}</td>
-                <td className="col-2">{item.endDate}</td>
-                <td className="col-1">
-                  {item.promotionStatus ? 
-                    <button onClick={() => this.updatePromotionStatus(item)} className="btn-active">Active</button> : 
-                    <button className="btn-inactive">Inactive</button>}
-                </td>
-                {/* <td className="col-1">
-                  <img src={edit} onClick={this.editPramotion(item)} className="w-12 pb-2" />
-                  <i onClick={this.handleRemovePromo(item)} className="icon-delete m-l-2 fs-16"></i></td> */}
-                </tr> 
-                )
-              })}
-              {this.state.allStorePromos.length == 0  && <tr>No records found!</tr>}              
-            </tbody>
-          </table>}
+            </table>
           </div>
         </div>
       </div>

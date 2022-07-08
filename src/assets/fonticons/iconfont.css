@@ -3,11 +3,11 @@ iconfont Webfont
 */
 @font-face {
 	font-family: 'iconfont';
-	src: url('iconfont.eot?1630565503799');
-	src: url('iconfont.eot?#iefix-1630565503799') format('embedded-opentype'),
-		url('iconfont.woff2?1630565503799') format('woff2'),
-		url('iconfont.woff?1630565503799') format('woff'),
-		url('iconfont.ttf?1630565503799') format('truetype');
+	src: url('iconfont.eot?1657106277241');
+	src: url('iconfont.eot?#iefix-1657106277241') format('embedded-opentype'),
+		url('iconfont.woff2?1657106277241') format('woff2'),
+		url('iconfont.woff?1657106277241') format('woff'),
+		url('iconfont.ttf?1657106277241') format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -18,6 +18,7 @@ iconfont Webfont
 	display: inline-block;
 	vertical-align: middle;
 	line-height: 1;
+	margin-top: -4px;
 	font-weight: normal;
 	font-style: normal;
 	speak: none;
@@ -33,127 +34,127 @@ iconfont Webfont
 Glyphs list
 */
 
-.icon-Final-Logo-Colour-and-Proportion:before {
+.icon-accounting_portal:before {
 	content: '\ea01';
 }
 
-.icon-add_btn:before {
+.icon-active_promotions:before {
 	content: '\ea02';
 }
 
-.icon-add_course:before {
+.icon-add_btn:before {
 	content: '\ea03';
 }
 
-.icon-add_group:before {
+.icon-add_pool:before {
 	content: '\ea04';
 }
 
-.icon-add_ic:before {
+.icon-add_role:before {
 	content: '\ea05';
 }
 
-.icon-add_user:before {
+.icon-all_modules:before {
 	content: '\ea06';
 }
 
-.icon-add_video:before {
+.icon-arrow_big_left:before {
 	content: '\ea07';
 }
 
-.icon-all_modules:before {
+.icon-arrow_sm:before {
 	content: '\ea08';
 }
 
-.icon-arrow_big_left:before {
+.icon-audit:before {
 	content: '\ea09';
 }
 
-.icon-arrow_sm:before {
+.icon-barcode:before {
 	content: '\ea0a';
 }
 
-.icon-audit:before {
+.icon-barcode_s:before {
 	content: '\ea0b';
 }
 
-.icon-barcode:before {
+.icon-card:before {
 	content: '\ea0c';
 }
 
-.icon-barcode_big:before {
+.icon-cash:before {
 	content: '\ea0d';
 }
 
-.icon-branches:before {
+.icon-cash_memo:before {
 	content: '\ea0e';
 }
 
-.icon-cash_memo:before {
+.icon-circle_arrow:before {
 	content: '\ea0f';
 }
 
-.icon-chart:before {
+.icon-close:before {
 	content: '\ea10';
 }
 
-.icon-circle_arrow:before {
+.icon-coupon:before {
 	content: '\ea11';
 }
 
-.icon-close:before {
+.icon-create_customer:before {
 	content: '\ea12';
 }
 
-.icon-create_customer:before {
+.icon-create_delivery_slip:before {
 	content: '\ea13';
 }
 
-.icon-create_delivery_slip:before {
+.icon-credit_notes:before {
 	content: '\ea14';
 }
 
-.icon-delete:before {
+.icon-c_portal:before {
 	content: '\ea15';
 }
 
-.icon-ecommerce:before {
+.icon-c_portal_dark:before {
 	content: '\ea16';
 }
 
-.icon-electrical:before {
+.icon-c_portal_white:before {
 	content: '\ea17';
 }
 
-.icon-electronics:before {
+.icon-delete:before {
 	content: '\ea18';
 }
 
-.icon-hsn:before {
+.icon-down_arrow:before {
 	content: '\ea19';
 }
 
-.icon-locked:before {
+.icon-edit:before {
 	content: '\ea1a';
 }
 
-.icon-login_bg:before {
+.icon-eye:before {
 	content: '\ea1b';
 }
 
-.icon-login_bg_circle:before {
+.icon-HR_portal:before {
 	content: '\ea1c';
 }
 
-.icon-login_circle_big:before {
+.icon-inactive_promo:before {
 	content: '\ea1d';
 }
 
-.icon-logo_01:before {
+.icon-inventory_portal:before {
 	content: '\ea1e';
 }
 
-.icon-logo_otsi:before {
+.icon-khata:before {
 	content: '\ea1f';
 }
 
@@ -165,82 +166,87 @@ Glyphs list
 	content: '\ea21';
 }
 
-.icon-management:before {
+.icon-print:before {
 	content: '\ea22';
 }
 
-.icon-midi_blue:before {
+.icon-printer_connected:before {
 	content: '\ea23';
 }
 
-.icon-midi_bluenew:before {
+.icon-product_combo:before {
 	content: '\ea24';
 }
 
-.icon-midi_dress:before {
+.icon-promo:before {
 	content: '\ea25';
 }
 
-.icon-notes:before {
+.icon-promotions_loyal:before {
 	content: '\ea26';
 }
 
-.icon-notes_add:before {
+.icon-qr_new:before {
 	content: '\ea27';
 }
 
-.icon-pramotions:before {
+.icon-reports_chart:before {
 	content: '\ea28';
 }
 
-.icon-profile:before {
+.icon-return_slip:before {
 	content: '\ea29';
 }
 
-.icon-promo:before {
+.icon-sale:before {
 	content: '\ea2a';
+	/* margin-top: -4px; */
 }
 
-.icon-r_brand:before {
+.icon-scan:before {
 	content: '\ea2b';
 }
 
-.icon-rebarcoading:before {
+.icon-search:before {
 	content: '\ea2c';
 }
 
-.icon-retail:before {
+.icon-stock:before {
 	content: '\ea2d';
 }
 
-.icon-return_slip:before {
+.icon-store:before {
 	content: '\ea2e';
 }
 
-.icon-sale:before {
+.icon-table_arrow_left:before {
 	content: '\ea2f';
 }
 
-.icon-saree:before {
+.icon-table_arrow_right:before {
 	content: '\ea30';
 }
 
-.icon-stock:before {
+.icon-tag_customer:before {
 	content: '\ea31';
 }
 
-.icon-tag_customer:before {
+.icon-transfer:before {
 	content: '\ea32';
 }
 
-.icon-textile:before {
+.icon-upi:before {
 	content: '\ea33';
 }
 
-.icon-transfer:before {
+.icon-up_arrow:before {
 	content: '\ea34';
 }
 
-.icon-user_privileges:before {
+.icon-URM_portal:before {
 	content: '\ea35';
-}
+}
+
+.icon-view:before {
+	content: '\ea36';
+}

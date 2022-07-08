@@ -60,7 +60,7 @@ export default class CreateTaxMaster extends Component {
     if(!this.state.isTaxMasterEdited) {
       AccountingPortalService.saveMasterTax(obj).then(response => {        
         if (response.status == 200) {
-          toast.success('Tax Master saved successfully');
+          toast.success('Tax Master added successfully');
           this.getTaxDataList();
           this.closeTaxMaster();
         }
@@ -250,7 +250,7 @@ export default class CreateTaxMaster extends Component {
             <h5 className="mt-1 mb-2 fs-18 p-l-0 mt-3">List Of Taxes</h5>
           </div>
           <div className="col-sm-7 col-6 scaling-mb text-right">
-            <button className="btn-unic-search mt-2 active" onClick={this.addTaxMaster}>Add Tax Master</button>
+            <button className="btn-unic-search mt-2 active" onClick={this.addTaxMaster}><i className='icon-credit_notes'></i> Add Tax Master</button>
           </div>
         </div>
         <div className="table-responsive">

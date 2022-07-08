@@ -19,6 +19,10 @@ export default class TagCustomer extends Component {
       mobileData: {
         customerId: "",
         name: "",
+        statusbar:"",
+        startDate:"",
+        endDate:"",
+        gvNumber1:"",
         mobileNumber: "",
         gstNumber: "",
         address: "",
@@ -284,9 +288,9 @@ export default class TagCustomer extends Component {
     //   "&gvNumber=GV" +
     //   this.state.gvNumber;
     const obj = {
-      fromDate: this.state.fromDate ? this.state.fromDate : undefined,
-      toDate: this.state.toDate ? this.state.toDate : undefined,
-      gvNumber: this.state.gvNumber ? this.state.gvNumber : undefined,
+      fromDate: this.state.startDate ? this.state.startDate : undefined,
+      toDate: this.state.endDate ? this.state.endDate : undefined,
+      gvNumber: this.state.gvNumber1 ? this.state.gvNumber1 : undefined,
     };
     console.log(">>>>>paramsss", obj);
     CreateDeliveryService.searchGiftVoucher(obj).then((res) => {
@@ -300,9 +304,9 @@ export default class TagCustomer extends Component {
   clearSearch() {
     this.setState({
       gvSearchList: [],
-      fromDate: "",
-      toDate: "",
-      gvNumber: "",
+      startDate: "",
+      endDate: "",
+      gvNumber1: "",
     });
   }
 
@@ -324,75 +328,12 @@ export default class TagCustomer extends Component {
   render() {
     return (
       <div className="maincontent">
-        <div className="row">
-          <div className="col-6 col-sm-2 mt-2 mb-2">
-            <div className="form-group">
-              <label>From Date</label>
-
-              <input
-                type="date"
-                id="start"
-                className="form-control"
-                name="trip-start"
-                value={this.state.fromDate}
-                onChange={(e) =>
-                  this.setState({
-                    fromDate: e.target.value,
-                  })
-                }
-              />
-            </div>
-          </div>
-          <div className="col-6 col-sm-2 mt-2 mb-2">
-            <div className="form-group">
-              <label>End Date</label>
-              <input
-                type="date"
-                name="trip-start"
-                className="form-control"
-                value={this.state.toDate}
-                onChange={(e) => this.setState({ toDate: e.target.value })}
-              />
-            </div>
-          </div>
-          <div className="col-6 col-sm-2 mt-2 mb-2">
-            <div className="form-group">
-              <label>GV NUMBER</label>
-              <input
-                type="number"
-                className="form-control"
-                min={0}
-                placeholder="GV NUMBER"
-                value={this.state.gvNumber}
-                onChange={(e) => this.setState({ gvNumber: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="col-6 col-sm-4 pt-4 scaling-mb mt-2">
-            <div className="form-group">
-              <button
-                className="btn-unic-search active m-r-2"
-                onClick={this.searchGiftVoucher}
-              >
-                SEARCH
-              </button>
-              <button
-                className="btn-unic-search active m-r-2"
-                onClick={() => {
-                  this.clearSearch();
-                }}
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-        </div>
+        
 
         <div className="customer-gift">
           <div className="row">
             <div className="col-12 col-sm-3">
-              <h5 className="mt-2 mb-3 fs-18">Generate gift voucher </h5>
+              <h5 className="mt-2 fs-18">Generate gift voucher </h5>
               <div className="form-group mt-2 mb-2">
                 <label>
                   GV Number{" "}
@@ -409,7 +350,7 @@ export default class TagCustomer extends Component {
                   onChange={(e) => this.setState({ gvNumber: e.target.value })}
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["gvNumber"]}
                   </span>
                 </div>
@@ -449,7 +390,7 @@ export default class TagCustomer extends Component {
                   autoComplete="off"
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["fromDate"]}
                   </span>
                 </div>
@@ -477,7 +418,7 @@ export default class TagCustomer extends Component {
                   autoComplete="off"
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["toDate"]}
                   </span>
                 </div>
@@ -497,7 +438,7 @@ export default class TagCustomer extends Component {
                   onChange={(e) => this.setState({ amount: e.target.value })}
                 />
                 <div>
-                  <span style={{ color: "red" }}>
+                  <span className="fs-12" style={{ color: "red" }}>
                     {this.state.errors["amount"]}
                   </span>
                 </div>
@@ -514,11 +455,76 @@ export default class TagCustomer extends Component {
                 className="btn-unic-search active mt-1 m-r-2"
                 onClick={this.addGiftVoucher}
               >
-                ADD GIFT VOUCHER
+                Add Gift Voucher
               </button>
             </div>
             <div className="col-12 col-sm-9">
-              <h5 className="mt-2 mb-3 fs-18">Gift Vouchers</h5>
+            <div className="row">
+            <h5 className="mt-2 mb-0 fs-18">Filters</h5>
+          <div className="col-6 col-sm-3 mt-2 mb-2">
+            <div className="form-group">
+              <label>From Date</label>
+
+              <input
+                type="date"
+                id="start"
+                className="form-control"
+                name="trip-start"
+                value={this.state.startDate}
+                onChange={(e) =>
+                  this.setState({
+                    startDate: e.target.value,
+                  })
+                }
+              />
+            </div>
+          </div>
+          <div className="col-6 col-sm-3 mt-2 mb-2">
+            <div className="form-group">
+              <label>End Date</label>
+              <input
+                type="date"
+                name="trip-start"
+                className="form-control"
+                value={this.state.endDate}
+                onChange={(e) => this.setState({ endDate: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="col-6 col-sm-3 mt-2 mb-2">
+            <div className="form-group">
+              <label>GV Number</label>
+              <input
+                type="number"
+                className="form-control"
+                min={0}
+                placeholder="GV Number"
+                value={this.state.gvNumber1}
+                onChange={(e) => this.setState({ gvNumber1: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="col-6 col-sm-3 pt-4 scaling-mb mt-2">
+            <div className="form-group">
+              <button
+                className="btn-unic-search active m-r-2"
+                onClick={this.searchGiftVoucher}
+              >
+                Search
+              </button>
+              <button
+                className="btn-clear m-r-2"
+                onClick={() => {
+                  this.clearSearch();
+                }}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+              <h5 className="mt-2 mb-1 fs-18">Gift Vouchers</h5>
 
               <div className="table-responsive scaling-mb">
                 <table className="table table-borderless mb-1 mt-2">

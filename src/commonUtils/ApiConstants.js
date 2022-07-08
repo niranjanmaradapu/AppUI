@@ -34,8 +34,8 @@ export const CREATE_DELIVERY_SLIP_URL = {
 
     createTagCustomerToGv: "/new-sale/newsale/tagCustomerToGv",
     getReturnSlips: "/new-sale/newsale/getInvoiceDetails",
-     // saveReturnSlip: "/customer/customer/createReturnSlip",
-     saveReturnSlip: "/new-sale/return_slip/createReturnSlip",
+    // saveReturnSlip: "/customer/customer/createReturnSlip",
+    saveReturnSlip: "/new-sale/return_slip/createReturnSlip",
     getCustomerMobile: "/user-management/user/customer/mobileNo",
     getGiftVochers: "/new-sale/newsale/getlistofgv",
     saveGiftVoucher: "/new-sale/newsale/saveGv",
@@ -49,16 +49,17 @@ export const CREATE_DELIVERY_SLIP_URL = {
 
 export const NEW_SALE_URL = {
     getDslipData: "/new-sale/newsale/getdeliveryslip",
+    getDsAsbarcode: "/inventory/inventory-management/scan-barcode",
     getMobileData: "/new-sale/newsale/getcustomerdetailsbymobilenuber",
     getNetAmount: "/new-sale/newsale/getHsnDetails",
     getDiscountReasons: "/new-sale/newsale/discTypes",
-    getCreditNotes: "/hsn-details/credit-debit-notes/getCreditNotes",
+    getCreditNotes: "/hsn-details/accounting/getCreditNotes",
     saveSale: "/new-sale/newsale/sale",
     getCoupons: "/new-sale/newsale/getGv",
     // getHsnDetails: "/hsn-details/hsnDetails/getHsnDetails",
     getHsnDetails: "/hsn-details/hsn-details/getHsnDetails",
     getCheckPromo: "/connection-pool/promo/checkPromtionTextile",
-    getinvoiceLevelCheckProm:"/connection-pool/promo/invoiceLevelCheckPromtionTextile"
+    getinvoiceLevelCheckProm: "/connection-pool/promo/invoiceLevelCheckPromtionTextile"
 };
 
 export const CREATE_CUSTOMER_URL = {
@@ -70,8 +71,8 @@ export const GENERATE_RETURN_SLIPS_URL = {
     getMobileData: "/user-management/user/customer/mobileNo",
     saveCustomer: "/new-sale/newsale/savecustomerdetails",
     generateReturnSlip: "/customer/customer/createReturnSlip",
-     // generateReturnSlip: "/new-sale/return_slip/createReturnSlip",
-     getListOfReturnslips: "customer/getListOfReturnSlips"
+    // generateReturnSlip: "/new-sale/return_slip/createReturnSlip",
+    getListOfReturnslips: "customer/getListOfReturnSlips"
 };
 
 export const INVENTORY_URLS = {
@@ -82,9 +83,10 @@ export const INVENTORY_URLS = {
     addBarcodes: "/inventory/inventoryRetail/createBarcode",
     getAllBarcodesList: "/inventory/inventoryRetail/getAllBarcodes",
     getRetailBarcodeDetails: "/inventory/inventoryRetail/getBarcodeId",
+    updateBarcodesQuntity: "/inventory/inventory-management/product-qty",
     deleteRetailBarcode: "/inventory/inventoryRetail/deleteBarcode",
     savebulkRetail: "/inventory/inventoryRetail/saveProductList",
-    getHeadersData:"/inventory/inventory-management/properties",
+    getHeadersData: "/inventory/inventory-management/properties",
 
     // Textile
 
@@ -97,15 +99,17 @@ export const INVENTORY_URLS = {
     getAllSections: "/inventory/catalog/category",
     getAllCategories: "/inventory/catalog/categories",
     getAllHsnList: "/hsn-details/hsn-details/getHsnDetails",
-     // getAllHsnList: "/hsn-details/hsn-details/getHsnDetails",
+    // getAllHsnList: "/hsn-details/hsn-details/getHsnDetails",
     //  getAllHsnData:"hsn-details/hsn-details/getAllHsnDetails",
     getStoreNamesByIds: '/user-management/store/storeList',
     getReBarcodeTextileBarcodeDetails: '/inventory/inventory-management/adjustments/filter',
     getEmpNameByEmpId: "/user-management/user/getUser",
     savebulkTextile: "/inventory/inventoryTextile/saveProductTextileList",
-    addBulkTextile: "/inventory/inventoryTextile/add-bulk-products",
+    addBulkTextile: "/inventory/inventory-management/add-bulk-products",
     addProductBundle: "/inventory/productBundle/add",
-    getAllProductBundleList: "/inventory/productBundle/all"
+    getAllProductBundleList: "/inventory/productBundle/all",
+    addProductBundleUpdate: "/inventory/productBundle/update"
+
 };
 
 
@@ -143,12 +147,14 @@ export const DELIVERYSLIPS_LIST_URL = {
 
 export const ESTIMATIONSLIP_LIST_URL = {
     estimationslipsList: "/new-sale/newsale/getlistofdeliveryslips",
+    deleteDsNumber: "/new-sale/newsale/deletedeliveryslip"
 };
 
 
 export const RETURNSLIPS_LIST_URL = {
-    returnslipsList: "/customer/customer/getListOfReturnSlips",
-    returnslipDetials: "/customer/customer/getReturnSlipsDetails",
+    returnslipsList: "/new-sale/return_slip/getListOfReturnSlips",
+    // returnslipDetials: "/customer/customer/getReturnSlipsDetails",
+    returnslipDetials: "/new-sale/return_slip/getReturnSlipsDetails",
 };
 
 
@@ -166,7 +172,7 @@ export const REPORTS_GRAPHS = {
 
 export const BARCODE_LIST_URL = {
     // listOfBarcodes: "/inventory/inventoryTextile/getAllBarcodeTextiles",
-    listOfBarcodes: "/inventory/inventoryTextile/getBarcodeTextileReports",
+    listOfBarcodes: "/inventory/inventory-management/getBarcodeTextileReports",
     updateBarcode: "/inventory/inventory-management/product",
     getStoresClientDomainId: "/user-management/store/getClientDomianStores"
 
@@ -174,7 +180,7 @@ export const BARCODE_LIST_URL = {
 
 export const PROMOTIONS_LIST_URL = {
     // promotionsList:"/promo/promo/listOfPromotionsBySearch",
-    promotionsList: "/connection-pool/promo/listOfPromotionsBySearch",
+    promotionsList: "/connection-pool/promo/promotionsSearching",
     getStoresClientDomainId: "/user-management/store/getClientDomianStores"
 };
 
@@ -211,7 +217,9 @@ export const USER_MANAGEMENT_URL = {
     getGSTNumber: "/user-management/store/getgstDetails",
     getusersByRole: "/user-management/reports/usersByRole",
     getActiveUsers: "/user-management/reports/activeVsInactiveUsers",
-    getStoresVsEmployee: "/user-management/reports/storesVsEmployees"
+    getStoresVsEmployee: "/user-management/reports/storesVsEmployees",
+    deleteStore: "/user-management/store/deleteStore",
+    deleteUser: "/user-management/user/deleteUser"
 
 };
 
@@ -235,12 +243,14 @@ export const PROMOTIONS_URL = {
     getAllLoyaltyPoints: "/new-sale/newsale/getAllLoyaltyPoints",
     searchLoyaltyPoints: "/new-sale/newsale/searchLoyaltyPoints",
     addBenfit: "/connection-pool/promo/addbenfit",
-    getValuesFromProductTextileColumns: "/inventory/inventoryTextile/getValuesFromProductTextileColumns",
+    // getValuesFromProductTextileColumns: "/inventory/inventory-management/getValuesFromProductTextileColumns",
+    getValuesFromProductTextileColumns: "/inventory/inventory-management/getValuesFromColumns",
     // getValuesFromBarcodeTextileColumns: "/inventory/inventoryTextile/getValuesFromBarcodeTextileColumns",
     getAllColumns: "/connection-pool/promo/allcolumnnames",
     getAllStorePromos: "/connection-pool/promo/getAllStorePromos",
     promotionsSearching: "/connection-pool/promo/promotionsSearching",
-    anyMatchingData: "/connection-pool/promo/anyMatchingData"
+    anyMatchingData: "/connection-pool/promo/anyMatchingData",
+    updatePromoStatus: "/connection-pool/promo/updatePromoStatus"
 };
 
 export const ACCOUNTING_PORTAL = {
@@ -263,5 +273,6 @@ export const ACCOUNTING_PORTAL = {
     saveHsnCode: "/hsn-details/hsn-details/save",
     deleteHsn: "/hsn-details/hsn-details/deleteHsn",
     updateHsn: "/hsn-details/hsn-details/updateHsn",
-    creditdebitOrder: "paymentgateway/create_creditdebit_order"
+    creditdebitOrder: "paymentgateway/create_creditdebit_order",
+    payconfirmation: "/hsn-details/accounting/payconfirmation"
 };

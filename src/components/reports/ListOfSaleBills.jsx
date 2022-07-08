@@ -15,9 +15,11 @@ export default class ListOfSaleBills extends Component {
       // dateTo: "",
       createdBy: null,
       rtNumber: null,
+      rtNo: null,
       barcode: null,
       rsList: [],
       rsDetailsList: [],
+      detailsArr:[],
       rsData: [],
       isView: false,
       domainId: "",
@@ -25,25 +27,25 @@ export default class ListOfSaleBills extends Component {
       status: null,
       selectOption: [
         {
-          name: "RT STATUS",
+          name: "RT Status",
           id: "RT STATUS",
         },
+        // {
+        //   name: "All",
+        //   id: "all",
+        // },
         {
-          name: "All",
-          id: "all",
-        },
-        {
-          name: "Setteled",
-          id: "setteled",
+          name: "Completed",
+          id: "completed",
         },
         {
           name: "Pending",
           id: "pending",
         },
-        {
-          name: "Cancelled",
-          id: "cancelled",
-        },
+        // {
+        //   name: "Cancelled",
+        //   id: "cancelled",
+        // },
       ],
     };
     this.getReturnSlips = this.getReturnSlips.bind(this);
@@ -55,11 +57,11 @@ export default class ListOfSaleBills extends Component {
   componentWillMount() {
     const storeId = sessionStorage.getItem("storeId");
     const domainData = JSON.parse(sessionStorage.getItem("selectedDomain"));
-    if (domainData.label == "Textile") {
-      this.setState({ domainId: 1 });
-    } else if (domainData.label == "Retail") {
-      this.setState({ domainId: 2 });
-    }
+    // if (domainData.label == "Textile") {
+    //   this.setState({ domainId: 1 });
+    // } else if (domainData.label == "Retail") {
+    //   this.setState({ domainId: 2 });
+    // }
 
     this.setState({ storeId: storeId });
   }
@@ -69,17 +71,17 @@ export default class ListOfSaleBills extends Component {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
       dateTo: this.state.dateTo ? this.state.dateTo : undefined,
       status: this.state.status ? this.state.status : undefined,
-      createdBy: this.state.createdBy ? this.state.createdBy : undefined,
+      // createdBy: this.state.createdBy ? this.state.createdBy : undefined,
       rtNumber: this.state.rtNumber ? this.state.rtNumber : undefined,
       barcode: this.state.barcode ? this.state.barcode : undefined,
-      domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
+      // domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
 
     ListOfReturnSlipsService.getReturnSlips(obj).then((res) => {
       console.log("....>>>", res);
       if (res.data.result) {
-        res.data.result.map((prop, i) => {
+        res.data.result.content.map((prop, i) => {
           let barcodeData = "";
           if (prop.barcodes.length > 0) {
             barcodeData = Array.prototype.map
@@ -94,65 +96,54 @@ export default class ListOfSaleBills extends Component {
       }
 
       this.setState({
-        rsList: res.data.result,
-        rsDetailsList: res.data.result,
+        rsList: res.data.result.content,
+        // rsDetailsList: res.data.result.content,
       });
     });
   }
 
   getReturnslipDetails(rtNumber) {
     ListOfReturnSlipsService.getReturnslipDetails(rtNumber).then((res) => {
-      console.log("..........", res.data.result);
-
-      let data = res.data.result;
-
-      console.log("dataaaa", data);
-
+      // console.log("..........", res.data.result);
+      if(res?.data?.result){
+        let data = res?.data?.result;
+      // console.log("dataaaa", data);
       let obj = {
+        rtNo:"",
+        createdDate:"",
+        createdBy:"",
+        amount:"",
         barCode: "",
-        section: "",
-        hsnCode: "",
-        quantity: "",
-        grossValue: "",
-        discount: "",
-        gst: "",
-        taxableAmount: "",
-        cgst: "",
-        sgst: "",
-        igst: "",
-        netValue: "",
+        customerName:"",
+        mobileNumber:"",
       };
-
-      let detailsArr = [];
-
-      data.barcode.map((d) => {
-        obj = {
-          barCode: d.barCode,
-          section: d.section,
-          hsnCode: d.hsnDetailsVo.hsnCode,
-          quantity: d.quantity,
-          grossValue: d.grossValue,
-          discount: d.discount,
-          gst: d.hsnDetailsVo.taxVo.gst,
-          taxableAmount: d.hsnDetailsVo.taxVo.taxableAmount,
-          cgst: d.hsnDetailsVo.taxVo.cgst,
-          sgst: d.hsnDetailsVo.taxVo.cgst,
-          igst: d.hsnDetailsVo.taxVo.igst,
-          netValue: d.netValue,
+     let detailsArr = [];
+     data?.taggedItems?.map((d) => {
+         obj = {
+        rtNo:data.rtNo,
+        createdDate:data.createdDate,
+        createdBy:data.createdBy,
+        amount:d.amount,
+        barcode: d.barCode,
+        customerName:data.customerName,
+        mobileNumber:data.mobileNumber
         };
+        console.log(">>>>>>obj",obj)
         detailsArr.push(obj);
       });
-      console.log("?>>>>popup", detailsArr);
+     
+      console.log("?>>>>popup",detailsArr);
       this.setState({
-        customerName: data.customerName,
-        rtNumber: data.rtNumber,
+        customerName:data.customerName,
+        rtNo: data.rtNo,
         mobileNumber: data.mobileNumber,
         createdDate: data.createdDate,
         rsDetailsList: detailsArr,
-
         isView: true,
       });
+    }
     });
+  
   }
 
   closeViewReport() {
@@ -165,11 +156,11 @@ export default class ListOfSaleBills extends Component {
       return (
         <tr className="m-0 p-0" key={index}>
           <td className="col-1">{index + 1}</td>
-          <td className="col-2">{rtNumber}</td>
+          <td className="col-1">{rtNumber}</td>
           <td className="col-2">{barcodeVal}</td>
-          <td className="col-2">{createdBy}</td>
+          <td className="col-1">{createdBy}</td>
           <td className="col-2">{createdInfo}</td>
-          <td className="col-2">₹{amount}</td>
+          <td className="col-1">₹{amount}</td>
           <td className="col-1 text-center">
             <img src={print} className="w-12 m-r-2 pb-2 pointer" />
             <img
@@ -196,41 +187,31 @@ export default class ListOfSaleBills extends Component {
   //   }
 
   renderPopupTableData() {
-    console.log("enterrrr");
-    if (this.state.rsDetailsList) {
-      return this.state.rsDetailsList.map((items, index) => {
+    console.log("this.state.rsDetailsList",this.state.rsDetailsList);
+    // if (this.state.rsDetailsList) {
+      return this.state?.rsDetailsList?.map((items, index) => {
         const {
+          rtNo,
+          createdDate,
+          createdBy,
+          amount,
           barCode,
-          section,
-          hsnCode,
-          quantity,
-          grossValue,
-          discount,
-          gst,
-          taxableAmount,
-          cgst,
-          sgst,
-          igst,
-          netValue,
-        } = items;
+          customerName,
+          mobileNumber,
+          } = items;
         return (
           <tr key={index}>
-            <td>{barCode}</td>
-            <td>{section}</td>
-            <td>{hsnCode}</td>
-            <td>{quantity}</td>
-            <td>{grossValue}</td>
-            <td>{discount}</td>
-            <td>{gst}</td>
-            <td>{taxableAmount}</td>
-            <td>{cgst}</td>
-            <td>{sgst}</td>
-            <td>{igst}</td>
-            <td>{netValue}</td>
+            <td className="col-2">{rtNo}</td>
+            <td className="col-2">{createdDate}</td>
+            <td className="col-1">{createdBy}</td>
+            <td className="col-1">{amount}</td>
+            <td className="col-2">{barCode}</td>
+            <td className="col-2">{customerName}</td>
+            <td className="col-2">{mobileNumber}</td>
           </tr>
         );
       });
-    }
+    
   }
 
   handleSelect(e) {
@@ -253,7 +234,7 @@ export default class ListOfSaleBills extends Component {
                   <label>Return Memo No : </label>{" "}
                   <span className="font-bold fs-13">
                     {" "}
-                    {this.state.rtNumber}
+                    {this.state.rtNo}
                   </span>
                 </div>
               </div>
@@ -290,18 +271,13 @@ export default class ListOfSaleBills extends Component {
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
-                    <th className="">Barcode</th>
-                    <th className="">Section</th>
-                    <th className="">HSN Code</th>
-                    <th className="">QTY</th>
-                    <th className="">mrp</th>
-                    <th className="">Disc</th>
-                    <th className="">GST%</th>
-                    <th className="">Taxable Amount</th>
-                    <th className="">CGST</th>
-                    <th className="">SGST</th>
-                    <th className="">IGST</th>
-                    <th className="">Net Amount</th>
+                    <th className="col-2">RTNo</th>
+                    <th className="col-2">RT Date & Time</th>
+                    <th className="col-1">Emp ID</th>
+                    <th className="col-1">Amount</th>
+                    <th className="col-2">Barcode</th>
+                    <th className="col-2">Customer Name</th>
+                    <th className="col-2">cust Mobile No.</th>
                   </tr>
                 </thead>
                 {/* <tbody>
@@ -397,13 +373,26 @@ export default class ListOfSaleBills extends Component {
 
           <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
-              <label>EMP ID</label>
+              <label>RT Number</label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="EMP ID"
-                value={this.state.createdBy}
-                onChange={(e) => this.setState({ createdBy: e.target.value })}
+                placeholder="RT NUmber"
+                value={this.state.rtNumber}
+                onChange={(e) => this.setState({ rtNumber: e.target.value })}
+              />
+            </div>
+          </div>
+          
+          <div className="col-12 col-sm-2 mt-2">
+            <div className="form-group">
+              <label>Barcode</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Barcode"
+                value={this.state.barcode}
+                onChange={(e) => this.setState({ barcode: e.target.value })}
               />
             </div>
           </div>
@@ -413,7 +402,7 @@ export default class ListOfSaleBills extends Component {
                 className="btn-unic-search active"
                 onClick={this.getReturnSlips}
               >
-                SEARCH{" "}
+                Search{" "}
               </button>
             </div>
           </div>
@@ -427,12 +416,12 @@ export default class ListOfSaleBills extends Component {
               <thead>
                 <tr className="m-0 p-0">
                   <th className="col-1">S.NO</th>
-                  <th className="col-2">RTS Number</th>
+                  <th className="col-1">RT Number</th>
                   <th className="col-2">BARCODE</th>
-                  <th className="col-2">EMP ID</th>
-                  <th className="col-2">RTS DATE</th>
-                  <th className="col-2">Amount</th>
-                  <th className="col-1"></th>
+                  <th className="col-1">EMP ID</th>
+                  <th className="col-2">RT DATE & TIME</th>
+                  <th className="col-1">AMOUNT</th>
+                  <th className="col-1">ACTIONS</th>
                 </tr>
               </thead>
               {/* <tbody>

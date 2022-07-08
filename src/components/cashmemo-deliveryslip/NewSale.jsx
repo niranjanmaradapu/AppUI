@@ -440,29 +440,15 @@ export default class NewSale extends Component {
     this.setState({ isCreditModel: false });
   }
   confirmKathaModel(){
-  //    this.setState({ isPayment: false })
-  //   const obj = {
+     this.setState({ isPayment: false })
+    const obj = {
 
-  //     "paymentType": "PKTPENDING",
-  //     "paymentAmount": this.state.grandNetAmount
-  //   }
-  //   this.state.paymentType.push(obj);
-  //   this.setState({ isKathaModel: false });
-  //   this.createInvoice()
-   console.log('+++++++++++++++++++++++++++++++', this.state.grandNetAmount);
-      const obj = {
-        "paymentType": "PKTPENDING",
-        "paymentAmount": this.state.grandNetAmount
-      }
-      this.state.paymentType.push(obj);
-   
-      this.setState({
-        isPayment: false,
-        payingAmount: this.state.grandNetAmount
-      }, () => {
-        this.hideKathaModel();
-        this.createInvoice();
-      });
+      "paymentType": "PKTPENDING",
+      "paymentAmount": this.state.grandNetAmount
+    }
+    this.state.paymentType.push(obj);
+    this.setState({ isKathaModel: false });
+    this.createInvoice()
   }
   confirmCreditModel() {
 
@@ -550,57 +536,67 @@ export default class NewSale extends Component {
             "paymentType": "Card",
             "paymentAmount": this.state.ccCardCash
           }
-
+      
         ]
 
       }
 
       console.log("+++++++++++++++++conirm3+++++++++++")
 
-      NewSaleService.saveSale(obj).then((res) => {
-        if (res) {
-          this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
-          this.setState({
-            customerName: " ",
-            gender: " ",
-            dob: " ",
-            customerGST: " ",
-            address: " ",
-            manualDisc: 0,
-            customerEmail: "",
-            netPayableAmount: 0.0,
-            barCodeList: [],
-            grossAmount: 0.0,
-            promoDiscount: 0.0,
-            cashAmount: 0,
-            taxAmount: 0.0,
-            grandNetAmount: 0,
-            returnCash: 0,
-            stateGST: 0,
-            centralGST: 0,
-            isPayment: true,
-            isCCPay: true,
-            isCCModel: false,
-            totalAmount:0,
-            couponAmount:0,
-            isCredit: false,
+      if (this.state.ccCollectedCash < this.state.grandNetAmount) {
+        NewSaleService.saveSale(obj).then((res) => {
+          if (res) {
+            this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
+            this.setState({
+              customerName: " ",
+              gender: " ",
+              dob: " ",
+              customerGST: " ",
+              address: " ",
+              manualDisc: 0,
+              customerEmail: "",
+              netPayableAmount: 0.0,
+              barCodeList: [],
+              grossAmount: 0.0,
+              promoDiscount: 0.0,
+              cashAmount: 0,
+              taxAmount: 0.0,
+              grandNetAmount: 0,
+              returnCash: 0,
+              stateGST: 0,
+              centralGST: 0,
+              isPayment: true,
+              isCCPay: true,
+              isCCModel: false,
+              totalAmount:0,
+              couponAmount:0,
+              isCredit: false,
+  
+  
+            });
+            this.setState({ showDiscReason: false, isPayment: true });
+            this.setState({ showTable: false });
+            sessionStorage.setItem("recentSale", res.data.result);
+            toast.success(res.data.result);
+            this.setState({ newSaleId: res.data.result });
+            // this.pay()
+  
+            this.pay()
+  
+          } else {
+            toast.error(res.data.result);
+          }
+        });
+  
+      }else{
+          // alert("Net Payable Amount should be greater than From CollectedCash ");
+               toast.error(" CollectedCash Should be less than payable amount when it comes to CC")
+             }
+
+      
 
 
-          });
-          this.setState({ showDiscReason: false, isPayment: true });
-          this.setState({ showTable: false });
-          sessionStorage.setItem("recentSale", res.data.result);
-          toast.success(res.data.result);
-          this.setState({ newSaleId: res.data.result });
-          // this.pay()
-
-          this.pay()
-
-        } else {
-          toast.error(res.data.result);
-        }
-      });
-
+      
     // }
 
   }
@@ -1285,8 +1281,7 @@ export default class NewSale extends Component {
   }
 
   createInvoice() {
-    this.setState({ netCardPayment: this.state.grandNetAmount });
-    this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
+    this.setState({ netCardPayment: this.state.grandNetAmount })
     sessionStorage.removeItem("recentSale");
     const storeId = sessionStorage.getItem("storeId");
 

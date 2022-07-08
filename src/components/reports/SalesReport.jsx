@@ -8,6 +8,7 @@ import ListOfSaleBillsService from "../../services/Reports/ListOfSaleBillsServic
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
 import ReactPageNation from "../../commonUtils/Pagination";
+import { toast } from "react-toastify";
 
 export default class SalesReport extends Component {
   constructor(props) {
@@ -255,13 +256,11 @@ export default class SalesReport extends Component {
     console.log(">>>page", pageNumber);
     let pageNo = pageNumber + 1;
     this.setState({ pageNumber: pageNo });
-    // this.getUserBySearch(pageNumber);
-    // this.searchUser(pageNumber);
     this.getSaleBills(pageNumber); 
   }
 
   render() {
-    console.log(">>>>>>>>>>>>>>>>lineitem", this.state.lineItemData);
+    // console.log(">>>>>>>>>>>>>>>>lineitem", this.state.lineItemData);
 
     return (
       <div className="maincontent">
@@ -381,7 +380,15 @@ export default class SalesReport extends Component {
                 className="form-control"
                 placeholder="TO DATE"
                 value={this.state.dateTo}
-                onChange={(e) => this.setState({ dateTo: e.target.value })}
+                onChange={(e)=>{
+                  var startDate=new Date(this.state.dateFrom);
+                  var endDate=new Date(e.target.value);
+                  if(startDate<=endDate){
+                    this.setState({dateTo:e.target.value});
+                  }else{
+                    toast.error("To date should be greater than From date");
+                  }
+                }}
               />
             </div>
           </div>

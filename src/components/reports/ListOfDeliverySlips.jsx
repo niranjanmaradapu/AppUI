@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { toast } from "react-toastify";
 import print from "../../assets/images/print.svg";
 import view from "../../assets/images/view.svg";
 import ListOfDeliverySlipsService from "../../services/Reports/ListOfDeliverySlipsService";
@@ -232,7 +233,19 @@ export default class ListOfDeliverySlips extends Component {
                 className="form-control"
                 placeholder="TO DATE"
                 value={this.state.dateTo}
-                onChange={(e) => this.setState({ dateTo: e.target.value })}
+                // onChange={(e) => this.setState({ dateTo: e.target.value })}
+                onChange={(e)=>{
+                  var startDate=new Date(this.state.dateFrom);
+                  var endDate=new Date(e.target.value);
+                  if(startDate<=endDate){
+                    this.setState({dateTo:e.target.value});
+                  }
+                  else
+                  {
+                   toast.error("To date should be greater than From date") 
+                  }
+                  
+                }}
               />
             </div>
           </div>

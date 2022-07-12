@@ -183,6 +183,7 @@ export default class CreateNotes extends Component {
       isCredit: true,
       isAddMore: true,
       selectedItem: item,
+      isSave:true,
       mobileNumber: item.mobileNumber,
       customerData: { userName: item.customerName, userId: item.customerId }
     });
@@ -224,15 +225,17 @@ export default class CreateNotes extends Component {
   getCustomerDetails = (e) => {
 
     if (e.key === "Enter" ) {
-      this.setState({isSave:true})
+      //this.setState({isSave:true})
   if(this.state.mobileNumber.length >=10){
       NewSaleService.getMobileData("+91" + this.state.mobileNumber).then((res) => {
 
         if (res && res.data.result) {
           // this.state.customerData = res.data.result;
 
-          this.setState({ customerData: res.data.result });
+          this.setState({ customerData: res.data.result,isSave:true });
         
+        }else{
+          this.setState({isSave:false})
         }
       });
   }

@@ -440,15 +440,30 @@ export default class NewSale extends Component {
     this.setState({ isCreditModel: false });
   }
   confirmKathaModel(){
-     this.setState({ isPayment: false })
-    const obj = {
+  //    this.setState({ isPayment: false })
+  //   const obj = {
 
-      "paymentType": "PKTPENDING",
-      "paymentAmount": this.state.grandNetAmount
-    }
-    this.state.paymentType.push(obj);
-    this.setState({ isKathaModel: false });
-    this.createInvoice()
+  //     "paymentType": "PKTPENDING",
+  //     "paymentAmount": this.state.grandNetAmount
+  //   }
+  //   this.state.paymentType.push(obj);
+  //   this.setState({ isKathaModel: false });
+  //   this.createInvoice()
+  // }
+  const obj = {
+    "paymentType": "PKTPENDING",
+    "paymentAmount": this.state.grandNetAmount
+  }
+  this.state.paymentType.push(obj);
+
+  this.setState({
+    isPayment: false,
+    payingAmount: this.state.grandNetAmount
+  }, () => {
+    this.hideKathaModel();
+    this.createInvoice();
+  });
+
   }
   confirmCreditModel() {
 
@@ -1286,6 +1301,7 @@ export default class NewSale extends Component {
 
   createInvoice() {
     this.setState({ netCardPayment: this.state.grandNetAmount })
+    this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
     const storeId = sessionStorage.getItem("storeId");
 
@@ -1874,7 +1890,9 @@ export default class NewSale extends Component {
               Cancel
             </button>
             <button
-              className="btn-unic active fs-12"
+              //className="btn-unic active fs-12"
+              className={this.state.ccCollectedCash> 0 ? "btn-unic active fs-12" : "btn-selection fs-12"}
+              disabled={!(this.state.ccCollectedCash>0)}
               onClick={this.saveCCAmount}
             >
               Confirm
@@ -2115,7 +2133,9 @@ export default class NewSale extends Component {
               Cancel
             </button>
             <button
-              className="btn-unic active fs-12"
+              //className="btn-unic active fs-12"
+              className={ this.state.manualDisc<this.state.grandNetAmount ? "btn btn-bdr active fs-12" : "btn-selection fs-12"}
+              disabled={!(this.state.manualDisc<this.state.grandNetAmount)}
               onClick={this.saveDiscount}
             >
               Confirm
@@ -2203,7 +2223,9 @@ export default class NewSale extends Component {
               CANCEL
             </button>
             <button
-              className="btn btn-bdr active fs-12"
+              //className="btn btn-bdr active fs-12"
+              className={this.state.cashAmount>=this.state.grandNetAmount ? "btn btn-bdr active fs-12" : "btn-selection fs-12"}
+              disabled={!(this.state.cashAmount>=this.state.grandNetAmount)}
               onClick={this.getReturnAmount}
             >
               SAVE CASH PAYMENT

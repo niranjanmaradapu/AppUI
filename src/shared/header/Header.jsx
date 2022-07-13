@@ -485,7 +485,8 @@ class Header extends Component {
        if(user["cognito:groups"] && user["cognito:groups"][0] !== "config_user") {
         URMService.getSelectedPrivileges(user["custom:roleName"]).then(res => {
           if(res && res.data && res.data){
-            this.setState({moduleNames: res.data.parentPrivileges});
+            let finalResult = this.groupByprivilegeType(res.data.parentPrivileges);
+            this.setState({moduleNames: finalResult.web});
             this.setState({ selectedCategory: res.data.parentPrivileges[0]});
             eventBus.dispatch("subHeader", { message: (res.data && res.data.parentPrivileges.length>0)?res.data.parentPrivileges[0].id:"" });
           }
@@ -498,7 +499,18 @@ class Header extends Component {
     }
    console.log(this.state.moduleNames)
   
-  }
+}
+  groupByprivilegeType = (array) => {
+    let initialValue = {
+        mobile: [], 
+        web: []
+    }            
+    return array.reduce((accumulator, current) => {
+        (current.previlegeType === 'Mobile') ? accumulator.mobile.push(current) : accumulator.web.push(current);
+        return accumulator;
+    }, initialValue);
+} 
+  
 
   getDomains() {
     let dataDrop = [];

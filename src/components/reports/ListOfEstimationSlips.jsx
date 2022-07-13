@@ -66,6 +66,18 @@ export default class ListOfEstimationSlips extends Component {
     this.setState({ storeId: storeId });
   }
 
+
+  clearSearch(){
+    this.setState({
+      dsList:[],
+      dateFrom:"",
+      dateTo:"",
+      status:"",
+      barcode:"",
+      dsNumber:""
+    });
+  }
+
   getEstimationSlip(pageNumber) {
     console.log("pageNumber",pageNumber)
     const obj = {
@@ -115,7 +127,7 @@ export default class ListOfEstimationSlips extends Component {
 
   deleteEstimationSlip(dsNumber){
      ListOfEstimationSlipsService.deleteEstimationSlip(dsNumber).then((res) => {
-      console.log("dsnumber",this.state.dsNumber);
+      console.log("dsnumber",dsNumber);
      if(res.data.result){
         toast.success(res.data.result);
      }else{
@@ -192,7 +204,7 @@ export default class ListOfEstimationSlips extends Component {
               }}
             />
             <i className="icon-delete m-l-2 fs-16"
-             onClick={() => this.deleteEstimationSlip(items.dsNumber)}> 
+             onClick={() => this.deleteEstimationSlip(items?.dsNumber)}> 
            </i>
           </td>
         </tr>
@@ -405,6 +417,14 @@ if (startDate < endDate){
               <button
                 className="btn-unic-search active"
                 onClick={()=>{this.getEstimationSlip(0);this.setState({ pageNumber: 0 });}}>Search</button>
+                <button
+                className="btn-clear m-l-2"
+                onClick={() => {
+                  this.clearSearch();
+                }}
+              >
+                Clear
+              </button>
             </div>
           </div>
         </div>

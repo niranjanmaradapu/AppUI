@@ -49,6 +49,33 @@ export default class SalesReport extends Component {
     this.setState({ storeId: storeId });
   }
 
+  // clear = () => {
+  //   this.setState({
+  //     dateFrom: '',
+  //     dateTo: '',
+  //     custMobileNumber: '',
+  //     billStatus:'',
+  //     invoiceNumber:'',
+  //     empId:''
+  //   }, () => {
+  //     this.getSaleBills(0);
+  //   });
+
+  // }
+
+ clearSearch() {
+    this.setState({
+      sbList:[],
+      dateFrom: '',
+      dateTo: '',
+      custMobileNumber: '',
+      billStatus:'',
+      invoiceNumber:'',
+      empId:''
+    });
+  }
+
+
   getSaleBills(pageNumber) {
     const obj = {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
@@ -479,6 +506,14 @@ export default class SalesReport extends Component {
                 onClick={()=>{this.getSaleBills(0);this.setState({pageNumber:0})}}
               >
                 Search
+              </button>
+              <button
+                className="btn-clear m-l-2"
+                onClick={() => {
+                  this.clearSearch();
+                }}
+              >
+                Clear
               </button>
             </div>
           </div>

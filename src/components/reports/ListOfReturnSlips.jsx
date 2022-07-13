@@ -59,6 +59,20 @@ export default class ListOfReturnSlips extends Component {
     this.closeViewReport = this.closeViewReport.bind(this);
   }
 
+clearSearch(){
+  this.setState({
+    bcList:[],
+    fromDate:"",
+    toDate:"",
+    barcode:"",
+    empId:"",
+    itemMrpLessThan:"",
+    itemMrpGreaterThan:""
+
+  })
+}
+
+
   getBarcodes(pageNumber) {
     const obj = {
       fromDate: this.state.fromDate ? this.state.fromDate : null,
@@ -476,7 +490,7 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-2 scaling-mb mt-2 pt-0">
+          <div className="col-6 col-sm-2 scaling-mb mt-2">
             <div className="form-group">
               <button
                 className="btn-unic-search active"
@@ -485,6 +499,14 @@ export default class ListOfReturnSlips extends Component {
                 }}
               >
                 Search
+              </button>
+              <button
+                className="btn-clear m-l-2"
+                onClick={() => {
+                  this.clearSearch();
+                }}
+              >
+                Clear
               </button>
             </div>
           </div>

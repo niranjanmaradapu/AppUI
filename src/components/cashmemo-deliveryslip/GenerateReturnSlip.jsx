@@ -562,23 +562,24 @@ export default class GenerateReturnSlip extends Component {
                 
                 <div className="mt-3">
                   <button
-                    className={
-                      "mt-1 w-100 " +
-                      (this.state.returnSlipTotal===0
-                        ? "btn-unic btn-disable"
-                        : "btn-unic active")
-                    }
-                    onClick={this.generateReturn}
-                disabled={this.state.returnSlipTotal===0}
-                  >
-                    GENERATE RETURN SLIP
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-}
+                className={
+                "mt-1 w-100 " +
+                  (this.state.returnSlipTotal===0
+                   ? "btn-unic btn-disable"
+                    : "btn-unic active")
+                                  }
+         onClick={this.generateReturn}
+         disabled={this.state.returnSlipTotal===0}
+          >
+         GENERATE RETURN SLIP
+            </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+              }
+              

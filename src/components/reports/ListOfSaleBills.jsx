@@ -67,6 +67,19 @@ export default class ListOfSaleBills extends Component {
     this.setState({ storeId: storeId });
   }
 
+clearSearch(){
+  this.setState({
+    rsList:[],
+    dateFrom:"",
+    dateTo:"",
+    status:"",
+    rtNumber:"",
+    barcode:"",
+  });
+}
+
+
+
   getReturnSlips() {
     const obj = {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
@@ -414,6 +427,14 @@ export default class ListOfSaleBills extends Component {
                 onClick={this.getReturnSlips}
               >
                 Search{" "}
+              </button>
+              <button
+                className="btn-clear m-l-2"
+                onClick={() => {
+                  this.clearSearch();
+                }}
+              >
+                Clear
               </button>
             </div>
           </div>

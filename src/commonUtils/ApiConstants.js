@@ -83,6 +83,7 @@ export const INVENTORY_URLS = {
     addBarcodes: "/inventory/inventoryRetail/createBarcode",
     getAllBarcodesList: "/inventory/inventoryRetail/getAllBarcodes",
     getRetailBarcodeDetails: "/inventory/inventoryRetail/getBarcodeId",
+    updateBarcodesQuntity: "/inventory/inventory-management/product-qty",
     deleteRetailBarcode: "/inventory/inventoryRetail/deleteBarcode",
     savebulkRetail: "/inventory/inventoryRetail/saveProductList",
     getHeadersData: "/inventory/inventory-management/properties",
@@ -106,7 +107,9 @@ export const INVENTORY_URLS = {
     savebulkTextile: "/inventory/inventoryTextile/saveProductTextileList",
     addBulkTextile: "/inventory/inventory-management/add-bulk-products",
     addProductBundle: "/inventory/productBundle/add",
-    getAllProductBundleList: "/inventory/productBundle/all"
+    getAllProductBundleList: "/inventory/productBundle/all",
+    addProductBundleUpdate: "/inventory/productBundle/update"
+
 };
 
 
@@ -144,12 +147,14 @@ export const DELIVERYSLIPS_LIST_URL = {
 
 export const ESTIMATIONSLIP_LIST_URL = {
     estimationslipsList: "/new-sale/newsale/getlistofdeliveryslips",
+    deleteDsNumber: "/new-sale/newsale/deletedeliveryslip"
 };
 
 
 export const RETURNSLIPS_LIST_URL = {
-    returnslipsList: "/customer/customer/getListOfReturnSlips",
-    returnslipDetials: "/customer/customer/getReturnSlipsDetails",
+    returnslipsList: "/new-sale/return_slip/getListOfReturnSlips",
+    // returnslipDetials: "/customer/customer/getReturnSlipsDetails",
+    returnslipDetials: "/new-sale/return_slip/getReturnSlipsDetails",
 };
 
 
@@ -175,7 +180,7 @@ export const BARCODE_LIST_URL = {
 
 export const PROMOTIONS_LIST_URL = {
     // promotionsList:"/promo/promo/listOfPromotionsBySearch",
-    promotionsList: "/connection-pool/promo/listOfPromotionsBySearch",
+    promotionsList: "/connection-pool/promo/promotionsSearching",
     getStoresClientDomainId: "/user-management/store/getClientDomianStores"
 };
 

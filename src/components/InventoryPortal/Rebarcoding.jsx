@@ -99,6 +99,7 @@ export default class Rebarcoding extends Component {
     this.setDropdowns(false);
     this.stateReset();
     this.getbarcodeDetails(barcodeId);
+   
   }
   clearBar = () => {
     this.setState({ 
@@ -141,10 +142,10 @@ export default class Rebarcoding extends Component {
         () => {
            this.getAllStoresList();
           this.getAllBarcodes();
-          this.getAllUoms();
-          this.getAllDivisions();
-          this.getHsnDetails();
-          this.getAllCategories();
+          // this.getAllUoms();
+          // this.getAllDivisions();
+          // this.getHsnDetails();
+          // this.getAllCategories();
         }
       );
     }
@@ -297,8 +298,8 @@ export default class Rebarcoding extends Component {
     });
   }
 
-  getAllDivisions() {
-    InventoryService.getAllDivisions().then((res) => {
+  getAllDivisions(value) {
+    InventoryService.getAllDivisions(value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -330,8 +331,8 @@ export default class Rebarcoding extends Component {
   //   });
   // }
 
-  getAllSections(id) {
-    InventoryService.getAllSections(id).then((res) => {
+  getAllSections(id,value) {
+    InventoryService.getAllSections(id,value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -344,8 +345,8 @@ export default class Rebarcoding extends Component {
     });
   }
 
-  getAllSubsections(id) {
-    InventoryService.getAllSections(id).then((res) => {
+  getAllSubsections(id,value) {
+    InventoryService.getAllSections(id,value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -358,8 +359,8 @@ export default class Rebarcoding extends Component {
     });
   }
 
-  getAllCategories() {
-    InventoryService.getAllCategories().then((res) => {
+  getAllCategories(value) {
+    InventoryService.getAllCategories(value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -462,8 +463,13 @@ export default class Rebarcoding extends Component {
             hsnCode: barcode.hsnCode,
             name: barcode.name,
           });
+          this.getAllCategories(this.state.domainDetailsObj);
         // }
-        this.setDropdowns(true);
+     
+          this.getAllSections(this.state.division,this.state.domainDetailsObj);
+          this.getAllSubsections(this.state.section,this.state.domainDetailsObj);
+          this.getAllDivisions(this.state.domainDetailsObj)
+        
       } else {
         toast.error(res.data.message);
       }

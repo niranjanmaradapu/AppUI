@@ -55,7 +55,7 @@ export default class User extends Component {
                             { value: true, label: 'Active' },
                             { value:  false, label: 'Inactive' },
                         ],
-            userStatus: ''
+            userStatus: true
 
         }
         this.setState({usersList: []})
@@ -567,7 +567,7 @@ export default class User extends Component {
                       <button className="btn-inactive">Inactive</button>}
                   </td>
                     <td className="col-1">
-                    {!isSuperAdmin ? <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} name="image" /> : <img src={edit} className="w-12 m-r-2 pb-2" name="image" />}
+                    {items.stores.length > 0 ? <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} name="image" /> : <img src={edit} className="w-12 m-r-2 pb-2" name="image" />}
                     {/* <i className="icon-delete"onClick={(e) => this.deleteUser(items)}></i> */}
                     </td>
                 </tr>
@@ -588,11 +588,11 @@ export default class User extends Component {
                     <thead>
                         <tr className="m-0 p-0">
                             <th className="col-1">User ID </th>
-                            <th className="col-2 p-l-1">User Name</th>
+                            <th className="col-2">User Name</th>
                             {/* <th className="col-2">Email</th> */}
-                            <th className="col-1 p-l-1">Role</th>
-                            <th className="col-3 p-l-1">Store Name</th>
-                            <th className="col-2 p-l-0">Created Date</th>
+                            <th className="col-1">Role</th>
+                            <th className="col-3">Store Name</th>
+                            <th className="col-2">Created Date</th>
                             {/* <th className="col-1">Store</th> */}
                             <th className="col-1">Status</th>
                             <th className="col-1"></th>
@@ -948,7 +948,7 @@ capitalization= () => {
                                     </select>
                         </div>
                         </div> */}
-                             <div className="col-12 col-sm-12">
+                             {/* <div className="col-12 col-sm-12">
                              <div className="form-check checkbox-rounded checkbox-living-coral-filled pt-1">
                                         <input type="checkbox" className="form-check-input filled-in mt-1" id="admin"
                                          name="superadmin" 
@@ -957,7 +957,7 @@ capitalization= () => {
                                       onChange={(e) => this.setSuperAdmin(e)}/>
                                         <label className="form-check-label" name="remember" htmlFor="remember">Is Super Admin</label>
                                     </div>
-                                </div>
+                                </div> */}
                                 {/* <div className="col-12 col-sm-4 scaling-mb">
                                     <div className="form-group">
                                         <label>Domain {!this.state.isSuperAdmin && <span className="text-red font-bold">*</span>}</label>
@@ -1036,7 +1036,7 @@ capitalization= () => {
                                 <div className="col-12 col-sm-4 scaling-mb mt-2">
                                     <div className="form-group">
                                         <label>Status <span className="text-red font-bold">*</span></label>
-                                            <select value={this.state.userStatus} onChange={(e) =>  this.handleUserStatus(e)} className="form-control">
+                                            <select value={this.state.userStatus} disabled={!this.state.isEdit} onChange={(e) =>  this.handleUserStatus(e)} className="form-control">
                                                 <option>Select Status</option>
                                                 { 
                                                 this.state.usersStatus &&

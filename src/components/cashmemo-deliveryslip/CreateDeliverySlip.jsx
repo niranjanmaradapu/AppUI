@@ -16,7 +16,6 @@ import Table from 'react-bootstrap/Table';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
-import Hotkeys from 'react-hot-keys';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { withTranslation } from 'react-i18next';
 import { saveDataInIndexDB, getDataFromIndexDB } from '../../utility.js';
@@ -24,6 +23,7 @@ import NewSaleService from "../../services/NewSaleService";
 import PrinterStatusBill from "../../commonUtils/PrintService";
 import { errorLengthMin, errorLengthMax, createDelivery_Err_Msg } from "../../commonUtils/Errors";
 import print from '../../assets/images/print_red.svg';
+import eventBus from "../../commonUtils/eventBus";
 class CeateDeliverySlip extends Component {
   constructor(props) {
     super(props);
@@ -67,7 +67,8 @@ class CeateDeliverySlip extends Component {
       ],
       dropValue: "",
       isGenerate: false,
-      lineItemsList: []
+      lineItemsList: [],
+      printBtn: false,
     };
     //  this.getDeliverySlips();
     this.getDataFromDB();
@@ -85,27 +86,61 @@ class CeateDeliverySlip extends Component {
 
 
   }
-  onKeyDown(keyName, e, handle) {
-    console.log("test:onKeyDown", keyName, e, handle)
-    // this.setState({
-    //   output: `onKeyDown ${keyName}`,
-    // });
-    if (keyName === 'shift+a') {
-      this.checkPromo();
 
-    }
-    if (keyName === 'shift+z') {
-      this.generateEstimationSlip();
-
-    }
-  }
 
 
   componentWillMount() {
     const storeId = sessionStorage.getItem("storeId");
     const user = JSON.parse(sessionStorage.getItem('user'));
     this.setState({ storeId: storeId, domainId: user["custom:clientId1"] });
-    this.getHsnDetails();
+    // this.getHsnDetails();
+    this.keyBinds()
+    var item_value = sessionStorage.getItem("print_config");
+    console.log({ item_value });
+    eventBus.on("printerStatus", (data) => {
+      console.log({data})
+      if(data.message === "OK"){
+          this.setState({printBtn: true})
+      }
+    })
+    if (item_value === "OK") {
+    this.setState({printBtn: true})
+  } 
+  }
+
+  keyBinds() {
+    window.addEventListener('keydown', (e) => { // For Generating Esslip
+      if(e.altKey && String.fromCharCode(e.keyCode).toLocaleLowerCase() === 'n') {
+        e.preventDefault()
+        e.stopPropagation()
+        if(this.state.barList.length>0){
+          this.generateEstimationSlip()
+        }
+      }
+    })
+    window.addEventListener('keydown', (e) => { // For Check Promo Discount
+      if(e.altKey && String.fromCharCode(e.keyCode).toLocaleLowerCase() === 'k') {
+        e.preventDefault()
+        e.stopPropagation()
+           if(this.state.barList.length>0){
+        this.checkPromo()
+           }
+      }
+    })
+    window.addEventListener('keydown', (e) => { // For Connecting Printer
+      if(e.ctrlKey && String.fromCharCode(e.keyCode).toLocaleLowerCase() === 'p') {
+        e.preventDefault()
+        e.stopPropagation()
+        this.openPrinterPopup()
+      }
+    })
+    window.addEventListener('keydown', (e) => { // Hiding Printer
+      if(e.key === 'Escape'){
+        e.preventDefault()
+        e.stopPropagation()
+        this.hideModal()
+      }
+    })
   }
 
   getHsnDetails() {
@@ -176,6 +211,7 @@ class CeateDeliverySlip extends Component {
           ).then((res) => {
 
             if (res.data) {
+              // this.keyBinds()
               let count = false;
               // res.data.result.salesMan = this.state.copysmNumber;
               if (this.state.itemsList.length === 0) {
@@ -373,8 +409,8 @@ class CeateDeliverySlip extends Component {
       this.state.isDeliveryCreated && (
         <div className="rect-head">
           <div className="col p-l-3 pt-1 p-r-3 pb-3 text-right">
-            {/* <button className="btn-unic m-r-2">Clear Promotion</button> 
-          <button className="btn-unic m-r-2">Hold Estimation Slip</button> 
+            {/* <button className="btn-unic m-r-2">Clear Promotion</button>
+          <button className="btn-unic m-r-2">Hold Estimation Slip</button>
           <button className="btn-unic m-r-2">Generate Estimation Slip</button>  */}
             <button
               className="btn-nobdr"
@@ -417,6 +453,7 @@ class CeateDeliverySlip extends Component {
               disabled={!this.state.isgetLineItems}
             >
               Generate Estimation Slip
+              (Alt+n)
             </button>
           </div>
 
@@ -431,10 +468,10 @@ class CeateDeliverySlip extends Component {
                          </ul>
                      </div> */}
             <div>{this.renderDivData()}</div>
-            <div className="rect-cardred m-0">
+            <div className="rect-red m-0">
               <div className="row">
                 <div className="col-3"></div>
-                <div className="col-2 text-center">
+                <div className="col-2">
                   <label>TOTAL QTY</label>
                   <h6 className="pt-2">{this.state.totalQuantity}</h6>
                 </div>
@@ -444,13 +481,13 @@ class CeateDeliverySlip extends Component {
                   <h6 className="pt-2">{this.state.mrpAmount} ₹</h6>
                 </div> */}
                 <div className="col-2"></div>
-                <div className="col-2">
+                <div className="col-2 p-l-0">
                   <label>PROMO DISCOUNT</label>
                   <h6 className="pt-2">{this.state.promoDisc} ₹</h6>
                 </div>
                 <div className="col-1"></div>
-                <div className="col-2  pt-2  text-red p-r-4">
-                  <label className="text-red ">GRAND TOTAL</label>
+                <div className="col-2 pt-2 text-red p-r-4 p-l-0">
+                  <label className="text-red">GRAND TOTAL</label>
                   <h6 className="fs-16 text-red ">{this.state.mrpAmount} ₹</h6>
                 </div>
               </div>
@@ -466,8 +503,8 @@ class CeateDeliverySlip extends Component {
   renderDivData() {
 
     return (
-      <div className="table-responsive">
-        <table className="table table-borderless mb-1">
+      <div className="table-responsive t-scroll">
+        <table className="table table-borderless mb-0">
           <thead>
             <tr>
               {/* <th className="col-1"> </th> */}
@@ -483,23 +520,22 @@ class CeateDeliverySlip extends Component {
               <th className="col-2">Total</th>
             </tr>
           </thead>
-        </table>
-        <table className="table table-borderless mb-1 gfg">
+     
           <tbody>
             {this.state.barList.map((items, index) => {
               return (
                 <tr key={index}>
-                  <td className="col-3 geeks">
+                  <td className="col-3">
                     <div className="d-flex">
                       <div className="custom-control t_image custom-checkbox V1_checkbox-label mt-3">
                         {/* <input className="custom-control-input" type="checkbox" id="check1" /> */}
                         {/* <label className="custom-control-label V1_custom-control-label p-t-0 fs-14"
                       htmlFor="check1"></label> */}
-                        <img src={dress1} className="mt-2" />
+                        {/* <img src={dress1} className="mt-2" /> */}
                       </div>
-                      <div className="td_align ">
+                      <div className="td_align pt-0 p-l-0">
                         {/* <label>{items.productTextile.itemCode}</label> */}
-                        <label className="pt-3">{items.barcode}</label>
+                        <label className="">{items.barcode}</label>
                       </div>
 
                     </div>
@@ -513,11 +549,11 @@ class CeateDeliverySlip extends Component {
                     onChange={(e) => this.checkQuantity(e, index, items)}
                     className="form-control" />
                   </td>
-                  <td className="col-1">{items.empId}</td>
+                  <td className="col-1">{this.state.smNumber}</td>
                   <td className="col-1">₹{items.itemMrp}</td>
                   <td className="col-2"></td>
                   <td className="col-1"> {items?.itemDiscount}</td>
-                  <td className="col-2 w-100">₹ {items.totalMrp}
+                  <td className="col-2 pt-0 w-100">₹ {items.totalMrp}
                     <i className="icon-delete m-l-2"
                       onClick={(e) => {
                         this.state.itemsList.splice(index, 1);
@@ -709,6 +745,8 @@ class CeateDeliverySlip extends Component {
   connectPrinter() {
     sessionStorage.setItem("printerIp", JSON.stringify(this.state.ipAddress));
     sessionStorage.setItem("printerPort", JSON.stringify(this.state.port));
+    let print = "connected"
+    PrinterStatusBill('start', print,null)
     this.hideModal()
   }
   generateNew() {
@@ -748,10 +786,7 @@ class CeateDeliverySlip extends Component {
 
   render() {
     return (
-      <Hotkeys
-        keyName="shift+a,shift+z"
-        onKeyDown={this.onKeyDown.bind(this)}
-      >
+
         <div className="maincontent">
           {/* <h5>Estimation Slip</h5> */}
           {/* <h5> {t("EstimationSlip")}</h5> */}
@@ -851,7 +886,7 @@ class CeateDeliverySlip extends Component {
                     placeholder="Enter Barcode"
                   />
                   {/* <button type="button"className="scan">
-                               <img src={scan}/> SCAN  
+                               <img src={scan}/> SCAN
                 </button> */}
                 </div>
                 {/* <div>
@@ -886,21 +921,28 @@ class CeateDeliverySlip extends Component {
                 </button> */}
                   <button
                     className={
-                      "btn-login btn-create" +
+                      "btn-login btn-create fs-14" +
                       (!this.state.isCheckPromo ? " btn-disable" : "")
                     }
                     onClick={this.checkPromo}
                     disabled={!this.state.isCheckPromo}
                   >
                     Check Promo Discount
+                    <span className="fs-10"> (Alt+k)</span>
                   </button>
                 </div>
               </div>
-              <div className="col-sm-2 col-6 pt-4 mt-1 cursor">
-                <img src={print}></img> <span className="text-red"
-                  onClick={this.openPrinterPopup}
-                >Connect To Printer</span>
+              {this.state.printBtn ?
+              <div className="col-sm-2 col-6 p-l-0 p-r-0 pt-4 cursor">
+                <label className="d-flex"><i className="text-green font-bold fs-25 icon-printer_connected"></i> <span className="text-green  mt-1 fs-17 m-l-1">Printer Connected </span></label>
               </div>
+              :              
+              <div className="col-sm-2 col-6 p-l-0 p-r-0 pt-4 cursor">
+                 <button type="button" className="btn-unic scaling-mb"
+                  onClick={this.openPrinterPopup}
+                ><i className="icon-print"></i> Connect To Printer <span className="fs-10">(Ctrl+p)</span> </button>
+              </div>
+  }
               <div className="col-sm-3 scaling-ptop col-6">
                 <div className="form-check checkbox-rounded checkbox-living-coral-filled fs-15">
                   <input type="checkbox" className="form-check-input filled-in"
@@ -918,7 +960,6 @@ class CeateDeliverySlip extends Component {
 
           {/* <ToastContainer /> */}
         </div>
-      </Hotkeys>
     );
   }
 }

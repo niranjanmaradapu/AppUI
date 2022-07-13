@@ -328,75 +328,12 @@ export default class TagCustomer extends Component {
   render() {
     return (
       <div className="maincontent">
-        <div className="row">
-          <div className="col-6 col-sm-2 mt-2 mb-2">
-            <div className="form-group">
-              <label>From Date</label>
-
-              <input
-                type="date"
-                id="start"
-                className="form-control"
-                name="trip-start"
-                value={this.state.startDate}
-                onChange={(e) =>
-                  this.setState({
-                    startDate: e.target.value,
-                  })
-                }
-              />
-            </div>
-          </div>
-          <div className="col-6 col-sm-2 mt-2 mb-2">
-            <div className="form-group">
-              <label>End Date</label>
-              <input
-                type="date"
-                name="trip-start"
-                className="form-control"
-                value={this.state.endDate}
-                onChange={(e) => this.setState({ endDate: e.target.value })}
-              />
-            </div>
-          </div>
-          <div className="col-6 col-sm-2 mt-2 mb-2">
-            <div className="form-group">
-              <label>GV Number</label>
-              <input
-                type="number"
-                className="form-control"
-                min={0}
-                placeholder="GV Number"
-                value={this.state.gvNumber1}
-                onChange={(e) => this.setState({ gvNumber1: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="col-6 col-sm-4 pt-4 scaling-mb mt-2">
-            <div className="form-group">
-              <button
-                className="btn-unic-search active m-r-2"
-                onClick={this.searchGiftVoucher}
-              >
-                Search
-              </button>
-              <button
-                className="btn-clear m-r-2"
-                onClick={() => {
-                  this.clearSearch();
-                }}
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-        </div>
+        
 
         <div className="customer-gift">
           <div className="row">
             <div className="col-12 col-sm-3">
-              <h5 className="mt-2 mb-3 fs-18">Generate gift voucher </h5>
+              <h5 className="mt-2 fs-18">Generate gift voucher </h5>
               <div className="form-group mt-2 mb-2">
                 <label>
                   GV Number{" "}
@@ -522,7 +459,72 @@ export default class TagCustomer extends Component {
               </button>
             </div>
             <div className="col-12 col-sm-9">
-              <h5 className="mt-2 mb-3 fs-18">Gift Vouchers</h5>
+            <div className="row">
+            <h5 className="mt-2 mb-0 fs-18">Filters</h5>
+          <div className="col-6 col-sm-3 mt-2 mb-2">
+            <div className="form-group">
+              <label>From Date</label>
+
+              <input
+                type="date"
+                id="start"
+                className="form-control"
+                name="trip-start"
+                value={this.state.startDate}
+                onChange={(e) =>
+                  this.setState({
+                    startDate: e.target.value,
+                  })
+                }
+              />
+            </div>
+          </div>
+          <div className="col-6 col-sm-3 mt-2 mb-2">
+            <div className="form-group">
+              <label>End Date</label>
+              <input
+                type="date"
+                name="trip-start"
+                className="form-control"
+                value={this.state.endDate}
+                onChange={(e) => this.setState({ endDate: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="col-6 col-sm-3 mt-2 mb-2">
+            <div className="form-group">
+              <label>GV Number</label>
+              <input
+                type="number"
+                className="form-control"
+                min={0}
+                placeholder="GV Number"
+                value={this.state.gvNumber1}
+                onChange={(e) => this.setState({ gvNumber1: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="col-6 col-sm-3 pt-4 scaling-mb mt-2">
+            <div className="form-group">
+              <button
+                className="btn-unic-search active m-r-2"
+                onClick={this.searchGiftVoucher}
+              >
+                Search
+              </button>
+              <button
+                className="btn-clear m-r-2"
+                onClick={() => {
+                  this.clearSearch();
+                }}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+              <h5 className="mt-2 mb-1 fs-18">Gift Vouchers</h5>
 
               <div className="table-responsive scaling-mb">
                 <table className="table table-borderless mb-1 mt-2">

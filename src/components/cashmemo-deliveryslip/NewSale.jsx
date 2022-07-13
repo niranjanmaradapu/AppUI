@@ -2133,9 +2133,7 @@ export default class NewSale extends Component {
               Cancel
             </button>
             <button
-              //className="btn-unic active fs-12"
-              className={ this.state.manualDisc<this.state.grandNetAmount ? "btn btn-bdr active fs-12" : "btn-selection fs-12"}
-              disabled={!(this.state.manualDisc<this.state.grandNetAmount)}
+              className="btn-unic active fs-12"
               onClick={this.saveDiscount}
             >
               Confirm

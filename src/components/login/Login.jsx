@@ -679,6 +679,8 @@ if (emailReg.test(this.state.registerEmail) === false) {
               clientDomain: [],
               isSuperAdmin: false,
               createdBy: "",
+              gender: '',
+              birthDate: ''
             };
   
             URMService.saveUser(clientObj).then((response) => {

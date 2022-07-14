@@ -370,7 +370,11 @@ const App = () => {
           exact={true}
           component={Layout}
         />
-
+ <Route
+          path='/clientDetails'
+          exact={true}
+          component={Layout}
+        />
       </Switch>
     </Router>
   );

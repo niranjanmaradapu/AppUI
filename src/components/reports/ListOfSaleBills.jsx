@@ -243,9 +243,9 @@ clearSearch(){
       <div className="maincontent">
         <Modal isOpen={this.state.isView} className="modal-fullscreen">
           <ModalHeader>Returns Slip Details </ModalHeader>
-          <ModalBody>
-            <div className="row mb-2">
-              <div className="col-3">
+          <ModalBody className="p-l-5 p-r-5 pt-4">
+            <div className="row mb-3">
+              <div className="col-3 p-l-0">
                 <div className="">
                   <label>Return Memo No : </label>{" "}
                   <span className="font-bold fs-13">
@@ -283,7 +283,8 @@ clearSearch(){
                 </div>
               </div>
             </div>
-            <div className="table-responsive">
+            <div className="row">
+            <div className="table-responsive p-0">
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
@@ -320,6 +321,7 @@ clearSearch(){
 
                 <tbody>{this.renderPopupTableData()}</tbody>
               </table>
+            </div>
             </div>
           </ModalBody>
           <ModalFooter>
@@ -455,7 +457,7 @@ clearSearch(){
                   <th className="col-1">EMP ID</th>
                   <th className="col-2">RT DATE & TIME</th>
                   <th className="col-1">AMOUNT</th>
-                  <th className="col-1">ACTIONS</th>
+                  <th className="col-1 text-center">ACTIONS</th>
                 </tr>
               </thead>
               {/* <tbody>

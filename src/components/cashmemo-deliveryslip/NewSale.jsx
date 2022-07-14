@@ -2343,7 +2343,7 @@ export default class NewSale extends Component {
                   this.state.showTable && (
 
 
-                    <div className="col-12 col-sm-9 scaling-center p-t-2 text-right">
+                    <div className="col-12 col-sm-9 scaling-center mt-4 text-right">
 
                       <button
                         type="button"

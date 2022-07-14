@@ -253,10 +253,10 @@ export default class Roles extends Component {
             });
         }
         if(childPrivilegesList) {
-            childIds = childPrivilegesList.map((child) => {   
-                let childs = {};                     
+            childIds = childPrivilegesList.map((child) => {  
+                let childs = {};                   
                 subIds.forEach((s) => {
-                    if(child.subPrivillageId === s.id) {
+                   if(child.subPrivillageId === s.id) {
                         childs.id = child.id;
                         childs.subPrivillageId = child.subPrivillageId;
                         childs.parentPrivilegeId = s.parentPrivilegeId;
@@ -264,9 +264,16 @@ export default class Roles extends Component {
                 });
                 return childs;
             });
-        }
-            
-    const subPrivileges = this.groupByMultipleProperties(childIds);
+        }    
+    const final_ids = this.groupByMultipleProperties(childIds);
+    let sub_ids = subIds.map((itm) => {
+     let child = {};
+     child.parentId = itm.parentPrivilegeId;
+     child.id = itm.id;
+     return child;
+    }); 
+    let final = [...final_ids, ...sub_ids];
+    let subPrivileges = this.removeDuplicates(final, 'id');
     if(valid){
         if (formValid) {
             if (this.state.isEdit) {
@@ -803,8 +810,10 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
             }               
         });
     }
-    const parentsList = this.removeDuplicates(this.state.parentsList, "id");
-    const childList = this.removeDuplicates(this.state.childList, "id");
+    console.log('+++++++++++++this.state.childList++++++++++++++', this.state.childList);
+    const parentsList = this.removeDuplicates(this.state.parentsList, "name");
+    const childList = this.removeDuplicates(this.state.childList, "name");
+    console.log('+++++++++++++childList++++++++++++++', childList);
     this.setState({ 
         productsList,
         parentsList: parentsList , 
@@ -943,6 +952,8 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                 this.state.selectedChilds.forEach((it) => {
                     if(el.id === it.subPrivillageId) {
                        nameArray.push(el);
+                    } else {
+                        nameArray.push(el);
                     }
                 });
             });

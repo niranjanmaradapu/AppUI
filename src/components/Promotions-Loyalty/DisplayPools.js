@@ -5,6 +5,7 @@ import edit from '../../assets/images/edit.svg';
 function DisplayPools({ 
     listOfPools,
     modifyPool,
+    viewPoolPrivilege,
     // dateFormat,
     handleRemovePool
 }) {
@@ -42,7 +43,7 @@ function DisplayPools({
                 <td className="col-2">{item.createdBy}</td>
                 <td className="col-2">{item.createdDate}</td>
                 <td className="col-2">
-                  <img onClick={() => modifyPool(item)} src={edit} className="w-12 pb-2" />
+                  <img disabled={!viewPoolPrivilege.isEnabeld} onClick={() => modifyPool(item)} src={edit} className="w-12 pb-2" />
                 </td>
                 </tr> 
                 )

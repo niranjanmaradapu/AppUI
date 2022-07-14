@@ -73,6 +73,7 @@ export default class NewSale extends Component {
       totalAmount:0,
       couponAmount: 0,
       input: {},
+      isCheckPromo:false,
       isBillingDetails: false,
       errors: {},
       isBillingDisc: false,
@@ -1105,7 +1106,8 @@ export default class NewSale extends Component {
       if (res.status === 200) {
         console.log(res);
         this.setState({
-          barCodeList: res.data.result
+          barCodeList: res.data.result,
+           isCheckPromo:true
         });
 
         this.state.barCodeList.forEach((barCode, index) => {
@@ -1129,7 +1131,8 @@ export default class NewSale extends Component {
 
         // this.getTaxAmount();
       }else {
-        this.toast.error("no Promo Available");
+        toast.error("no Promo Available");
+        this.setState({isCheckPromo:true});
       }
     });
   }
@@ -2340,7 +2343,7 @@ export default class NewSale extends Component {
                   this.state.showTable && (
 
 
-                    <div className="col-12 col-sm-9 scaling-center p-t-2 text-right">
+                    <div className="col-12 col-sm-9 scaling-center mt-4 text-right">
 
                       <button
                         type="button"
@@ -2354,7 +2357,9 @@ export default class NewSale extends Component {
                         >Bill Level Discount <span className="fs-10">(Alt+b)</span></button>
                         <button
                         type="button"
-                        className="btn-unic active scaling-mb"
+                       className="btn-unic active scaling-mb"
+                      //  className={" m-r-2 scaling-mb " + (this.state.isCheckPromo ? "btn-unic btn-disable" : "btn-unic active")}
+                      //  disabled={(this.state.isCheckPromo)}
                         onClick={this.invoiceLevelCheckPromo}
 
                         > Check Promo Discount <span className="fs-10">(Alt+k)</span>

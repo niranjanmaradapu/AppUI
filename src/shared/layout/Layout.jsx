@@ -45,7 +45,7 @@ import TaxMaster from '../../components/BackOfficePortal/TaxMaster';
 import HsnDetails from '../../components/BackOfficePortal/HsnDetails';
 import Payment from '../../components/admin/Payment';
 import ProductsCombo from '../../components/InventoryPortal/ProductsCombo';
-
+import CaptainDashboard from '../../components/admin/CaptainDashboard';
 
 
 
@@ -322,6 +322,11 @@ export default class Layout extends Component {
                                     path='/productsCombo'
                                     exact={true}
                                     component={ProductsCombo}
+                                />
+                                 <Route
+                                    path='/adminDetails'
+                                    exact={true}
+                                    component={CaptainDashboard}
                                 />
                             </Switch>
                         </div>

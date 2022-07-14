@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import { Toast } from "react-bootstrap";
 import ReactPageNation from "../../commonUtils/Pagination";
+import { formatDate } from "../../commonUtils/FormatDate";
 
 export default class ListOfEstimationSlips extends Component {
   constructor(props) {
@@ -130,6 +131,7 @@ export default class ListOfEstimationSlips extends Component {
       console.log("dsnumber",dsNumber);
      if(res.data.result){
         toast.success(res.data.result);
+        this.getEstimationSlip(0);
      }else{
       toast.error(res.data.message);
      }
@@ -184,11 +186,12 @@ export default class ListOfEstimationSlips extends Component {
     return this.state.dsList?.content?.map((items, index) => {
       const { dsNumber, createdDate, status, mrp, promoDisc, netAmount } =
         items;
+        let date = formatDate (items.createdDate);
       return (
         <tr className="m-0 p-0" key={index}>
           <td className="col-1">{index + 1}</td>
           <td className="col-1">{dsNumber}</td>
-          <td className="col-2">{createdDate}</td>
+          <td className="col-2">{date}</td>
           <td className="col-1">{status}</td>
           {/* <td className="col-2">₹{mrp}</td> */}
           <td className="col-2">₹{netAmount}</td>
@@ -263,9 +266,9 @@ export default class ListOfEstimationSlips extends Component {
       <div className="maincontent">
         <Modal isOpen={this.state.isView} className="modal-fullscreen">
           <ModalHeader>Estimation Slip Details </ModalHeader>
-          <ModalBody className="pt-3">
-            <div className="row mb-2 m-0 p-0">
-              <div className="col-3">
+          <ModalBody className="pt-4">
+            <div className="row mb-3">
+              <div className="col-3 p-l-0">
                 <div className="">
                   <label>Estimation Slip : </label>{" "}
                   <span className="font-bold fs-13">
@@ -276,7 +279,8 @@ export default class ListOfEstimationSlips extends Component {
               </div>
             </div>
             {/* <div className="table-responsive"> */}
-            <div className="row m-0 p-0 mb-3">
+            <div className="row mb-3">
+              <div className="table-responsive p-0">
               <table className="table table-borderless mb-1 mt-2">
                 <thead>
                   <tr className="m-0 p-0">
@@ -303,6 +307,7 @@ export default class ListOfEstimationSlips extends Component {
                 </tbody> */}
                 <tbody>{this.renderpopupTableData()}</tbody>
               </table>
+              </div>
             </div>
           </ModalBody>
           <ModalFooter>

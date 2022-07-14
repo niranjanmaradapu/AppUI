@@ -9,6 +9,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
 import ReactPageNation from "../../commonUtils/Pagination";
 import { toast } from "react-toastify";
+import { formatDate } from "../../commonUtils/FormatDate";
 
 export default class SalesReport extends Component {
   constructor(props) {
@@ -187,6 +188,7 @@ export default class SalesReport extends Component {
         billStatus,
         newsaleId,
       } = items;
+      let date = formatDate (items.createdDate);
       return (
         <tr className="" key={index}>
           <td className="col-1">{index + 1}</td>
@@ -194,7 +196,7 @@ export default class SalesReport extends Component {
           <td className="col-1">{empId}</td>
           <td className="col-2">{netPayableAmount}</td>
           <td className="col-1">{discount}</td>
-          <td className="col-2">{createdDate}</td>
+          <td className="col-2">{date}</td>
           {/* <td className="col-2">
             {billStatus && <button className="btn-active">{billStatus}</button>}
           </td> */}
@@ -239,7 +241,7 @@ export default class SalesReport extends Component {
         } = items;
         return (
           <tr key={index}>
-            <td width="15%">{barCode}</td>
+            <td width="10%">{barCode}</td>
             <td width="10%">{section}</td>
             {/* <td width="10%">{section}</td> */}
             <td width="5%">{empId}</td>
@@ -293,9 +295,9 @@ export default class SalesReport extends Component {
       <div className="maincontent">
         <Modal isOpen={this.state.isView} className="modal-fullscreen">
           <ModalHeader>Sales Bill Details </ModalHeader>
-          <ModalBody>
-            <div className="row mb-2">
-              <div className="col-3">
+          <ModalBody className="p-l-5 p-r-5 pt-4">
+            <div className="row mb-3">
+              <div className="col-3 p-l-0">
                 <div className="">
                   <label>Memo No : </label>{" "}
                   <span className="font-bold fs-13">
@@ -332,12 +334,13 @@ export default class SalesReport extends Component {
                 </div>
               </div>
             </div>
-            <div className="table-responsive">
+            <div className="row">
+            <div className="table-responsive p-0">
               {/* <div className="row m-0 p-0 mb-3"> */}
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
-                    <th width="15%">Barcode</th>
+                    <th width="10%">Barcode</th>
                     <th width="10%">Section</th>
                     <th width="5%">EMPID</th>
                     <th width="10%">HSN Code</th>
@@ -350,7 +353,7 @@ export default class SalesReport extends Component {
                     <th width="5%">CGST</th>
                     <th width="10%">SGST</th>
                     <th width="5%">IGST</th>
-                    <th width="10%">Net Amount</th>
+                    <th width="10%">Net</th>
                   </tr>
                 </thead>
                 {/* <tbody>
@@ -372,6 +375,7 @@ export default class SalesReport extends Component {
                 </tbody> */}
                 <tbody>{this.renderPopupTableData()}</tbody>
               </table>
+              </div>
             </div>
           </ModalBody>
           <ModalFooter>

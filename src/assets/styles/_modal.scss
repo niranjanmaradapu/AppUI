@@ -10,7 +10,7 @@
             font-size:20px;
             color: $secondary-color;
             font-weight: 600;
-            margin-top:4px;
+            // margin-top:4px;
         }
     }
     & .headerGreen{
@@ -57,6 +57,10 @@
             outline: 0;
             height: 100vh !important;
         }
+    }
+    &-footer{
+        padding-right: 3.5% !important;
+        padding-left: 3.5% !important;
     }
 }
 

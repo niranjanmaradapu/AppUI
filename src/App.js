@@ -365,7 +365,11 @@ const App = () => {
           exact={true}
           component={Layout}
         />
-
+ <Route
+          path='/adminDetails'
+          exact={true}
+          component={Layout}
+        />
 
       </Switch>
     </Router>

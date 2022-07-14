@@ -9,6 +9,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
 import ReactPageNation from "../../commonUtils/Pagination";
 import { toast } from "react-toastify";
+import { formatDate } from "../../commonUtils/FormatDate";
 
 export default class SalesReport extends Component {
   constructor(props) {
@@ -187,6 +188,7 @@ export default class SalesReport extends Component {
         billStatus,
         newsaleId,
       } = items;
+      let date = formatDate (items.createdDate);
       return (
         <tr className="" key={index}>
           <td className="col-1">{index + 1}</td>
@@ -194,7 +196,7 @@ export default class SalesReport extends Component {
           <td className="col-1">{empId}</td>
           <td className="col-2">{netPayableAmount}</td>
           <td className="col-1">{discount}</td>
-          <td className="col-2">{createdDate}</td>
+          <td className="col-2">{date}</td>
           {/* <td className="col-2">
             {billStatus && <button className="btn-active">{billStatus}</button>}
           </td> */}

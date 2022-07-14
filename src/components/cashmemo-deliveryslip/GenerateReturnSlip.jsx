@@ -568,7 +568,8 @@ export default class GenerateReturnSlip extends Component {
                    ? "btn-unic btn-disable"
                     : "btn-unic active")
                                   }
-         onClick={this.generateReturn}
+        //  onClick={this.generateReturn}
+         onClick={this.saveGenerateReturnSlip}
          disabled={this.state.returnSlipTotal===0}
           >
          GENERATE RETURN SLIP

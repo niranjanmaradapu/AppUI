@@ -5,6 +5,7 @@ import ListOfReturnSlipsService from "../../services/Reports/ListOfReturnSlipsSe
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
 import { toast } from "react-toastify";
+import { formatDate } from "../../commonUtils/FormatDate";
 export default class ListOfSaleBills extends Component {
   constructor(props) {
     super(props);
@@ -167,13 +168,14 @@ clearSearch(){
   renderTableData() {
     return this.state.rsList.map((items, index) => {
       const { rtNumber, barcodeVal, createdBy, createdInfo, amount } = items;
+      let date = formatDate (items.createdInfo);
       return (
         <tr className="m-0 p-0" key={index}>
           <td className="col-1">{index + 1}</td>
           <td className="col-1">{rtNumber}</td>
           <td className="col-2">{barcodeVal}</td>
           <td className="col-1">{createdBy}</td>
-          <td className="col-2">{createdInfo}</td>
+          <td className="col-2">{date}</td>
           <td className="col-1">₹{amount}</td>
           <td className="col-1 text-center">
             <img src={print} className="w-12 m-r-2 pb-2 pointer" />

@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import { Toast } from "react-bootstrap";
 import ReactPageNation from "../../commonUtils/Pagination";
+import { formatDate } from "../../commonUtils/FormatDate";
 
 export default class ListOfEstimationSlips extends Component {
   constructor(props) {
@@ -130,6 +131,7 @@ export default class ListOfEstimationSlips extends Component {
       console.log("dsnumber",dsNumber);
      if(res.data.result){
         toast.success(res.data.result);
+        this.getEstimationSlip(0);
      }else{
       toast.error(res.data.message);
      }
@@ -184,11 +186,12 @@ export default class ListOfEstimationSlips extends Component {
     return this.state.dsList?.content?.map((items, index) => {
       const { dsNumber, createdDate, status, mrp, promoDisc, netAmount } =
         items;
+        let date = formatDate (items.createdDate);
       return (
         <tr className="m-0 p-0" key={index}>
           <td className="col-1">{index + 1}</td>
           <td className="col-1">{dsNumber}</td>
-          <td className="col-2">{createdDate}</td>
+          <td className="col-2">{date}</td>
           <td className="col-1">{status}</td>
           {/* <td className="col-2">₹{mrp}</td> */}
           <td className="col-2">₹{netAmount}</td>

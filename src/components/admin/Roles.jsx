@@ -344,8 +344,8 @@ export default class Roles extends Component {
                                                sub.checked = true;
                                                sub.childPrivileges && sub.childPrivileges.length > 0 && sub.childPrivileges.forEach((child) => {
                                                 editSub.childPrivileges && editSub.childPrivileges.length > 0  && editSub.childPrivileges.forEach((editChild) => {
-                                                        if(editChild.id === child.id) {
-                                                            child.checked = true;
+                                                        if(editChild.id === child.id && editChild.isEnabeld) {
+                                                            child.checked = editChild.isEnabeld;
                                                          }
                                                     });
                                                });
@@ -366,8 +366,8 @@ export default class Roles extends Component {
                                                sub.checked = true;
                                                sub.childPrivileges && sub.childPrivileges.length > 0 && sub.childPrivileges.forEach((child) => {
                                                 editSub.childPrivileges && editSub.childPrivileges.length > 0  && editSub.childPrivileges.forEach((editChild) => {
-                                                        if(editChild.id === child.id) {
-                                                            child.checked = true;
+                                                        if(editChild.id === child.id && editChild.isEnabeld) {
+                                                            child.checked = editChild.isEnabeld;
                                                          }
                                                     });
                                                });

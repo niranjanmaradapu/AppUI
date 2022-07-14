@@ -23,6 +23,7 @@ export default class Stores extends Component {
             phoneNumber: "",
             storeName: "",
             domain: "",
+            isAddStatus:false,
             storesList: [],
             isStore: false,
             domainList: [],
@@ -48,7 +49,7 @@ export default class Stores extends Component {
                 { value: true, label: 'Active' },
                 { value:  false, label: 'Inactive' },
             ],
-            storeStatus: ''
+            storeStatus: true
         }
 
         this.showStores = this.showStores.bind(this);
@@ -92,7 +93,8 @@ export default class Stores extends Component {
         // this.getDomainsList();
         this.setState({ showModal: false });
         this.setState({
-            stateName:""
+            stateName:"",
+            isAddStatus:false
         });
     }
 
@@ -289,6 +291,11 @@ export default class Stores extends Component {
                         toast.success("Store updated Successfully");
                         this.getAllStores();
                     }
+                    if(this.state.isEdit){
+                        this.setState({isAddStatus:false})
+                    }else{
+                        this.setState({isAddStatus:true})
+                    }
 
                 });
             } else {
@@ -312,6 +319,7 @@ export default class Stores extends Component {
                         toast.success("Store Saved Successfully");
                         this.getAllStores();
                     }
+                   
 
                 });
             }
@@ -818,7 +826,8 @@ export default class Stores extends Component {
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>Status <span className="text-red font-bold">*</span></label>
-                                            <select value={this.state.storeStatus} onChange={(e) =>  this.handleStoreStatus(e)} className="form-control">
+                                            <select value={this.state.storeStatus} disabled ={!this.state.isEdit} onChange={(e) =>  this.handleStoreStatus(e)} className="form-control">
+                                                
                                                 <option>Select Status</option>
                                                 { 
                                                 this.state.storesStatus &&

@@ -27,6 +27,7 @@ export default class CreateNotes extends Component {
       storeId: "",
       fromDate: "",
       toDate:"",
+      isSave:false,
       searchMobileNumber:"",
       customerData: {},
       creditData: [],
@@ -68,7 +69,7 @@ export default class CreateNotes extends Component {
 
 
   closeCredit() {
-    this.setState({ isCredit: false, isAddMore: false, mobileNumber: '', customerData: '', creditAmount: '', transactionType: '',isEdit: false,error:{}});
+    this.setState({ isCredit: false, isAddMore: false, mobileNumber: '', customerData: '', creditAmount: '', transactionType: '', isSave:false,isEdit: false,error:{}});
   }
 
   dateFormat = (d) => {
@@ -182,6 +183,7 @@ export default class CreateNotes extends Component {
       isCredit: true,
       isAddMore: true,
       selectedItem: item,
+      isSave:true,
       mobileNumber: item.mobileNumber,
       customerData: { userName: item.customerName, userId: item.customerId }
     });
@@ -223,14 +225,17 @@ export default class CreateNotes extends Component {
   getCustomerDetails = (e) => {
 
     if (e.key === "Enter" ) {
+      //this.setState({isSave:true})
   if(this.state.mobileNumber.length >=10){
       NewSaleService.getMobileData("+91" + this.state.mobileNumber).then((res) => {
 
         if (res && res.data.result) {
           // this.state.customerData = res.data.result;
 
-          this.setState({ customerData: res.data.result });
+          this.setState({ customerData: res.data.result,isSave:true });
         
+        }else{
+          this.setState({isSave:false})
         }
       });
   }
@@ -419,7 +424,9 @@ changePage(pageNumber) {
               Cancel
             </button>
             <button
-              className="btn-unic active fs-12"
+              // className="btn-unic active fs-12"
+              className={this.state.isSave ? "btn-unic active fs-12" : "btn-selection fs-12"}
+              disabled={!this.state.isSave}
               onClick={this.saveCredit}
             >
               Save

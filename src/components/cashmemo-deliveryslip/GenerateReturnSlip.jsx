@@ -23,7 +23,7 @@ export default class GenerateReturnSlip extends Component {
       slectedItems:[],
       netValueSum:[],
       returnSlipTotal: 0,
-      isgenerateReturnSlip: true,
+      isgenerateReturnSlip: false,
       mobileNumber: null,
       createdBy: 0,
       comments: null,
@@ -72,6 +72,7 @@ export default class GenerateReturnSlip extends Component {
 
   generateReturn() {
     this.setState({ isGenerateSlip: true });
+
   }
 
   closegenerateReturn() {
@@ -142,7 +143,7 @@ export default class GenerateReturnSlip extends Component {
 
   getReturnSlipDetails() {
     const obj = {
-      invoiceNo: this.state.invoiceNo,
+      invoiceNo: this.state.invoiceNo.trim(),
       // mobileNo: this.state.mobileNo,
       mobileNumber: this.state.mobileNumber,
       domianId: 1, //this feild is mandatory
@@ -271,6 +272,7 @@ export default class GenerateReturnSlip extends Component {
       );
     });
   }
+  
 
 
   validation(e) {
@@ -542,7 +544,7 @@ export default class GenerateReturnSlip extends Component {
                 <select
                   className="form-control"
                   value={this.state.reason}
-                  onChange={(e) => this.setState({ reason: e.target.value })}
+                  onChange={(e) => this.setState({ reason: e.target.value })} 
                 >
                   <option>Not fitting</option>
                   <option>Damaged Piece</option>
@@ -557,25 +559,27 @@ export default class GenerateReturnSlip extends Component {
                   value={this.state.comments}
                   onChange={(e) => this.setState({ comments: e.target.value })}
                 ></textarea>
-
+                
                 <div className="mt-3">
                   <button
-                    className={
-                      "mt-1 w-100 " +
-                      (this.state.isGenerateReturnSlip
-                        ? "btn-unic btn-disable"
-                        : "btn-unic active")
-                    }
-                    onClick={this.generateReturn}
-                  >
-                    GENERATE RETURN SLIP
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-}
+                className={
+                "mt-1 w-100 " +
+                  (this.state.returnSlipTotal===0
+                   ? "btn-unic btn-disable"
+                    : "btn-unic active")
+                                  }
+         onClick={this.generateReturn}
+         disabled={this.state.returnSlipTotal===0}
+          >
+         GENERATE RETURN SLIP
+            </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+              }
+              

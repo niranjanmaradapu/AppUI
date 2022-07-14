@@ -8,6 +8,7 @@ import ListOfSaleBillsService from "../../services/Reports/ListOfSaleBillsServic
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
 import ReactPageNation from "../../commonUtils/Pagination";
+import { toast } from "react-toastify";
 
 export default class SalesReport extends Component {
   constructor(props) {
@@ -47,6 +48,33 @@ export default class SalesReport extends Component {
 
     this.setState({ storeId: storeId });
   }
+
+  // clear = () => {
+  //   this.setState({
+  //     dateFrom: '',
+  //     dateTo: '',
+  //     custMobileNumber: '',
+  //     billStatus:'',
+  //     invoiceNumber:'',
+  //     empId:''
+  //   }, () => {
+  //     this.getSaleBills(0);
+  //   });
+
+  // }
+
+ clearSearch() {
+    this.setState({
+      sbList:[],
+      dateFrom: '',
+      dateTo: '',
+      custMobileNumber: '',
+      billStatus:'',
+      invoiceNumber:'',
+      empId:''
+    });
+  }
+
 
   getSaleBills(pageNumber) {
     const obj = {
@@ -221,7 +249,6 @@ export default class SalesReport extends Component {
             <td width="5%">{discount}</td>
             <td width="10%">{approvedBy}</td>
             <td width="5%">{reason}</td>
-            <td width="5%">{taxLabel}</td>
             <td width="10%">{taxValue}</td>
             <td width="5%">{cgst}</td>
             <td width="10%">{sgst}</td>
@@ -256,13 +283,11 @@ export default class SalesReport extends Component {
     console.log(">>>page", pageNumber);
     let pageNo = pageNumber + 1;
     this.setState({ pageNumber: pageNo });
-    // this.getUserBySearch(pageNumber);
-    // this.searchUser(pageNumber);
     this.getSaleBills(pageNumber); 
   }
 
   render() {
-    console.log(">>>>>>>>>>>>>>>>lineitem", this.state.lineItemData);
+    // console.log(">>>>>>>>>>>>>>>>lineitem", this.state.lineItemData);
 
     return (
       <div className="maincontent">
@@ -382,7 +407,15 @@ export default class SalesReport extends Component {
                 className="form-control"
                 placeholder="TO DATE"
                 value={this.state.dateTo}
-                onChange={(e) => this.setState({ dateTo: e.target.value })}
+                onChange={(e)=>{
+                  var startDate=new Date(this.state.dateFrom);
+                  var endDate=new Date(e.target.value);
+                  if(startDate<=endDate){
+                    this.setState({dateTo:e.target.value});
+                  }else{
+                    toast.error("To date should be greater than From date");
+                  }
+                }}
               />
             </div>
           </div>
@@ -473,6 +506,14 @@ export default class SalesReport extends Component {
                 onClick={()=>{this.getSaleBills(0);this.setState({pageNumber:0})}}
               >
                 Search
+              </button>
+              <button
+                className="btn-clear m-l-2"
+                onClick={() => {
+                  this.clearSearch();
+                }}
+              >
+                Clear
               </button>
             </div>
           </div>

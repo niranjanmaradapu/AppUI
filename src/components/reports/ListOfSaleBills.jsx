@@ -4,6 +4,7 @@ import view from "../../assets/images/view.svg";
 import ListOfReturnSlipsService from "../../services/Reports/ListOfReturnSlipsService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
+import { toast } from "react-toastify";
 export default class ListOfSaleBills extends Component {
   constructor(props) {
     super(props);
@@ -66,6 +67,19 @@ export default class ListOfSaleBills extends Component {
     this.setState({ storeId: storeId });
   }
 
+clearSearch(){
+  this.setState({
+    rsList:[],
+    dateFrom:"",
+    dateTo:"",
+    status:"",
+    rtNumber:"",
+    barcode:"",
+  });
+}
+
+
+
   getReturnSlips() {
     const obj = {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
@@ -124,7 +138,7 @@ export default class ListOfSaleBills extends Component {
         createdDate:data.createdDate,
         createdBy:data.createdBy,
         amount:d.amount,
-        barcode: d.barCode,
+        barCode: d.barCode,
         customerName:data.customerName,
         mobileNumber:data.mobileNumber
         };
@@ -340,7 +354,17 @@ export default class ListOfSaleBills extends Component {
                 className="form-control"
                 placeholder="TO DATE"
                 value={this.state.dateTo}
-                onChange={(e) => this.setState({ dateTo: e.target.value })}
+                onChange={(e) => {
+                  var startDate=new Date(this.state.dateFrom);
+                  var endDate=new Date(e.target.value);
+                  if(startDate<=endDate){
+                    this.setState({dateTo:e.target.value});
+                  }
+                  else
+                  {
+                    toast.error("To date should be greater than From date")
+                  }
+                }}
               />
             </div>
           </div>
@@ -403,6 +427,14 @@ export default class ListOfSaleBills extends Component {
                 onClick={this.getReturnSlips}
               >
                 Search{" "}
+              </button>
+              <button
+                className="btn-clear m-l-2"
+                onClick={() => {
+                  this.clearSearch();
+                }}
+              >
+                Clear
               </button>
             </div>
           </div>

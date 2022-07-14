@@ -213,7 +213,7 @@ export default class ListOfDeliverySlips extends Component {
     return (
       <div className="maincontent">
         <div className="row">
-          <div className="col-12 col-sm-3 mt-2">
+          <div className="col-12 col-sm-2 mt-2">
             <label>From Date</label>
             <div className="form-group">
               <input
@@ -225,7 +225,7 @@ export default class ListOfDeliverySlips extends Component {
               />
             </div>
           </div>
-          <div className="col-12 col-sm-3 mt-2">
+          <div className="col-12 col-sm-2 mt-2">
             <div className="form-group">
               <label>To Date</label>
               <input
@@ -279,7 +279,7 @@ export default class ListOfDeliverySlips extends Component {
             </div> */}
           {/* </div> */}
 
-          <div className="col-12 col-sm-3 scaling-center scaling-mb mt-2 pt-4">
+          <div className="col-12 col-sm-2 scaling-center scaling-mb mt-2 pt-4">
             <div className="form-group">
               <button
                 className="btn-unic-search active"
@@ -341,7 +341,7 @@ export default class ListOfDeliverySlips extends Component {
               <tbody>{this.renderTableData()}</tbody>
             </table>
           </div>
-          <div className="rect-cardred m-0 mb-4">
+          <div className="rect-red m-0 m-0 mb-4">
             <div className="row">
               {/* <div className="col-1 col-sm-3 text-center"></div> */}
               <div className="col-1 col-sm-2 text-center"></div>
@@ -350,17 +350,17 @@ export default class ListOfDeliverySlips extends Component {
              <div className="col-1 col-sm-2">
                 <label>TOTAL MRP</label>
                 {/* <h6 className="pt-2">₹ 7,500.00</h6> */}
-                <h6 className="pt-1">₹ {this.state.totMrp}</h6>
+                <h6 className="pt-1 mb-0">₹ {this.state.totMrp}</h6>
               </div>
               {/* <div className="col-5 col-sm-4"> */}
               <div className="col-4 col-sm-2">
                 <label>TOTAL PROMO OFFER</label>
-                <h6 className="pt-2">₹ {this.state.totalDiscount}</h6>
+                <h6 className="pt-2 mb-0">₹ {this.state.totalDiscount}</h6>
               </div>
               {/* <div className="col-3 col-sm-2  pt-2 text-left text-red p-r-4"> */}
-              <div className="col-3 col-sm-2  pt-2 text-left text-red p-r-4">
-                <label className="text-red ">GRAND TOTAL</label>
-                <h6 className="fs-16 text-red ">₹ {this.state.billValue}</h6>
+              <div className="col-3 col-sm-2 text-left text-red p-r-4">
+                <label className="text-red">GRAND TOTAL</label>
+                <h6 className="fs-16 text-red mb-0">₹ {this.state.billValue}</h6>
               </div>
             </div>
           </div>

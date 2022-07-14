@@ -350,8 +350,9 @@ clearSearch(){
       <div className="maincontent">
         <Modal isOpen={this.state.isView} className="modal-fullscreen">
           <ModalHeader>BARCODE DETAILS </ModalHeader>
-          <ModalBody>
-            <div className="table-responsive">
+          <ModalBody className="p-l-5 p-r-5 pt-4">
+            <div className="row">
+            <div className="table-responsive p-0">
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
@@ -387,6 +388,7 @@ clearSearch(){
                 </tbody> */}
                 <tbody>{this.renderPopupTableData()}</tbody>
               </table>
+            </div>
             </div>
           </ModalBody>
           <ModalFooter>

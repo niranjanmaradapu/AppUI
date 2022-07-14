@@ -152,7 +152,7 @@ clearSearch(){
         customerName:data.customerName,
         rtNo: data.rtNo,
         mobileNumber: data.mobileNumber,
-        createdDate: data.createdDate,
+        createdDate: formatDate(data.createdDate),
         rsDetailsList: detailsArr,
         isView: true,
       });

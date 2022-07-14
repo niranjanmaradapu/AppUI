@@ -150,7 +150,7 @@ export default class SalesReport extends Component {
       };
       detailsArry.push(obj);
     });
-
+  // let date = formatDate (filterData[0].createdDate);
     this.setState({
       // mobileNumber:
       //   filterData[0].mobileNumber.length > 10
@@ -163,7 +163,7 @@ export default class SalesReport extends Component {
       //   : filterData[0].mobileNumber,
 
       customerName: filterData[0].customerName,
-      createdDate: filterData[0].createdDate,
+      createdDate:formatDate(filterData[0].createdDate),
       invoiceNumber: filterData[0].invoiceNumber,
 
       lineItemData: detailsArry,

@@ -120,6 +120,11 @@ class Login extends Component {
           sessionStorage.setItem("token", JSON.stringify(token));
           // this.getDropdownList();
           const role = JSON.parse(sessionStorage.getItem("user"));
+          if(role["cognito:groups"][0]==="captain"){
+            role["custom:assignedStores"]="capatain:2266"
+            sessionStorage.setItem("user",JSON.stringify(role))
+          }
+          console.log(role);
           if (role["cognito:groups"]) {
             if (role["cognito:groups"][0] === "super_admin") {
               // this.getModel();

@@ -7,6 +7,7 @@ import { Collapse } from "react-collapse";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
 import PromotionsService from "../../services/PromotionsService";
+import  PrivilegesList  from '../../commonUtils/PrivilegesList';
 import URMService from '../../services/URM/URMService';
 import { render } from "react-dom";
 import DisplayPools from './DisplayPools'
@@ -134,7 +135,10 @@ export default class ListOfPools extends Component {
     selectedOption: '',
     errors: [],
     poolError: {},
-    isPoolEdited: false
+    isPoolEdited: false,
+    addPoolPrivilege: '',
+    viewPoolPrivilege: '',
+    editPoolPrivilege: ''
     };
 
     this.addPool = this.addPool.bind(this);
@@ -160,6 +164,17 @@ export default class ListOfPools extends Component {
     this.toggleClass = this.toggleClass.bind(this);
   }  
   componentDidMount() {
+    const childPrivileges =  PrivilegesList('List of Pools');
+    childPrivileges.then((res) => {
+      if(res) {
+        const result = res.sort((a , b) => a.id - b.id);
+        this.setState({
+          addPoolPrivilege:  result[0],
+          editPoolPrivilege: result[1],
+          viewPoolPrivilege: result[2]           
+        });
+      }
+    });
       this.getPoolList();
       // this.getDomainsList();
   }
@@ -842,8 +857,14 @@ export default class ListOfPools extends Component {
         if(activeTab === 'INCLUDED') {      
           // const includeRules = [...addedIncludedPoolRules, ...addedNewRules];
           const finalIncludedRules = addedNewRules.map((item) => {
+            let itm = '';
             item.ruleType = 'Include';
-            let itm = JSON.parse(item.givenValue);           
+            var date = Date.parse(item.givenValue);
+            if(isNaN(date)) {
+              itm = JSON.parse(item.givenValue);
+            } else {
+              itm = JSON.parse(JSON.stringify(item.givenValue)); 
+            }           
             delete item.givenValue; 
             item.givenValue = itm;
             return item;  
@@ -861,9 +882,15 @@ export default class ListOfPools extends Component {
           });
         } else {
           // const excludeRules = [...addedExcludedPoolRules, ...addedNewRules];
-          const finalExcludedRules = addedNewRules.map((item) => { 
+          const finalExcludedRules = addedNewRules.map((item) => {
+            let itm = '';
             item.ruleType = 'Exclude';
-            let itm = JSON.parse(item.givenValue);
+            var date = Date.parse(item.givenValue);
+            if(isNaN(date)) {
+              itm = JSON.parse(item.givenValue);
+            } else {
+              itm = JSON.parse(JSON.stringify(item.givenValue)); 
+            }
             delete item.givenValue;
             item.givenValue = itm;
             return item; 
@@ -1383,7 +1410,7 @@ Tabs = () => {
           <div className="col-sm-4 col-12 pt-4 scaling-center scaling-mb">
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>Search</button>
             <button className="btn-clear m-r-2 mt-2" onClick={this.clearPool}>Clear</button>
-            <button className="btn-unic-redbdr mt-2" onClick={this.addPool}><i className='icon-sale'></i> Add Pool</button>
+            <button className="btn-unic-redbdr mt-2" disabled={!this.state.addPoolPrivilege.isEnabeld} onClick={this.addPool}><i className='icon-sale'></i> Add Pool</button>
           </div>
           {/* <div className="col-sm-3 col-12 text-right pt-4 scaling-center scaling-mb">
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>SEARCH</button>
@@ -1396,6 +1423,7 @@ Tabs = () => {
               listOfPools={this.state.currentPools}
               handleRemovePool={this.handleRemovePool}
               modifyPool={this.modifyPool}
+              viewPoolPrivilege = {this.state.viewPoolPrivilege}
           />
     </div>
   </div>

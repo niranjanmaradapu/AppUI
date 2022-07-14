@@ -128,6 +128,7 @@ Glyphs list
 
 .icon-delete:before {
 	content: '\ea18';
+	margin-top: 2px;
 }
 
 .icon-down_arrow:before {

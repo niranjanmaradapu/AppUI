@@ -168,6 +168,7 @@ export default class ListOfPools extends Component {
     childPrivileges.then((res) => {
       if(res) {
         const result = res.sort((a , b) => a.id - b.id);
+        console.log('+++++++++++++result+++++++++++++', result);
         this.setState({
           addPoolPrivilege:  result[0],
           editPoolPrivilege: result[1],
@@ -1410,7 +1411,7 @@ Tabs = () => {
           <div className="col-sm-4 col-12 pt-4 scaling-center scaling-mb">
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>Search</button>
             <button className="btn-clear m-r-2 mt-2" onClick={this.clearPool}>Clear</button>
-            <button className={this.state.addPoolPrivilege.isEnabeld ? "btn-unic-redbdr mt-2 active" : "btn-unic-redbdr mt-2 btn-disable"} disabled={!this.state.addPoolPrivilege.isEnabeld} onClick={this.addPool}><i className='icon-sale'></i> Add Pool</button>
+            <button className={this.state.addPoolPrivilege?.isEnabeld ? "btn-unic-redbdr mt-2 active" : "btn-unic-redbdr mt-2 btn-disable"} disabled={!this.state.addPoolPrivilege?.isEnabeld} onClick={this.addPool}><i className='icon-sale'></i> Add Pool</button>
           </div>
           {/* <div className="col-sm-3 col-12 text-right pt-4 scaling-center scaling-mb">
             <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchPool}>SEARCH</button>

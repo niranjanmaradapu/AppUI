@@ -360,9 +360,22 @@ class CeateDeliverySlip extends Component {
             if (barCodeData.barcode === promo.barcode) {
               if (promo.calculatedDiscountsVo) {
                 if (promo.calculatedDiscountsVo.discountAvailable) {
+                  if(promo.calculatedDiscountsVo.thisFixedAmountDiscount){
+                    barCodeData.itemDiscount = parseInt(promo.calculatedDiscountsVo.calculatedDiscount);
+                    console.log("+++++++++++++barCodeData.itemDiscount++++++++++++++++" +barCodeData.itemDiscount);
+                       barCodeData.totalMrp = barCodeData.itemDiscount;
+                       console.log("+++++++++++++barCodeData.totalMrp++++++++++++++++" +barCodeData.totalMrp);
+
+                  }
+                  else{
                   barCodeData.itemDiscount = parseInt(promo.calculatedDiscountsVo.calculatedDiscount);
                   barCodeData.totalMrp = barCodeData.totalMrp - barCodeData.itemDiscount;
+                  }
                 }
+                // if(promo.calculatedDiscountsVo.discountAvailable && promo.calculatedDiscountsVo.thisFixedAmountDiscount){
+                //   barCodeData.itemDiscount = parseInt(promo.calculatedDiscountsVo.calculatedDiscount);
+                //   barCodeData.totalMrp = barCodeData.itemDiscount;
+                // }
               } else {
                 barCodeData.itemDiscount = "No discount"
               }
@@ -701,10 +714,12 @@ class CeateDeliverySlip extends Component {
       const obj = {
         "itemPrice": element.itemMrp,
         "quantity": parseInt(element.quantity),
-        "discount": element?.discount,
+        // "discount": element?.discount,
         "netValue": element.totalMrp,
         "barCode": element.barcode,
         "domainId": 1,
+        "manualDiscount":0,
+        "promoDiscount":0,
         "storeId": parseInt(storeId),
         "section": element.section,
         "subSection": element.subSection,
@@ -715,7 +730,7 @@ class CeateDeliverySlip extends Component {
         "taxValue": element.taxValue,
         "cgst": element.cgst,
         "sgst": element.sgst,
-        "discount": (isNaN(element.itemDiscount) ? 0 : (parseInt(element.itemDiscount)))
+        // "discount": (isNaN(element.itemDiscount) ? 0 : (parseInt(element.itemDiscount)))
 
       }
       // this.getTaxAmount(obj);

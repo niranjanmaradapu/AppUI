@@ -5,6 +5,7 @@ import ListOfReturnSlipsService from "../../services/Reports/ListOfReturnSlipsSe
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
 import { toast } from "react-toastify";
+import { formatDate } from "../../commonUtils/FormatDate";
 export default class ListOfSaleBills extends Component {
   constructor(props) {
     super(props);
@@ -167,13 +168,14 @@ clearSearch(){
   renderTableData() {
     return this.state.rsList.map((items, index) => {
       const { rtNumber, barcodeVal, createdBy, createdInfo, amount } = items;
+      let date = formatDate (items.createdInfo);
       return (
         <tr className="m-0 p-0" key={index}>
           <td className="col-1">{index + 1}</td>
           <td className="col-1">{rtNumber}</td>
           <td className="col-2">{barcodeVal}</td>
           <td className="col-1">{createdBy}</td>
-          <td className="col-2">{createdInfo}</td>
+          <td className="col-2">{date}</td>
           <td className="col-1">₹{amount}</td>
           <td className="col-1 text-center">
             <img src={print} className="w-12 m-r-2 pb-2 pointer" />
@@ -241,9 +243,9 @@ clearSearch(){
       <div className="maincontent">
         <Modal isOpen={this.state.isView} className="modal-fullscreen">
           <ModalHeader>Returns Slip Details </ModalHeader>
-          <ModalBody>
-            <div className="row mb-2">
-              <div className="col-3">
+          <ModalBody className="p-l-5 p-r-5 pt-4">
+            <div className="row mb-3">
+              <div className="col-3 p-l-0">
                 <div className="">
                   <label>Return Memo No : </label>{" "}
                   <span className="font-bold fs-13">
@@ -281,7 +283,8 @@ clearSearch(){
                 </div>
               </div>
             </div>
-            <div className="table-responsive">
+            <div className="row">
+            <div className="table-responsive p-0">
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
@@ -318,6 +321,7 @@ clearSearch(){
 
                 <tbody>{this.renderPopupTableData()}</tbody>
               </table>
+            </div>
             </div>
           </ModalBody>
           <ModalFooter>
@@ -453,7 +457,7 @@ clearSearch(){
                   <th className="col-1">EMP ID</th>
                   <th className="col-2">RT DATE & TIME</th>
                   <th className="col-1">AMOUNT</th>
-                  <th className="col-1">ACTIONS</th>
+                  <th className="col-1 text-center">ACTIONS</th>
                 </tr>
               </thead>
               {/* <tbody>

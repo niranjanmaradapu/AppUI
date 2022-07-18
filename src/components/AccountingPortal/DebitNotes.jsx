@@ -6,6 +6,7 @@ import AccountingPortalService from '../../services/AccountingPortal/AccountingP
 import NewSaleService from '../../services/NewSaleService';
 import {errorLengthMin, errorLengthMax, debitNotes_Err_Msg } from './Error';
 import ecommerce from "../../assets/images/ecommerce.svg";
+import { formatDate } from "../../commonUtils/FormatDate";
 import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
 import { NEW_SALE_URL } from "../../commonUtils/ApiConstants";
@@ -596,12 +597,13 @@ handleValidation () {
               <tbody>
 
                 {this.state.debitData?.content?.map((items, index) => {
+                   let date = formatDate (items.createdDate);
                   return (
                     <tr key={index}>
-                      <td className="col-1 underline geeks">{items.customerId}</td>
+                      <td className="col-1">{items.customerId}</td>
                       <td className="col-2">{items.customerName}</td>
                       <td className="col-1">{items.storeId}</td>
-                      <td className="col-2">{items.createdDate}</td>
+                      <td className="col-2">{date}</td>
                       <td className="col-2">₹ {items.amount}</td>
                       <td className="col-2">{items.approvedBy}</td>
                       <td className="col-2 underline geeks"><a onClick={() => this.addMore(items)}>Pay Due</a></td>

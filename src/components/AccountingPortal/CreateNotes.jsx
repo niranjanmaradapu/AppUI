@@ -3,6 +3,7 @@ import edit from '../../assets/images/edit.svg';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import NewSaleService from '../../services/NewSaleService';
 import { toast } from 'react-toastify';
+import  PrivilegesList  from '../../commonUtils/PrivilegesList';
 import AccountingPortalService from '../../services/AccountingPortal/AccountingPortalService';
 import ecommerce from "../../assets/images/ecommerce.svg";
 import axios from 'axios';
@@ -35,6 +36,8 @@ export default class CreateNotes extends Component {
       error:{},
       storeId:"",
       isAddMore: false,
+      addCreditNotePrevilige:'',  
+     addEditPrevilige:'',
       isEdit: false,
       selectedItem: '',
       isShowAllTransactions: false,
@@ -57,6 +60,18 @@ export default class CreateNotes extends Component {
   }
 
   componentWillMount() {
+    const childPrivileges =PrivilegesList('Credit Notes');
+    childPrivileges.then((res) => {
+      if(res) {
+        const result = res.sort((a , b) => a.id - b.id);
+        console.log('+++++result+++++++++++', result);
+        this.setState({
+            addCreditNotePrevilige: result[0],  
+            addEditPrevilige: result[1],  
+
+        });
+      }
+    });     
     const user = JSON.parse(sessionStorage.getItem('user'));
     const selectedStore = JSON.parse(sessionStorage.getItem('selectedstoreData'));
     this.setState({ storeName: selectedStore.storeName, storeId: selectedStore.storeId,
@@ -543,7 +558,8 @@ changePage(pageNumber) {
             {/* <button className="btn-unic-search active m-r-2 mt-2" onClick={this.searchCreditNotes}>SEARCH</button> */}
             <button className="btn-unic-search active m-r-2 mt-2" onClick={()=>{this.searchCreditNotes(0); this.setState({ pageNumber: 0 });}}>Search</button>
             <button className="btn-clear m-r-2 mt-2" onClick={this.clearCreditNotes}>Clear</button>
-            <button className="btn-unic-search mt-2 active" onClick={this.addCredit}><i className="icon-credit_notes"></i> Add Credit Notes</button>
+            <button className={this.state.addCreditNotePrevilige?.isEnabeld ? "btn-unic-search active mt-1 m-r-2" : "btn-unic-search btn-disable mt-1 m-r-2"}
+              disabled={!this.state.addCreditNotePrevilige?.isEnabeld} onClick={this.addCredit}><i className="icon-credit_notes"></i> Add Credit Notes</button>
           </div>
         </div>
         <div className="row m-0 p-0 scaling-center">

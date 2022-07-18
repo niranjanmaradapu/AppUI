@@ -584,7 +584,7 @@ export default class User extends Component {
                       <button className="btn-inactive">Inactive</button>}
                   </td>
                     <td className="col-1">
-                    {items.stores.length > 0 ? <img src={edit} className="w-12 m-r-2 pb-2" disabled={!this.state.editUserPrevilige.isEnabeld} onClick={(e) => this.editUser(items)} name="image" /> : <img src={edit} className="w-12 m-r-2 pb-2" name="image" />}
+                    {items.stores.length > 0 ? <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editUser(items)} name="image" /> : <img src={edit} className="w-12 m-r-2 pb-2" name="image" />}
                     {/* <i className="icon-delete"onClick={(e) => this.deleteUser(items)}></i> */}
                     </td>
                 </tr>
@@ -1105,7 +1105,7 @@ capitalization= () => {
                     <div className="col-12 scaling-center scaling-mb col-sm-6 pt-4 mt-2 p-l-0">
                         <button className="btn-unic-search active m-r-2"  name="search" onClick={this.searchUser}>Search </button>
                         <button className="btn-clear m-r-2" name="clear" onClick={()=>{this.getUsers(0); this.setState({ pageNumber: 0 });}}>Clear </button>
-                        <button className={this.state.addUserPrevilige.isEnabeld ? "btn-unic-search active" : "btn-unic-search btn-disable"}  name="createuser" disabled={!this.state.addUserPrevilige.isEnabeld}  onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button>
+                        <button className="btn-unic-search active" name="createuser"  onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button>
                     </div>
 
                     {/* <div className="col-6 text-right mb-1">

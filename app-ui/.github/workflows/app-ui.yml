@@ -1,0 +1,70 @@
+name: CI - CD @App-UI
+on:
+  push:
+    branches:
+      - devops1
+      - master
+  pull_request:
+    branches: 
+      - devops1
+      - master
+  workflow_call:
+    secrets: 
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+  schedule:
+  - cron: '* * * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env: 
+      MODULE_NAME: app-ui
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: 'niranjanmaradapu/AppUI' 
+          ref: devops1
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to ECR
+        id: ecr
+        uses: jwalton/gh-ecr-login@v1
+        with:
+          access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: ap-south-1
+      - name: Build and Push to ECR
+        run: |
+         docker build -t ${{ env.MODULE_NAME }} . 
+         docker tag ${{ env.MODULE_NAME }}  ${{ steps.ecr.outputs.account }}.dkr.ecr.ap-south-1.amazonaws.com/${{ env.MODULE_NAME }}:${{ github.sha }}  
+         docker push ${{ steps.ecr.outputs.account }}.dkr.ecr.ap-south-1.amazonaws.com/${{ env.MODULE_NAME }}:${{ github.sha }}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest   
+    env: 
+      MODULE_NAME: app-ui
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: 'niranjanmaradapu/AppUI'
+          ref: devops1
+      - name: AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: helm deploy
+        uses: netf/helm-eks-action@v1
+        with:
+          cluster-name: Microservice-K8S-Cluster
+          command: helm upgrade --set image.tag="$GITHUB_SHA" --install app-ui ./app-ui 

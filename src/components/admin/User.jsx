@@ -55,7 +55,7 @@ export default class User extends Component {
                             { value: true, label: 'Active' },
                             { value:  false, label: 'Inactive' },
                         ],
-            userStatus: ''
+            userStatus: true
 
         }
         this.setState({usersList: []})
@@ -659,6 +659,7 @@ export default class User extends Component {
     }
 
     setStoresList(e, value, storeName) {
+        console.log(value);
         if (e.target.checked) {
            this.state.storesList[value].isCheck = e.target.checked;
            const obj = {
@@ -766,6 +767,7 @@ capitalization= () => {
                 }, this);
         }
 
+        
         if (this.state.rolesList && this.state.rolesList.length > 0) {
             const modules = this.state.rolesList;
             rolesList = modules.length > 0
@@ -1036,7 +1038,7 @@ capitalization= () => {
                                 <div className="col-12 col-sm-4 scaling-mb mt-2">
                                     <div className="form-group">
                                         <label>Status <span className="text-red font-bold">*</span></label>
-                                            <select value={this.state.userStatus} onChange={(e) =>  this.handleUserStatus(e)} className="form-control">
+                                            <select value={this.state.userStatus} disabled={!this.state.isEdit} onChange={(e) =>  this.handleUserStatus(e)} className="form-control">
                                                 <option>Select Status</option>
                                                 { 
                                                 this.state.usersStatus &&

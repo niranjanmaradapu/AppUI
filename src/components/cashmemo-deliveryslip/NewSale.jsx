@@ -440,15 +440,30 @@ export default class NewSale extends Component {
     this.setState({ isCreditModel: false });
   }
   confirmKathaModel(){
-     this.setState({ isPayment: false })
-    const obj = {
+  //    this.setState({ isPayment: false })
+  //   const obj = {
 
-      "paymentType": "PKTPENDING",
-      "paymentAmount": this.state.grandNetAmount
-    }
-    this.state.paymentType.push(obj);
-    this.setState({ isKathaModel: false });
-    this.createInvoice()
+  //     "paymentType": "PKTPENDING",
+  //     "paymentAmount": this.state.grandNetAmount
+  //   }
+  //   this.state.paymentType.push(obj);
+  //   this.setState({ isKathaModel: false });
+  //   this.createInvoice()
+  // }
+  const obj = {
+    "paymentType": "PKTPENDING",
+    "paymentAmount": this.state.grandNetAmount
+  }
+  this.state.paymentType.push(obj);
+
+  this.setState({
+    isPayment: false,
+    payingAmount: this.state.grandNetAmount
+  }, () => {
+    this.hideKathaModel();
+    this.createInvoice();
+  });
+
   }
   confirmCreditModel() {
 
@@ -536,57 +551,67 @@ export default class NewSale extends Component {
             "paymentType": "Card",
             "paymentAmount": this.state.ccCardCash
           }
-
+      
         ]
 
       }
 
       console.log("+++++++++++++++++conirm3+++++++++++")
 
-      NewSaleService.saveSale(obj).then((res) => {
-        if (res) {
-          this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
-          this.setState({
-            customerName: " ",
-            gender: " ",
-            dob: " ",
-            customerGST: " ",
-            address: " ",
-            manualDisc: 0,
-            customerEmail: "",
-            netPayableAmount: 0.0,
-            barCodeList: [],
-            grossAmount: 0.0,
-            promoDiscount: 0.0,
-            cashAmount: 0,
-            taxAmount: 0.0,
-            grandNetAmount: 0,
-            returnCash: 0,
-            stateGST: 0,
-            centralGST: 0,
-            isPayment: true,
-            isCCPay: true,
-            isCCModel: false,
-            totalAmount:0,
-            couponAmount:0,
-            isCredit: false,
+      if (this.state.ccCollectedCash < this.state.grandNetAmount) {
+        NewSaleService.saveSale(obj).then((res) => {
+          if (res) {
+            this.setState({ isBillingDetails: false, dsNumber: "", finalList: [] });
+            this.setState({
+              customerName: " ",
+              gender: " ",
+              dob: " ",
+              customerGST: " ",
+              address: " ",
+              manualDisc: 0,
+              customerEmail: "",
+              netPayableAmount: 0.0,
+              barCodeList: [],
+              grossAmount: 0.0,
+              promoDiscount: 0.0,
+              cashAmount: 0,
+              taxAmount: 0.0,
+              grandNetAmount: 0,
+              returnCash: 0,
+              stateGST: 0,
+              centralGST: 0,
+              isPayment: true,
+              isCCPay: true,
+              isCCModel: false,
+              totalAmount:0,
+              couponAmount:0,
+              isCredit: false,
+  
+  
+            });
+            this.setState({ showDiscReason: false, isPayment: true });
+            this.setState({ showTable: false });
+            sessionStorage.setItem("recentSale", res.data.result);
+            toast.success(res.data.result);
+            this.setState({ newSaleId: res.data.result });
+            // this.pay()
+  
+            this.pay()
+  
+          } else {
+            toast.error(res.data.result);
+          }
+        });
+  
+      }else{
+          // alert("Net Payable Amount should be greater than From CollectedCash ");
+               toast.error(" CollectedCash Should be less than payable amount when it comes to CC")
+             }
+
+      
 
 
-          });
-          this.setState({ showDiscReason: false, isPayment: true });
-          this.setState({ showTable: false });
-          sessionStorage.setItem("recentSale", res.data.result);
-          toast.success(res.data.result);
-          this.setState({ newSaleId: res.data.result });
-          // this.pay()
-
-          this.pay()
-
-        } else {
-          toast.error(res.data.result);
-        }
-      });
-
+      
     // }
 
   }
@@ -1136,7 +1161,7 @@ export default class NewSale extends Component {
 
   saveDiscount() {
     console.log(this.state.manualDisc);
-    if (this.state.manualDisc <= this.state.grandNetAmount) {
+    if (this.state.manualDisc < this.state.grandNetAmount) {
 
       if (Object.keys(this.state.selectedDisc).length !== 0 && this.state.manualDisc !== 0 && this.state.discApprovedBy !== '') {
         // this.state.netPayableAmount = 0;
@@ -1156,13 +1181,13 @@ export default class NewSale extends Component {
         this.setState({isBillLevel: false})
       }
     } else {
-      toast.error("Please enter sufficient amount");
+      toast.error("Bill level discount should be less than Payable Amount");
       this.setState({isBillLevel: false})
     }
 
 
   }
-
+  
   getDiscountReasons() {
     NewSaleService.getDiscountReasons().then((res) => {
       if (res.status === 200) {
@@ -1175,11 +1200,15 @@ export default class NewSale extends Component {
           };
           this.state.discReasons.push(obj);
         });
-      } else {
+    } else {
         toast.error(res.data);
       }
-    });
+    })
   }
+  
+  
+   
+
 
   handleChange(e) {
     const regex = /^[0-9\b]+$/;
@@ -1272,6 +1301,7 @@ export default class NewSale extends Component {
 
   createInvoice() {
     this.setState({ netCardPayment: this.state.grandNetAmount })
+    this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
     const storeId = sessionStorage.getItem("storeId");
 
@@ -1860,7 +1890,9 @@ export default class NewSale extends Component {
               Cancel
             </button>
             <button
-              className="btn-unic active fs-12"
+              //className="btn-unic active fs-12"
+              className={this.state.ccCollectedCash> 0 ? "btn-unic active fs-12" : "btn-selection fs-12"}
+              disabled={!(this.state.ccCollectedCash>0)}
               onClick={this.saveCCAmount}
             >
               Confirm
@@ -2101,7 +2133,9 @@ export default class NewSale extends Component {
               Cancel
             </button>
             <button
-              className="btn-unic active fs-12"
+              //className="btn-unic active fs-12"
+              className={ this.state.manualDisc<this.state.grandNetAmount ? "btn btn-bdr active fs-12" : "btn-selection fs-12"}
+              disabled={!(this.state.manualDisc<this.state.grandNetAmount)}
               onClick={this.saveDiscount}
             >
               Confirm
@@ -2189,7 +2223,9 @@ export default class NewSale extends Component {
               CANCEL
             </button>
             <button
-              className="btn btn-bdr active fs-12"
+              //className="btn btn-bdr active fs-12"
+              className={this.state.cashAmount>=this.state.grandNetAmount ? "btn btn-bdr active fs-12" : "btn-selection fs-12"}
+              disabled={!(this.state.cashAmount>=this.state.grandNetAmount)}
               onClick={this.getReturnAmount}
             >
               SAVE CASH PAYMENT

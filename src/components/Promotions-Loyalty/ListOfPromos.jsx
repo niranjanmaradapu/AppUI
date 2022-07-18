@@ -103,8 +103,8 @@ export default class ListOfPromos extends Component {
         benfitType: '',
         benfitTypes: [
           { value: 'FlatDiscount', label: 'Flat Discount' },
-          { value: 'XunitsFromBuyPool', label: 'X Uints from Buy Pool' },
-          { value: 'XunitsFromGetPool', label: 'X Uints from Get Pool' }
+          { value: 'XunitsFromBuyPool', label: 'X Units from Buy Pool' },
+          { value: 'XunitsFromGetPool', label: 'X Units from Get Pool' }
         ],
         benfitTypesForEachBarcode: [
           { value: 'FlatDiscount', label: 'Flat Discount' }

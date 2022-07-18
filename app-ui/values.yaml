@@ -55,7 +55,7 @@ ingress:
           serviceName: app-ui
           servicePort: 3000
   tls:
-    - secretName: frontend-tls
+    - secretName: er-tls
       hosts:
         - easyretailworld.com
 

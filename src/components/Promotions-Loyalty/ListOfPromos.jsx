@@ -197,7 +197,6 @@ export default class ListOfPromos extends Component {
     childPrivileges.then((res) => {
       if(res) {
         const result = res.sort((a , b) => a.id - b.id);
-        console.log('++++++++++result++++++++++++++', result);
         this.setState({
           addPromoPrivilege: result[0],
           editPromoPrivilege: result[1],

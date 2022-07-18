@@ -5,6 +5,7 @@ import right from "../../assets/images/table_arrow_right.svg";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { toast } from "react-toastify";
 import PromotionsService from "../../services/PromotionsService";
+import  PrivilegesList  from '../../commonUtils/PrivilegesList';
 import URMService from '../../services/URM/URMService';
 import Select from "react-select";
 
@@ -165,7 +166,12 @@ export default class ManagePromo extends Component {
         errors: {},
         benfitErrors: {},
         slabErrors: {},
-        storeErrors: {}
+        storeErrors: {},
+        addToStorePrivilege: '',
+        modifyValidityPrivilege: '',
+        clonePrivilege: '',
+        changePriorityPrivilege: '',
+        viewPrivilege: ''
     };
 
     this.addPromo = this.addPromo.bind(this);
@@ -185,6 +191,19 @@ export default class ManagePromo extends Component {
     this.handleStoreData = this.handleStoreData.bind(this);
   }
   componentDidMount() {
+    const childPrivileges =  PrivilegesList('Manage Promotions');
+    childPrivileges.then((res) => {
+      if(res) {
+        const result = res.sort((a , b) => a.id - b.id);
+        this.setState({
+          addToStorePrivilege: result[0],
+          modifyValidityPrivilege: result[1],
+          clonePrivilege: result[2],
+          changePriorityPrivilege: result[3],
+          viewPrivilege: result[4]    
+        });
+      }
+    });
     this.getPromoList();
     this.getAllStorePromos();
     this.getAllStoresList()
@@ -938,12 +957,16 @@ haandleStartdate(e) {
           </div>
           <div className="col-sm-2 col-6 mt-2 pt-4 p-0">
           <button className="btn-unic-search active m-r-2 " onClick={this.searchPromo}>Search</button>
-          <button
+          {this.state.addToStorePrivilege ? <button
               className="btn-unic-redbdr"
               onClick={this.addStore}
             >
               <i className="icon-store"></i> Add Store
-            </button>
+            </button> : <button
+              className="btn-disable"
+            >
+              <i className="icon-store"></i> Add Store
+            </button>}
           </div>
           <div className="col-sm-4 col-12 pl-0 mb-3 scaling-center scaling-mb">
           </div> 
@@ -951,9 +974,12 @@ haandleStartdate(e) {
         <div className="row m-0 p-0 scaling-center">  
           <div className="col-6 p-l-0">
           <h5 className="mt-1 mb-2 fs-18 p-l-0">List Of Promotions</h5>
-            <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.promotionUpdate}>Modify Validity</button>
-             <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.cloneStore}>Clone</button>
-            <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.savePriorityPopUp}>Change Promo Priority</button>
+            {this.state.modifyValidityPrivilege?.isEnabeld ? <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.promotionUpdate}>Modify Validity</button> : 
+            <button className="btn-selection btn-disable m-r-2" type="button" >Modify Validity</button>}
+            {this.state.clonePrivilege?.isEnabeld ? <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.cloneStore}>Clone</button> : 
+            <button className="btn-selection btn-disable m-r-2" type="button">Clone</button>}
+            {this.state.changePriorityPrivilege?.isEnabeld ? <button disabled={!this.state.isPramotionChecked} className={ this.state.isPramotionChecked ? 'btn-selection m-r-2 active' : 'btn-selection m-r-2' } type="button" onClick={this.savePriorityPopUp}>Change Promo Priority</button> : 
+            <button className='btn-selection btn-disable m-r-2' type="button">Change Promo Priority</button>}
           </div>
           {/* <div className="col-6 text-right p-r-0 mt-4 align-self-center">
             <span className="mt-3 ">Show on page </span><span className="font-bold fs-14"> 1-10</span><span> out of 11</span><button className="btn-transparent" type="button"><img src={left} /></button><button className="btn-transparent" type="button"><img src={right} /></button>

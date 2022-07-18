@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import edit from '../../assets/images/edit.svg';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
+import  PrivilegesList  from '../../commonUtils/PrivilegesList';
 import { formatDate } from "../../commonUtils/FormatDate";
 import { errorLengthMin , errorLengthMax , account_err_msg} from "../../commonUtils/Errors";
 import URMService from '../../services/URM/URMService';
@@ -32,6 +33,8 @@ export default class Stores extends Component {
             districtList: [],
             stateId: null,
             userName: "",
+            addStorePrevilige:'',
+            addEditPrevilige:'',
             isEdit: false,
             selectedStore: {},
             errors: {
@@ -109,6 +112,17 @@ export default class Stores extends Component {
     }
 
     componentWillMount() {
+        const childPrivileges =PrivilegesList('Stores');
+        childPrivileges.then((res) => {
+          if(res) {
+            const result = res.sort((a , b) => a.id - b.id);
+            this.setState({
+                addStorePrevilige: result[0],  
+                addEditPrevilige: result[1],  
+
+            });
+          }
+        });      
         const user = JSON.parse(sessionStorage.getItem('user'));
         this.setState({loggedUser: user["custom:userId"]});
         if (user) {
@@ -416,10 +430,14 @@ export default class Stores extends Component {
                       <button className="btn-active">Active</button> : 
                       <button className="btn-inactive">Inactive</button>}
                     </td>
-                    <td className="col-1">
-                        <img src={edit} className="w-12 m-r-2 pb-2" onClick={(e) => this.editStore(items)} />
+     {this.state.addEditPrevilige?.isEnabeld ? <td className="col-1">
+        <img src={edit} className="w-12 m-r-2 pb-2" 
+                        onClick={(e) => this.editStore(items)} />
+                        
                         {/* <i className="icon-delete"onClick={(e) => this.deleteStore(items)}></i> */}
-                    </td>
+                    </td> :<td className="col-1">
+        <img src={edit} className="w-12 m-r-2 pb-2" />
+                    </td> }
                 </tr>
 
             );
@@ -883,7 +901,7 @@ export default class Stores extends Component {
                     <div className="col-sm-6 col-12 scaling-center scaling-mb mt-2  pt-4 p-l-0">
                         <button className="btn-unic-search active m-r-2" onClick={this.searchStore}>Search </button>
                         <button className="btn-clear m-r-2" onClick={this.getAllStores}>Clear </button>
-                        <button className="btn-unic-search active" onClick={this.showStores}><i className="icon-store"></i>  Add Store </button>
+                        <button className={this.state.addStorePrevilige?.isEnabeld ? "btn-unic-search active" : "btn-unic-search btn-disable"}   disabled={!this.state.addStorePrevilige?.isEnabeld} onClick={this.showStores}><i className="icon-store"></i>  Add Store </button>
                     </div>
                     <div>
                         {this.getStoreTable()}

@@ -5,6 +5,7 @@ import right from "../../assets/images/table_arrow_right.svg";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { toast } from "react-toastify";
 import PromotionsService from "../../services/PromotionsService";
+import  PrivilegesList  from '../../commonUtils/PrivilegesList';
 import URMService from '../../services/URM/URMService';
 import Select from "react-select";
 
@@ -165,7 +166,10 @@ export default class ListOfPromos extends Component {
         errors: {},
         benfitErrors: {},
         slabErrors: {},
-        storeErrors: {}
+        storeErrors: {},
+        addPromoPrivilege: '',
+        editPromoPrivilege: '',
+        viewPromoPrivilege: ''
     };
 
     this.addPromo = this.addPromo.bind(this);
@@ -189,6 +193,18 @@ export default class ListOfPromos extends Component {
     this.updatePromotionStatus = this.updatePromotionStatus.bind(this); 
   }
   componentDidMount() {
+    const childPrivileges =  PrivilegesList('List Of Promotions');
+    childPrivileges.then((res) => {
+      if(res) {
+        const result = res.sort((a , b) => a.id - b.id);
+        console.log('++++++++++result++++++++++++++', result);
+        this.setState({
+          addPromoPrivilege: result[0],
+          editPromoPrivilege: result[1],
+          viewPromoPrivilege: result[2]     
+        });
+      }
+    });
     this.getPromoList();
     this.getPoolList();
   }
@@ -1479,7 +1495,8 @@ handleBenefitFormData() {
           <div className="col-sm-4 col-6 mt-2 pt-3">
           <button className="btn-unic-search active m-r-2 " onClick={this.searchPromotion}>Search</button>
           <button
-              className="btn-unic-redbdr mt-2  " 
+              className={this.state.addPromoPrivilege?.isEnabeld ? "mt-2 btn-unic-redbdr" : "btn-disable mt-2"}
+              disabled={!this.state.addPromoPrivilege?.isEnabeld}
               onClick={this.addPromo}
             >
               <i className="icon-sale"></i> Add Promo
@@ -1519,10 +1536,13 @@ handleBenefitFormData() {
                       <button className="btn-active">Active</button> : 
                       <button className="btn-inactive">Inactive</button>}
                   </td> */}
-                  <td className="col-1">
-                    <img src={edit} onClick={this.editPramotion(item)} className="w-12 pb-2" />
+                  {this.state.editPromoPrivilege?.isEnabeld ? <td className="col-1">
+                    <img src={edit}  onClick={this.editPramotion(item)} className="w-12 pb-2" />
                     {/* <i onClick={this.handleRemovePromo(item)} className="icon-delete m-l-2 fs-16"></i> */}
-                  </td>
+                  </td> : <td className="col-1">
+                    <img src={edit}  className="w-12 pb-2" />
+                    {/* <i onClick={this.handleRemovePromo(item)} className="icon-delete m-l-2 fs-16"></i> */}
+                  </td>}
                   </tr> 
                   )
                 })}

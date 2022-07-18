@@ -783,6 +783,7 @@ capitalization= () => {
                 }, this);
         }
 
+        
         if (this.state.rolesList && this.state.rolesList.length > 0) {
             const modules = this.state.rolesList;
             rolesList = modules.length > 0

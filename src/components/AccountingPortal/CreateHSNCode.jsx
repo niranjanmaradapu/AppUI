@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import edit from '../../assets/images/edit.svg';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import  PrivilegesList  from '../../commonUtils/PrivilegesList';
 import AccountingPortalService from '../../services/AccountingPortal/AccountingPortalService';
 import { toast } from 'react-toastify';
 import Select from "react-select";
@@ -23,6 +24,7 @@ export default class CreateHSNCode extends Component {
       slabBased:"",
       isHSNCodeEdited: false,
       isSlabBased: false,
+      addHsnCodePrevilige:'',
       taxAppliedTypes: [
       {label: 'Hsn Code', value: 'Hsncode'},
       {label: 'Price Slab', value: 'Priceslab'}
@@ -45,6 +47,16 @@ export default class CreateHSNCode extends Component {
     this.slabValidation = this.slabValidation.bind(this);
   }
   componentWillMount() {
+    const childPrivileges =PrivilegesList('Create HSN Code');
+    childPrivileges.then((res) => {
+      if(res) {
+        const result = res.sort((a , b) => a.id - b.id);
+        this.setState({
+            addHsnCodePrevilige: result[0],    
+
+        });
+      }
+    });     
   this. getAllHsnCodes();
   }
 
@@ -516,8 +528,10 @@ slabValidation() {
             <h5 className="mt-1 mb-2 fs-18 p-l-0 mt-3">List Of HSN Codes</h5>
           </div>
           <div className="col-sm-7 col-6 text-right">
-            <button className="btn-unic-search mt-2 active"
-              onClick={this.addHSNCode}><i className='icon-credit_notes'></i> Add HSN Code</button>
+            <button className={this.state.addHsnCodePrevilige?.isEnabeld ? "btn-unic-search active mt-1 m-r-2" : "btn-unic-search btn-disable mt-1 m-r-2"}
+             disabled={!this.state.addHsnCodePrevilige?.isEnabeld}
+             onClick={this.addHSNCode}>
+                <i className='icon-credit_notes'></i> Add HSN Code</button>
           </div>
         </div>
         <div className="table-responsive">

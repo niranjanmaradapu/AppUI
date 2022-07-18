@@ -60,7 +60,8 @@ export default class User extends Component {
             addUserPrevilige: '',
             editUserPrevilige: '',
             deleteUserPrevilige: '',
-            viewUserPrevilige: ''
+            viewUserPrevilige: '',
+            isConfigUser: ''
         }
         this.setState({usersList: []})
         this.showCreateUser = this.showCreateUser.bind(this);
@@ -237,7 +238,8 @@ export default class User extends Component {
           }
         });
         const user = JSON.parse(sessionStorage.getItem('user'));
-        this.setState({userName : user["cognito:username"], isEdit: false,loggedUserId: user["custom:userId"] });
+        const configUser = JSON.parse(sessionStorage.getItem('custom:isConfigUser'));
+        this.setState({userName : user["cognito:username"], isConfigUser: configUser, isEdit: false,loggedUserId: user["custom:userId"] });
         if(user) {
             this.setState({ clientId: user["custom:clientId1"],
             domainId: user["custom:domianId1"] }, () => {this.getDomainsList();});
@@ -1105,7 +1107,9 @@ capitalization= () => {
                     <div className="col-12 scaling-center scaling-mb col-sm-6 pt-4 mt-2 p-l-0">
                         <button className="btn-unic-search active m-r-2"  name="search" onClick={this.searchUser}>Search </button>
                         <button className="btn-clear m-r-2" name="clear" onClick={()=>{this.getUsers(0); this.setState({ pageNumber: 0 });}}>Clear </button>
-                        <button className="btn-unic-search active" name="createuser"  onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button>
+                        {this.state.isConfigUser ? <button className="btn-unic-search active" name="createuser"  onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button> : 
+                        this.state.addUserPrevilige?.isEnabeld ? <button className="btn-unic-search active" name="createuser"  onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button> :
+                        <button className="btn-disable" name="createuser"><i className="icon-create_customer"></i> Add User </button>}
                     </div>
 
                     {/* <div className="col-6 text-right mb-1">

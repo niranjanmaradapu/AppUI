@@ -238,10 +238,10 @@ export default class User extends Component {
           }
         });
         const user = JSON.parse(sessionStorage.getItem('user'));
-        const configUser = JSON.parse(sessionStorage.getItem('custom:isConfigUser'));
-        this.setState({userName : user["cognito:username"], isConfigUser: configUser, isEdit: false,loggedUserId: user["custom:userId"] });
+        this.setState({userName : user["cognito:username"], isEdit: false,loggedUserId: user["custom:userId"] });
         if(user) {
             this.setState({ clientId: user["custom:clientId1"],
+            isConfigUser: user['custom:isConfigUser'],
             domainId: user["custom:domianId1"] }, () => {this.getDomainsList();});
             
         }
@@ -1107,9 +1107,8 @@ capitalization= () => {
                     <div className="col-12 scaling-center scaling-mb col-sm-6 pt-4 mt-2 p-l-0">
                         <button className="btn-unic-search active m-r-2"  name="search" onClick={this.searchUser}>Search </button>
                         <button className="btn-clear m-r-2" name="clear" onClick={()=>{this.getUsers(0); this.setState({ pageNumber: 0 });}}>Clear </button>
-                        {this.state.isConfigUser ? <button className="btn-unic-search active" name="createuser"  onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button> : 
-                        this.state.addUserPrevilige?.isEnabeld ? <button className="btn-unic-search active" name="createuser"  onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User </button> :
-                        <button className="btn-disable" name="createuser"><i className="icon-create_customer"></i> Add User </button>}
+                        {this.state.isConfigUser === "true" ? <button className="btn-unic-search active" name="createuser"  onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User</button> :                    
+                        <button disabled={!this.state.addUserPrevilige?.isEnabeld} className={this.state.addUserPrevilige?.isEnabeld ? "btn-unic-search active" : "btn-unic-search btn-disable" }  name="createuser" onClick={this.showCreateUser}><i className="icon-create_customer"></i> Add User</button>}
                     </div>
 
                     {/* <div className="col-6 text-right mb-1">

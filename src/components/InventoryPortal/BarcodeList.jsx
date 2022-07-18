@@ -1545,7 +1545,9 @@ export default class BarcodeList extends Component {
       <div className="">
         <Modal isOpen={this.state.isAddBarcode} size="lg">
           <ModalHeader>
-            <h5>{this.state.isEdit ? "Edit Barcode" : "Add Barcode"}</h5>
+            <h5>{!this.state.isEdit && !this.state.popupVlaue ? "Add Barcode" : ""}</h5>
+            <h5>{this.state.popupVlaue === 'REBAR' ? "Rebarcode":""}</h5>
+            <h5>{this.state.popupVlaue === 'EDIT' ? "Edit Barcode":""}</h5>
           </ModalHeader>
           <ModalBody>
             <div className="p-3">
@@ -1673,7 +1675,7 @@ export default class BarcodeList extends Component {
                       }
                     />
                     {this.state.commonFieldsErr && !this.state.listPrice
-                      ? this.errorDiv("listErr")
+                      ? this.errorDiv("mrpErr")
                       : null}
                   </div>
                 </div>

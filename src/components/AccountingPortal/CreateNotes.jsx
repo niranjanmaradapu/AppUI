@@ -8,6 +8,7 @@ import ecommerce from "../../assets/images/ecommerce.svg";
 import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
 import { ACCOUNTING_PORTAL } from "../../commonUtils/ApiConstants";
+import { formatDate } from "../../commonUtils/FormatDate";
 import {errorLengthMin, errorLengthMax, creditNotes_Err_Msg } from './Error';
 import ReactPageNation from "../../commonUtils/Pagination";
 
@@ -72,11 +73,7 @@ export default class CreateNotes extends Component {
     this.setState({ isCredit: false, isAddMore: false, mobileNumber: '', customerData: '', creditAmount: '', transactionType: '', isSave:false,isEdit: false,error:{}});
   }
 
-  dateFormat = (d) => {
-    let date = new Date(d)
-    
-    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
-}
+
   getCreditNotes() {
     const accountType ='CREDIT';
     const { storeId } = this.state;
@@ -568,10 +565,10 @@ changePage(pageNumber) {
               </thead>
               <tbody>
                 {this.state.creditData?.content?.map((items, index) => {
-                  let date = this.dateFormat(items.createdDate)
+                  let date = formatDate(items.createdDate)
                   return (
                     <tr key={index}>
-                      <td className="col-1 underline geeks">{items.customerId}</td>
+                      <td className="col-1">{items.customerId}</td>
                       <td className="col-2">{items.customerName}</td>
                       <td className="col-1">{items.storeId}</td>
                       <td className="col-1">{date}</td>

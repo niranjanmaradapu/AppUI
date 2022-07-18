@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import edit from "../../assets/images/edit.svg";
 import { ToastContainer, toast } from "react-toastify";
+import  PrivilegesList  from '../../commonUtils/PrivilegesList';
 import CreateDeliveryService from "../../services/CreateDeliveryService";
 import {
   errorLengthMin,
@@ -47,6 +48,7 @@ export default class TagCustomer extends Component {
         createdDate: "",
         giftVochersList: [],
         isGiftVocher: false,
+        addAddGiftVoucher:'',
         amount: "",
         fromDate: "",
         toDate: "",
@@ -68,6 +70,15 @@ export default class TagCustomer extends Component {
   }
 
   componentWillMount() {
+    const childPrivileges =PrivilegesList('Gift Voucher');
+    childPrivileges.then((res) => {
+      if(res) {
+        const result = res.sort((a , b) => a.id - b.id);
+        this.setState({
+          addAddGiftVoucher: result[0],  
+        });
+      }
+    });
     this.getGiftVochersList();
   }
 
@@ -452,8 +463,9 @@ export default class TagCustomer extends Component {
                         placeholder="GV AMOUNT" />
                     </div> */}
               <button
-                className="btn-unic-search active mt-1 m-r-2"
+                className={this.state.addAddGiftVoucher?.isEnabeld ? "btn-unic-search active mt-1 m-r-2" : "btn-unic-search btn-disable mt-1 m-r-2"}
                 onClick={this.addGiftVoucher}
+                disabled={!this.state.addAddGiftVoucher?.isEnabeld}
               >
                 Add Gift Voucher
               </button>

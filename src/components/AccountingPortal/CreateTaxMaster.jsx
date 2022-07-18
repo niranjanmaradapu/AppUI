@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import edit from '../../assets/images/edit.svg';
+import  PrivilegesList  from '../../commonUtils/PrivilegesList';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import AccountingPortalService from '../../services/AccountingPortal/AccountingPortalService';
 import { toast } from 'react-toastify';
@@ -87,6 +88,16 @@ export default class CreateTaxMaster extends Component {
     }
   }
   componentWillMount() {
+    const childPrivileges =PrivilegesList('Create Tax Master');
+    childPrivileges.then((res) => {
+      if(res) {
+        const result = res.sort((a , b) => a.id - b.id);
+        console.log("+++++++result++",result)
+        this.setState({
+          addTaxMaster: result[0],  
+        });
+      }
+    });
     const user = JSON.parse(sessionStorage.getItem('user'));
     const selectedStore = JSON.parse(sessionStorage.getItem('selectedstoreData'));
     this.setState({ storeName: selectedStore.storeName, storeId: selectedStore.storeId, userName: user["cognito:username"], userId: user["custom:userId"] });
@@ -250,7 +261,9 @@ export default class CreateTaxMaster extends Component {
             <h5 className="mt-1 mb-2 fs-18 p-l-0 mt-3">List Of Taxes</h5>
           </div>
           <div className="col-sm-7 col-6 scaling-mb text-right">
-            <button className="btn-unic-search mt-2 active" onClick={this.addTaxMaster}><i className='icon-credit_notes'></i> Add Tax Master</button>
+            <button className={this.state.addTaxMaster?.isEnabeld ? "btn-unic-search active mt-1 m-r-2" : "btn-unic-search btn-disable mt-1 m-r-2"} 
+                   disabled={!this.state.addTaxMaster?.isEnabeld}
+                   onClick={this.addTaxMaster}><i className='icon-credit_notes'></i> Add Tax Master</button>
           </div>
         </div>
         <div className="table-responsive">

@@ -5,6 +5,7 @@ import ListOfReturnSlipsService from "../../services/Reports/ListOfReturnSlipsSe
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
 import { toast } from "react-toastify";
+import ReactPageNation from "../../commonUtils/Pagination";
 import { formatDate } from "../../commonUtils/FormatDate";
 export default class ListOfSaleBills extends Component {
   constructor(props) {
@@ -15,6 +16,8 @@ export default class ListOfSaleBills extends Component {
       dateTo: moment(new Date()).format("YYYY-MM-DD").toString(),
       // dateFrom: "",
       // dateTo: "",
+      pageNumber:0,
+      totalPages:0,
       createdBy: null,
       rtNumber: null,
       rtNo: null,
@@ -51,6 +54,7 @@ export default class ListOfSaleBills extends Component {
       ],
     };
     this.getReturnSlips = this.getReturnSlips.bind(this);
+    this.changePage = this.changePage.bind(this);
     // this.viewReport = this.viewReport.bind(this);
     this.closeViewReport = this.closeViewReport.bind(this);
     this.getReturnslipDetails = this.getReturnslipDetails.bind(this);
@@ -81,7 +85,8 @@ clearSearch(){
 
 
 
-  getReturnSlips() {
+  getReturnSlips(pageNumber) {
+    console.log("pageNumber",pageNumber);
     const obj = {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
       dateTo: this.state.dateTo ? this.state.dateTo : undefined,
@@ -93,7 +98,7 @@ clearSearch(){
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
 
-    ListOfReturnSlipsService.getReturnSlips(obj).then((res) => {
+    ListOfReturnSlipsService.getReturnSlips(obj,pageNumber).then((res) => {
       console.log("....>>>", res);
       if (res.data.result) {
         res.data.result.content.map((prop, i) => {
@@ -111,8 +116,9 @@ clearSearch(){
       }
 
       this.setState({
-        rsList: res.data.result.content,
+        rsList: res.data.result,
         // rsDetailsList: res.data.result.content,
+        totalPages:res.data.result.totalPages
       });
     });
   }
@@ -166,7 +172,7 @@ clearSearch(){
   }
 
   renderTableData() {
-    return this.state.rsList.map((items, index) => {
+    return this.state.rsList?.content?.map((items, index) => {
       const { rtNumber, barcodeVal, createdBy, createdInfo, amount } = items;
       let date = formatDate (items.createdInfo);
       return (
@@ -237,6 +243,13 @@ clearSearch(){
         status: e.target.value,
       });
     }
+  }
+
+  changePage(pageNumber) {
+    console.log(">>>page", pageNumber);
+    let pageNo = pageNumber + 1;
+    this.setState({ pageNumber: pageNo });
+    this.getReturnSlips(pageNumber); 
   }
 
   render() {
@@ -406,7 +419,7 @@ clearSearch(){
               <input
                 type="text"
                 className="form-control"
-                placeholder="RT NUmber"
+                placeholder="RT Number"
                 value={this.state.rtNumber}
                 onChange={(e) => this.setState({ rtNumber: e.target.value })}
               />
@@ -429,9 +442,8 @@ clearSearch(){
             <div className="form-group pt-4">
               <button
                 className="btn-unic-search active"
-                onClick={this.getReturnSlips}
-              >
-                Search{" "}
+                onClick={()=>{this.getReturnSlips(0);this.setState({pageNumber:0});}}>
+                Search
               </button>
               <button
                 className="btn-clear m-l-2"
@@ -480,6 +492,18 @@ clearSearch(){
               <tbody>{this.renderTableData()}</tbody>
             </table>
           </div>
+          <div className="row m-0 pb-3 mb-5 mt-3">
+            {this.state.totalPages > 1 ? (
+          <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.rsList}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div>
+            ):null}
+            </div>
         </div>
       </div>
     );

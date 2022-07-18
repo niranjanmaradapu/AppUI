@@ -17,11 +17,11 @@ class InventoryService {
         return axios.get(BASE_URL + INVENTORY_URLS.getAllUOMs);
     }
     getProductBundleUpdate(update) {
-        return axios.put(BASE_URL + INVENTORY_URLS.addProductBundleUpdate,update);
+        return axios.put(BASE_URL + INVENTORY_URLS.addProductBundleUpdate, update);
     }
 
     getAllDivisions(domainType) {
-        const param  = '?domainType='+ domainType;
+        const param = '?domainType=' + domainType;
         return axios.get(BASE_URL + INVENTORY_URLS.getAllDivisions + param);
     }
 
@@ -33,14 +33,14 @@ class InventoryService {
     //     console.log("??/?",BASE_URL+INVENTORY_URLS.getAllHsnData+"?hsnCode="+hsnCode);
     //     return axios.get(BASE_URL+INVENTORY_URLS.getAllHsnData+"?hsnCode="+hsnCode);
     // }
-    getAllSections(id,domainType) {
-        const param1 = '?id=' + id +'&domainType=' + domainType;
+    getAllSections(id, domainType) {
+        const param1 = '?id=' + id + '&domainType=' + domainType;
         return axios.get(BASE_URL + INVENTORY_URLS.getAllSections + param1);
     }
 
     getAllCategories(domainType) {
-        const param  = '?domainType='+ domainType
-        return axios.get(BASE_URL + INVENTORY_URLS.getAllCategories +param);
+        const param = '?domainType=' + domainType
+        return axios.get(BASE_URL + INVENTORY_URLS.getAllCategories + param);
     }
 
     getStoreNamesByIds(list) {
@@ -53,7 +53,7 @@ class InventoryService {
 
 
 
-    addBarcode(list, domain, isEdit,value) {
+    addBarcode(list, domain, isEdit, value) {
         if (domain && domain.label === "Retail") {
             if (isEdit) {
                 return axios.put(BASE_URL + INVENTORY_URLS.updateBarcodes, list);
@@ -62,19 +62,19 @@ class InventoryService {
             }
         } else {
             if (isEdit) {
-                if(value=== "REBAR"){
+                if (value === "REBAR") {
                     return axios.put(BASE_URL + INVENTORY_URLS.updatTextileBarcodes, list);
-                }else{
+                } else {
                     return axios.put(BASE_URL + INVENTORY_URLS.updateBarcodesQuntity, list);
                 }
-               
+
             } else {
                 return axios.post(BASE_URL + INVENTORY_URLS.addTextileBarcodes, list);
             }
         }
     }
-    updateBarcodesQuntity(){
-        return axios.put(BASE_URL + INVENTORY_URLS.updateBarcodesQuntity )
+    updateBarcodesQuntity() {
+        return axios.put(BASE_URL + INVENTORY_URLS.updateBarcodesQuntity)
     }
 
 
@@ -130,7 +130,8 @@ class InventoryService {
         const path = `?`
         return axios.post(BASE_URL + INVENTORY_URLS.getProductBundle);
     }
-    getAllProductBundleList(fromdate, todate, storeId) {
+    getAllProductBundleList(fromdate, todate, storeId, pageNumber = 0) {
+        const param2 = '&page=' + pageNumber;
         let param = '';
         if (storeId && !fromdate && !todate) {
             param = '?storeId=' + storeId;
@@ -139,21 +140,21 @@ class InventoryService {
         } else {
             param = `?storeId=${storeId}&fromDate=${fromdate ? fromdate : null}&toDate=${todate ? todate : null}`;
         }
-        return axios.post(BASE_URL + INVENTORY_URLS.getAllProductBundleList + param);
+        return axios.post(BASE_URL + INVENTORY_URLS.getAllProductBundleList + param + param2 + '&size=10');
     }
     saveBulkData(uploadFile, storeId) {
-         const param2 ='?storeId='+ storeId;
+        const param2 = '?storeId=' + storeId;
         let token = JSON.parse(sessionStorage.getItem('token'));
         let formData = new FormData();
         formData.append('file', uploadFile)
         //     addBulkTextile   BASE_URL+INVENTORY_URLS.addBulkTextile     "storeId":store
         //   let commonUrl = "http://10.80.1.39:9097/inventory/inventoryTextile/add-bulk-products"
         const uninterceptedAxiosInstance = axios.create();
-        return uninterceptedAxiosInstance.post(BASE_URL + INVENTORY_URLS.addBulkTextile +param2, formData,
+        return uninterceptedAxiosInstance.post(BASE_URL + INVENTORY_URLS.addBulkTextile + param2, formData,
             {
                 headers: {
                     "Authorization": 'Bearer' + ' ' + token,
-                  
+
                 },
             })
 

@@ -5,6 +5,7 @@ import view from "../../assets/images/view.svg";
 import scan from '../../assets/images/scan.svg';
 import InventoryService from '../../services/InventoryService';
 import { toast } from "react-toastify";
+import ReactPageNation from "../../commonUtils/Pagination";
 // import { error } from  "error";
 
 export default class ProductsCombo extends Component {
@@ -31,7 +32,9 @@ export default class ProductsCombo extends Component {
       fromDate: '',
       toDate: '',
       comboPrice: '',
-      selectedProductCombo: ''
+      selectedProductCombo: '',
+      pageNumber:0,
+      totalPages:0,
     }
   this.addCombo = this.addCombo.bind(this);
   this.closeCombo = this.closeCombo.bind(this);
@@ -41,6 +44,7 @@ export default class ProductsCombo extends Component {
   this.handleValidation = this.handleValidation.bind(this);
   this.getProductBundleList = this.getProductBundleList.bind(this);
   this.handleChange = this.handleChange.bind(this);
+  this.changePage = this.changePage.bind(this);
   }
   componentWillMount() {
     const selectedDomain = JSON.parse(sessionStorage.getItem('selectedDomain'));
@@ -58,7 +62,7 @@ export default class ProductsCombo extends Component {
       selectedStoreId: JSON.parse(sessionStorage.getItem('storeId')),
       selectedDomainId: domainId
 
-    }, () => this.getProductBundleList(this.state.selectedStoreId));
+    }, () => this.getProductBundleList(this.state.selectedStoreId,0));
     // this.loadErrorMsgs();
     
   }
@@ -81,7 +85,7 @@ export default class ProductsCombo extends Component {
       ProductsCombo: [],
       fromDate: '',
       toDate: '' ,
-     }, () => this.searchCombo());
+     }, () => this.searchCombo(0));
   }
 
   getBarcodeDetails() {
@@ -155,11 +159,11 @@ export default class ProductsCombo extends Component {
    
     
   
-  getProductBundleList(selectedStoreId) {
-    InventoryService.getAllProductBundleList('', '', selectedStoreId).then((res) => {
+  getProductBundleList(selectedStoreId,pageNumber) {
+    InventoryService.getAllProductBundleList('', '', selectedStoreId,pageNumber).then((res) => {
     if(res) {
       this.setState({
-        listOfProductBundle: res.data.result.content,
+        listOfProductBundle: res.data.result,
       });
     }
     });
@@ -200,7 +204,7 @@ export default class ProductsCombo extends Component {
             isEdit: false,
             comboPrice: '',
             selectedStoreId: selectedStoreId
-          }, () => this.getProductBundleList(selectedStoreId));
+          }, () => this.getProductBundleList(selectedStoreId,0));
         } 
         
       });
@@ -242,7 +246,7 @@ export default class ProductsCombo extends Component {
                 isEdit: false,
                 comboPrice: '',
                 selectedStoreId: selectedStoreId
-              }, () => this.getProductBundleList(selectedStoreId));
+              }, () => this.getProductBundleList(selectedStoreId,0));
             } else {
               toast.success(res.data.message);
             }
@@ -309,12 +313,12 @@ handleChange (){
     
   });
   }
-  searchCombo = () => {
+  searchCombo = (pageNumber) => {
     const {toDate, fromDate, selectedStoreId } = this.state;
-    InventoryService.getAllProductBundleList(fromDate, toDate, selectedStoreId).then((res) => {
+    InventoryService.getAllProductBundleList(fromDate, toDate, selectedStoreId,pageNumber).then((res) => {
       if(res) {
         this.setState({
-          listOfProductBundle: res.data.result.content
+          listOfProductBundle: res.data.result
         
         });
       }
@@ -346,7 +350,7 @@ handleChange (){
     }
 
     let totalqty = 0;
-    this.state.listOfProductBundle.forEach(bardata => {
+    this.state.listOfProductBundle?.content?.forEach(bardata => {
       // grandTotal = grandTotal + bardata.totalMrp;
       // promoDiscount = promoDiscount + bardata?.itemDiscount;
       totalqty = totalqty + parseInt(bardata.quantity)
@@ -362,6 +366,14 @@ handleChange (){
       e.preventDefault();
     }
   };
+
+
+  changePage(pageNumber) {
+    console.log(">>>page", pageNumber);
+    let pageNo = pageNumber + 1;
+    this.setState({ pageNumber: pageNo });
+    this.getProductBundleList(pageNumber); 
+  }
 
   render() {
     {/* {this.state.barList.map((items, index) => { */}
@@ -529,7 +541,18 @@ handleChange (){
               className="form-control"
               placeholder="TO DATE"
               value={this.state.toDate}
-              onChange={(e) => this.setState({ toDate: e.target.value })}
+              onChange={(e)=>{
+                var startDate=new Date(this.state.fromDate);
+                var endDate=new Date(e.target.value);
+                if(startDate<=endDate){
+                  this.setState({toDate:e.target.value})
+                }
+                else{
+                  toast.error("To date should be greater than From date");
+                }
+              }
+
+              }
             />
           </div>
         </div>
@@ -545,7 +568,7 @@ handleChange (){
         </div> */}
         <div className='col-sm-6 col-12 mt-3 pt-2 scaling-center scaling-mb scaling-mtop'>
         <button 
-                 onClick={this.searchCombo}
+                 onClick={()=>{this.searchCombo(0);this.setState({pageNumber:0});}}
                 className="btn-unic-search active m-r-2 mt-1"
               >
                 Search
@@ -580,7 +603,7 @@ handleChange (){
                </tr>
                 </thead>
                 <tbody>
-                  {this.state.listOfProductBundle && this.state.listOfProductBundle.map((itm, ind) => {
+                  {this.state.listOfProductBundle && this.state.listOfProductBundle?.content?.map((itm, ind) => {
                       return (
                         <tr key={ind}>
                           <td className="col-2">{itm.id}</td>
@@ -602,7 +625,19 @@ handleChange (){
                   {this.state.listOfProductBundle.length === 0 && <tr>No records found!</tr>}
                   </tbody>
               </table>
-          </div>        
+          </div>
+          <div className="row m-0 pb-3 mb-5 mt-3">
+            {this.state.totalPages > 1 ? (
+          <div className="d-flex justify-content-center">
+                 <ReactPageNation
+                  {...this.state.listOfProductBundle}
+                  changePage={(pageNumber) => {
+                    this.changePage(pageNumber);
+                    }}
+                   />
+                  </div> 
+            ):null}
+            </div>       
         </div>
     )
   }

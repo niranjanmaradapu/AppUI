@@ -535,7 +535,7 @@ slabValidation() {
           {this.state.HsnCodeList.map((items, index) => {
                   return (
             <tr>
-              <td className="col-3 underline geeks">{items.hsnCode}</td>
+              <td className="col-3">{items.hsnCode}</td>
               <td className="col-3">{items.description}</td>
               <td className="col-2">{items.taxAppliesOn}</td>
               <td className="col-2">{items.taxAppliedType === 'Priceslab' ? 'Yes' : 'No'}</td>

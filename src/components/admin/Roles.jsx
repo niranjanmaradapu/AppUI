@@ -66,6 +66,7 @@ export default class Roles extends Component {
         this.toggleMobileClass = this.toggleMobileClass.bind(this);
         this.moreLess = this.moreLess.bind(this);
         this.moreLessMobile = this.moreLessMobile.bind(this);
+        this.avoidSpace=this.avoidSpace.bind(this);
     }
 
 
@@ -1268,6 +1269,12 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
             </div>
         )
     }
+    avoidSpace(e) {
+        if (e.key === " ") {
+            e.preventDefault();
+          }
+     }
+    
 
 
     render() {
@@ -1342,6 +1349,7 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                                         disabled ={this.state.isRoleName}
                                         maxLength = {errorLengthMax.roleName}
                                             onChange={(e) => this.setState({ roleName: e.target.value ,isRoleName:false})}
+                                            onKeyDown={this.avoidSpace}
                                             autoComplete="off" />
                                             <span style={{ color: "red" }}>{this.state.errors["rolename"]}</span>
 

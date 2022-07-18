@@ -270,7 +270,7 @@ export default class CreateTaxMaster extends Component {
           {this.state.taxList.map((items, index) => {
                   return (
             <tr>
-              <td className="col-2 underline geeks">{items.taxLabel}</td>
+              <td className="col-2">{items.taxLabel}</td>
               <td className="col-2">{items.cgst}</td>
               <td className="col-1">{items.sgst}</td>
               <td className="col-1">{items.igst}</td>

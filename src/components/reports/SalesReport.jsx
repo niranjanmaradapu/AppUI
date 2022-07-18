@@ -86,9 +86,9 @@ export default class SalesReport extends Component {
         : undefined,
       billStatus: this.state.billStatus ? this.state.billStatus : undefined,
       invoiceNumber: this.state.invoiceNumber
-        ? this.state.invoiceNumber
+        ? (this.state.invoiceNumber).trim()
         : undefined,
-      empId: this.state.empId ? this.state.empId : undefined,
+      empId: this.state.empId ? (this.state.empId).trim() : undefined,
       // domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
@@ -150,7 +150,7 @@ export default class SalesReport extends Component {
       };
       detailsArry.push(obj);
     });
-
+  // let date = formatDate (filterData[0].createdDate);
     this.setState({
       // mobileNumber:
       //   filterData[0].mobileNumber.length > 10
@@ -163,7 +163,7 @@ export default class SalesReport extends Component {
       //   : filterData[0].mobileNumber,
 
       customerName: filterData[0].customerName,
-      createdDate: filterData[0].createdDate,
+      createdDate:formatDate(filterData[0].createdDate),
       invoiceNumber: filterData[0].invoiceNumber,
 
       lineItemData: detailsArry,

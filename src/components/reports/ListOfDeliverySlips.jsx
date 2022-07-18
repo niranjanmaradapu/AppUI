@@ -190,7 +190,7 @@ export default class ListOfDeliverySlips extends Component {
       return (
         <tr className="" key={index}>
           <td className="col-2">{transction}</td>
-          <td className="col-2">₹ {totalMrp}</td>
+          <td className="col-1">₹ {totalMrp}</td>
           <td className="col-2">₹ {totalDiscount}</td>
           <td className="col-2">₹ {billValue}</td>
           <td className="col-1">{storeId}</td>

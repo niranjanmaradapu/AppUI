@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import edit from '../../assets/images/edit.svg';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
+import { formatDate } from "../../commonUtils/FormatDate";
 import { errorLengthMin , errorLengthMax , account_err_msg} from "../../commonUtils/Errors";
 import URMService from '../../services/URM/URMService';
 
@@ -253,12 +254,6 @@ export default class Stores extends Component {
         });
     }
 
-    dateFormat = (d) => {
-        let date = new Date(d)
-        
-        return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
-    }
-    
     
     saveStores() {
 
@@ -405,7 +400,7 @@ export default class Stores extends Component {
 
     getTableData() {
         return this.state.storesList.map((items, index) => {
-            let date = this.dateFormat(items.createdDate)
+            let date = formatDate(items.createdDate)
             // const { storeManager, createdDate,clientDomianlId["domaiName"], createdBy, cityId, name, domain } = items;
             return (
 
@@ -527,7 +522,7 @@ export default class Stores extends Component {
 
         // State Name
 
-        if (!this.state.stateName) {
+        if (this.state.stateName==='Select') {
             formIsValid = false;
             errors["stateName"] = account_err_msg.stateName;
         }
@@ -536,7 +531,7 @@ export default class Stores extends Component {
 
         // District Name
 
-        if (!this.state.district) {
+        if (this.state.district==='Select') {
             formIsValid = false;
             errors["districtName"] = account_err_msg.districtName;
         }

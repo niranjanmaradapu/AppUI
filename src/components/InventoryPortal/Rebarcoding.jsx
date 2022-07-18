@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { number } from "prop-types";
 import { stringify } from "querystring";
 import ReactPageNation from "../../commonUtils/Pagination";
+import { formatDate } from "../../commonUtils/FormatDate";
 const data1 = [
   "Textile",
 
@@ -372,13 +373,7 @@ export default class Rebarcoding extends Component {
       this.setState({ categoriesList: this.state.categoriesList });
     });
   }
-  dateFormat = (d) => {
-    let date = new Date(d)
-    
-    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
-}
-
-
+ 
   getAllStoresList() {
     URMService.getStoresByDomainId(this.state.clientId).then(
       (res) => {
@@ -631,7 +626,7 @@ export default class Rebarcoding extends Component {
 
   barcodesListTableTextile() {
     return this.state.barcodesList?.content?.map((items, index) => {
-      let date = this.dateFormat(items.createdDate)
+      let date = formatDate(items.createdDate)
       const {
         currentBarcodeId,
         toBeBarcodeId,

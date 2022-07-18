@@ -882,6 +882,7 @@ export default class NewSale extends Component {
     let discount = 0;
     let total = 0;
     let netTotal=0;
+    let promoDiscValue=0;
     this.state.barCodeList = [];
     this.state.finalList = [];
     this.state.rBarCodeList = [];
@@ -924,9 +925,12 @@ export default class NewSale extends Component {
         }
         this.state.barCodeList.forEach((barCode, index) => {
           costPrice = costPrice + barCode.itemPrice;
-          discount = discount + barCode.discount;
+          discount = discount + barCode.manualDiscount;
+          promoDiscValue = promoDiscValue+barCode.promoDiscount
           total = total + barCode.grossValue;
           netTotal= netTotal+barCode.grossValue;
+
+
 
         });
 
@@ -934,8 +938,8 @@ export default class NewSale extends Component {
 
         this.setState({
           netPayableAmount: total,
-     grandNetAmount: netTotal,
-          totalPromoDisc: discount,
+          grandNetAmount: netTotal,
+          totalPromoDisc: promoDiscValue,
           grossAmount: costPrice,
         });
 
@@ -972,7 +976,8 @@ export default class NewSale extends Component {
         }
         this.state.barCodeList.forEach((barCode, index) => {
           costPrice = costPrice + barCode.itemPrice;
-          discount = discount + barCode.discount;
+          discount = discount + barCode.manualDiscount;
+          promoDiscValue = promoDiscValue+barCode.promoDiscount
           total = total + barCode.grossValue;
           netTotal= netTotal+barCode.grossValue;
         });
@@ -982,7 +987,7 @@ export default class NewSale extends Component {
         this.setState({
           netPayableAmount: total,
           grandNetAmount: netTotal,
-          totalPromoDisc: discount,
+          totalPromoDisc: promoDiscValue,
           grossAmount: costPrice,
         });
         // const grandTotal = this.state.netPayableAmount;

@@ -16,6 +16,9 @@ class InventoryService {
     getUOMs() {
         return axios.get(BASE_URL + INVENTORY_URLS.getAllUOMs);
     }
+    getProductBundleUpdate(update) {
+        return axios.put(BASE_URL + INVENTORY_URLS.addProductBundleUpdate,update);
+    }
 
     getAllDivisions(domainType) {
         const param  = '?domainType='+ domainType;
@@ -50,7 +53,7 @@ class InventoryService {
 
 
 
-    addBarcode(list, domain, isEdit) {
+    addBarcode(list, domain, isEdit,value) {
         if (domain && domain.label === "Retail") {
             if (isEdit) {
                 return axios.put(BASE_URL + INVENTORY_URLS.updateBarcodes, list);
@@ -59,12 +62,21 @@ class InventoryService {
             }
         } else {
             if (isEdit) {
-                return axios.put(BASE_URL + INVENTORY_URLS.updatTextileBarcodes, list);
+                if(value=== "REBAR"){
+                    return axios.put(BASE_URL + INVENTORY_URLS.updatTextileBarcodes, list);
+                }else{
+                    return axios.put(BASE_URL + INVENTORY_URLS.updateBarcodesQuntity, list);
+                }
+               
             } else {
                 return axios.post(BASE_URL + INVENTORY_URLS.addTextileBarcodes, list);
             }
         }
     }
+    updateBarcodesQuntity(){
+        return axios.put(BASE_URL + INVENTORY_URLS.updateBarcodesQuntity )
+    }
+
 
     getBarcodeDetails(barcodeId, domain, storesId) {
         if (domain && domain.label === "Retail") {

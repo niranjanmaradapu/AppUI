@@ -5,6 +5,8 @@ import view from "../../assets/images/view.svg";
 import ListOfBarcodesService from "../../services/Reports/ListOfBarcodesService";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import ReactPageNation from "../../commonUtils/Pagination";
+import { TimeScale } from "chart.js";
+import { toast } from "react-toastify";
 
 export default class ListOfReturnSlips extends Component {
   constructor(props) {
@@ -57,6 +59,20 @@ export default class ListOfReturnSlips extends Component {
     this.closeViewReport = this.closeViewReport.bind(this);
   }
 
+clearSearch(){
+  this.setState({
+    bcList:[],
+    fromDate:"",
+    toDate:"",
+    barcode:"",
+    empId:"",
+    itemMrpLessThan:"",
+    itemMrpGreaterThan:""
+
+  })
+}
+
+
   getBarcodes(pageNumber) {
     const obj = {
       fromDate: this.state.fromDate ? this.state.fromDate : null,
@@ -66,14 +82,15 @@ export default class ListOfReturnSlips extends Component {
       barcodeTextileId: this.state.barcodeTextileId
         ? parseInt(this.state.barcodeTextileId)
         : undefined,
-      barcode: this.state.barcode ? this.state.barcode : null,
+      barcode:this.state.barcode?(this.state.barcode).trim():null,
       // storeName: this.state.store ? this.state.store : undefined,
       storeId:
         this.state.storeId && this.state.storeId != 0
           ? this.state.storeId
           : "",
+      empId:this.state.empId?(this.state.empId).trim():undefined,
 
-      empId: this.state.empId ? this.state.empId : undefined,
+      // empId: this.state.empId ? (this.state.empId).trim() : undefined,
       itemMrpLessThan: this.state.itemMrpLessThan
         ? this.state.itemMrpLessThan
         : undefined,
@@ -107,6 +124,14 @@ export default class ListOfReturnSlips extends Component {
         });
         obj = {
           barcode: d.barcode,
+          hsnCode:d.hsnCode,
+          costPrice:d.costPrice,
+          batchNo:d.batchNo,
+          category:d.category,
+          division:d.division,
+          name:d.name,
+          domainType:d.domainType,
+          originalBarcodeCreatedAt:d.originalBarcodeCreatedAt,
           storeId: d.storeId,
           empId: d.empId,
           qty: d.qty,
@@ -136,16 +161,34 @@ export default class ListOfReturnSlips extends Component {
     console.log("filterdata", filterData);
     let obj = {
       barcode: "",
+      hsnCode:"",
+      batchNo:"",
+      category:"",
+      division:"",
+      domainType:"",
+      name:"",
+      empId:"",
+      costPrice:"",
       itemMrp: "",
-      storeName: "",
-      qty: "",
+      originalBarcodeCreatedAt:"",
+      // storeName: "",
+      // qty: "",
     };
 
     obj = {
       barcode: filterData[0].barcode,
+      hsnCode: filterData[0].hsnCode,
+      batchNo: filterData[0].batchNo,
+      category: filterData[0].category,
+      division: filterData[0].division,
+      domainType: filterData[0].domainType,
+      name:filterData[0].name,
+      empId:filterData[0].empId,
+      costPrice: filterData[0].costPrice,
       itemMrp: filterData[0].itemMrp,
-      storeName: filterData[0].storeName,
-      qty: filterData[0].qty,
+      originalBarcodeCreatedAt: filterData[0].originalBarcodeCreatedAt,
+      // storeName: filterData[0].storeName,
+      // qty: filterData[0].qty,
     };
 
     //console.log("after insert a", a);
@@ -284,14 +327,21 @@ export default class ListOfReturnSlips extends Component {
   renderPopupTableData() {
     if (this.state.popupData) {
       // return this.state.popupData.map((items, index) => {
-      const { barcode, itemMrp, storeName, qty } = this.state.popupData;
+      const { barcode,hsnCode,batchNo,category,division,domainType,name,empId,costPrice,originalBarcodeCreatedAt,itemMrp, storeName, qty } = this.state.popupData;
       return (
         <tr>
           <td className="col-2">{barcode}</td>
-          <td className="col-2">{itemMrp}</td>
-          <td className="col-2">{storeName}</td>
-          <td className="col-2">{qty}</td>
-        </tr>
+          <td className="col-1">{hsnCode}</td>
+          <td className="col-1">{batchNo}</td>
+          <td className="col-1">{category}</td>
+          <td className="col-1">{division}</td>
+          <td className="col-1">{domainType}</td>
+          <td className="col-1">{name}</td>
+          <td className="col-1">{empId}</td>
+          <td className="col-1">{costPrice}</td>
+          <td className="col-1">{itemMrp}</td>
+          <td className="col-2">{originalBarcodeCreatedAt}</td>
+         </tr>
       );
     }
   }
@@ -301,16 +351,24 @@ export default class ListOfReturnSlips extends Component {
       <div className="maincontent">
         <Modal isOpen={this.state.isView} className="modal-fullscreen">
           <ModalHeader>BARCODE DETAILS </ModalHeader>
-          <ModalBody>
-            <div className="table-responsive">
+          <ModalBody className="p-l-5 p-r-5 pt-4">
+            <div className="row">
+            <div className="table-responsive p-0">
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
                     <th className="col-2">BARCODE</th>
-                    <th className="col-2">MRP</th>
-                    <th className="col-2">STORE</th>
-                    <th className="col-2">QTY</th>
-                  </tr>
+                    <th className="col-1">HSNCODE</th>
+                    <th className="col-1">BATCH NO.</th>
+                    <th className="col-1">CATEGORY</th>
+                    <th className="col-1">DIVISION</th>
+                    <th className="col-1">DOMAIN</th>
+                    <th className="col-1">NAME</th>
+                    <th className="col-1">EMP ID</th>
+                    <th className="col-1">COST PRICE</th>
+                    <th className="col-1">MRP</th>
+                    <th className="col-2">CREATED DATE</th>
+                    </tr>
                 </thead>
                 {/* <tbody>
                   <tr>
@@ -331,6 +389,7 @@ export default class ListOfReturnSlips extends Component {
                 </tbody> */}
                 <tbody>{this.renderPopupTableData()}</tbody>
               </table>
+            </div>
             </div>
           </ModalBody>
           <ModalFooter>
@@ -367,7 +426,17 @@ export default class ListOfReturnSlips extends Component {
                 className="form-control"
                 placeholder="TO DATE"
                 value={this.state.toDate}
-                onChange={(e) => this.setState({ toDate: e.target.value })}
+                onChange={(e) => {
+                  var startDate=new Date(this.state.fromDate);
+                  var endDate=new Date(e.target.value);
+                  if(startDate<=endDate){
+                    this.setState({toDate:e.target.value})
+                  }
+                  else
+                  {
+                    toast.error("To date should be greater than From date");
+                  }
+                }}
               />
             </div>
           </div>
@@ -379,47 +448,17 @@ export default class ListOfReturnSlips extends Component {
                 className="form-control"
                 placeholder="Barcode Number"
                 value={this.state.barcode}
-                // onChange={(e) =>
-                //   this.setState({ barcodeTextileId: e.target.value })
-                // }
                 onChange={(e) => this.setState({ barcode: e.target.value })}
               />
             </div>
           </div>
-          {/* <div className="col-6 col-sm-2 mt-2 mb-2">
-            <div className="form-group">
-              <label>Store</label>
-              <select
-                className="form-control"
-                value={this.state.storeId}
-                onChange={(e) => {
-                  const selectedValue = this.state.storeList.filter((item) => {
-                    return item.id == e.target.value;
-                  });
-                  this.setState({
-                    storeId: e.target.value,
-                    storeName: selectedValue[0].name,
-                  });
-                }}
-              >
-                {this.state.storeList.map((i) => {
-                  return (
-                    <option key={i.id} value={i.id}>
-                      {i.name}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-          </div> */}
-
           <div className="col-6 col-sm-2 mt-2">
             <div className="form-group">
               <label>EMP ID</label>
               <input
                 type="text"
                 className="form-control"
-                placeholder="EMP ID"
+                placeholder="Emp ID"
                 value={this.state.empId}
                 onChange={(e) => this.setState({ empId: e.target.value })}
               />
@@ -442,7 +481,7 @@ export default class ListOfReturnSlips extends Component {
 
           <div className="col-6 col-sm-2 mt-2">
             <div className="form-group">
-              <label>Barcode MRP GraterThan </label>
+              <label>Barcode MRP GreaterThan </label>
               <input
                 type="text"
                 className="form-control"
@@ -454,7 +493,7 @@ export default class ListOfReturnSlips extends Component {
               />
             </div>
           </div>
-          <div className="col-6 col-sm-2 scaling-mb mt-2 pt-4">
+          <div className="col-6 col-sm-2 scaling-mb mt-2">
             <div className="form-group">
               <button
                 className="btn-unic-search active"
@@ -462,7 +501,15 @@ export default class ListOfReturnSlips extends Component {
                   this.getBarcodes(0);
                 }}
               >
-                Search{" "}
+                Search
+              </button>
+              <button
+                className="btn-clear m-l-2"
+                onClick={() => {
+                  this.clearSearch();
+                }}
+              >
+                Clear
               </button>
             </div>
           </div>
@@ -484,30 +531,8 @@ export default class ListOfReturnSlips extends Component {
                   <th className="col-2">VIEW</th>
                 </tr>
               </thead>
-              {/* <tbody>
-              <tr className="">
-                <td className="col-1">01</td>
-                <td className="col-2">BAR00001</td>
-                <td className="col-2">Kukatpally</td>
-                <td className="col-2">EMP123</td>
-                <td className="col-1">10</td>
-                <td className="col-2">₹ 2,000</td>
-                <td className="col-2 text-center">
-                  <img src={edit} className="w-12 m-r-2 pb-2" />
-                  <i className="icon-delete fs-16"></i>
-                </td>
-              </tr>
-             </tbody> */}
               <tbody>{this.renderTableData()}</tbody>
-
-
-                {/* <ReactPageNation
-                  {...this.state.pageList}
-                  changePage={(pageNumber) => {
-                    this.changePage(pageNumber);
-                  }}
-                /> */}
-              
+ 
             </table>
             <div className="row m-0 pb-3 mb-5 mt-3">
             {this.state.totalPages > 1 ? (

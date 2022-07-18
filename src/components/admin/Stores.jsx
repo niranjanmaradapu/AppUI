@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import edit from '../../assets/images/edit.svg';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
+import { formatDate } from "../../commonUtils/FormatDate";
 import { errorLengthMin , errorLengthMax , account_err_msg} from "../../commonUtils/Errors";
 import URMService from '../../services/URM/URMService';
 
@@ -23,6 +24,7 @@ export default class Stores extends Component {
             phoneNumber: "",
             storeName: "",
             domain: "",
+            isAddStatus:false,
             storesList: [],
             isStore: false,
             domainList: [],
@@ -48,7 +50,7 @@ export default class Stores extends Component {
                 { value: true, label: 'Active' },
                 { value:  false, label: 'Inactive' },
             ],
-            storeStatus: ''
+            storeStatus: true
         }
 
         this.showStores = this.showStores.bind(this);
@@ -92,7 +94,8 @@ export default class Stores extends Component {
         // this.getDomainsList();
         this.setState({ showModal: false });
         this.setState({
-            stateName:""
+            stateName:"",
+            isAddStatus:false
         });
     }
 
@@ -251,12 +254,6 @@ export default class Stores extends Component {
         });
     }
 
-    dateFormat = (d) => {
-        let date = new Date(d)
-        
-        return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
-    }
-    
     
     saveStores() {
 
@@ -289,6 +286,11 @@ export default class Stores extends Component {
                         toast.success("Store updated Successfully");
                         this.getAllStores();
                     }
+                    if(this.state.isEdit){
+                        this.setState({isAddStatus:false})
+                    }else{
+                        this.setState({isAddStatus:true})
+                    }
 
                 });
             } else {
@@ -312,6 +314,7 @@ export default class Stores extends Component {
                         toast.success("Store Saved Successfully");
                         this.getAllStores();
                     }
+                   
 
                 });
             }
@@ -397,7 +400,7 @@ export default class Stores extends Component {
 
     getTableData() {
         return this.state.storesList.map((items, index) => {
-            let date = this.dateFormat(items.createdDate)
+            let date = formatDate(items.createdDate)
             // const { storeManager, createdDate,clientDomianlId["domaiName"], createdBy, cityId, name, domain } = items;
             return (
 
@@ -519,7 +522,7 @@ export default class Stores extends Component {
 
         // State Name
 
-        if (!this.state.stateName) {
+        if (this.state.stateName==='Select') {
             formIsValid = false;
             errors["stateName"] = account_err_msg.stateName;
         }
@@ -528,7 +531,7 @@ export default class Stores extends Component {
 
         // District Name
 
-        if (!this.state.district) {
+        if (this.state.district==='Select') {
             formIsValid = false;
             errors["districtName"] = account_err_msg.districtName;
         }
@@ -818,7 +821,8 @@ export default class Stores extends Component {
                                 <div className="col-sm-4 col-12">
                                     <div className="form-group">
                                         <label>Status <span className="text-red font-bold">*</span></label>
-                                            <select value={this.state.storeStatus} onChange={(e) =>  this.handleStoreStatus(e)} className="form-control">
+                                            <select value={this.state.storeStatus} disabled ={!this.state.isEdit} onChange={(e) =>  this.handleStoreStatus(e)} className="form-control">
+                                                
                                                 <option>Select Status</option>
                                                 { 
                                                 this.state.storesStatus &&

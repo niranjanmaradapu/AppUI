@@ -84,12 +84,13 @@ class Header extends Component {
     super(props)
     this.state = {
       userData: {},
-      selectedCategory: {
-      "id": "2",
-      "name": "Accounting Portal",
-      "parentImage": "icon-r_brand fs-30 i_icon",
-      "path": "/stores"
-    },
+    //   selectedCategory: {
+    //   "id": "2",
+    //   "name": "Accounting Portal",
+    //   "parentImage": "icon-r_brand fs-30 i_icon",
+    //   "path": "/stores"
+    // },
+    selectedCategory: {},
       selectedImage: '',
       headerName: '',
       domainTitle: '',
@@ -456,7 +457,7 @@ class Header extends Component {
 
           this.setState({dropData:dropData})
          this.setState({moduleNames: header});
-         
+         this.setState({ selectedCategory: header[0]});
     } else if(user["custom:isSuperAdmin"] === "true") {
       const clientId =  user["custom:clientId1"];
     //   URMService.getMasterDomainsList().then((res) => {
@@ -484,7 +485,9 @@ class Header extends Component {
        if(user["cognito:groups"] && user["cognito:groups"][0] !== "config_user") {
         URMService.getSelectedPrivileges(user["custom:roleName"]).then(res => {
           if(res && res.data && res.data){
-            this.setState({moduleNames: res.data.parentPrivileges});
+            let finalResult = this.groupByprivilegeType(res.data.parentPrivileges);
+            this.setState({moduleNames: finalResult.web});
+            this.setState({ selectedCategory: res.data.parentPrivileges[0]});
             eventBus.dispatch("subHeader", { message: (res.data && res.data.parentPrivileges.length>0)?res.data.parentPrivileges[0].id:"" });
           }
          
@@ -496,7 +499,18 @@ class Header extends Component {
     }
    console.log(this.state.moduleNames)
   
-  }
+}
+  groupByprivilegeType = (array) => {
+    let initialValue = {
+        mobile: [], 
+        web: []
+    }            
+    return array.reduce((accumulator, current) => {
+        (current.previlegeType === 'Mobile') ? accumulator.mobile.push(current) : accumulator.web.push(current);
+        return accumulator;
+    }, initialValue);
+} 
+  
 
   getDomains() {
     let dataDrop = [];
@@ -670,7 +684,7 @@ class Header extends Component {
     eventBus.dispatch("subHeader", { message: item.id });
     console.log(this.state.moduleNames);
     this.state.moduleNames.forEach(ele => {
-      if (ele.id == e.target.value) {
+      if (ele.name == e.target.value) {
         if(ele.path) {
           parentPath = ele.path;
         } else {
@@ -835,6 +849,35 @@ class Header extends Component {
            
               
               <div className="header-right float-right">
+
+              {/* <Dropdown>
+                    <Dropdown.Toggle className="drop-tog" variant="success">
+                      Select Category
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item>
+                      <img className="" src={portal_menu} /> Customer Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                        <img src={Inventory_img} /> Inventory Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Promotions_img} /> Promotions & Loyalty
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Accounting_img} /> Accounting Potal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={Reports_img} /> Reports
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={URM_img} /> URM Portal
+                      </Dropdown.Item>
+                      <Dropdown.Item>
+                      <img src={HR_img} /> HR Portal
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown> */}
                 <ul className="navbar-nav">
                   {/* <li className="nav-item upper-case">{this.props.user.name}</li> */}
                   {/* <li className="nav-item upper-case">Ashok</li>  */}
@@ -847,7 +890,7 @@ class Header extends Component {
                         <i className="icon-tag_customer"></i>
                       </div>
                       <div className="itemMain-right text-left">
-                        <div className='text_parent'>
+                        <div className='text_parent pt-2'>
                         <span className="text-left p-l-2 mb-0 ellipsis">{this.state.user[0].toUpperCase()+this.state.user.substring(1)}</span>
                         </div>
                         <Select className="align drop_select"

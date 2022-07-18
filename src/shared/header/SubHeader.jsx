@@ -355,7 +355,7 @@ setHeaders() {
   const domainName = sessionStorage.getItem("domainName");
   if( user["custom:isConfigUser"] === "true") { 
     this.state.moduleConfigheader.forEach(ele => {
-      if(ele.id == this.state.message) {
+      if(ele.parentName == this.state.message) {
           this.setState({buttonsList: ele.children}, ()=>{
             this.setState({selectedChildName: this.state.buttonsList[0].name});
             this.props.history.push(this.state.buttonsList[0].childPath);
@@ -377,7 +377,9 @@ setHeaders() {
       URMService.getSubPrivilegesbyRoleId(user["custom:roleName"]).then(res => {
         if(res) {
         //  this.setState({buttonsList: res.data.result});
-        const subPrivilegesList = res.data.subPrivileges;
+        const result = this.groupByprivilegeType(res.data.parentPrivileges);
+        const finalResult = result.web.find((itm) => itm.id === this.state.message);
+        const subPrivilegesList = finalResult.subPrivileges;// res.data.subPrivileges;
         let subList = [];
         subPrivilegesList.forEach((element,index)=> {
           if(element.parentPrivilegeId == this.state.message) {
@@ -394,13 +396,17 @@ setHeaders() {
       });
     }
   }
-
-   
-
- 
-
-   
 }
+groupByprivilegeType = (array) => {
+  let initialValue = {
+      mobile: [], 
+      web: []
+  }            
+  return array.reduce((accumulator, current) => {
+      (current.previlegeType === 'Mobile') ? accumulator.mobile.push(current) : accumulator.web.push(current);
+      return accumulator;
+  }, initialValue);
+} 
 
 
     

@@ -19,6 +19,31 @@ export default class ListOfPromotions extends Component {
       promoId: "",
       promoList: [],
       storeList: [],
+      applicability:"",
+      promoStatus:null,
+      isActive:'',
+      applicabilies: [
+        {
+          name: "Promo Type",
+          id: "promo Type",
+        },
+        {
+          name: "On Barcode",
+          id: "promotionForEachBarcode",
+        },
+        {
+          name: "On WholeBill",
+          id: "promotionForWholeBill",
+        },
+      ],
+      selectPromoStatus:[
+        { name: "Promo Status" ,
+         id: 'Promo Status' },
+        { id: true, 
+          name: 'Active' },
+        { id:  false, 
+          name: 'Inactive' },
+      ]
     };
     this.getPromotions = this.getPromotions.bind(this);
     this.preventMinus = this.preventMinus.bind(this);
@@ -27,13 +52,18 @@ export default class ListOfPromotions extends Component {
 
   getPromotions(pageNumber) {
     const obj = {
-      startDate: this.state.startDate ? this.state.startDate : undefined,
-      endDate: this.state.endDate ? this.state.endDate : undefined,
-      promoId: parseInt(this.state.promoId)
-        ? parseInt(this.state.promoId)
-        : undefined,
-      storeName: this.state.storeName ? this.state.storeName : undefined,
-      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
+      // startDate: this.state.startDate ? this.state.startDate : undefined,
+      // endDate: this.state.endDate ? this.state.endDate : undefined,
+      // promoId: parseInt(this.state.promoId)
+      //   ? parseInt(this.state.promoId)
+      //   : undefined,
+      // storeName: this.state.storeName ? this.state.storeName : undefined,
+      // isActive:true,
+      isActive:this.state.isActive,
+      applicability:this.state.applicability,
+      clientId:this.state.clientId,
+      // promoStatus:this.state.promoStatus
+      // storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
     ListOfPromotionsService.getPromotions(obj,pageNumber).then((res) => {
       console.log(res.data.result);
@@ -50,22 +80,20 @@ export default class ListOfPromotions extends Component {
         promoId,
         promotionName,
         description,
+        promoApplyType,
+        applicability,
         storeName,
         startDate,
         endDate,
       } = items;
       return (
         <tr className="">
-          <td className="col-1">{promoId}</td>
+          <td className="col-2">{promoId}</td>
           <td className="col-2">{promotionName}</td>
           <td className="col-2">{description}</td>
-          <td className="col-2">{storeName}</td>
-          <td className="col-2">{startDate}</td>
-          <td className="col-2">{endDate}</td>
-          {/* <td className="col-2 text-center">
-            <img src={edit} className="w-12 m-r-2 pb-2" />
-            <i className="icon-delete fs-16"></i>
-          </td> */}
+          <td className="col-2">{promoApplyType}</td>
+          <td className="col-2">{applicability}</td>
+         
         </tr>
       );
     });
@@ -167,101 +195,79 @@ export default class ListOfPromotions extends Component {
     this.getPromotions(pageNumber); 
   }
 
+
+  handleSelect(e) {
+    if (e.target.value != "Promo Type") {
+      this.setState({
+        applicability: e.target.value,
+      });
+    }
+  }
+
+  handleSelectStatus(e){
+    if (e.target.value != "Promo Status") {
+      this.setState({
+        isActive: e.target.value,
+      });
+    }
+  }
   render() {
     console.log("startdate", moment(new Date()).format("YYYY-DD-MM"));
     return (
       <div className="maincontent">
         <div className="row">
-          <div className="col-6 col-sm-2 mt-2 mb-2">
+
+        <div className="col-12 col-sm-2 mt-2">
+            <label>Promo Type</label>
             <div className="form-group">
-              <label>From Date</label>
-              {/* <input
-                type="date"
-                className="form-control"
-                placeholder="START DATE"
-                // defaultValue={this.state.startDate}
-                //value="29-01-2021"
-                value={this.state.startDate}
-                onChange={(e) =>
-                  this.setState({
-                    startDate: e.target.value,
-                  })
-                }
-              /> */}
-              <input
-                type="date"
-                id="start"
-                className="form-control"
-                name="trip-start"
-                value={this.state.startDate}
-                onChange={(e) =>
-                  this.setState({
-                    startDate: e.target.value,
-                  })
-                }
-              />
-            </div>
-          </div>
-          <div className="col-6 col-sm-2 mt-2 mb-2">
-            <div className="form-group">
-              <label>End Date</label>
-              <input
-                type="date"
-                name="trip-start"
-                className="form-control"
-                value={this.state.endDate}
-                onChange={(e) => this.setState({ endDate: e.target.value })}
-              />
-            </div>
-          </div>
-          <div className="col-6 col-sm-2 mt-2 mb-2">
-            <div className="form-group">
-              <label>Promo ID</label>
-              <input
-                type="number"
-                min="0"
-                onKeyPress={this.preventMinus}
-                className="form-control"
-                placeholder="Promo ID"
-                value={this.state.promoId}
-                onChange={(e) => this.setState({ promoId: e.target.value })}
-              />
-            </div>
-          </div>
-          {/* <div className="col-6 col-sm-2 mt-2 mb-2">
-            <div className="form-group">
-              <label>Store</label>
               <select
                 className="form-control"
-                value={this.state.storeId}
+                value={this.state.applicability}
                 onChange={(e) => {
-                  const selectedValue = this.state.storeList.filter((item) => {
-                    return item.id == e.target.value;
-                  });
-
-                  this.setState({
-                    storeId: e.target.value,
-                    storeName: selectedValue[0].name,
-                  });
+                  this.handleSelect(e);
                 }}
+                // onChange={(e) => this.setState({ status: e.target.value })}
               >
-                {this.state.storeList.map((i) => {
+                {this.state.applicabilies.map((i) => {
                   return (
                     <option key={i.id} value={i.id}>
                       {i.name}
                     </option>
                   );
                 })}
-              </select> */}
-              {/* <input
-                type="text"
+              </select>
+            </div>
+          </div>
+
+
+          <div className="col-12 col-sm-2 mt-2">
+            <label>Promo Status</label>
+            <div className="form-group">
+              <select
                 className="form-control"
-                placeholder="STORE NAME"
-                value={this.state.storeName}
-                onChange={(e) => this.setState({ storeName: e.target.value })}
-              /> */}
-            {/* </div>
-          </div> */}
+                value={this.state.isActive}
+                onChange={(e) => {
+                  this.handleSelectStatus(e);
+                }}
+                // onChange={(e) => this.setState({ status: e.target.value })}
+              >
+                 {/* <option>Promo Status</option> */}
+                 { 
+                  // this.state.selectPromoStatus &&
+                this.state.selectPromoStatus.map((i) => {
+                  return (
+                    <option key={i.id} value={i.id}>
+                      {i.name}
+                    </option>
+
+                // <option key={i} value={i.value}>{i.label}</option>
+                  );
+                })}
+              </select>
+            </div>
+          </div>
+
+        
           <div className="col-6 col-sm-4 pt-4 scaling-mb mt-2">
             <div className="form-group" onClick={()=>{this.getPromotions(0);this.setState({pageNumber:0})}}>
               <button className="btn-unic-search active">Search </button>
@@ -276,13 +282,11 @@ export default class ListOfPromotions extends Component {
             <table className="table table-borderless mb-1 mt-2">
               <thead>
                 <tr className="m-0 p-0">
-                  <th className="col-1">PROMO ID</th>
+                  <th className="col-2">PROMO ID</th>
                   <th className="col-2">PROMO NAME</th>
                   <th className="col-2">DESCRIPTION</th>
-                  <th className="col-2">Barcode Store</th>
-                  <th className="col-2">START DATE</th>
-                  <th className="col-2">END DATE</th>
-                  <th className="col-1"></th>
+                  <th className="col-2">Promo Apply Type</th>
+                  <th className="col-2">Applicability</th>
                 </tr>
               </thead>
               {/* <tbody>

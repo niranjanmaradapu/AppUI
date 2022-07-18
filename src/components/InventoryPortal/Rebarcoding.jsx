@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { number } from "prop-types";
 import { stringify } from "querystring";
 import ReactPageNation from "../../commonUtils/Pagination";
+import { formatDate } from "../../commonUtils/FormatDate";
 const data1 = [
   "Textile",
 
@@ -99,6 +100,7 @@ export default class Rebarcoding extends Component {
     this.setDropdowns(false);
     this.stateReset();
     this.getbarcodeDetails(barcodeId);
+   
   }
   clearBar = () => {
     this.setState({ 
@@ -141,10 +143,10 @@ export default class Rebarcoding extends Component {
         () => {
            this.getAllStoresList();
           this.getAllBarcodes();
-          this.getAllUoms();
-          this.getAllDivisions();
-          this.getHsnDetails();
-          this.getAllCategories();
+          // this.getAllUoms();
+          // this.getAllDivisions();
+          // this.getHsnDetails();
+          // this.getAllCategories();
         }
       );
     }
@@ -297,8 +299,8 @@ export default class Rebarcoding extends Component {
     });
   }
 
-  getAllDivisions() {
-    InventoryService.getAllDivisions().then((res) => {
+  getAllDivisions(value) {
+    InventoryService.getAllDivisions(value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -330,8 +332,8 @@ export default class Rebarcoding extends Component {
   //   });
   // }
 
-  getAllSections(id) {
-    InventoryService.getAllSections(id).then((res) => {
+  getAllSections(id,value) {
+    InventoryService.getAllSections(id,value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -344,8 +346,8 @@ export default class Rebarcoding extends Component {
     });
   }
 
-  getAllSubsections(id) {
-    InventoryService.getAllSections(id).then((res) => {
+  getAllSubsections(id,value) {
+    InventoryService.getAllSections(id,value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -358,8 +360,8 @@ export default class Rebarcoding extends Component {
     });
   }
 
-  getAllCategories() {
-    InventoryService.getAllCategories().then((res) => {
+  getAllCategories(value) {
+    InventoryService.getAllCategories(value).then((res) => {
       res.data.forEach((ele, index) => {
         const obj = {
           id: ele.id,
@@ -371,13 +373,7 @@ export default class Rebarcoding extends Component {
       this.setState({ categoriesList: this.state.categoriesList });
     });
   }
-  dateFormat = (d) => {
-    let date = new Date(d)
-    
-    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
-}
-
-
+ 
   getAllStoresList() {
     URMService.getStoresByDomainId(this.state.clientId).then(
       (res) => {
@@ -462,8 +458,13 @@ export default class Rebarcoding extends Component {
             hsnCode: barcode.hsnCode,
             name: barcode.name,
           });
+          this.getAllCategories(this.state.domainDetailsObj);
         // }
-        this.setDropdowns(true);
+     
+          this.getAllSections(this.state.division,this.state.domainDetailsObj);
+          this.getAllSubsections(this.state.section,this.state.domainDetailsObj);
+          this.getAllDivisions(this.state.domainDetailsObj)
+        
       } else {
         toast.error(res.data.message);
       }
@@ -625,7 +626,7 @@ export default class Rebarcoding extends Component {
 
   barcodesListTableTextile() {
     return this.state.barcodesList?.content?.map((items, index) => {
-      let date = this.dateFormat(items.createdDate)
+      let date = formatDate(items.createdDate)
       const {
         currentBarcodeId,
         toBeBarcodeId,

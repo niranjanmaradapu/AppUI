@@ -8,6 +8,7 @@ import ecommerce from "../../assets/images/ecommerce.svg";
 import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
 import { ACCOUNTING_PORTAL } from "../../commonUtils/ApiConstants";
+import { formatDate } from "../../commonUtils/FormatDate";
 import {errorLengthMin, errorLengthMax, creditNotes_Err_Msg } from './Error';
 import ReactPageNation from "../../commonUtils/Pagination";
 
@@ -27,6 +28,7 @@ export default class CreateNotes extends Component {
       storeId: "",
       fromDate: "",
       toDate:"",
+      isSave:false,
       searchMobileNumber:"",
       customerData: {},
       creditData: [],
@@ -68,14 +70,10 @@ export default class CreateNotes extends Component {
 
 
   closeCredit() {
-    this.setState({ isCredit: false, isAddMore: false, mobileNumber: '', customerData: '', creditAmount: '', transactionType: '',isEdit: false,error:{}});
+    this.setState({ isCredit: false, isAddMore: false, mobileNumber: '', customerData: '', creditAmount: '', transactionType: '', isSave:false,isEdit: false,error:{}});
   }
 
-  dateFormat = (d) => {
-    let date = new Date(d)
-    
-    return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
-}
+
   getCreditNotes() {
     const accountType ='CREDIT';
     const { storeId } = this.state;
@@ -182,6 +180,7 @@ export default class CreateNotes extends Component {
       isCredit: true,
       isAddMore: true,
       selectedItem: item,
+      isSave:true,
       mobileNumber: item.mobileNumber,
       customerData: { userName: item.customerName, userId: item.customerId }
     });
@@ -223,14 +222,17 @@ export default class CreateNotes extends Component {
   getCustomerDetails = (e) => {
 
     if (e.key === "Enter" ) {
+      //this.setState({isSave:true})
   if(this.state.mobileNumber.length >=10){
       NewSaleService.getMobileData("+91" + this.state.mobileNumber).then((res) => {
 
         if (res && res.data.result) {
           // this.state.customerData = res.data.result;
 
-          this.setState({ customerData: res.data.result });
+          this.setState({ customerData: res.data.result,isSave:true });
         
+        }else{
+          this.setState({isSave:false})
         }
       });
   }
@@ -419,7 +421,9 @@ changePage(pageNumber) {
               Cancel
             </button>
             <button
-              className="btn-unic active fs-12"
+              // className="btn-unic active fs-12"
+              className={this.state.isSave ? "btn-unic active fs-12" : "btn-selection fs-12"}
+              disabled={!this.state.isSave}
               onClick={this.saveCredit}
             >
               Save
@@ -561,10 +565,10 @@ changePage(pageNumber) {
               </thead>
               <tbody>
                 {this.state.creditData?.content?.map((items, index) => {
-                  let date = this.dateFormat(items.createdDate)
+                  let date = formatDate(items.createdDate)
                   return (
                     <tr key={index}>
-                      <td className="col-1 underline geeks">{items.customerId}</td>
+                      <td className="col-1">{items.customerId}</td>
                       <td className="col-2">{items.customerName}</td>
                       <td className="col-1">{items.storeId}</td>
                       <td className="col-1">{date}</td>

@@ -3,11 +3,11 @@ iconfont Webfont
 */
 @font-face {
 	font-family: 'iconfont';
-	src: url('iconfont.eot?1656052933489');
-	src: url('iconfont.eot?#iefix-1656052933489') format('embedded-opentype'),
-		url('iconfont.woff2?1656052933489') format('woff2'),
-		url('iconfont.woff?1656052933489') format('woff'),
-		url('iconfont.ttf?1656052933489') format('truetype');
+	src: url('iconfont.eot?1657106277241');
+	src: url('iconfont.eot?#iefix-1657106277241') format('embedded-opentype'),
+		url('iconfont.woff2?1657106277241') format('woff2'),
+		url('iconfont.woff?1657106277241') format('woff'),
+		url('iconfont.ttf?1657106277241') format('truetype');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -18,6 +18,7 @@ iconfont Webfont
 	display: inline-block;
 	vertical-align: middle;
 	line-height: 1;
+	margin-top: -4px;
 	font-weight: normal;
 	font-style: normal;
 	speak: none;
@@ -89,182 +90,164 @@ Glyphs list
 	content: '\ea0e';
 }
 
-.icon-chart:before {
+.icon-circle_arrow:before {
 	content: '\ea0f';
 }
 
-.icon-circle_arrow:before {
+.icon-close:before {
 	content: '\ea10';
 }
 
-.icon-close:before {
+.icon-coupon:before {
 	content: '\ea11';
 }
 
-.icon-coupon:before {
+.icon-create_customer:before {
 	content: '\ea12';
 }
 
-.icon-create_customer:before {
+.icon-create_delivery_slip:before {
 	content: '\ea13';
 }
 
-.icon-create_delivery_slip:before {
+.icon-credit_notes:before {
 	content: '\ea14';
 }
 
-.icon-credit_notes:before {
+.icon-c_portal:before {
 	content: '\ea15';
 }
 
-.icon-c_portal:before {
+.icon-c_portal_dark:before {
 	content: '\ea16';
 }
 
-.icon-c_portal_dark:before {
+.icon-c_portal_white:before {
 	content: '\ea17';
 }
 
-.icon-c_portal_white:before {
-	content: '\ea18';
-}
-
 .icon-delete:before {
-	content: '\ea19';
+	content: '\ea18';
+	margin-top: 2px;
 }
 
 .icon-down_arrow:before {
-	content: '\ea1a';
+	content: '\ea19';
 }
 
 .icon-edit:before {
-	content: '\ea1b';
+	content: '\ea1a';
 }
 
 .icon-eye:before {
-	content: '\ea1c';
+	content: '\ea1b';
 }
 
 .icon-HR_portal:before {
-	content: '\ea1d';
+	content: '\ea1c';
 }
 
 .icon-inactive_promo:before {
-	content: '\ea1e';
+	content: '\ea1d';
 }
 
 .icon-inventory_portal:before {
-	content: '\ea1f';
+	content: '\ea1e';
 }
 
 .icon-khata:before {
-	content: '\ea20';
+	content: '\ea1f';
 }
 
 .icon-loyalty_promo:before {
-	content: '\ea21';
+	content: '\ea20';
 }
 
 .icon-mail:before {
-	content: '\ea22';
-}
-
-.icon-management:before {
-	content: '\ea23';
-}
-
-.icon-pramotions:before {
-	content: '\ea24';
+	content: '\ea21';
 }
 
 .icon-print:before {
-	content: '\ea25';
+	content: '\ea22';
+}
+
+.icon-printer_connected:before {
+	content: '\ea23';
 }
 
 .icon-product_combo:before {
-	content: '\ea26';
+	content: '\ea24';
 }
 
 .icon-promo:before {
-	content: '\ea27';
+	content: '\ea25';
 }
 
 .icon-promotions_loyal:before {
-	content: '\ea28';
+	content: '\ea26';
 }
 
 .icon-qr_new:before {
-	content: '\ea29';
+	content: '\ea27';
 }
 
 .icon-reports_chart:before {
-	content: '\ea2a';
+	content: '\ea28';
 }
 
 .icon-return_slip:before {
-	content: '\ea2b';
-}
-
-.icon-R_logo:before {
-	content: '\ea2c';
+	content: '\ea29';
 }
 
 .icon-sale:before {
-	content: '\ea2d';
-}
-
-.icon-saree:before {
-	content: '\ea2e';
+	content: '\ea2a';
+	/* margin-top: -4px; */
 }
 
 .icon-scan:before {
-	content: '\ea2f';
+	content: '\ea2b';
 }
 
 .icon-search:before {
-	content: '\ea30';
+	content: '\ea2c';
 }
 
 .icon-stock:before {
-	content: '\ea31';
+	content: '\ea2d';
 }
 
 .icon-store:before {
-	content: '\ea32';
+	content: '\ea2e';
 }
 
 .icon-table_arrow_left:before {
-	content: '\ea33';
+	content: '\ea2f';
 }
 
 .icon-table_arrow_right:before {
-	content: '\ea34';
+	content: '\ea30';
 }
 
 .icon-tag_customer:before {
-	content: '\ea35';
+	content: '\ea31';
 }
 
 .icon-transfer:before {
-	content: '\ea36';
+	content: '\ea32';
 }
 
 .icon-upi:before {
-	content: '\ea37';
+	content: '\ea33';
 }
 
 .icon-up_arrow:before {
-	content: '\ea38';
+	content: '\ea34';
 }
 
 .icon-URM_portal:before {
-	content: '\ea39';
-}
-
-.icon-user_privileges:before {
-	content: '\ea3a';
+	content: '\ea35';
 }
 
 .icon-view:before {
-	content: '\ea3b';
+	content: '\ea36';
 }

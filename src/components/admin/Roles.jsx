@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import edit from '../../assets/images/edit.svg';
+import uparrow from '../../assets/images/up_arrow.svg';
+import downarrow from '../../assets/images/down_arrow.svg';
+import { Collapse } from "react-collapse";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { ToastContainer, toast } from "react-toastify";
 import URMService from '../../services/URM/URMService';
@@ -32,7 +35,15 @@ export default class Roles extends Component {
             isSuperAdmin: false,
             loggedUser:null,
             isRoleName:false,
-
+            selectedChilds: [],
+            mobileProductsList: [],
+            mobileParentsList: [],
+            mobileChildList: [],
+            mobileSelectedChilds: [],
+            activePrevilegeType: '',
+            isMobileExpanded: false,
+            isWebExpanded: false,
+            parentPrivilegesEdit: []
         }
         this.baseState = this.state;
         this.showRoles = this.showRoles.bind(this);
@@ -48,6 +59,14 @@ export default class Roles extends Component {
         this.handleValidation = this.handleValidation.bind(this);
         this.getAllRoles = this.getAllRoles.bind(this);
         this.savePrivilege = this.savePrivilege.bind(this);
+        this.setMobilePrivileges = this.setMobilePrivileges.bind(this);
+        this.addedMobileRoles = this.addedMobileRoles.bind(this);
+        this.getAddedMobileRoles = this.getAddedMobileRoles.bind(this);
+        this.toggleClass = this.toggleClass.bind(this);
+        this.toggleMobileClass = this.toggleMobileClass.bind(this);
+        this.moreLess = this.moreLess.bind(this);
+        this.moreLessMobile = this.moreLessMobile.bind(this);
+        this.avoidSpace=this.avoidSpace.bind(this);
     }
 
 
@@ -122,41 +141,24 @@ export default class Roles extends Component {
     handleValidation() {
         let errors = {};
         let formIsValid = true;
-    
-        
-
         //Name
         if (this.state.roleName.length < errorLengthMin.roleName) {
             formIsValid = false;
-            errors["rolename"] = urmErrorMessages.roleName;
-      
-      }
-        
-          
-
-
-      
+            errors["rolename"] = urmErrorMessages.roleName;      
+        }
         // Area 
         if (!this.state.descriptionName) {
             formIsValid = false;
             errors["descriptionName"] =urmErrorMessages.descriptionName;
         }
-
-
         //Domain 
         //   if (!this.state.domain) {
         //     formIsValid = false;
         //     errors["domain"] = "Enter Domain";
         //   }
-
-
         this.setState({ errors: errors });
         return formIsValid;
-
     }
-
-
-
     showRoles() {
         //    this.setState(this.baseState);
         this.setState({ showModal: true, isAdmin: false, isSuperAdmin: false, isSearch: false, isEdit: false, errors: {}, selectedPrivilegesList: [] });
@@ -178,7 +180,7 @@ export default class Roles extends Component {
     }
 
     hideRoles() {
-        this.setState({ showModal: false });
+        this.setState({ showModal: false, parentsList: [], childList: [], selectedChilds: [], mobileParentsList: [], mobileChildList: [], mobileSelectedChilds: [] });
     }
 
 
@@ -187,12 +189,93 @@ export default class Roles extends Component {
         return array.filter(obj => !lookup.has(obj[key]) && lookup.add(obj[key]));
     }
 
+    groupByMultipleProperties = (array) => {
+        let hash = Object.create(null);
+        let grouped = [];
+        array.forEach(function (o) {
+        var key = ['parentPrivilegeId', 'subPrivillageId'].map(function (k) { return o[k]; });//.join('|');
+    
+        if (!hash[key]) {
+        hash[key] = { parentId: o.parentPrivilegeId, id: o.subPrivillageId, childPrivillages : [] };
+        grouped.push(hash[key]);
+        }
+        ['used'].forEach(function (k) { hash[key]['childPrivillages'].push({ id : o['id'] }) });
+        });
+        return grouped;
+      }
+
     addRoles() {
+        const { parentsList, childList, selectedChilds, mobileParentsList, mobileChildList, mobileSelectedChilds } = this.state;
+        let parentPrivilegesList = [];
+        let subPrivilegesList = [];
+        let childPrivilegesList = [];
+        if(parentsList) {
+            parentPrivilegesList = [...parentsList];
+        }
+        if(mobileParentsList) {
+            parentPrivilegesList = [...parentPrivilegesList, ...mobileParentsList];
+        } 
+        if(childList) {
+            subPrivilegesList = [...childList];
+        }
+         if(mobileChildList) {
+            subPrivilegesList = [...subPrivilegesList, ...mobileChildList];
+        } 
+        if(selectedChilds) {
+            childPrivilegesList = [...selectedChilds];
+        } 
+        if(mobileSelectedChilds) {
+            childPrivilegesList = [...childPrivilegesList, ...mobileSelectedChilds];
+        } 
+        
         // const roleId = 
         const formValid = this.handleValidation();
         const valid = this.state.roleName.length < 3 && !this.state.descriptionName ? false : true ;
+        let parentIds = [];
+        let subIds = [];
+        let childIds = [];  
+        if(parentPrivilegesList) {
+            parentIds = parentPrivilegesList.map((parent) => {
+                let obj = {};
+                obj.id = parent.id;
+                return obj;
+            });
+        }          
+        if(subPrivilegesList) {
+            subIds = subPrivilegesList.map((child) => {   
+                let subChilds = {};                   
+                parentIds.forEach((p) => {
+                    if(child.parentPrivilegeId === p.id) {
+                        subChilds.id = child.id;
+                        subChilds.parentPrivilegeId = child.parentPrivilegeId;
+                    }
+                });
+                return subChilds;
+            });
+        }
+        if(childPrivilegesList) {
+            childIds = childPrivilegesList.map((child) => {  
+                let childs = {};                   
+                subIds.forEach((s) => {
+                   if(child.subPrivillageId === s.id) {
+                        childs.id = child.id;
+                        childs.subPrivillageId = child.subPrivillageId;
+                        childs.parentPrivilegeId = s.parentPrivilegeId;
+                    }
+                });
+                return childs;
+            });
+        }    
+    const final_ids = this.groupByMultipleProperties(childIds);
+    let sub_ids = subIds.map((itm) => {
+     let child = {};
+     child.parentId = itm.parentPrivilegeId;
+     child.id = itm.id;
+     return child;
+    }); 
+    let final = [...final_ids, ...sub_ids];
+    let subPrivileges = this.removeDuplicates(final, 'id');
     if(valid){
-
         if (formValid) {
             if (this.state.isEdit) {
                 const saveObj = {
@@ -201,11 +284,10 @@ export default class Roles extends Component {
                     "description": this.state.descriptionName,
                     "clientId": parseInt(this.state.clientId),
                     "createdBy": parseInt(this.state.loggedUser),
-                    "parentPrivileges": this.state.parentsList,
-                    "subPrivileges": this.state.childList,
+                    "parentPrivileges": parentIds,
+                    "subPrivileges": subPrivileges,
                     "roleId": this.state.roleId
                 }
-
                 URMService.editRole(saveObj).then((res) => {
                     if (res) {
                         toast.success(res.data.result);
@@ -213,76 +295,188 @@ export default class Roles extends Component {
                         this.hideRoles();
                     }
                     if(this.state.roleName) {
-                        this.setState({isRoleName: true});
+                        this.setState({isRoleName: true, isEdit: false});
                     } else {
-                        this.setState({isRoleName: false});
+                        this.setState({isRoleName: false, isEdit: false});
                     }
                 });
-            } else {
-                const saveObj = {
-                    "roleName": this.state.roleName,
-                    "searchCreatedBy": this.state.searchCreatedBy,
-                    "description": this.state.descriptionName,
-                     "clientId": parseInt(this.state.clientId),
-                    "createdBy": parseInt(this.state.loggedUser),
-                    "parentPrivileges": this.state.parentsList,
-                    "subPrivileges": this.state.childList,
-                }
-
-                URMService.saveRole(saveObj).then((res) => {
-                    if (res) {
-                        toast.success("Role Created Successfully");
-                        toast.success(res.data.result);
-                        this.getAllRoles()
-                        this.getPrivilegesList()
-                        this.hideRoles();
-                    }
-                });
+    } else {   
+            const saveObj = {
+                "roleName": this.state.roleName,
+                "searchCreatedBy": this.state.searchCreatedBy,
+                "description": this.state.descriptionName,
+                "clientId": parseInt(this.state.clientId),
+                "createdBy": parseInt(this.state.loggedUser),
+                "parentPrivileges": parentIds,
+                "subPrivileges": subPrivileges,
             }
+            URMService.saveRole(saveObj).then((res) => {
+                if (res) {
+                    toast.success("Role Created Successfully");
+                    toast.success(res.data.result);
+                    this.getAllRoles()
+                    this.getPrivilegesList()
+                    this.hideRoles();
+                }
+            });
         }
-        }
+     }
+        
+    }
       else {
             toast.info("Please Enter all mandatory fields");
-        }
-    
-   
+    }
 }
    
 
     getPrivilegesByDomainId() {
-        // let selectedDomainId = 0;
-        // this.state.domainList.forEach((ele, index) => {
-        //     if (ele.id === parseInt(this.state.domain)) {
-        //         if (ele.domaiName === "Textile") {
-        //             selectedDomainId = 1;
-        //         } else if (ele.domaiName === "Retail") {
-        //             selectedDomainId = 2;
-        //         }
-        //     }
-        // });
-
-
-        URMService.getAllPrivileges().then(res => {
-            if (res) {
-                this.setState({ productsList: res.data.webPrivileges});
-                this.state.productsList.forEach((element, index) => {
-                    if (element.subPrivileges && element.subPrivileges.length > 0) {
-                        element.subPrivileges.forEach((child, index) => {
-                            child.checked = false;
+        const { mobileParentsList, parentsList} = this.state;
+        if(this.state.isEdit) {
+            URMService.getAllPrivileges().then(res => { 
+                if (res) {
+                    this.setState({ productsList: res.data.webPrivileges, mobileProductsList: res.data.mobilePrivileges});
+                    this.state.productsList.forEach((element) => {
+                        parentsList.forEach((editEle) => {
+                            if(element.id === editEle.id) {
+                                if (element.subPrivileges && element.subPrivileges.length > 0) {
+                                    element.subPrivileges.forEach((sub) => {
+                                        editEle.subPrivileges.length > 0 && editEle.subPrivileges.forEach((editSub) => {
+                                            if(sub.id === editSub.id) {
+                                               sub.checked = true;
+                                               sub.childPrivileges && sub.childPrivileges.length > 0 && sub.childPrivileges.forEach((child) => {
+                                                editSub.childPrivileges && editSub.childPrivileges.length > 0  && editSub.childPrivileges.forEach((editChild) => {
+                                                        if(editChild.id === child.id && editChild.isEnabeld) {
+                                                            child.checked = editChild.isEnabeld;
+                                                         }
+                                                    });
+                                               });
+                                            }
+                                        });
+                                    });
+                                }
+                            }
                         });
-                    }
+                    });
+                    this.state.mobileProductsList.forEach((element) => {
+                        mobileParentsList.forEach((editEle) => {
+                            if(element.id === editEle.id) {
+                                if (element.subPrivileges && element.subPrivileges.length > 0) {
+                                    element.subPrivileges.forEach((sub) => {
+                                        editEle.subPrivileges && editEle.subPrivileges.length > 0 && editEle.subPrivileges.forEach((editSub) => {
+                                            if(sub.id === editSub.id) {
+                                               sub.checked = true;
+                                               sub.childPrivileges && sub.childPrivileges.length > 0 && sub.childPrivileges.forEach((child) => {
+                                                editSub.childPrivileges && editSub.childPrivileges.length > 0  && editSub.childPrivileges.forEach((editChild) => {
+                                                        if(editChild.id === child.id && editChild.isEnabeld) {
+                                                            child.checked = editChild.isEnabeld;
+                                                         }
+                                                    });
+                                               });
+                                            }
+                                        });
+                                    });
+                                }
+                            }
+                        });
+                    });
+                    this.setState({ productsList: this.state.productsList, mobileProductsList: this.state.mobileProductsList });
+                    
+                    // this.getSelectedPrivileges(this.state.parentPrivilegesEdit);
+                    // this.getSelectedMobilePrivileges(this.state.mobileParentsList);
+                }
+            });
+        } else {
+            URMService.getAllPrivileges().then(res => { 
+                if (res) {
+                    this.setState({ productsList: res.data.webPrivileges, mobileProductsList: res.data.mobilePrivileges});
+                    this.state.productsList.forEach((element, index) => {
+                        if (element.subPrivileges && element.subPrivileges.length > 0) {
+                            element.subPrivileges.forEach((sub, index) => {
+                                sub.checked = false;
+                                if(sub.childPrivillages && sub.childPrivillages.length > 0) {
+                                    sub.childPrivillages.forEach((child, i) => {
+                                     child.checked = false;
+                                    });
+                                }
+                            });
+                        }
 
-                });
+                    });
+                    this.state.mobileProductsList.forEach((element, index) => {
+                        if (element.subPrivileges && element.subPrivileges.length > 0) {
+                            element.subPrivileges.forEach((sub, index) => {
+                                if(sub.childPrivillages && sub.childPrivillages.length > 0) {
+                                    sub.childPrivillages.forEach((child, i) => {
+                                     child.checked = false;
+                                    });
+                                }
+                            });
+                        }
 
-                this.getSelectedPrivileges(this.state.parentsList, this.state.childList);
-            }
-        });
+                    });
+                    // this.getSelectedPrivileges(this.state.parentsList);
+                    // this.getSelectedMobilePrivileges(this.state.mobileParentsList);
+                }
+            });
+      }
 
     }
 
     createRole() {
         this.setState({ showRole: true });
         this.getPrivilegesByDomainId();
+        if(this.state.isEdit) {
+            URMService.getSubPrivilegesbyRoleId(this.state.roleName).then(res => {
+                if(res) {
+                let webPrivileges = [];
+                let webSubPrivileges = [];
+                let webChildPrivileges = [];
+                let mobilePrivileges = [];
+                let mobileSubPrivileges = [];
+                let mobileChildPrivileges = [];
+                let webPrivilegesResult = [];
+                let mobilePrivilegesResult = [];
+                 const parentPrivilegesResult = this.groupByprevilegeType(res.data.parentPrivileges);
+                 if(parentPrivilegesResult.web) {
+                    webPrivilegesResult = parentPrivilegesResult.web;
+                 }
+                 if(parentPrivilegesResult.mobile) {
+                    mobilePrivilegesResult = parentPrivilegesResult.mobile;
+                 }                 
+                 if(mobilePrivilegesResult && mobilePrivilegesResult.length > 0) {
+                    mobilePrivilegesResult.forEach((parent) => {
+                        mobilePrivileges.push(parent);
+                        parent.subPrivileges.forEach((sub) => {
+                            mobileSubPrivileges.push(sub);
+                            sub.childPrivileges.forEach((child) => {
+                                mobileChildPrivileges.push(child);
+                            });
+                        });
+                     });
+                 }
+                 
+                 if(webPrivilegesResult && webPrivilegesResult.length > 0) {
+                    webPrivilegesResult.forEach((parent) => {
+                        webPrivileges.push(parent);
+                        parent.subPrivileges.forEach((sub) => {
+                            webSubPrivileges.push(sub);
+                            sub.childPrivileges.forEach((child) => {
+                                webChildPrivileges.push(child);
+                            });
+                        });
+                     });
+                 }
+                  this.setState({
+                    childList: webSubPrivileges,
+                    selectedChilds: webChildPrivileges, 
+                    parentsList: webPrivileges,
+                    mobileChildList: mobileSubPrivileges,
+                    mobileParentsList: mobilePrivileges,                                     
+                    mobileSelectedChilds: mobileChildPrivileges
+                  })
+                }
+            });
+        }       
     }
 
     hide() {
@@ -302,73 +496,334 @@ export default class Roles extends Component {
         return date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()
     }
 
-    setPrivileges(e, value, selectedNode, selectedChild) {
-        selectedChild.checked = e.target.checked;
-        if (e.target.checked) {
-            const obj = {
-                id: selectedNode.id,
-                name: selectedNode.name
-            }
-            this.state.parentsList.push(obj);
-            this.state.childList.push(selectedChild);
-
-
-
-        } else {
-
-            // Removing childs
-            let index1 = this.state.childList.findIndex(ele => ele.name === selectedChild.name);
-            this.state.childList.splice(index1, 1);
-
-            let isParent = false;
-            if (this.state.parentsList.length > 0 && this.state.childList.length > 0) {
-                this.state.childList.forEach(child => {
-                    if (child.parentPrivillageId === selectedNode.id) {
-                        isParent = true;
-                    }
+    
+getSelectedPrivileges(parentsList) {
+    const { selectedChilds,  productsList} = this.state;
+    if (parentsList && parentsList.length > 0) {
+        productsList.forEach((product, index) => {
+            if (product.subPrivileges && product.subPrivileges.length > 0) {
+                product.subPrivileges.forEach(subPrivilage => {
+                    if(subPrivilage.childPrivillages && subPrivilage.childPrivillages.length > 0) {
+                        subPrivilage.childPrivillages.forEach((el) => {
+                            selectedChilds.forEach((child, index) => {
+                                if (el.id === child.id) {
+                                    el.checked = true;
+                                }
+                            });
+                        });
+                    }                       
                 });
             }
-
-            if (!isParent) {
-                let index = this.state.parentsList.findIndex(ele => ele.name === selectedNode.name);
-                this.state.parentsList.splice(index, 1);
-            }
-
-
-
-
-
-
-        }
-
-        const parentsList = this.removeDuplicates(this.state.parentsList, "name");
-        this.setState({ parentsList: parentsList });
-        this.setState({ childList: this.state.childList });
-        this.setState({ PrivilegesList: this.state.PrivilegesList });
-
+        });
     }
-getSelectedPrivileges(parentsList, childList) {
-        //  console.log("parentsEdit", parentsList);
-        if (parentsList && parentsList.length > 0) {
-            this.state.productsList.forEach((product, index) => {
-                if (product.subPrivileges && product.subPrivileges.length > 0) {
-                    product.subPrivileges.forEach(subPrivilage => {
-                        childList.forEach((child, index) => {
-                            if (subPrivilage.id === child.id) {
-                                subPrivilage.checked = true;
-                            }
+    this.setState({ productsList: this.state.productsList });
+}
+getSelectedMobilePrivileges(parentsList) {
+    const {  mobileSelectedChilds, mobileProductsList} = this.state;
+    if (parentsList && parentsList.length > 0) {
+        mobileProductsList.forEach((product, index) => {
+            if (product.subPrivileges && product.subPrivileges.length > 0) {
+                product.subPrivileges.forEach(subPrivilage => {
+                    if(subPrivilage.childPrivillages && subPrivilage.childPrivillages.length > 0) {
+                        subPrivilage.childPrivillages.forEach((el) => {
+                            mobileSelectedChilds.forEach((child, index) => {
+                                if (el.id === child.id) {
+                                    el.checked = true;
+                                }
+                            });
                         });
-                    });
-                }
-            });
-        }
-
-        this.setState({ productsList: this.state.productsList });
-
+                    }                       
+                });
+            }
+        });
     }
+    this.setState({ mobileProductsList: this.state.mobileProductsList });
+}
+setMobilePrivileges(e, value, selectedNode, selectedSub, selectedChild ) {
+    const { mobileProductsList } = this.state;
+    if (e.target.checked) {
+        mobileProductsList.forEach((parent) => {
+            if(parent.id === selectedNode.id) {
+                let obj =  {
+                    id: parent.id, 
+                    name: parent.name 
+                }
+                this.state.mobileParentsList.push(obj);                  
+                parent.subPrivileges && parent.subPrivileges.length > 0 && parent.subPrivileges.forEach((item, index) => {
+                    if(item.parentPrivilegeId === selectedSub.parentPrivilegeId) {
+                        let obj =  {
+                            id: selectedSub.id, 
+                            name: selectedSub.name,
+                            parentPrivilegeId: selectedSub.parentPrivilegeId,
+                            description: selectedSub.description
+                        }
+                        this.state.mobileChildList.push(obj); 
+                        if(item.childPrivillages) {
+                            item.childPrivillages.length > 0 && item.childPrivillages.forEach((itm, ind) => {                               
+                                if(itm.id === selectedChild.id) {
+                                    selectedChild.checked = e.target.checked;
+                                    this.state.mobileSelectedChilds.push(selectedChild); 
+                                }                      
+                            });
+                        }                            
+                    }        
+                });
+            }               
+        });            
+    } else {
+        mobileProductsList.forEach((parent) => {
+            if(parent.id === selectedNode.id) {                 
+                parent.subPrivileges.length > 0 && parent.subPrivileges.forEach((item, index) => {
+                    if(item.parentPrivilegeId === selectedSub.parentPrivilegeId) {
+                        if(item.childPrivillages) {
+                            item.childPrivillages.length > 0 && item.childPrivillages.forEach((itm, ind) => {                               
+                                if(itm.id === selectedChild.id) {
+                                    selectedChild.checked = false;
+                                    let index1 = this.state.mobileSelectedChilds.findIndex(ele => ele.id === selectedChild.id);
+                                    this.state.mobileSelectedChilds.splice(index1, 1);
+                                }                      
+                            });                                                              
+                        }                            
+                    }        
+                });
+            }               
+        });
+    }
+    const parentsList = this.removeDuplicates(this.state.mobileParentsList, "name");
+    const childList = this.removeDuplicates(this.state.mobileChildList, "name");
+    this.setState({ 
+        mobileProductsList,
+        mobileParentsList: parentsList , 
+        mobileChildList: childList,
+        mobileSelectedChilds: this.state.mobileSelectedChilds
+    });
+}
+
+setPrivileges(e, value, selectedNode, selectedSub, selectedChild ) {
+    const { productsList, mobileProductsList } = this.state;
+    if (e.target.checked) {
+        productsList.forEach((parent) => {
+            if(parent.id === selectedNode.id) {
+                let obj =  {
+                    id: parent.id, 
+                    name: parent.name 
+                }
+                this.state.parentsList.push(obj);                  
+                parent.subPrivileges && parent.subPrivileges.length > 0 && parent.subPrivileges.forEach((item, index) => {
+                    if(item.parentPrivilegeId === selectedSub.parentPrivilegeId) {
+                        let obj =  {
+                            id: selectedSub.id, 
+                            name: selectedSub.name,
+                            parentPrivilegeId: selectedSub.parentPrivilegeId,
+                            description: selectedSub.description
+                        }
+                        this.state.childList.push(obj); 
+                        if(item.childPrivileges) {
+                            item.childPrivileges.length > 0 && item.childPrivileges.forEach((itm, ind) => {                               
+                                if(itm.id === selectedChild.id) {
+                                    selectedChild.checked = e.target.checked;
+                                    this.state.selectedChilds.push(selectedChild); 
+                                }                      
+                            });
+                        }                            
+                    }        
+                });
+            }               
+        });            
+    } else {
+        productsList.forEach((parent) => {
+            if(parent.id === selectedNode.id) {                 
+                parent.subPrivileges && parent.subPrivileges.length > 0 && parent.subPrivileges.forEach((item, index) => {
+                    if(item.parentPrivilegeId === selectedSub.parentPrivilegeId) {
+                        if(item.childPrivileges) {
+                            item.childPrivileges.length > 0 && item.childPrivileges.forEach((itm, ind) => {                               
+                                if(itm.id === selectedChild.id) {
+                                    selectedChild.checked = false;
+                                    let index1 = this.state.selectedChilds.findIndex(ele => ele.id === selectedChild.id);
+                                    this.state.selectedChilds.splice(index1, 1);
+                                }                      
+                            });                                                              
+                        }                            
+                    }        
+                });
+            }               
+        });
+    }
+    const parentsList = this.removeDuplicates(this.state.parentsList, "name");
+    const childList = this.removeDuplicates(this.state.childList, "name");
+    this.setState({ 
+        productsList,
+        parentsList: parentsList , 
+        childList: childList,
+        selectedChilds: this.state.selectedChilds
+    });
+}
+setMobileSubPrivileges(e, idx, selectedNode, selectedSub) {
+    const { mobileProductsList } = this.state;
+    if (e.target.checked) {
+        mobileProductsList.forEach((parent) => {
+            if(parent.id === selectedNode.id) {
+                let obj =  {
+                    id: parent.id, 
+                    name: parent.name 
+                }
+                this.state.mobileParentsList.push(obj);                  
+                parent.subPrivileges.forEach((item, index) => {
+                    if(item.id === selectedSub.id) {
+                        item.checked = true;
+                        let obj =  {
+                            id: selectedSub.id, 
+                            name: selectedSub.name,
+                            parentPrivilegeId: selectedSub.parentPrivilegeId,
+                            description: selectedSub.description
+                        }
+                        this.state.mobileChildList.push(obj); 
+                        if(selectedSub.childPrivileges) {
+                            selectedSub.childPrivileges.forEach((itm, ind) => {                               
+                                    itm.checked = e.target.checked;
+                                    this.state.mobileSelectedChilds.push(itm);                      
+                            });
+                        }                            
+                    }        
+                });
+            }               
+        });            
+    } else {
+        mobileProductsList.forEach((parent) => {
+            if(parent.id === selectedNode.id) {                 
+                selectedNode.subPrivileges.forEach((item, index) => {
+                    if(item.id === selectedSub.id) {
+                        item.checked = false;
+                        let index1 = this.state.mobileChildList.findIndex(ele => ele.name === selectedSub.name);
+                        this.state.mobileChildList.splice(index1, 1);
+                        let isParent = false;
+                        if (this.state.mobileParentsList.length > 0 && this.state.mobileChildList.length > 0) {
+                            this.state.mobileChildList.forEach(child => {
+                                if (child.parentPrivilegeId === selectedNode.id) {
+                                    isParent = true;
+                                }
+                            });
+                        }
+                        if (!isParent) {
+                            let index = this.state.mobileParentsList.findIndex(ele => ele.id === selectedNode.id);
+                            this.state.mobileParentsList.splice(index, 1);
+                        }
+                        let parentsObjList =  this.state.mobileParentsList.map((parent, ind) => {
+                            let obj = {};
+                            obj.id = parent.id;
+                            obj.name = parent.name;
+                            return obj;
+                        });
+                        this.state.mobileParentsList = parentsObjList;
+                       
+                        if(item.childPrivileges) {
+                            item.childPrivileges.forEach((itm, ind) => {                               
+                                // if(itm.id === selectedChild.id) {
+                                    itm.checked = false;
+                                    let index1 = this.state.mobileSelectedChilds.findIndex(ele => ele.id === itm.id);
+                                    this.state.mobileSelectedChilds.splice(index1, 1);
+                               // }                      
+                            });                                                              
+                        }                            
+                    }        
+                });
+            }               
+        });
+    }
+    const parentsList = this.removeDuplicates(this.state.mobileParentsList, "id");
+    const childList = this.removeDuplicates(this.state.mobileChildList, "id");
+    this.setState({ 
+        mobileProductsList,
+        mobileParentsList: parentsList , 
+        mobileChildList: childList,
+        mobileSelectedChilds: this.state.mobileSelectedChilds
+    });
+}
+setSubPrivileges(e, idx, selectedNode, selectedSub) {
+    const { productsList } = this.state;
+    if (e.target.checked) {
+        productsList.forEach((parent) => {
+            if(parent.id === selectedNode.id) {
+                let obj =  {
+                    id: parent.id, 
+                    name: parent.name 
+                }
+                this.state.parentsList.push(obj);                  
+                parent.subPrivileges.forEach((item, index) => {
+                    if(item.id === selectedSub.id) {
+                        item.checked = true;
+                        let obj =  {
+                            id: selectedSub.id, 
+                            name: selectedSub.name,
+                            parentPrivilegeId: selectedSub.parentPrivilegeId,
+                            description: selectedSub.description
+                        }
+                        this.state.childList.push(obj); 
+                        if(selectedSub.childPrivileges) {
+                            selectedSub.childPrivileges.forEach((itm, ind) => {                               
+                                    itm.checked = e.target.checked;
+                                    this.state.selectedChilds.push(itm);                      
+                            });
+                        }                            
+                    }        
+                });
+            }               
+        });            
+    } else {
+        productsList.forEach((parent) => {
+            if(parent.id === selectedNode.id) {                 
+                selectedNode.subPrivileges.forEach((item, index) => {
+                    if(item.id === selectedSub.id) {
+                        item.checked = false;
+                        let index1 = this.state.childList.findIndex(ele => ele.name === selectedSub.name);
+                        this.state.childList.splice(index1, 1);
+                        let isParent = false;
+                        if (this.state.parentsList.length > 0 && this.state.childList.length > 0) {
+                            this.state.childList.forEach(child => {
+                                if (child.parentPrivilegeId === selectedNode.id) {
+                                    isParent = true;
+                                }
+                            });
+                        }
+                        if (!isParent) {
+                            let index = this.state.parentsList.findIndex(ele => ele.id === selectedNode.id);
+                            this.state.parentsList.splice(index, 1);
+                        }
+                        let parentsObjList =  this.state.parentsList.map((parent, ind) => {
+                            let obj = {};
+                            obj.id = parent.id;
+                            obj.name = parent.name;
+                            return obj;
+                        });
+                        this.state.parentsList = parentsObjList;
+                       
+                        if(item.childPrivileges) {
+                            item.childPrivileges.forEach((itm, ind) => {                               
+                                // if(itm.id === selectedChild.id) {
+                                    itm.checked = false;
+                                    let index1 = this.state.selectedChilds.findIndex(ele => ele.id === itm.id);
+                                    this.state.selectedChilds.splice(index1, 1);
+                               // }                      
+                            });                                                              
+                        }                            
+                    }        
+                });
+            }               
+        });
+    }
+    console.log('+++++++++++++this.state.childList++++++++++++++', this.state.childList);
+    const parentsList = this.removeDuplicates(this.state.parentsList, "name");
+    const childList = this.removeDuplicates(this.state.childList, "name");
+    console.log('+++++++++++++childList++++++++++++++', childList);
+    this.setState({ 
+        productsList,
+        parentsList: parentsList , 
+        childList: childList,
+        selectedChilds: this.state.selectedChilds
+    });
+}
 
     getPrivilegesList() {
-        console.log("++++++++++++++++++productsList+++++++++++++++"+this.state.productsList);
         return this.state.productsList.length > 0 && this.state.productsList.map((node, i) => {
             const parentName = node.name;
             const label = <span className="node">{parentName}</span>
@@ -377,30 +832,109 @@ getSelectedPrivileges(parentsList, childList) {
                     key={parentName + "|" + i}
                     nodeLabel={label}
                     defaultCollapse={false}
+                > {
+                    node.subPrivileges && node.subPrivileges.length > 0 && node.subPrivileges.map((sub, ind) => {
+                        const subPrivillage = sub.name;
+                        const label =  <span> <span className="node">{subPrivillage}</span>
+                        <span className="cursor">
+                          <input type="checkbox" className=" cursor form-check-input filled-in mt-1" id="remember{{ind}}"
+                            onChange={(e) => this.setSubPrivileges(e, ind, node, sub)} name="child{{ind}}" 
+                            checked={sub.checked}
+                          />
+                        </span>
+                        </span>
+                        return (
+                            <TreeView
+                                key={subPrivillage + "|" + ind}
+                                nodeLabel={label}
+                                defaultCollapse={false}
+                            > {
+                                sub.childPrivileges && sub.childPrivileges.length > 0 && sub.childPrivileges.map((child, idx) => {
+                                    return (
 
+                            <div>
+                                <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-15">
+                                    {
+                                        child.name && (
+                                            <div className="cursor">
+                                                <input type="checkbox" className=" cursor form-check-input filled-in mt-1" id="remember{{idx}}"
+                                                    name="child{{idx}}" checked={child.checked}
+                                                    onChange={(e) => this.setPrivileges(e, idx, node, sub, child)} />
+                                                <label className="cursor form-check-label" htmlFor="remember">  {child.name}</label>
 
-                >
-                    {
-                        node.subPrivileges && node.subPrivileges.length > 0 && node.subPrivileges.map((child) => {
-                            return (
-
-                                <div>
-                                    <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-15">
-                                        {
-                                            child.name && (
-                                                <div className="cursor">
-                                                    <input type="checkbox" className=" cursor form-check-input filled-in mt-1" id="remember{{index}}"
-                                                        name="child{{i}}" checked={child.checked}
-                                                        onChange={(e) => this.setPrivileges(e, i, node, child)} />
-                                                    <label className="cursor form-check-label" htmlFor="remember">  {child.name}</label>
-
-                                                </div>
-                                            )
-                                        }
-                                    </div>
+                                            </div>
+                                        )
+                                    }
                                 </div>
-                            );
-                        })
+                            </div>
+                                    );
+                                })
+                                }
+
+                            </TreeView>
+                        );
+                    })
+                    }
+
+                </TreeView>
+
+            );
+
+        });
+
+
+    }
+    getMobilePrivilegesList() {
+        return this.state.mobileProductsList.length > 0 && this.state.mobileProductsList.map((node, i) => {
+            const parentName = node.name;
+            const label = <span className="node">{parentName}</span>
+            return (
+                <TreeView
+                    key={parentName + "|" + i}
+                    nodeLabel={label}
+                    defaultCollapse={false}
+                > {
+                    node.subPrivileges && node.subPrivileges.length > 0 && node.subPrivileges.map((sub, ind) => {
+                        const subPrivillage = sub.name;
+                        const label = <span> <span className="node">{subPrivillage}</span>
+                        <span className="cursor">
+                          <input type="checkbox" className=" cursor form-check-input filled-in mt-1" id="remember{{ind}}"
+                            onChange={(e) => this.setMobileSubPrivileges(e, ind, node, sub)} name="child{{ind}}" 
+                            checked={sub.checked}
+                          />
+                        </span>
+                        </span>
+                        return (
+                            <TreeView
+                                key={subPrivillage + "|" + ind}
+                                nodeLabel={label}
+                                defaultCollapse={false}
+                            > {
+                                sub.childPrivileges && sub.childPrivileges.length > 0 && sub.childPrivileges.map((child, idx) => {
+                                    return (
+
+                            <div>
+                                <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-15">
+                                    {
+                                        child.name && (
+                                            <div className="cursor">
+                                                <input type="checkbox" className=" cursor form-check-input filled-in mt-1" id="remember{{idx}}"
+                                                    name="child{{idx}}" checked={child.checked}
+                                                    onChange={(e) => this.setMobilePrivileges(e, idx, node, sub, child)} />
+                                                <label className="cursor form-check-label" htmlFor="remember">  {child.name}</label>
+
+                                            </div>
+                                        )
+                                    }
+                                </div>
+                            </div>
+                                    );
+                                })
+                                }
+
+                            </TreeView>
+                        );
+                    })
                     }
 
                 </TreeView>
@@ -413,44 +947,204 @@ getSelectedPrivileges(parentsList, childList) {
     }
 
     getAddedRoles() {
-
-        return this.state.childList.map((items, index) => {
+        let nameArray = [];
+        if(this.state.childList && this.state.selectedChilds) {
+            this.state.childList.forEach((el) => {
+                this.state.selectedChilds.forEach((it) => {
+                    if(el.id === it.subPrivillageId) {
+                       nameArray.push(el);
+                    } else {
+                        nameArray.push(el);
+                    }
+                });
+            });
+        }       
+        let uniqueNameArray = this.removeDuplicates(nameArray, "name");
+        return uniqueNameArray.map((items, index) => {
             const { name, description } = items;
             return (
                 <tr className="">
-                    <td className="col-3 geeks">{name}</td>
+                   <td className="col-3 geeks">{name}</td>
                     <td className="col-5">{description}</td>
+                    <td className="col-5">
+                    {this.state.selectedChilds.length > 0 && this.state.selectedChilds.map((itm, ind) => {                    
+                     return  (
+                        itm.subPrivillageId ===items.id  && <ul>
+                          <li key={ind}>
+                              {itm.name}
+                          </li>
+                      </ul>)
+                    })}
+                    </td>
                 </tr>
             );
         });
-
-
-
+    }
+    getAddedMobileRoles() {
+        let nameArray = [];
+        if(this.state.mobileChildList && this.state.mobileSelectedChilds) {
+            this.state.mobileChildList.forEach((el) => {
+                this.state.mobileSelectedChilds.forEach((it) => {
+                    if(el.id === it.subPrivillageId) {
+                       nameArray.push(el);
+                    }
+                });
+            });
+        }       
+        let uniqueNameArray = this.removeDuplicates(nameArray, "name");
+        return uniqueNameArray.map((items, index) => {
+            const { name, description } = items;
+            return (
+                <tr className="">
+                   <td className="col-3 geeks">{name}</td>
+                    <td className="col-5">{description}</td>
+                    <td className="col-5">
+                    {this.state.mobileSelectedChilds.length > 0 && this.state.mobileSelectedChilds.map((itm, ind) => {                    
+                     return  (
+                        itm.subPrivillageId ===items.id  && <ul>
+                          <li key={ind}>
+                              {itm.name}
+                          </li>
+                      </ul>)
+                    })}
+                    </td>
+                </tr>
+            );
+        });
     }
 
+    addedMobileRoles() {
+        return this.state.mobileChildList && this.state.mobileChildList.length > 0 && (
+            <div>
+                <div className="row mt-3">
+                {this.state.mobileSelectedChilds.length > 0 && <h6 className="text-red mb-2 fs-14">Mobile Privileges</h6>}
+                </div>
+                {this.state.mobileSelectedChilds.length > 0 && <table className="table table-borderless mb-0">
+                    <thead>
+                        <tr className="">
+                            <th className="col-3">Privileges</th>
+                            <th className="col-3">Description</th>
+                            <th className="col-3">Approved Privileges</th>
+                            {this.state.isMobileExpanded ? <i onClick={this.toggleMobileClass.bind(this, '')}>{this.moreLessMobile()}</i> : <i onClick={this.toggleMobileClass.bind(this, 'Mobile')}>{this.moreLess()}</i>}
+                        </tr>
+                    </thead>
+                </table>}
+                <Collapse isOpened={this.state.activePrevilegeType === 'Mobile'}>
+                <table className="table table-borderless gfg mb-0">
+                    <tbody>
+
+                        {this.getAddedMobileRoles()}
+                    </tbody>
+                </table>
+                </Collapse>
+            </div>
+        )
+    }
     addedRoles() {
         return this.state.childList && this.state.childList.length > 0 && (
             <div>
                 <div className="row mt-3">
-                    <h6 className="text-red mb-2 fs-14"></h6>
+                    <h6 className="text-red mb-2 fs-14">Web Privileges</h6>
                 </div>
                 <table className="table table-borderless mb-0">
                     <thead>
                         <tr className="">
                             <th className="col-3">Privileges</th>
-                            <th className="col-5">Description</th>
+                            <th className="col-3">Description</th>
+                            <th className="col-3">Approved Privileges</th>
+                            {this.state.isWebExpanded ? <i onClick={this.toggleClass.bind(this, '')}>{this.moreLess()}</i> : <i onClick={this.toggleClass.bind(this, 'Web')}>{this.moreLess()}</i>}
                         </tr>
                     </thead>
                 </table>
-                <table className="table table-borderless gfg mb-0">
+                <Collapse isOpened={this.state.activePrevilegeType === 'Web'}>
+                <table className="table table-borderless gfg mb-0 mt-1">
                     <tbody>
-
                         {this.getAddedRoles()}
                     </tbody>
                 </table>
+                </Collapse>
             </div>
         )
     }
+    toggleClass(previlegeType) {
+        if(previlegeType === 'Web') {
+            this.setState({
+               activePrevilegeType: previlegeType,
+               isWebExpanded: true,
+            });
+        } else {
+            this.setState({
+                activePrevilegeType: '',
+                isMobileExpanded: true,
+                isWebExpanded: false
+            });
+        }        
+      }
+      toggleMobileClass(previlegeType) {
+        if(previlegeType === 'Mobile') {
+            this.setState({
+               activePrevilegeType: previlegeType,
+               isMobileExpanded: true,
+            });
+        } else {
+            this.setState({
+                activePrevilegeType: '',
+                isMobileExpanded: false,
+                isWebExpanded: true
+            });
+        }        
+      }
+      moreLess() {
+        if (this.state.activePrevilegeType === 'Web') {
+          return (
+            <span>
+              <img src={uparrow} className="w-12 pb-2" />
+            </span>
+          );
+        } else {
+          return (
+            <span>
+              <img src={downarrow} className="w-12 pb-2" />
+            </span>
+          );
+        }
+      }
+      moreLessMobile() {
+        if (this.state.activePrevilegeType === 'Mobile') {
+          return (
+            <span>
+              <img src={uparrow} className="w-12 pb-2" />
+            </span>
+          );
+        } else {
+          return (
+            <span>
+              <img src={downarrow} className="w-12 pb-2" />
+            </span>
+          );
+        }
+      }
+
+    groupByprevilegeType = (array) => {
+        let initialValue = {
+            mobile: [], 
+            web: []
+        }            
+        return array.reduce((accumulator, current) => {
+            (current.previlegeType === 'Mobile') ? accumulator.mobile.push(current) : accumulator.web.push(current);
+            return accumulator;
+        }, initialValue);
+    } 
+    groupByprivilegeType = (array) => {
+        let initialValue = {
+            mobile: [], 
+            web: []
+        }            
+        return array.reduce((accumulator, current) => {
+            (current.privilegeType === 'Mobile') ? accumulator.mobile.push(current) : accumulator.web.push(current);
+            return accumulator;
+        }, initialValue);
+    } 
 
     editRole(items) {
         this.setState({
@@ -459,18 +1153,64 @@ getSelectedPrivileges(parentsList, childList) {
             isEdit: true,
             searchCreatedBy: items.searchCreatedBy,
             descriptionName: items.description,
-            childList: items.subPrivilege,
-            parentsList: items.parentPrivilege,
             roleId: items.id,
             isSearch: false,
             isRoleName:true,
             // domain: items.clientDomain.id
         }, () => {
             this.getPrivilegesByDomainId();
+            URMService.getSubPrivilegesbyRoleId(items.roleName).then(res => {
+                if(res) {
+                let webPrivileges = [];
+                let webSubPrivileges = [];
+                let webChildPrivileges = [];
+                let mobilePrivileges = [];
+                let mobileSubPrivileges = [];
+                let mobileChildPrivileges = [];
+                let webPrivilegesResult = [];
+                let mobilePrivilegesResult = [];
+                 const parentPrivilegesResult = this.groupByprevilegeType(res.data.parentPrivileges);
+                 if(parentPrivilegesResult.web) {
+                    webPrivilegesResult = parentPrivilegesResult.web;
+                 }
+                 if(parentPrivilegesResult.mobile) {
+                    mobilePrivilegesResult = parentPrivilegesResult.mobile;
+                 }                 
+                 if(mobilePrivilegesResult && mobilePrivilegesResult.length > 0) {
+                    mobilePrivilegesResult.forEach((parent) => {
+                        mobilePrivileges.push(parent);
+                        parent.subPrivileges.forEach((sub) => {
+                            mobileSubPrivileges.push(sub);
+                            sub.childPrivileges.forEach((child) => {
+                                mobileChildPrivileges.push(child);
+                            });
+                        });
+                     });
+                 }
+                 
+                 if(webPrivilegesResult && webPrivilegesResult.length > 0) {
+                    webPrivilegesResult.forEach((parent) => {
+                        webPrivileges.push(parent);
+                        parent.subPrivileges.forEach((sub) => {
+                            webSubPrivileges.push(sub);
+                            sub.childPrivileges.forEach((child) => {
+                                webChildPrivileges.push(child);
+                            });
+                        });
+                     });
+                 }                
+                 
+                  this.setState({
+                    childList: webSubPrivileges,
+                    selectedChilds: webChildPrivileges, 
+                    parentsList: webPrivileges,
+                    mobileChildList: mobileSubPrivileges,
+                    mobileParentsList: mobilePrivileges,                                     
+                    mobileSelectedChilds: mobileChildPrivileges
+                  })
+                }
+            });
         });
-
-
-
     }
 
     getRoleTable() {
@@ -529,6 +1269,12 @@ getSelectedPrivileges(parentsList, childList) {
             </div>
         )
     }
+    avoidSpace(e) {
+        if (e.key === " ") {
+            e.preventDefault();
+          }
+     }
+    
 
 
     render() {
@@ -558,8 +1304,14 @@ getSelectedPrivileges(parentsList, childList) {
                                     </tr>
                                 </thead>
                                 <tbody>
-
-                                    {this.getPrivilegesList()}
+                                 <div style={{ maxWidth: '1000px', width: '50%', float: 'left'}}>
+                                  {this.state.productsList.length > 0 && <h3>Web</h3>}
+                                     {this.getPrivilegesList()}
+                                  </div>
+                                  <div style={{maxWidth: '1000px', width: '50%', float: 'right'}}>
+                                    {this.state.mobileProductsList.length > 0 && <h3>Mobile</h3>}
+                                    {this.getMobilePrivilegesList()}
+                                  </div>
                                 </tbody>
                             </table>
                         </div>
@@ -597,6 +1349,7 @@ getSelectedPrivileges(parentsList, childList) {
                                         disabled ={this.state.isRoleName}
                                         maxLength = {errorLengthMax.roleName}
                                             onChange={(e) => this.setState({ roleName: e.target.value ,isRoleName:false})}
+                                            onKeyDown={this.avoidSpace}
                                             autoComplete="off" />
                                             <span style={{ color: "red" }}>{this.state.errors["rolename"]}</span>
 
@@ -643,6 +1396,9 @@ getSelectedPrivileges(parentsList, childList) {
                             <div className="row m-0 p-0 mt-1">
                                 {this.addedRoles()}
                             </div>
+                            <div className="row m-0 p-0 mt-1">
+                                {this.addedMobileRoles()}
+                            </div>                          
 
                         </div>
                     </ModalBody>
@@ -687,7 +1443,7 @@ getSelectedPrivileges(parentsList, childList) {
                     </div>
                     <div className="col-sm-6 pt-4 col-12 scaling-center scaling-mb mt-2 p-l-0 p-r-0">
                         <button className="btn-unic-search active m-r-2" onClick={this.searchRoles}>Search </button>
-                        <button className="btn-clear m-r-2" onClick={this.getAllRoles}>Clear </button>
+                        <button className="btn-unic-search active m-r-2" onClick={this.getAllRoles}>Clear </button>
                         <button className="btn-unic-search active" onClick={this.showRoles}><i className="icon-add_role"></i> Add Role </button>
                     </div>
 

@@ -103,8 +103,8 @@ export default class ListOfPromos extends Component {
         benfitType: '',
         benfitTypes: [
           { value: 'FlatDiscount', label: 'Flat Discount' },
-          { value: 'XunitsFromBuyPool', label: 'X Uints from Buy Pool' },
-          { value: 'XunitsFromGetPool', label: 'X Uints from Get Pool' }
+          { value: 'XunitsFromBuyPool', label: 'X Units from Buy Pool' },
+          { value: 'XunitsFromGetPool', label: 'X Units from Get Pool' }
         ],
         benfitTypesForEachBarcode: [
           { value: 'FlatDiscount', label: 'Flat Discount' }
@@ -1153,7 +1153,7 @@ handleBenefitFormData() {
                         }
                   </select> : 
                   <select value={this.state.item} onChange={(e) => this.handleItemValue(e)} className="form-control">
-                  <option>Select Discount Subtype <span className="text-red font-bold" name="bold">*</span></option>
+                  <option>Select Discount Subtype</option>
                       {   
                         this.state.fixedAmoutItemLabels &&
                         this.state.fixedAmoutItemLabels.map((item, i) => 

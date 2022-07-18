@@ -8,6 +8,8 @@ import ListOfSaleBillsService from "../../services/Reports/ListOfSaleBillsServic
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import moment from "moment";
 import ReactPageNation from "../../commonUtils/Pagination";
+import { toast } from "react-toastify";
+import { formatDate } from "../../commonUtils/FormatDate";
 
 export default class SalesReport extends Component {
   constructor(props) {
@@ -48,6 +50,33 @@ export default class SalesReport extends Component {
     this.setState({ storeId: storeId });
   }
 
+  // clear = () => {
+  //   this.setState({
+  //     dateFrom: '',
+  //     dateTo: '',
+  //     custMobileNumber: '',
+  //     billStatus:'',
+  //     invoiceNumber:'',
+  //     empId:''
+  //   }, () => {
+  //     this.getSaleBills(0);
+  //   });
+
+  // }
+
+ clearSearch() {
+    this.setState({
+      sbList:[],
+      dateFrom: '',
+      dateTo: '',
+      custMobileNumber: '',
+      billStatus:'',
+      invoiceNumber:'',
+      empId:''
+    });
+  }
+
+
   getSaleBills(pageNumber) {
     const obj = {
       dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
@@ -57,9 +86,9 @@ export default class SalesReport extends Component {
         : undefined,
       billStatus: this.state.billStatus ? this.state.billStatus : undefined,
       invoiceNumber: this.state.invoiceNumber
-        ? this.state.invoiceNumber
+        ? (this.state.invoiceNumber).trim()
         : undefined,
-      empId: this.state.empId ? this.state.empId : undefined,
+      empId: this.state.empId ? (this.state.empId).trim() : undefined,
       // domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
@@ -121,7 +150,7 @@ export default class SalesReport extends Component {
       };
       detailsArry.push(obj);
     });
-
+  // let date = formatDate (filterData[0].createdDate);
     this.setState({
       // mobileNumber:
       //   filterData[0].mobileNumber.length > 10
@@ -134,7 +163,7 @@ export default class SalesReport extends Component {
       //   : filterData[0].mobileNumber,
 
       customerName: filterData[0].customerName,
-      createdDate: filterData[0].createdDate,
+      createdDate:formatDate(filterData[0].createdDate),
       invoiceNumber: filterData[0].invoiceNumber,
 
       lineItemData: detailsArry,
@@ -147,21 +176,27 @@ export default class SalesReport extends Component {
   }
 
   renderTableData() {
+    console.log("this.state.sbList?.content",this.state.sbList.content)
     return this.state.sbList?.content?.map((items, index) => {
       const {
         invoiceNumber,
         empId,
+        netPayableAmount,
+        discount,
         createdDate,
         status,
         billStatus,
         newsaleId,
       } = items;
+      let date = formatDate (items.createdDate);
       return (
         <tr className="" key={index}>
           <td className="col-1">{index + 1}</td>
-          <td className="col-3">{invoiceNumber}</td>
-          <td className="col-2">{empId}</td>
-          <td className="col-2">{createdDate}</td>
+          <td className="col-2">{invoiceNumber}</td>
+          <td className="col-1">{empId}</td>
+          <td className="col-2">{netPayableAmount}</td>
+          <td className="col-1">{discount}</td>
+          <td className="col-2">{date}</td>
           {/* <td className="col-2">
             {billStatus && <button className="btn-active">{billStatus}</button>}
           </td> */}
@@ -194,6 +229,8 @@ export default class SalesReport extends Component {
           quantity,
           itemPrice,
           discount,
+          approvedBy,
+          reason,
           taxLabel,
           taxValue,
           // taxableAmount,
@@ -204,7 +241,7 @@ export default class SalesReport extends Component {
         } = items;
         return (
           <tr key={index}>
-            <td width="15%">{barCode}</td>
+            <td width="10%">{barCode}</td>
             <td width="10%">{section}</td>
             {/* <td width="10%">{section}</td> */}
             <td width="5%">{empId}</td>
@@ -212,7 +249,8 @@ export default class SalesReport extends Component {
             <td width="5%">{quantity}</td>
             <td width="5%">{itemPrice}</td>
             <td width="5%">{discount}</td>
-            <td width="5%">{taxLabel}</td>
+            <td width="10%">{approvedBy}</td>
+            <td width="5%">{reason}</td>
             <td width="10%">{taxValue}</td>
             <td width="5%">{cgst}</td>
             <td width="10%">{sgst}</td>
@@ -247,21 +285,19 @@ export default class SalesReport extends Component {
     console.log(">>>page", pageNumber);
     let pageNo = pageNumber + 1;
     this.setState({ pageNumber: pageNo });
-    // this.getUserBySearch(pageNumber);
-    // this.searchUser(pageNumber);
     this.getSaleBills(pageNumber); 
   }
 
   render() {
-    console.log(">>>>>>>>>>>>>>>>lineitem", this.state.lineItemData);
+    // console.log(">>>>>>>>>>>>>>>>lineitem", this.state.lineItemData);
 
     return (
       <div className="maincontent">
         <Modal isOpen={this.state.isView} className="modal-fullscreen">
           <ModalHeader>Sales Bill Details </ModalHeader>
-          <ModalBody>
-            <div className="row mb-2">
-              <div className="col-3">
+          <ModalBody className="p-l-5 p-r-5 pt-4">
+            <div className="row mb-3">
+              <div className="col-3 p-l-0">
                 <div className="">
                   <label>Memo No : </label>{" "}
                   <span className="font-bold fs-13">
@@ -298,24 +334,26 @@ export default class SalesReport extends Component {
                 </div>
               </div>
             </div>
-            <div className="table-responsive">
+            <div className="row">
+            <div className="table-responsive p-0">
               {/* <div className="row m-0 p-0 mb-3"> */}
               <table className="table table-borderless mb-1">
                 <thead>
                   <tr className="m-0 p-0">
-                    <th width="15%">Barcode</th>
+                    <th width="10%">Barcode</th>
                     <th width="10%">Section</th>
                     <th width="5%">EMPID</th>
                     <th width="10%">HSN Code</th>
                     <th width="5%">QTY</th>
                     <th width="5%">mrp</th>
                     <th width="5%">Disc</th>
-                    <th width="5%">GST%</th>
+                    <th width="10%">APPROVED BY</th>
+                    <th width="5%">REASON</th>
                     <th width="10%">Tax Amount</th>
                     <th width="5%">CGST</th>
                     <th width="10%">SGST</th>
                     <th width="5%">IGST</th>
-                    <th width="10%">Net Amount</th>
+                    <th width="10%">Net</th>
                   </tr>
                 </thead>
                 {/* <tbody>
@@ -337,6 +375,7 @@ export default class SalesReport extends Component {
                 </tbody> */}
                 <tbody>{this.renderPopupTableData()}</tbody>
               </table>
+              </div>
             </div>
           </ModalBody>
           <ModalFooter>
@@ -372,7 +411,15 @@ export default class SalesReport extends Component {
                 className="form-control"
                 placeholder="TO DATE"
                 value={this.state.dateTo}
-                onChange={(e) => this.setState({ dateTo: e.target.value })}
+                onChange={(e)=>{
+                  var startDate=new Date(this.state.dateFrom);
+                  var endDate=new Date(e.target.value);
+                  if(startDate<=endDate){
+                    this.setState({dateTo:e.target.value});
+                  }else{
+                    toast.error("To date should be greater than From date");
+                  }
+                }}
               />
             </div>
           </div>
@@ -388,7 +435,7 @@ export default class SalesReport extends Component {
                 {/* <option>New</option>
                 <option>Pending</option> */}
 
-                <option>success</option>
+                <option>Completed</option>
                 <option>Cancelled</option>
               </select>
             </div>
@@ -464,6 +511,14 @@ export default class SalesReport extends Component {
               >
                 Search
               </button>
+              <button
+                className="btn-clear m-l-2"
+                onClick={() => {
+                  this.clearSearch();
+                }}
+              >
+                Clear
+              </button>
             </div>
           </div>
         </div>
@@ -476,8 +531,10 @@ export default class SalesReport extends Component {
               <thead>
                 <tr className="m-0 p-0">
                   <th className="col-1">S.NO</th>
-                  <th className="col-3">Invoice Number</th>
-                  <th className="col-2">EMP ID</th>
+                  <th className="col-2">Invoice Number</th>
+                  <th className="col-1">EMP ID</th>
+                  <th className="col-2">TOTAL AMOUNT</th>
+                  <th className="col-1">DISCOUNT</th>
                   <th className="col-2">INVOICE DATE</th>
                   <th className="col-2">Bill Position</th>
                   <th className="col-2"></th>

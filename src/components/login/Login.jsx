@@ -30,6 +30,8 @@ class Login extends Component {
     super(props);
     this.state = {
       redirect: false,
+      isEstimationSlip:false, 
+      isTaxIncluded:false, 
       isAuth: false,
       userName: "",
       password: "",
@@ -70,6 +72,7 @@ class Login extends Component {
     this.getStoreDetails = this.getStoreDetails.bind(this);
     this.forgotPasswordValidations=this.forgotPasswordValidations.bind(this);
     this.changePasswordValidation=this.changePasswordValidation.bind(this);
+    this.handleCheckChange = this.handleCheckChange.bind(this)
   }
 
   componentWillMount() {
@@ -117,6 +120,11 @@ class Login extends Component {
           sessionStorage.setItem("token", JSON.stringify(token));
           // this.getDropdownList();
           const role = JSON.parse(sessionStorage.getItem("user"));
+          if(role["cognito:groups"][0]==="captain"){
+            role["custom:assignedStores"]="capatain:2266"
+            sessionStorage.setItem("user",JSON.stringify(role))
+          }
+          console.log(role);
           if (role["cognito:groups"]) {
             if (role["cognito:groups"][0] === "super_admin") {
               // this.getModel();
@@ -583,7 +591,6 @@ getPath(){
       errors["registerOrganisation"] = login_err_msg.registerOrganisation;
     }
 
-
     // Mobile
     const patternRegExp = (/^[0-9\b]+$/);
     let input = this.state.registerMobile;
@@ -618,7 +625,23 @@ if (emailReg.test(this.state.registerEmail) === false) {
     return formIsValid;
   }
 
+  handleCheckChange(e,value){
+ if(value === 'ESLIP') {
+  if(e.target.value=== "false"){
+    this.setState({isEstimationSlip:true})
+  }else {
+    this.setState({isEstimationSlip:false})
+  }
+}else{
+    if(e.target.value=== "false"){
+     this.setState({isTaxIncluded:true})
+    }else {
+      this.setState({isTaxIncluded:false})
+    }
+  }
+ 
 
+  }
   registerClient() {
    
     if(this.state.registerName && this.state.registerOrganisation && this.state.registerMobile && this.state.registerEmail){
@@ -633,8 +656,10 @@ if (emailReg.test(this.state.registerEmail) === false) {
           name: this.state.registerName,
           organizationName: this.state.registerOrganisation,
           address: this.state.registerAddress,
+          isEsSlipEnabled:this.state.isEstimationSlip,
+          isTaxIncluded:this.state.isTaxIncluded,
           mobile: "+91".concat(this.state.registerMobile),
-          email: this.state.registerEmail,
+          email: this.state.registerEmail
         };
   
         LoginService.registerUser(obj).then((res) => {
@@ -643,8 +668,6 @@ if (emailReg.test(this.state.registerEmail) === false) {
             const clientObj = {
               email: this.state.registerEmail,
               phoneNumber: "+91".concat(this.state.registerMobile),
-              birthDate: "",
-              gender: "",
               name: this.state.registerName,
               username: this.state.registerName.concat("_config_user"),
               tempPassword: "Otsi@1234",
@@ -661,6 +684,8 @@ if (emailReg.test(this.state.registerEmail) === false) {
               clientDomain: [],
               isSuperAdmin: false,
               createdBy: "",
+              gender: '',
+              birthDate: ''
             };
   
             URMService.saveUser(clientObj).then((response) => {
@@ -675,6 +700,8 @@ if (emailReg.test(this.state.registerEmail) === false) {
                   registerOrganisation: "",
                   registerMobile: "",
                   registerAddress: "",
+                  isEstimationSlip: false,
+                  isTaxIncluded: false,
                 });
                 this.hideRegister();
               }
@@ -1229,6 +1256,43 @@ if (emailReg.test(this.state.registerEmail) === false) {
                                                             <span style={{ color: "red" }}>{this.state.errors["registeremail"]}</span>
                                                         </div>
                       </div>
+
+                          <div className="col-sm-6">
+                          <div className="form-check checkbox-rounded checkbox-living-coral-filled pt-1 mt-2">
+                            <input
+                              type="checkbox"
+                              className="form-check-input filled-in mt-1"
+                              name="Eslip"
+                              id="estimation" value={this.state.isEstimationSlip}
+                              checked={this.state.isEstimationSlip}
+                              onChange={(e)=>this.handleCheckChange(e,'ESLIP')} required="required"
+                            />
+                           <label className="form-check-label" htmlFor="estimation">
+                            Is Estimation Slip <span className="text-red font-bold">*</span>
+                      </label>
+                      <div>
+                                                            <span style={{ color: "red" }}>{this.state.errors["registeremail"]}</span>
+                                                        </div>
+                    </div>
+                          </div>
+                          <div className="col-sm-6">
+                          <div className="form-check checkbox-rounded checkbox-living-coral-filled pt-1 mt-2">
+                            <input
+                              type="checkbox"
+                              name="taxInclude"
+                              className="form-check-input filled-in mt-1"
+                              id="tax" value={this.state.isTaxIncluded}
+                              checked={this.state.isTaxIncluded}
+                              onChange={(e)=>this.handleCheckChange(e,'TAXINCLUDE')} required="required"
+                            />
+                           <label className="form-check-label" htmlFor="tax">
+                            Is Tax Included <span className="text-red font-bold">*</span>
+                      </label>
+                      <div>
+                                                            <span style={{ color: "red" }}>{this.state.errors["registeremail"]}</span>
+                                                        </div>
+                    </div>
+                          </div>
 
                       <div className="col-12">
                         <label>Address</label>

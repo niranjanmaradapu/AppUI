@@ -374,7 +374,7 @@ slabValidation() {
                 <div className="form-group">
                   <label>Description <span className="text-red font-bold" name="bold">*</span></label>
                   <select value={this.state.descprition} className="form-control" onChange={this.handleSelectChangeDesc}>
-                  <option>Select Description</option>
+                  <option value="" disabled>Select Description</option>
                    {descDataList}
                   </select >
                 </div>
@@ -384,7 +384,7 @@ slabValidation() {
                 <div className="form-group">
                   <label>Tax Applies ON <span className="text-red font-bold" name="bold">*</span></label>                
                   <select value={this.state.taxAppliesOn} className="form-control" onChange={this.handleSelectChangeTaxList}>
-                  <option>Select Tax Applies ON</option>
+                  <option value="" disabled>Select Tax Applies ON</option>
                     {taxAppliesList}
                   </select >                
                 </div>
@@ -535,7 +535,7 @@ slabValidation() {
           {this.state.HsnCodeList.map((items, index) => {
                   return (
             <tr>
-              <td className="col-3 underline geeks">{items.hsnCode}</td>
+              <td className="col-3">{items.hsnCode}</td>
               <td className="col-3">{items.description}</td>
               <td className="col-2">{items.taxAppliesOn}</td>
               <td className="col-2">{items.taxAppliedType === 'Priceslab' ? 'Yes' : 'No'}</td>

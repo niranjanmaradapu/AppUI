@@ -430,3 +430,8 @@ textarea {
         }
     }
 }
+.o{
+    &-flow{
+        overflow: hidden !important;
+    }
+}

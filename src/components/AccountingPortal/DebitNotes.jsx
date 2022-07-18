@@ -6,10 +6,12 @@ import AccountingPortalService from '../../services/AccountingPortal/AccountingP
 import NewSaleService from '../../services/NewSaleService';
 import {errorLengthMin, errorLengthMax, debitNotes_Err_Msg } from './Error';
 import ecommerce from "../../assets/images/ecommerce.svg";
+import { formatDate } from "../../commonUtils/FormatDate";
 import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
 import { NEW_SALE_URL } from "../../commonUtils/ApiConstants";
 import ReactPageNation from "../../commonUtils/Pagination";
+import { toHaveDisplayValue } from '@testing-library/jest-dom/dist/matchers';
 
 export default class DebitNotes extends Component {
 
@@ -46,6 +48,7 @@ export default class DebitNotes extends Component {
     this.saveDebit = this.saveDebit.bind(this);
     this.handleValidation = this.handleValidation.bind(this);
     this.changePage = this.changePage.bind(this);
+    this.Validation=this.Validation.bind(this);
   }
 
 
@@ -113,6 +116,9 @@ export default class DebitNotes extends Component {
 
 
   saveDebit() {
+    console.log("++++++++++++++++++debitAmount++++++++++++++++"+this.state.debitAmount);
+    console.log("++++++++++++++++++payableAmount++++++++++++++++"+this.state.payableAmount);
+    if(this.state.payableAmount <= this.state.debitAmount){
     const {customerData, comments, storeId, mobileNumber, payableAmount, transactionType} = this.state;
     const obj = {
       comments: comments,
@@ -139,6 +145,9 @@ export default class DebitNotes extends Component {
       }
     });
   }
+}else{
+  toast.error("Payable Amount is greater than the Due Amount")
+}
   }
 
   savePayment = (cardAmount, referenceNumber) => {
@@ -220,8 +229,19 @@ handleValidation () {
     formIsValid = false;
     error["payableAmount"] = debitNotes_Err_Msg.payableAmount;
     }
+
     this.setState({ error: error });               
     return formIsValid;  
+  }
+  Validation (){
+    let error= {};
+    let formIsValid= true;
+    if( this.state.debitAmount <= this.state.payableAmount ){
+      error["payableAmount2"] = debitNotes_Err_Msg.payableAmount2
+    }
+    this.setState({ error: error });               
+    return formIsValid;
+
   }
   getAllLedgerLogs = () => {
     const { selectedItem } = this.state;
@@ -383,12 +403,13 @@ handleValidation () {
                         this.setState({
                           [e.target.id]: e.target.value, payableAmount: e.target.value,
 
-                        });
+                        },() =>{this.Validation()} );
                       }
                      }}
                   />
                 </div>
-                <span style={{ color: "red" }}>{this.state.error["payableAmount"]}</span>
+               <span style={{ color: "red" }}>{this.state.error["payableAmount"]}</span>
+                <span style={{ color: "red" }}>{this.state.error["payableAmount2"]}</span>
               </div>
               <div className="col-4">
               <div className="form-group">
@@ -427,7 +448,9 @@ handleValidation () {
               Cancel
             </button>
             <button
-              className="btn-unic active fs-12"
+              //className="btn-unic active fs-12"
+              className={ this.state.payableAmount <=this.state.debitAmount  ? "btn-unic active fs-12" : "btn-selection fs-12"}
+              disabled = {!(this.state.payableAmount <=this.state.debitAmount ) }
               onClick={this.saveDebit}
             >
               Save
@@ -574,15 +597,16 @@ handleValidation () {
               <tbody>
 
                 {this.state.debitData?.content?.map((items, index) => {
+                   let date = formatDate (items.createdDate);
                   return (
                     <tr key={index}>
-                      <td className="col-1 underline geeks">{items.customerId}</td>
+                      <td className="col-1">{items.customerId}</td>
                       <td className="col-2">{items.customerName}</td>
                       <td className="col-1">{items.storeId}</td>
-                      <td className="col-2">{items.createdDate}</td>
+                      <td className="col-2">{date}</td>
                       <td className="col-2">₹ {items.amount}</td>
                       <td className="col-2">{items.approvedBy}</td>
-                      <td className="col-2 underline geeks"><a onClick={() => this.addMore(items)}>Pay More</a></td>
+                      <td className="col-2 underline geeks"><a onClick={() => this.addMore(items)}>Pay Due</a></td>
                       <td className="col-1">
                         {/* <img src={edit} className="w-12 pb-2" />
                         <i className="icon-delete m-l-2 fs-16"></i> */}

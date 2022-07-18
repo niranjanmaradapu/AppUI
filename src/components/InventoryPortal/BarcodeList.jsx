@@ -972,7 +972,7 @@ export default class BarcodeList extends Component {
             id,
             domainType
           } = items;
-          let date = formatDate (items.originalBarcodeCreatedAt);
+          let date = formatDate (items.createdDate);
 
           return (
             <tr key={index}>

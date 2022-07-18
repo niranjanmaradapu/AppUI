@@ -11,6 +11,7 @@ import khata from "../../assets/images/khata.svg";
 import NewSaleService from "../../services/NewSaleService";
 import CustomerData from "./CustomerData";
 import Select from "react-select";
+import  PrivilegesList  from '../../commonUtils/PrivilegesList';
 import ecommerce from "../../assets/images/ecommerce.svg";
 import displayRazorpay from "../../commonUtils/PaymentGateway";
 import URMService from "../../services/URM/URMService";
@@ -140,7 +141,10 @@ export default class NewSale extends Component {
       pathFlag:false,
       isEnableProccedtoCheck: false,
       isTagCustomer:false,
-      isKathaModel:false
+      isKathaModel:false,
+      tagcustomerPrivilege: '',
+      checkpromodiscountPrivilege: '',
+      billleveldiscountPrivilege: ''
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -192,6 +196,18 @@ export default class NewSale extends Component {
     // }
 
     // this.getHsnDetails();
+    const childPrivileges =  PrivilegesList('Generate Invoice');
+    childPrivileges.then((res) => {
+      if(res) {
+        const result = res.sort((a , b) => a.id - b.id);
+        console.log(result)
+        this.setState({
+          tagcustomerPrivilege:  result[0],
+          checkpromodiscountPrivilege: result[1],
+          billleveldiscountPrivilege: result[2]           
+        });
+      }
+    });
     this.getPath();
     this.keyBinds();
   }
@@ -2350,17 +2366,19 @@ export default class NewSale extends Component {
 
                     <div className="col-12 col-sm-9 scaling-center mt-4 text-right">
 
-                      <button
+                      {/* <button
                         type="button"
                         className={"m-r-2  scaling-mb " + (this.state.isTagCustomer ? " btn-unic btn-disable" : " btn-unic active")}
                         onClick={this.toggleModal}
-                      >Tag Customer <span className="fs-10">(Alt+t)</span> </button>
-                      <button
+                      >Tag Customer <span className="fs-10">(Alt+t)</span> </button> */}
+                      <button className={(this.state.isTagCustomer || this.state.tagcustomerPrivilege?.isEnabeld ? "m-r-2  scaling-mb active" : "m-r-2  scaling-mb btn-disable")} disabled={!this.state.tagcustomerPrivilege?.isEnabeld ||this.state.isTagCustomer} onClick={this.toggleModal} >Tag Customer <span className="fs-10">(Alt+t)</span></button>
+                      {/* <button
                         className={" m-r-2 scaling-mb " + (this.state.isBillLevel ? "btn-unic btn-disable" : "btn-unic active")}
                         onClick={this.showDiscount}
                         disabled={(this.state.isBillLevel )}
-                        >Bill Level Discount <span className="fs-10">(Alt+b)</span></button>
-                        <button
+                        >Bill Level Discount <span className="fs-10">(Alt+b)</span></button> */}
+                      <button className={(this.state.isBillLevel || this.state.checkpromodiscountPrivilege?.isEnabeld ? " m-r-2 scaling-mb active" : " m-r-2 scaling-mb btn-disable")} disabled={!this.state.checkpromodiscountPrivilege?.isEnabeld || this.state.isBillLevel } onClick={this.showDiscount}  >Bill Level Discount <span className="fs-10">(Alt+b)</span></button>
+                        {/* <button
                         type="button"
                        className="btn-unic active scaling-mb"
                       //  className={" m-r-2 scaling-mb " + (this.state.isCheckPromo ? "btn-unic btn-disable" : "btn-unic active")}
@@ -2368,7 +2386,8 @@ export default class NewSale extends Component {
                         onClick={this.invoiceLevelCheckPromo}
 
                         > Check Promo Discount <span className="fs-10">(Alt+k)</span>
-                        </button>
+                        </button> */}
+                         <button className={(this.state.isCheckPromo || this.state.billleveldiscountPrivilege?.isEnabeld ? "m-r-2 scaling-mb active" : "m-r-2 scaling-mb btn-disable")} disabled={!this.state.billleveldiscountPrivilege?.isEnabeld || this.state.this.state.isCheckPromo } onClick={this.invoiceLevelCheckPromo}  >Bill Level Discount <span className="fs-10">(Alt+b)</span></button>
 
                     </div>
 

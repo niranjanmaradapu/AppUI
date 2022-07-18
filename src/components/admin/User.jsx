@@ -659,6 +659,7 @@ export default class User extends Component {
     }
 
     setStoresList(e, value, storeName) {
+        console.log(value);
         if (e.target.checked) {
            this.state.storesList[value].isCheck = e.target.checked;
            const obj = {

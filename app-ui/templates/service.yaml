@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "app-ui.fullname" . }}
-  #annotations: 
-     "service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout": "7200"
+  annotations: 
+    "service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout": "7200"
   labels:
     {{- include "app-ui.labels" . | nindent 4 }}
 spec:

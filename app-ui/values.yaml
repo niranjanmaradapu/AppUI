@@ -57,7 +57,7 @@ ingress:
   tls:
     - secretName: tls-secret
       hosts:
-        - *.easyretailworld.com
+        - easyretailworld.com
 
 resources:
   limits:

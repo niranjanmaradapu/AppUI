@@ -2387,7 +2387,7 @@ export default class NewSale extends Component {
 
                         > Check Promo Discount <span className="fs-10">(Alt+k)</span>
                         </button> */}
-                         <button className={(this.state.isCheckPromo || this.state.billleveldiscountPrivilege?.isEnabeld ? "m-r-2 scaling-mb active" : "m-r-2 scaling-mb btn-disable")} disabled={!this.state.billleveldiscountPrivilege?.isEnabeld || this.state.this.state.isCheckPromo } onClick={this.invoiceLevelCheckPromo}  >Bill Level Discount <span className="fs-10">(Alt+b)</span></button>
+                         <button className={(this.state.isCheckPromo || this.state.billleveldiscountPrivilege?.isEnabeld ? "m-r-2 scaling-mb active" : "m-r-2 scaling-mb btn-disable")} disabled={!this.state.billleveldiscountPrivilege?.isEnabeld ||this.state.isCheckPromo } onClick={this.invoiceLevelCheckPromo}  >Bill Level Discount <span className="fs-10">(Alt+b)</span></button>
 
                     </div>
 

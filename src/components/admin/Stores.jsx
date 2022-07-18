@@ -433,14 +433,9 @@ export default class Stores extends Component {
                       <button className="btn-active">Active</button> : 
                       <button className="btn-inactive">Inactive</button>}
                     </td>
-     {this.state.addEditPrevilige?.isEnabeld ? <td className="col-1">
-        <img src={edit} className="w-12 m-r-2 pb-2" 
-                        onClick={(e) => this.editStore(items)} />
-                        
-                        {/* <i className="icon-delete"onClick={(e) => this.deleteStore(items)}></i> */}
-                    </td> :<td className="col-1">
-        <img src={edit} className="w-12 m-r-2 pb-2" />
-                    </td> }
+                    {this.state.isConfigUser === "false" &&  <td className="col-1">
+                        {this.state.addEditPrevilige?.isEnabeld ? <img src={edit} className="w-12 m-r-2 pb-2"  onClick={(e) => this.editStore(items)} /> : <img src={edit} className="w-12 m-r-2 pb-2"  />}</td>  }
+                    {this.state.isConfigUser === "true" && <td className="col-1"> <img src={edit} className="w-12 m-r-2 pb-2"  onClick={(e) => this.editStore(items)} /> </td>}
                 </tr>
 
             );

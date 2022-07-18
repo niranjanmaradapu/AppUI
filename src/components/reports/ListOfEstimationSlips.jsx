@@ -82,13 +82,13 @@ export default class ListOfEstimationSlips extends Component {
   getEstimationSlip(pageNumber) {
     console.log("pageNumber",pageNumber)
     const obj = {
-      dateFrom: this.state.dateFrom ? this.state.dateFrom : undefined,
-      dateTo: this.state.dateTo ? this.state.dateTo : undefined,
-      status: this.state.status ? this.state.status : undefined,
-      barcode: this.state.barcode ? this.state.barcode : undefined,
-      dsNumber: this.state.dsNumber ? this.state.dsNumber : undefined,
+      dateFrom: this.state.dateFrom ? this.state.dateFrom : "",
+      dateTo: this.state.dateTo ? this.state.dateTo : "",
+      status: this.state.status ? this.state.status : null,
+      barcode: this.state.barcode ? (this.state.barcode).trim() : "",
+      dsNumber: this.state.dsNumber ? (this.state.dsNumber).trim() : "",
       // domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
-      storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
+      storeId: this.state.storeId ? parseInt(this.state.storeId) : "",
     };
 
     ListOfEstimationSlipsService.getEstimationSlips(obj,pageNumber).then((res) => {

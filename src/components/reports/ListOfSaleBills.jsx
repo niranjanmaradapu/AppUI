@@ -87,8 +87,8 @@ clearSearch(){
       dateTo: this.state.dateTo ? this.state.dateTo : undefined,
       status: this.state.status ? this.state.status : undefined,
       // createdBy: this.state.createdBy ? this.state.createdBy : undefined,
-      rtNumber: this.state.rtNumber ? this.state.rtNumber : undefined,
-      barcode: this.state.barcode ? this.state.barcode : undefined,
+      rtNumber: this.state.rtNumber ? (this.state.rtNumber).trim() : undefined,
+      barcode: this.state.barcode ? (this.state.barcode).trim() : undefined,
       // domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };
@@ -215,10 +215,11 @@ clearSearch(){
           customerName,
           mobileNumber,
           } = items;
+          let date = formatDate (items.createdDate);
         return (
           <tr key={index}>
             <td className="col-2">{rtNo}</td>
-            <td className="col-2">{createdDate}</td>
+            <td className="col-2">{date}</td>
             <td className="col-1">{createdBy}</td>
             <td className="col-1">{amount}</td>
             <td className="col-2">{barCode}</td>

@@ -86,9 +86,9 @@ export default class SalesReport extends Component {
         : undefined,
       billStatus: this.state.billStatus ? this.state.billStatus : undefined,
       invoiceNumber: this.state.invoiceNumber
-        ? this.state.invoiceNumber
+        ? (this.state.invoiceNumber).trim()
         : undefined,
-      empId: this.state.empId ? this.state.empId : undefined,
+      empId: this.state.empId ? (this.state.empId).trim() : undefined,
       // domainId: this.state.domainId ? parseInt(this.state.domainId) : undefined,
       storeId: this.state.storeId ? parseInt(this.state.storeId) : undefined,
     };

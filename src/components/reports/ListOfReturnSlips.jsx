@@ -82,14 +82,15 @@ clearSearch(){
       barcodeTextileId: this.state.barcodeTextileId
         ? parseInt(this.state.barcodeTextileId)
         : undefined,
-      barcode: this.state.barcode ? this.state.barcode : null,
+      barcode:this.state.barcode?(this.state.barcode).trim():null,
       // storeName: this.state.store ? this.state.store : undefined,
       storeId:
         this.state.storeId && this.state.storeId != 0
           ? this.state.storeId
           : "",
+      empId:this.state.empId?(this.state.empId).trim():undefined,
 
-      empId: this.state.empId ? this.state.empId : undefined,
+      // empId: this.state.empId ? (this.state.empId).trim() : undefined,
       itemMrpLessThan: this.state.itemMrpLessThan
         ? this.state.itemMrpLessThan
         : undefined,

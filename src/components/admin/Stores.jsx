@@ -53,7 +53,8 @@ export default class Stores extends Component {
                 { value: true, label: 'Active' },
                 { value:  false, label: 'Inactive' },
             ],
-            storeStatus: true
+            storeStatus: true,
+            isConfigUser: ''
         }
 
         this.showStores = this.showStores.bind(this);
@@ -126,7 +127,9 @@ export default class Stores extends Component {
         const user = JSON.parse(sessionStorage.getItem('user'));
         this.setState({loggedUser: user["custom:userId"]});
         if (user) {
-            this.setState({ clientId: user["custom:clientId1"], userName: user["cognito:username"] }, () => { this.getAllStores(); })
+            this.setState({ clientId: user["custom:clientId1"],
+            isConfigUser: user['custom:isConfigUser'],
+             userName: user["cognito:username"] }, () => { this.getAllStores(); })
             this.getStates();
         }
 
@@ -903,7 +906,8 @@ export default class Stores extends Component {
                         <button className="btn-clear m-r-2" onClick={this.getAllStores}>Clear </button>
                         {/* <button className={this.state.addStorePrevilige?.isEnabeld ? "btn-unic-search active" : "btn-unic-search btn-disable"}  
                          disabled={!this.state.addStorePrevilige?.isEnabeld} */}
-               <button className="btn-unic-search active"onClick={this.showStores}><i className="icon-store"></i>Add Store</button>
+                        {this.state.isConfigUser === "true" ? <button className="btn-unic-search active"onClick={this.showStores}><i className="icon-store"></i>Add Store</button> : 
+                        <button disabled={!this.state.addStorePrevilige?.isEnabeld} className={this.state.addStorePrevilige?.isEnabeld ? "btn-unic-search active" : "btn-unic-search btn-disable"} onClick={this.showStores}><i className="icon-store"></i>Add Store</button>}
                     </div>
                     <div>
                         {this.getStoreTable()}

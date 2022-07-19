@@ -20,6 +20,7 @@ import axios from 'axios';
 import { BASE_URL } from "../../commonUtils/Base";
 import { NEW_SALE_URL } from "../../commonUtils/ApiConstants";
 import PrinterStatusBill from "../../commonUtils/PrintService";
+import { toHaveDisplayValue } from "@testing-library/jest-dom/dist/matchers";
 
 
 
@@ -31,6 +32,7 @@ export default class NewSale extends Component {
       isSubOpen: false,
       dsNumber: "",
       manualDisc: 0,
+      rtAmount:0,
       isCash: false,
       isCard: false,
       btnDisabled: true,
@@ -57,6 +59,7 @@ export default class NewSale extends Component {
       finalList: [],
       barCodeList: [],
       mobilenumber: "",
+      rtNumber:"",
       customerName: "",
       gender: "",
       customerEmail: "",
@@ -177,6 +180,7 @@ export default class NewSale extends Component {
     this.getKathaModel=this.getKathaModel.bind(this);
     this.hideKathaModel=this.hideKathaModel.bind(this);
     this.confirmKathaModel = this.confirmKathaModel.bind(this);
+    this.applyRt= this.applyRt.bind(this);
 
 
     //this.handler = this.handler.bind(this);
@@ -404,6 +408,7 @@ export default class NewSale extends Component {
           this.setState({ grandNetAmount: this.state.balanceCreditAmount })
         }
       });
+      
   }
 
 
@@ -519,6 +524,7 @@ export default class NewSale extends Component {
 
   saveCCAmount() {
 
+    
     this.state.discType = this.state.dropValue;
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
@@ -546,6 +552,7 @@ export default class NewSale extends Component {
         "discType": this.state.discType,
 
         "approvedBy": null,
+       
 
         "netPayableAmount": this.state.netPayableAmount,
 
@@ -661,7 +668,7 @@ export default class NewSale extends Component {
           this.setState({ grandNetAmount: this.state.balanceCreditAmount })
         }
       });
-
+     
 
     this.savePayment();
     // this.setState({
@@ -688,6 +695,7 @@ export default class NewSale extends Component {
       }
     });
   }
+  
 
   hideCardModal = () => {
     this.setState({
@@ -1254,6 +1262,7 @@ export default class NewSale extends Component {
     if (this.state.barCodeList.length > 0 || this.state.barCodeRetailList.length > 0) {
       this.setState({ isPayment: false });
     }
+    
 
     this.state.grandReceivedAmount =
       this.state.netPayableAmount + this.state.taxAmount;
@@ -1284,6 +1293,7 @@ export default class NewSale extends Component {
       this.setState({ isPayment: true});
       this.setState({isCash: false});
     }
+   
     console.log(this.state.returnCash);
     // if (this.state.returnCash >= 1 || this.state.returnCash === 0) {
     //   this.setState({isCash: false});
@@ -1324,6 +1334,7 @@ export default class NewSale extends Component {
   }
 
   createInvoice() {
+   
     this.setState({ netCardPayment: this.state.grandNetAmount })
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
@@ -1368,7 +1379,8 @@ export default class NewSale extends Component {
         "createdBy": this.state.createdBy,
         "recievedAmount": this.state.cashAmount,
         "returnAmount": this.state.returnCash,
-        "paymentAmountType": this.state.paymentType
+        "paymentAmountType": this.state.paymentType,
+        "returnSlipNumber" : this.state.rtNumber
 
       }
 
@@ -1664,11 +1676,11 @@ export default class NewSale extends Component {
                   <tr className="m-0 p-0">
                     <th className="col-1">S.NO</th>
                     <th className="col-2">Item</th>
-                    <th className="col-2">Qty</th>
+                    <th className="col-1">Qty</th>
                     <th className="col-2">MRP</th>
-                    <th className="col-2">Discount</th>
-                    <th className="col-1">Sgst</th>
-                    <th className="col-1">Cgst</th>
+                    <th className="col-1">Discount</th>
+                    <th className="col-2">Sgst</th>
+                    <th className="col-2">Cgst</th>
                     <th className="col-2">Gross</th>
                   </tr>
                 </thead>
@@ -1682,11 +1694,11 @@ export default class NewSale extends Component {
                           {index + 1}
                         </td>
                         <td className="col-2"><p>#{items.barCode}</p></td>
-                        <td className="col-2">{items.quantity}</td>
+                        <td className="col-1">{items.quantity}</td>
                         <td className="col-2">₹ {items.itemPrice}</td>
-                        <td className="col-2">₹ {items.discount}</td>
-                        <td className="col-1">₹ {items.sgst}</td>
-                        <td className="col-1">₹ {items.cgst}</td>
+                        <td className="col-1">₹ {items.discount}</td>
+                        <td className="col-2">₹ {items.sgst}</td>
+                        <td className="col-2">₹ {items.cgst}</td>
                         <td className="col-2">₹ {items.grossValue}</td>
                       </tr>
                     );
@@ -2371,23 +2383,21 @@ export default class NewSale extends Component {
                         className={"m-r-2  scaling-mb " + (this.state.isTagCustomer ? " btn-unic btn-disable" : " btn-unic active")}
                         onClick={this.toggleModal}
                       >Tag Customer <span className="fs-10">(Alt+t)</span> </button> */}
-                      <button className={(this.state.isTagCustomer || this.state.tagcustomerPrivilege?.isEnabeld ? "m-r-2  scaling-mb active" : "m-r-2  scaling-mb btn-disable")} disabled={!this.state.tagcustomerPrivilege?.isEnabeld ||this.state.isTagCustomer} onClick={this.toggleModal} >Tag Customer <span className="fs-10">(Alt+t)</span></button>
+                      <button className={(this.state.isTagCustomer || this.state.tagcustomerPrivilege?.isEnabeld ? "m-r-2 btn-unic  scaling-mb active" : "m-r-2  scaling-mb btn-disable")} 
+                      disabled={!this.state.tagcustomerPrivilege?.isEnabeld ||this.state.isTagCustomer} onClick={this.toggleModal}
+                       >Tag Customer <span className="fs-10">(Alt+t)</span></button>
                       {/* <button
                         className={" m-r-2 scaling-mb " + (this.state.isBillLevel ? "btn-unic btn-disable" : "btn-unic active")}
                         onClick={this.showDiscount}
                         disabled={(this.state.isBillLevel )}
                         >Bill Level Discount <span className="fs-10">(Alt+b)</span></button> */}
-                      <button className={(this.state.isBillLevel || this.state.checkpromodiscountPrivilege?.isEnabeld ? " m-r-2 scaling-mb active" : " m-r-2 scaling-mb btn-disable")} disabled={!this.state.checkpromodiscountPrivilege?.isEnabeld || this.state.isBillLevel } onClick={this.showDiscount}  >Bill Level Discount <span className="fs-10">(Alt+b)</span></button>
-                        {/* <button
-                        type="button"
-                       className="btn-unic active scaling-mb"
-                      //  className={" m-r-2 scaling-mb " + (this.state.isCheckPromo ? "btn-unic btn-disable" : "btn-unic active")}
-                      //  disabled={(this.state.isCheckPromo)}
-                        onClick={this.invoiceLevelCheckPromo}
-
-                        > Check Promo Discount <span className="fs-10">(Alt+k)</span>
-                        </button> */}
-                         <button className={(this.state.isCheckPromo || this.state.billleveldiscountPrivilege?.isEnabeld ? "m-r-2 scaling-mb active" : "m-r-2 scaling-mb btn-disable")} disabled={!this.state.billleveldiscountPrivilege?.isEnabeld ||this.state.isCheckPromo } onClick={this.invoiceLevelCheckPromo}  >Bill Level Discount <span className="fs-10">(Alt+b)</span></button>
+                      <button className={(this.state.isBillLevel || this.state.checkpromodiscountPrivilege?.isEnabeld ? "btn-unic m-r-2 scaling-mb active" : " m-r-2 scaling-mb btn-disable")}
+                       disabled={!this.state.checkpromodiscountPrivilege?.isEnabeld || this.state.isBillLevel } onClick={this.showDiscount}
+                         >Bill Level Discount <span className="fs-10">(Alt+b)</span></button>
+                        
+                         <button className={(this.state.isCheckPromo || this.state.billleveldiscountPrivilege?.isEnabeld ? "btn-unic m-r-2 scaling-mb active" : "m-r-2 scaling-mb btn-disable")}
+                          disabled={!this.state.billleveldiscountPrivilege?.isEnabeld ||this.state.isCheckPromo } onClick={this.invoiceLevelCheckPromo}  
+                          >Check Promo Discount <span className="fs-10">(Alt+b)</span></button>
 
                     </div>
 
@@ -2711,6 +2721,14 @@ export default class NewSale extends Component {
                           <label className="font-bold text-orange">₹ {this.state.returnCash}</label>
                         </div>
                       </div>
+                      <div className="row">
+                        <div className="col-5 p-r-0 pt-1">
+                          <label className="text-orange">RT Amount</label>
+                        </div>
+                        <div className="col-7 p-l-0 pt-1 text-right">
+                          <label className="font-bold text-orange">₹ {this.state.rtAmount}</label>
+                        </div>
+                      </div>
                       </div>
 
                     )
@@ -2738,8 +2756,9 @@ export default class NewSale extends Component {
                   this.state.grandNetAmount > 0 && (
                     <div>
                       <div className="form-group apply_btn">
-                        <button type="button" className=""> Apply</button>
-                        <input type="text" className="form-control" placeholder="ENTER RT NUMBER" />
+                        <button type="button" className=""onClick={this.applyRt}> Apply</button>
+                        <input type="text" className="form-control" placeholder="ENTER RT NUMBER" value={this.state.rtNumber} 
+                        onChange={(e) => this.setState({ rtNumber: e.target.value })}/>
                       </div>
                       {
                         this.state.isCouponApplied && (
@@ -2755,8 +2774,6 @@ export default class NewSale extends Component {
                     </div>
                   )
                 }
-
-
 
 
 

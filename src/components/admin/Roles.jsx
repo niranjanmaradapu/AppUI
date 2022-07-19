@@ -965,8 +965,8 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
             return (
                 <tr className="">
                    <td className="col-3 geeks">{name}</td>
-                    <td className="col-5">{description}</td>
-                    <td className="col-5">
+                    <td className="col-4">{description}</td>
+                    <td className="col-4">
                     {this.state.selectedChilds.length > 0 && this.state.selectedChilds.map((itm, ind) => {                    
                      return  (
                         itm.subPrivillageId ===items.id  && <ul>
@@ -976,6 +976,7 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                       </ul>)
                     })}
                     </td>
+                    <td className='col-1'></td>
                 </tr>
             );
         });
@@ -997,8 +998,8 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
             return (
                 <tr className="">
                    <td className="col-3 geeks">{name}</td>
-                    <td className="col-5">{description}</td>
-                    <td className="col-5">
+                    <td className="col-4">{description}</td>
+                    <td className="col-4">
                     {this.state.mobileSelectedChilds.length > 0 && this.state.mobileSelectedChilds.map((itm, ind) => {                    
                      return  (
                         itm.subPrivillageId ===items.id  && <ul>
@@ -1008,6 +1009,7 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                       </ul>)
                     })}
                     </td>
+                    <td className='col-1'></td>
                 </tr>
             );
         });
@@ -1023,9 +1025,13 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                     <thead>
                         <tr className="">
                             <th className="col-3">Privileges</th>
-                            <th className="col-3">Description</th>
-                            <th className="col-3">Approved Privileges</th>
-                            {this.state.isMobileExpanded ? <i onClick={this.toggleMobileClass.bind(this, '')}>{this.moreLessMobile()}</i> : <i onClick={this.toggleMobileClass.bind(this, 'Mobile')}>{this.moreLess()}</i>}
+                            <th className="col-4">Description</th>
+                            <th className="col-4">Approved Privileges</th>
+                            <th className='col-1 cursor'>{this.state.isMobileExpanded ? <i className='' onClick={this.toggleMobileClass.bind(this, '')}>
+                                {this.moreLessMobile()}</i> : <i className='' onClick={this.toggleMobileClass.bind(this, 'Mobile')}>
+                                    {this.moreLess()}</i>}
+                            </th>
+                            
                         </tr>
                     </thead>
                 </table>}
@@ -1050,14 +1056,16 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                     <thead>
                         <tr className="">
                             <th className="col-3">Privileges</th>
-                            <th className="col-3">Description</th>
-                            <th className="col-3">Approved Privileges</th>
-                            {this.state.isWebExpanded ? <i onClick={this.toggleClass.bind(this, '')}>{this.moreLess()}</i> : <i onClick={this.toggleClass.bind(this, 'Web')}>{this.moreLess()}</i>}
+                            <th className="col-4">Description</th>
+                            <th className="col-4">Approved Privileges</th>
+                            <th className='col-1 cursor'>
+                            {this.state.isWebExpanded ? <i className='' onClick={this.toggleClass.bind(this, '')}>{this.moreLess()}</i> : <i className='pt-2' onClick={this.toggleClass.bind(this, 'Web')}>{this.moreLess()}</i>}
+                            </th>
                         </tr>
                     </thead>
                 </table>
                 <Collapse isOpened={this.state.activePrevilegeType === 'Web'}>
-                <table className="table table-borderless gfg mb-0 mt-1">
+                <table className="table table-borderless mb-0">
                     <tbody>
                         {this.getAddedRoles()}
                     </tbody>
@@ -1104,7 +1112,7 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
         } else {
           return (
             <span>
-              <img src={downarrow} className="w-12 pb-2" />
+              <img src={downarrow} className="w-12 pb-1" />
             </span>
           );
         }
@@ -1113,13 +1121,13 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
         if (this.state.activePrevilegeType === 'Mobile') {
           return (
             <span>
-              <img src={uparrow} className="w-12 pb-2" />
+              <img src={uparrow} className="w-12 pb-1" />
             </span>
           );
         } else {
           return (
             <span>
-              <img src={downarrow} className="w-12 pb-2" />
+              <img src={downarrow} className="w-12 pb-1" />
             </span>
           );
         }

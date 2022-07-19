@@ -826,7 +826,7 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
     getPrivilegesList() {
         return this.state.productsList.length > 0 && this.state.productsList.map((node, i) => {
             const parentName = node.name;
-            const label = <span className="node">{parentName}</span>
+            const label = <span className="node font-bold">{parentName}</span>
             return (
                 <TreeView
                     key={parentName + "|" + i}
@@ -835,13 +835,17 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                 > {
                     node.subPrivileges && node.subPrivileges.length > 0 && node.subPrivileges.map((sub, ind) => {
                         const subPrivillage = sub.name;
-                        const label =  <span> <span className="node">{subPrivillage}</span>
-                        <span className="cursor">
-                          <input type="checkbox" className=" cursor form-check-input filled-in mt-1" id="remember{{ind}}"
-                            onChange={(e) => this.setSubPrivileges(e, ind, node, sub)} name="child{{ind}}" 
-                            checked={sub.checked}
-                          />
-                        </span>
+                       
+                        const label =  <span>
+                            
+                            <span className="cursor">
+                        <input type="checkbox" className=" cursor form-check-input filled-in fs-14" id="remember{{ind}}"
+                          onChange={(e) => this.setSubPrivileges(e, ind, node, sub)} name="child{{ind}}" 
+                          checked={sub.checked}
+                        />
+                      </span>
+                             <span className="node"> {subPrivillage}</span>
+                       
                         </span>
                         return (
                             <TreeView
@@ -853,11 +857,11 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                                     return (
 
                             <div>
-                                <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-15">
+                                <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-14">
                                     {
                                         child.name && (
                                             <div className="cursor">
-                                                <input type="checkbox" className=" cursor form-check-input filled-in mt-1" id="remember{{idx}}"
+                                                <input type="checkbox" className=" cursor form-check-input filled-in" id="remember{{idx}}"
                                                     name="child{{idx}}" checked={child.checked}
                                                     onChange={(e) => this.setPrivileges(e, idx, node, sub, child)} />
                                                 <label className="cursor form-check-label" htmlFor="remember">  {child.name}</label>
@@ -887,7 +891,7 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
     getMobilePrivilegesList() {
         return this.state.mobileProductsList.length > 0 && this.state.mobileProductsList.map((node, i) => {
             const parentName = node.name;
-            const label = <span className="node">{parentName}</span>
+            const label = <span className="node font-bold">{parentName}</span>
             return (
                 <TreeView
                     key={parentName + "|" + i}
@@ -896,13 +900,16 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                 > {
                     node.subPrivileges && node.subPrivileges.length > 0 && node.subPrivileges.map((sub, ind) => {
                         const subPrivillage = sub.name;
-                        const label = <span> <span className="node">{subPrivillage}</span>
-                        <span className="cursor">
-                          <input type="checkbox" className=" cursor form-check-input filled-in mt-1" id="remember{{ind}}"
+                        const label = <span>
+                            
+                            <span className="cursor">
+                          <input type="checkbox" className=" cursor form-check-input filled-in fs-14" id="remember{{ind}}"
                             onChange={(e) => this.setMobileSubPrivileges(e, ind, node, sub)} name="child{{ind}}" 
                             checked={sub.checked}
                           />
                         </span>
+                             <span className="node"> {subPrivillage}</span>
+                       
                         </span>
                         return (
                             <TreeView
@@ -914,11 +921,11 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                                     return (
 
                             <div>
-                                <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-15">
+                                <div className="form-check checkbox-rounded checkbox-living-coral-filled pointer fs-14">
                                     {
                                         child.name && (
                                             <div className="cursor">
-                                                <input type="checkbox" className=" cursor form-check-input filled-in mt-1" id="remember{{idx}}"
+                                                <input type="checkbox" className=" cursor form-check-input filled-in" id="remember{{idx}}"
                                                     name="child{{idx}}" checked={child.checked}
                                                     onChange={(e) => this.setMobilePrivileges(e, idx, node, sub, child)} />
                                                 <label className="cursor form-check-label" htmlFor="remember">  {child.name}</label>
@@ -1308,18 +1315,26 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                             <table className="table table-borderless mb-0">
                                 <thead>
                                     <tr className="m-0 p-0">
-                                    <th>Privilege Name</th>
+                                    <th className='col-6'>WEB</th>
+                                    <th className='col-6'>MOBILE</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                 <div style={{ maxWidth: '1000px', width: '50%', float: 'left'}}>
-                                  {this.state.productsList.length > 0 && <h3>Web</h3>}
-                                     {this.getPrivilegesList()}
-                                  </div>
-                                  <div style={{maxWidth: '1000px', width: '50%', float: 'right'}}>
-                                    {this.state.mobileProductsList.length > 0 && <h3>Mobile</h3>}
-                                    {this.getMobilePrivilegesList()}
-                                  </div>
+                                    <tr>
+                                    <td className='col-6'>
+                                        <div>
+                                        {this.state.productsList.length > 0}
+                                            {this.getPrivilegesList()}
+                                      </div>
+                                     </td>
+                                        <td className='col-6'>
+                                            <div>
+                                                {this.state.mobileProductsList.length > 0 }
+                                                {this.getMobilePrivilegesList()}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                                               
                                 </tbody>
                             </table>
                         </div>

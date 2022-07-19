@@ -435,3 +435,14 @@ textarea {
         overflow: hidden !important;
     }
 }
+.tree-view_children {
+    margin-left: 16px;
+    padding-left: 6%;
+    &:first-child{
+        margin-left: 10px;
+    padding-left: 3%;
+    }
+}
+.tree-view_item {
+    height: 30px;
+}

@@ -180,7 +180,7 @@ export default class NewSale extends Component {
     this.getKathaModel=this.getKathaModel.bind(this);
     this.hideKathaModel=this.hideKathaModel.bind(this);
     this.confirmKathaModel = this.confirmKathaModel.bind(this);
-    this.applyRt= this.applyRt.bind(this);
+    // this.applyRt= this.applyRt.bind(this);
 
 
     //this.handler = this.handler.bind(this);
@@ -488,6 +488,86 @@ export default class NewSale extends Component {
 
   }
   confirmCreditModel() {
+
+    if (this.state.creditAmount < this.state.grandNetAmount) {
+      const amount = this.state.grandNetAmount - this.state.creditAmount;
+      this.setState({ isPayment: true, isreturnCreditCash: true, balanceCreditAmount: amount, grandNetAmount: amount }, () => {
+        const obj = {
+
+          "paymentType": "PKTADVANCE",
+          "paymentAmount": this.state.creditAmount
+        }
+
+        this.state.paymentType.push(obj);
+      })
+    } else {
+      this.setState({ isPayment: false })
+      const obj = {
+
+        "paymentType": "PKTADVANCE",
+        "paymentAmount": this.state.grandNetAmount
+      }
+
+      this.state.paymentType.push(obj);
+    }
+    this.setState({cashAmount:this.state.grandNetAmount , payingAmount:this.state.grandNetAmount})
+    const grandAmount = this.state.grandNetAmount >= this.state.payCreditAmount ? this.state.grandNetAmount - this.state.payCreditAmount : 0
+    this.setState({isCreditAmount: true, grandNetAmount:grandAmount});
+
+    this.hideCreditModel();
+
+  }
+
+  hideCCModel() {
+    this.setState({ isCCModel: false });
+  }
+
+  saveCCAmount() {
+
+    if(this.state.isRTApplied){
+      const obj =
+      { "paymentAmountType": [{
+        
+         
+        "paymentType": "RTSlip",
+          "paymentAmount": this.state.rtAmount
+        
+      }]
+    }
+      this.state.paymentType.push(obj);
+      if(this.state.rtAmount < this.state.grandNetAmount){
+        if(this.state.isCCModel){
+          
+         const obj={ "paymentAmountType": [
+          
+            {
+              "paymentType": "Cash",
+              "paymentAmount": this.state.ccCollectedCash
+            },
+            {
+              "paymentType": "Card",
+              "paymentAmount": this.state.ccCardCash
+            }
+        
+          ]
+        }
+        console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+          this.state.paymentType.push(obj);
+  
+        }
+        if(this.state.isCard){
+          const obj={ "paymentAmountType":[
+         {
+            "paymentType": "Card",
+            "paymentAmount": this.state.ccCardCash
+          }
+        ]}
+          this.state.paymentType.push(obj);
+        }
+      }
+
+      this.setState({netPayableAmount : this.state.grandNetAmount + this.state.rtAmount})
+    }
     this.state.discType = this.state.dropValue;
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
@@ -631,7 +711,9 @@ export default class NewSale extends Component {
           this.setState({ grandNetAmount: this.state.balanceCreditAmount })
         }
       });
-     
+      if(this.state.isRTApplied){
+        this.setState({payingAmount: this.state.grandNetAmount + this.state.rtAmount});
+      }
 
 
     this.savePayment();
@@ -659,7 +741,24 @@ export default class NewSale extends Component {
       }
     });
   }
- 
+  // applyRt(){
+  //   const storeId = sessionStorage.getItem("storeId");
+  //   NewSaleService.getRTDetails(this.state.rtNumber, storeId).then(res => {
+  //     console.log("___________res______________"+JSON.stringify(res.data));
+  //     let grandTotal = this.state.grandNetAmount;
+  //     if (grandTotal >= res.data.result.totalAmount) {
+  //       grandTotal = grandTotal - res.data.result.totalAmount;
+  //       this.setState({ grandNetAmount: grandTotal }, () => {
+  //         this.setState({ isRTApplied: true, rtAmount:res.data.result.totalAmount});
+  //         });
+        
+  //     }else if(grandTotal <= res.data.result.totalAmount)  {
+  //       toast.error("Please purchase greater than Return amount")
+  //     }
+
+
+  //   });
+  // }
 
   hideCardModal = () => {
     this.setState({
@@ -1257,7 +1356,13 @@ export default class NewSale extends Component {
       this.setState({ isPayment: true});
       this.setState({isCash: false});
     }
-   
+    if(this.state.isRTApplied){
+      this.setState({payingAmount: this.state.grandNetAmount+this.state.rtAmount})
+      console.log("+++++++++++payingAmount+++++++++++++"+this.state.payingAmount)
+      console.log("+++++++++++RTAmount+++++++++++++"+this.state.rtAmount)
+      console.log("+++++++++++grandNetAmount+++++++++++++"+this.state.grandNetAmount)
+
+    }
     console.log(this.state.returnCash);
     // if (this.state.returnCash >= 1 || this.state.returnCash === 0) {
     //   this.setState({isCash: false});
@@ -1298,7 +1403,28 @@ export default class NewSale extends Component {
   }
 
   createInvoice() {
-  
+    if(this.state.isRTApplied){
+      const obj = {
+
+        "paymentType": "RTSlip",
+        "paymentAmount": this.state.rtAmount
+      }
+      this.state.paymentType.push(obj);
+      if(this.state.rtAmount < this.state.grandNetAmount){
+
+      
+      if(this.state.isCash){
+        
+        const obj = {
+          "paymentType": "Cash",
+           "paymentAmount": this.state.cashAmount
+        }
+        this.state.paymentType.push(obj);
+
+      }
+     
+    }
+    }
     this.setState({ netCardPayment: this.state.grandNetAmount })
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");

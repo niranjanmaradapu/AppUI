@@ -1312,7 +1312,47 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                     <ModalHeader>Privileges </ModalHeader>
                     <ModalBody>
                         <div className="maincontent p-0 mb-0">
-                            <table className="table table-borderless mb-0">
+                            <div className='row'>
+                                <div className='col-sm-6'>
+                                <table className="table table-borderless mb-0">
+                                    <thead>
+                                    <tr className="m-0 p-0">
+                                    <th className='col-12'>WEB</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td className='col-12'>
+                                        <div>
+                                        {this.state.productsList.length > 0}
+                                            {this.getPrivilegesList()}
+                                      </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                                <div className='col-sm-6'>
+                                <table className="table table-borderless mb-0">
+                                    <thead>
+                                    <tr className="m-0 p-0">
+                                    <th className='col-12'>MOBILE</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td className='col-12'>
+                                        <div>
+                                                {this.state.mobileProductsList.length > 0 }
+                                                {this.getMobilePrivilegesList()}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>
+                            {/* <table className="table table-borderless mb-0">
                                 <thead>
                                     <tr className="m-0 p-0">
                                     <th className='col-6'>WEB</th>
@@ -1336,7 +1376,7 @@ setSubPrivileges(e, idx, selectedNode, selectedSub) {
                                     </tr>
                                                                
                                 </tbody>
-                            </table>
+                            </table> */}
                         </div>
                     </ModalBody>
                     <ModalFooter>

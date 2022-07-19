@@ -10,6 +10,7 @@ import { stringify } from "querystring";
 import * as xlsx from "xlsx";
 import { formatDate } from "../../commonUtils/FormatDate";
 import ReactPageNation from "../../commonUtils/Pagination";
+import  PrivilegesList  from '../../commonUtils/PrivilegesList';
 import PrintBarcode from "../../commonUtils/checkPrinter";
 // import paginationFactory, {
 //   PaginationProvider,
@@ -112,6 +113,10 @@ export default class BarcodeList extends Component {
         { id: 1, label: "YES", value: "YES" },
         { id: 0, label: "NO", value: "NO" },
       ],
+      addBarcodePrivilege: '',
+      editBarcodePrivilege: '',
+      deleteBarcodePrivilege: '',
+      viewBarcodePrivilege: '',
     };
     this.addBarcode = this.addBarcode.bind(this);
     this.openBarcode = this.openBarcode.bind(this);
@@ -173,6 +178,19 @@ export default class BarcodeList extends Component {
 
 
   componentWillMount() {
+    const childPrivileges =  PrivilegesList('Barcode List');
+    childPrivileges.then((res) => {
+      if(res) {
+        const result = res.sort((a , b) => a.id - b.id);
+        console.log('+++++++++++++result+++++++++++', result);
+        this.setState({
+          addBarcodePrivilege: result[0],
+          editBarcodePrivilege: result[1],
+          deleteBarcodePrivilege: result[2],
+          viewBarcodePrivilege: result[3],
+        });
+      }
+    });
     this.state.domainDetailsObj = undefined;
     // this.state.domainDetails = JSON.parse(
     //   sessionStorage.getItem("selectedDomain")
@@ -1880,7 +1898,9 @@ export default class BarcodeList extends Component {
               >
                 Clear</button>
               <button
-                className="btn-unic-redbdr mt-2 m-r-2"
+                // className="btn-unic-redbdr mt-2 m-r-2"
+                className={this.state.addBarcodePrivilege?.isEnabeld ? "btn-unic-redbdr mt-2 m-r-2" : "btn-disable mt-2 m-r-2"}
+                disabled={!this.state.addBarcodePrivilege?.isEnabeld}
                 onClick={this.openBarcode}
               >
                 <i className="icon-scan m-r-1"></i> Add Barcode

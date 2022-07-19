@@ -488,43 +488,6 @@ export default class NewSale extends Component {
 
   }
   confirmCreditModel() {
-
-    if (this.state.creditAmount < this.state.grandNetAmount) {
-      const amount = this.state.grandNetAmount - this.state.creditAmount;
-      this.setState({ isPayment: true, isreturnCreditCash: true, balanceCreditAmount: amount, grandNetAmount: amount }, () => {
-        const obj = {
-
-          "paymentType": "PKTADVANCE",
-          "paymentAmount": this.state.creditAmount
-        }
-
-        this.state.paymentType.push(obj);
-      })
-    } else {
-      this.setState({ isPayment: false })
-      const obj = {
-
-        "paymentType": "PKTADVANCE",
-        "paymentAmount": this.state.grandNetAmount
-      }
-
-      this.state.paymentType.push(obj);
-    }
-    this.setState({cashAmount:this.state.grandNetAmount , payingAmount:this.state.grandNetAmount})
-    const grandAmount = this.state.grandNetAmount >= this.state.payCreditAmount ? this.state.grandNetAmount - this.state.payCreditAmount : 0
-    this.setState({isCreditAmount: true, grandNetAmount:grandAmount});
-
-    this.hideCreditModel();
-
-  }
-
-  hideCCModel() {
-    this.setState({ isCCModel: false });
-  }
-
-  saveCCAmount() {
-
-    
     this.state.discType = this.state.dropValue;
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
@@ -670,6 +633,7 @@ export default class NewSale extends Component {
       });
      
 
+
     this.savePayment();
     // this.setState({
     //   isCardSelected: true,
@@ -695,7 +659,7 @@ export default class NewSale extends Component {
       }
     });
   }
-  
+ 
 
   hideCardModal = () => {
     this.setState({
@@ -1334,7 +1298,7 @@ export default class NewSale extends Component {
   }
 
   createInvoice() {
-   
+  
     this.setState({ netCardPayment: this.state.grandNetAmount })
     this.state.dsNumberList = this.removeDuplicates(this.state.dsNumberList, "dsNumber");
     sessionStorage.removeItem("recentSale");
@@ -2397,7 +2361,7 @@ export default class NewSale extends Component {
                         
                          <button className={(this.state.isCheckPromo || this.state.billleveldiscountPrivilege?.isEnabeld ? "btn-unic m-r-2 scaling-mb active" : "m-r-2 scaling-mb btn-disable")}
                           disabled={!this.state.billleveldiscountPrivilege?.isEnabeld ||this.state.isCheckPromo } onClick={this.invoiceLevelCheckPromo}  
-                          >Check Promo Discount <span className="fs-10">(Alt+b)</span></button>
+                          >Check Promo Discount <span className="fs-10">(Alt+k)</span></button>
 
                     </div>
 
